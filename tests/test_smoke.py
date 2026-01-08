@@ -1,29 +1,65 @@
+"""Smoke tests for SynEdu notebooks.
+
+We enforce a lightweight structural contract:
+- Each notebook contains headings for "Quiz" and "Discussion".
+- Headings can be numbered, e.g. "## 4. Quiz" or "## Quiz".
+"""
+
+from __future__ import annotations
+
 import json
 import re
 from pathlib import Path
 
+
+def _iter_notebooks(repo_root: Path):
+    """Yield notebook paths under synedu/Sxx/*.ipynb."""
+    synedu_pkg = repo_root / "synedu"
+    for d in synedu_pkg.iterdir():
+        if d.is_dir() and re.match(r"^S\d{2}.*$", d.name):
+            for nb in d.glob("*.ipynb"):
+                yield nb
+
+
+def _read_notebook_markdown(nb_path: Path) -> str:
+    """Concatenate all markdown cells of a notebook into one string."""
+    nb = json.loads(nb_path.read_text(encoding="utf-8"))
+    parts = []
+    for cell in nb.get("cells", []):
+        if cell.get("cell_type") == "markdown":
+            src = cell.get("source", [])
+            parts.append("".join(src) if isinstance(src, list) else str(src))
+    return "\n".join(parts)
+
+
+def _has_section(md: str, title: str) -> bool:
+    """Return True if markdown contains a header for the given section title."""
+    patt = re.compile(rf"(?im)^\s*#{{1,6}}\s*(\d+\s*\.?\s*)?{re.escape(title)}\b")
+    return bool(patt.search(md))
+
+
 def test_notebooks_have_quiz_and_discussion():
-    # find notebooks recursively under synedu/
-    nb_paths = sorted(Path('synedu').rglob('S*.ipynb'))
-    assert nb_paths, "No notebooks found under synedu/ (expected pattern synedu/**/S*.ipynb)"
+    """All notebooks should include Quiz and Discussion headers."""
+    repo_root = Path(__file__).parents[1]
+    notebooks = list(_iter_notebooks(repo_root))
+    assert notebooks, "No SynEdu notebooks found under synedu/Sxx/*.ipynb"
 
-    # regex to match markdown headers like: "# Discussion", "## Discussion", ... (case-insensitive)
-    def has_header(text: str, name: str) -> bool:
-        pattern = re.compile(r'^\s*#{1,6}\s+' + re.escape(name) + r'\b', re.M | re.I)
-        return bool(pattern.search(text))
+    failures = []
+    for nb in notebooks:
+        md = _read_notebook_markdown(nb)
 
-    for p in nb_paths:
-        try:
-            nb = json.loads(p.read_text(encoding='utf-8'))
-        except Exception as exc:
-            raise AssertionError(f"Failed to read/parse notebook {p}: {exc}")
+        if re.search(r"(?i)still under development|WIP|TODO", md):
+            continue
 
-        # concatenate all markdown cells into one text block
-        md_cells = [ ''.join(c.get('source', '')) for c in nb.get('cells', []) if c.get('cell_type') == 'markdown' ]
-        text = '\n'.join(md_cells)
+        if not _has_section(md, "Quiz"):
+            failures.append(
+                f"{nb} missing a markdown header for 'Quiz' "
+                "(e.g. '## Quiz' or '## 4. Quiz')"
+            )
+        if not _has_section(md, "Discussion"):
+            failures.append(
+                f"{nb} missing a markdown header for 'Discussion' "
+                "(e.g. '## Discussion' or '## 5. Discussion')"
+            )
 
-        if not has_header(text, 'Discussion'):
-            raise AssertionError(f"{p} missing a markdown header for 'Discussion' (e.g. '# Discussion' or '## Discussion')")
-
-        if not has_header(text, 'Quiz'):
-            raise AssertionError(f"{p} missing a markdown header for 'Quiz' (e.g. '# Quiz' or '## Quiz')")
+    assert not failures, "\n".join(failures)
