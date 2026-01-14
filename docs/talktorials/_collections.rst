@@ -5,8 +5,8 @@ Fundamentals
 
 Build the core graph-theoretic vocabulary used throughout SynEdu.
 
-- :doc:`S01` — From molecules to typed graphs
-- :doc:`S02` — Graph morphisms, isomorphism, and automorphisms
+- :doc:`S01`
+- :doc:`S02`
 
 
 .. _rule-library:
@@ -16,11 +16,11 @@ Rule library construction
 
 Construct a reusable, canonical library of reaction rules.
 
-- :doc:`S03` — Reaction centers and ITS graphs
-- :doc:`S04` — Rule extraction and canonicalization
-- :doc:`S05` — Rule verification and consistency
-- :doc:`S06` — Rule deduplication and indexing
-- :doc:`S10` — End-to-end rule library construction
+- :doc:`S03`
+- :doc:`S04`
+- :doc:`S05`
+- :doc:`S06`
+- :doc:`S10`
 
 
 .. _rule-application:
@@ -30,6 +30,6 @@ Rule application
 
 Apply and validate reaction rules on datasets.
 
-- :doc:`S07` — Rule application to reactions
-- :doc:`S08` — Constraint handling and filtering
-- :doc:`S09` — Large-scale rule application workflows
+- :doc:`S07`
+- :doc:`S08`
+- :doc:`S09`

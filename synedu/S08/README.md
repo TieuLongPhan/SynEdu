@@ -1,4 +1,4 @@
-# S08 · Metrics for Rule Application: Coverage, Recall, Branching, and Cost
+# S07 · One-Step Rule Application (Forward & Backward): DPO Rules as Reaction Engines
 
 <div class="alert alert-block alert-info">
 <b>Welcome to SynEdu.</b><br>
@@ -8,98 +8,84 @@ This talktorial is part of <b>SynEdu</b>, a lightweight, research-oriented teach
 
 <div class="alert alert-block alert-success">
 <b>What you will gain.</b><br>
-Rules are only useful if we can <b>measure</b> how they behave.
-In this notebook we define a practical evaluation protocol for one-step rule application and implement
-metrics that capture the <b>precision–recall–cost</b> trade-offs that appear in rule-based reaction modeling.
+We turn extracted DPO rules into a practical <b>one-step</b> reaction engine.
+You will implement <b>forward synthesis</b> (reactants → products) and <b>retrosynthesis</b>
+(products → precursors) using the <b>same</b> rule, via rule inversion.
+We also discuss deduplication (symmetry) and basic chemical sanity checks.
 </div>
 
 ## Aim of this talktorial
 
 ## Learning outcomes
 By the end of this notebook, you should be able to:
-- Define one-step tasks (forward prediction and retrosynthesis) in terms of candidate generation.
-- Implement coverage, top-\(k\) recall, branching factor, and simple cost metrics.
-- Build a rule library from mapped reactions and evaluate it on a held-out subset.
-- Understand why context size, matching predicates, and deduplication change the metrics.
+- Recall the DPO span \(L \leftarrow K \rightarrow R\) and what a match \(m: L \hookrightarrow G\) means.
+- Implement a practical DPO application that produces a product graph \(G'\) from a host graph \(G\).
+- Implement rule inversion \(p^{-1}: R \leftarrow K \rightarrow L\) for one-step retrosynthesis.
+- Run a small one-step experiment: reproduce products for a subset of mapped reactions.
 
 ## Roadmap
-- 0. Setup & data
-- 1. Theory: what to measure (and why)
-- 2. Building a rule library (canonicalized)
-- 3. One-step evaluation protocol
-- 4. Results & interpretation
-- 5. Exercises
+- 0. Setup & data (mapped reactions)
+- 1. Theory: DPO application forward/backward
+- 2. Implementation: matching, rewriting, and conversion back to RDKit
+- 3. Demonstrations (one rule; then many reactions)
+- 4. Exercises
 
 
 
-## 1. Theory: what to measure
+## 1. Theory: one-step rewriting in both directions
 
-A one-step rule engine is a **candidate generator**.
-
-Given:
-- a host \(G\) (reactants, or products for retrosynthesis),
-- a rule library \(\mathcal{P}=\{p_1,\dots,p_M\}\),
-
-we generate a set of candidates:
+A DPO rule is a span of typed graphs
 \[
-\mathcal{C}(G) = \bigcup_{p\in\mathcal{P}} \{\,\text{apply}(G,p,m)\ :\ m \in \mathrm{Match}(p,G)\,\}.
+p:\quad L \xleftarrow{\,l\,} K \xrightarrow{\,r\,} R
 \]
+where:
+- \(L\) is the **pre-condition** (what must be present to react),
+- \(R\) is the **post-condition** (what is produced),
+- \(K\) is the **preserved interface** (what stays the same).
 
-Let the ground truth target for \(G\) be \(T(G)\) (e.g., the true products of that reaction).
-
-### Metrics
-
-**Coverage**
+Given a host graph \(G\) (a set of reactant molecules as a disjoint union),
+a **match** is an injective morphism
 \[
-\mathrm{cov} = \Pr\big(|\mathcal{C}(G)|>0\big)
+m: L \hookrightarrow G
 \]
-Fraction of hosts for which at least one rule applies.
+that respects atom and bond labels.
 
-**Top-\(k\) recall** (candidate contains truth)
+### Forward (synthesis)
+The DPO construction removes the part \(L\setminus K\) and glues in \(R\setminus K\), producing \(G'\).
+
+### Backward (retrosynthesis)
+The inverse rule is simply
 \[
-\mathrm{rec@}k = \Pr\big(T(G) \in \mathrm{TopK}(\mathcal{C}(G))\big).
+p^{-1}:\quad R \xleftarrow{\,r\,} K \xrightarrow{\,l\,} L
 \]
-In this notebook we will use an unranked version (set membership), i.e. \(k=\infty\), because ranking is a separate topic.
+and applying \(p^{-1}\) to a product graph generates plausible precursors.
 
-**Branching factor** (candidate explosion)
-\[
-b = \mathbb{E}\big[|\mathcal{C}(G)|\big].
-\]
-
-**Cost**
-- runtime per host,
-- number of attempted rule matches,
-- number of successful matches.
-
-These metrics typically trade off:
-- **more general rules** → higher coverage/recall, higher branching,
-- **more specific rules (larger context)** → lower branching, but risk lower coverage.
-
-S08 will make that trade-off systematic by varying context radius.
+**Chemistry meaning:** a rule extracted from atom-mapped data can be used in either direction as a
+one-step generator; directionality is controlled by which side you treat as “host”.
 
 
 
-## 4. Interpretation: what to look for
+## 3. Discussion
 
-Typical patterns you will see:
+A self-reproduction study (rule extracted from a reaction, then applied back to its own reactants/products)
+is a **sanity check**, not a benchmark:
 
-- High **coverage** but low **hit rate** often means rules apply broadly but generate many wrong candidates
-  (high branching).
-- High **hit rate** with very high branching indicates the truth is present but drowned in many alternatives—
-  you need **ranking** (future notebook) or more context (S08).
-- Low coverage can mean rules are too specific (context too large, or node/edge matching too strict).
+- If the hit rate is low, it usually indicates one of:
+  - parsing/mapping inconsistencies in the dataset,
+  - missing atoms (unbalanced reactions),
+  - overly strict node/edge matching predicates,
+  - stereochemistry or aromaticity handling issues.
 
-Also note:
-- “Hit rate” here is unranked set membership (a generous metric).
-- Branching is sensitive to symmetry and deduplication strategy.
-
-In S08 we will vary context radius systematically and plot the trade-off curve.
+In S07 we will move from “self reproduction” to **library-level evaluation**:
+apply a *set* of rules to each host and study precision/branching trade-offs.
 
 
 
-## 5. Exercises
+## 4. Exercises
 
-1. **Indexing.** Improve prefiltering:
-   add an edge-count multiset or a degree multiset to the necessary-condition test.
-2. **Rule size vs branching.** Plot `nL` (rule size) vs average branching contributed by that rule.
-3. **Sanity check.** Reduce `max_matches_per_rule` to 1 and see how branching and hit rate change.
+1. **Strictness toggle.** Modify `node_match()` to include/exclude `formal_charge` or `aromatic`.
+   How does forward/backward hit rate change?
+2. **Context radius.** Repeat `self_reproduction_study` for `core_radius=0,1,2`.
+   Does a larger context reduce spurious candidates?
+3. **Match explosion.** Find a reaction where `n_forward_cand` is large.
+   Inspect the matches and identify a symmetry source.

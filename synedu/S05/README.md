@@ -1,541 +1,479 @@
-# S04 · From Atom-Mapped Reactions to DPO Rules: ITS, Reaction Centers, and Fast Clustering
+# S03 · Reaction Rules as Graph Rewriting (DPO) — Chemistry-first, ITS-native
 
 <div class="alert alert-block alert-info">
-<b>Welcome to SynEdu.</b><br>
-This talktorial is part of <b>SynEdu</b>, a lightweight, research-oriented teaching series built around the
-<b>Syn</b> ecosystem and <b>RDKit</b> for practical, reproducible reaction modeling.
+<b>SynEdu (S03).</b><br>
+This notebook continues S01 (typed molecular graphs & matching) and upgrades from “static graphs” to
+<b>transformations</b>: reaction rules, graph rewriting, and chemistry-flavoured examples (Diels–Alder).
 </div>
 
 <div class="alert alert-block alert-success">
-<b>What you will gain.</b><br>
-You will learn a complete, <b>mapping → ITS → reaction center → clustering → rule</b> pipeline:
-starting from <b>1000 pre-mapped reactions (from a local JSON/JSON.GZ dataset)</b>, we assume atom maps are already present (generated e.g. with RXNMapper upstream), construct an
-<b>ITS (Imaginary Transition State)</b> graph, extract a <b>reaction center</b>, cluster centers by
-<b>typed isomorphism</b>, accelerate clustering with a <b>Weisfeiler–Lehman (WL) hash prefilter</b>,
-and finally convert each center into a <b>DPO (double-pushout) graph transformation rule</b>.
+<b>Aim.</b><br>
+Represent a reaction as a <b>rule</b> and apply it to molecules in a way that is:
+<ul>
+  <li><b>mathematically precise</b> (typed morphisms, DPO rewriting)</li>
+  <li><b>chemistry interpretable</b> (bond breaking/forming, conserved atoms)</li>
+  <li><b>implementation-ready</b> (RDKit ⇄ NetworkX, atom-mapped reaction SMARTS)</li>
+</ul>
 </div>
 
 <div class="alert alert-block alert-warning">
-<b>Reproducibility note.</b><br>
-Atom-mapping quality and rule extraction depend on tool versions, sanitization, charge handling,
-and the precise definition of “reaction center” (bonds only vs bonds + atoms + radius context).
-Always record package versions and settings, and persist intermediate artifacts:
-mapped reaction SMILES, ITS graphs, centers, hashes, and extracted rules.
+<b>Key design decision in S03.</b><br>
+For export and comparison we construct an <b>ITS-like change graph</b> <i>directly</i>, then decompose it into
+reactant/product graphs. This makes atom correspondence <b>identity-by-node-id</b> (no extra mapping step).
 </div>
 
-## Aim of this talktorial
 
-Build a chemically interpretable and mathematically clean pipeline from *mapped reactions* to *graph rewriting rules*.
 
 ## Learning outcomes
 
-After completing S04, you can:
+By the end of this talktorial you can:
 
-1. Map a batch of reaction SMILES using <b>RXNMapper</b>.
-2. Construct an <b>ITS graph</b> from a mapped reaction (atoms as nodes, (reactant,product) bond labels as edges).
-3. Extract a <b>reaction center</b> and (optionally) a <b>radius-r context</b>.
-4. Cluster reaction centers using <b>typed graph isomorphism</b>.
-5. Speed up clustering via <b>WL hashing</b> as an isomorphism-invariant *prefilter*.
-6. Convert a reaction center into a <b>DPO rule</b> \(L \leftarrow K \rightarrow R\) (delete/add bonds; keep context).
+1. Write a reaction rule as a **span** \(L \leftarrow K \rightarrow R\) and explain each part chemically.
+2. Formally define a **match** \(m: L \hookrightarrow G\) and enumerate all applications in a host molecule.
+3. Construct an **ITS graph** \(T\) capturing bond changes (pre/post labels) *without first materializing the product*.
+4. Decompose \(T\) back into reactant/product graphs (projection), and export **atom-mapped reaction SMARTS**.
+5. Implement a worked Diels–Alder example and inspect **formed/broken/changed** bonds.
 
 ## Roadmap
 
-- **0. Setup & data** (1000 mapped reactions from `./data/smart.json.gz`)
-- **1. Theory** (mapped reactions, ITS, center, isomorphism, WL, DPO)
-- **2. (Optional) Atom-mapping** (RXNMapper, if you start from unmapped reactions)
-- **3. ITS construction**
-- **4. Reaction center extraction**
-- **5. Center clustering via isomorphism**
-- **6. WL hash prefilter acceleration**
-- **7. Convert centers to DPO rules + export**
-- **8. Exercises & quiz**
+- **0. Setup** (imports, versions, helpers)
+- **1. Formalism** (typed graphs, morphisms, DPO rewriting, correctness conditions)
+- **2. RDKit ⇄ NetworkX** (typed molecular graphs)
+- **3. DPO kernel** (matching + rewrite) and why chemistry needs *wildcards*
+- **4. ITS-first rewriting** (construct ITS directly; decompose into reactant/product)
+- **5. Export** (atom-mapped reaction SMARTS from ITS)
+- **6. Example**: Diels–Alder (butadiene + ethene → cyclohexene)
+- **7. Exercises**
 
 
 
-## Authors and contributions
+## Example molecules used in this notebook
 
-- Tieu-Long Phan (SynEdu / Syn ecosystem)
-- (Add contributors here)
+We will use a classic *pericyclic* transformation:
 
-> If you reuse code snippets or figures from this notebook, please cite SynEdu appropriately and pin versions in your supplement.
+- **Diene**: butadiene (SMILES: `C=CC=C`)
+- **Dienophile**: ethene (SMILES: `C=C`)
+- Combined as a disconnected reactant mixture: `C=CC=C.C=C`
 
+> Chemistry caveat: this is a toy model (no stereochemistry, no substituents, no endo/exo control).
+The point is to demonstrate **bond reorganisation** under a rule-based graph rewriting view.
 
 
-## 0. Setup & data
 
+## 1. Formalism: chemistry as typed graph rewriting
 
+### 1.1 Typed molecular graphs (recap from S01)
 
-### 0.0 Note on atom mapping (RXNMapper)
-
-In **S01/S04** we often start from *unmapped* reaction SMILES and run **RXNMapper** to obtain atom-map IDs.
-In this S04 run, we **skip mapping** because our dataset file `./data/smart.json.gz` already contains **atom-mapped** reactions.
-
-> If you ever start from unmapped reactions, you can still plug RXNMapper into the same pipeline:
-> produce a column `mapped_rxn` and continue with ITS construction below.
-
-
-
-### 0.1 Reaction data (1000 mapped reactions)
-
-We load a local dataset from:
-
-- `./data/smart.json.gz`
-
-The file may be either:
-
-- **plain JSON** (often misnamed as `.gz`), or
-- **gzip-compressed JSON**.
-
-Each entry is expected to contain a **mapped reaction string** (reaction SMILES/SMARTS) with atom-map IDs like `:12`.
-In our dataset, the mapped reaction is stored under the key **`"smart"`** (and optionally an identifier like `"R-id"`).
-
-We will load **1000 mapped reactions** and store them in a DataFrame `df_map` with at least:
-
-- `mapped_rxn` — mapped reaction string (`reactants >> products`)
-- `rxn_id` — optional id (if available)
-
-
-
-## 1. Theory (formal, but chemist-friendly)
-
-### 1.1 Atom-mapped reactions as typed structures
-
-An unmapped reaction SMILES is a string
-
-$$
-\texttt{rxn} = \texttt{R} \;\gg\; \texttt{P},
-$$
-
-where $\texttt{R}$ (reactants and reagents) and $\texttt{P}$ (products) are dot-separated
-lists of molecules.
-
-An **atom-mapped reaction** augments each atom with an integer **map identifier**.
-Conceptually, atom mapping defines a *partial correspondence* between atoms on the
-reactant and product sides.
-
-Let
-
-$$
-A_R \quad\text{and}\quad A_P
-$$
-
-be the sets of atoms on the reactant and product sides, respectively, and let
-
-$$
-M \subset \mathbb{N}
-$$
-
-be the set of map identifiers appearing in the reaction.
-The atom-mapped reaction induces two functions
-
-$$
-\mu_R : A_R \to M,
-\qquad
-\mu_P : A_P \to M,
-$$
-
-where atoms sharing the same map identifier are interpreted as representing
-“the same atom through the transformation”.
-
-In practice, atom mapping may be imperfect:
-missing map identifiers, duplicated identifiers, or unmapped leaving groups may occur.
-All downstream constructions are therefore designed to be **robust**:
-invalid or inconsistent cases are detected, warned about, and skipped.
-
----
-
-### 1.2 ITS (Imaginary Transition State) graph
-
-The **Imaginary Transition State (ITS)** represents the reaction as a single graph
-by explicitly encoding bond changes between reactants and products.
-
-Let $B$ be the set of allowed bond labels
-(e.g. $\{1,2,3,1.5\}$ for single, double, triple, and aromatic bonds),
-and introduce a special symbol $\bot$ denoting **bond absence**.
-
-The ITS of an atom-mapped reaction is defined as a **typed graph**
-
-$$
-G_{\mathrm{ITS}} = (V, E, a, b_R, b_P),
-$$
-
-where:
-
-- $V \subseteq M$ is the set of atom map identifiers used as node identifiers;
-- $a : V \to \Sigma$ assigns atom types (e.g. element symbol, optionally charge);
-- $E$ is the set of unordered edges between atom identifiers;
-- $b_R : E \to B \cup \{\bot\}$ assigns the **reactant-side bond label**;
-- $b_P : E \to B \cup \{\bot\}$ assigns the **product-side bond label**.
-
-Chemical interpretation:
-
-- $b_R(e) = \bot$ and $b_P(e) \neq \bot$ corresponds to **bond formation**;
-- $b_R(e) \neq \bot$ and $b_P(e) = \bot$ corresponds to **bond breaking**;
-- $b_R(e) \neq b_P(e)$ with both present corresponds to a **bond order or aromaticity change**.
-
-Thus, the ITS compactly encodes the full local transformation in a single object.
-
----
-
-### 1.3 Reaction center and radius-$r$ context
-
-The **reaction center** is defined as the part of the ITS where changes occur.
-
-First, define the set of changed edges
-
-$$
-\Delta E = \{\, e \in E \mid b_R(e) \neq b_P(e) \,\}.
-$$
-
-The **core atom set** is then
-
-$$
-C_0
-=
-\{\, v \in V \mid \exists e \in \Delta E \text{ incident to } v \,\},
-$$
-
-i.e. the atoms directly involved in bond changes.
-Optionally, atoms with changed intrinsic states
-(e.g. formal charge changes) may also be included in $C_0$.
-
-To incorporate local chemical context, we define the **radius-$r$ expansion**
-
-$$
-C_r
-=
-\{\, u \in V \mid \mathrm{dist}_{G_{\mathrm{ITS}}}(u, C_0) \le r \,\},
-$$
-
-where $\mathrm{dist}_{G_{\mathrm{ITS}}}$ denotes the graph distance in the ITS.
-The induced subgraph
-
-$$
-G_{\mathrm{ITS}}[C_r]
-$$
-
-is referred to as the **reaction-center graph with radius $r$**.
-
----
-
-### 1.4 Clustering reaction centers by typed isomorphism
-
-Two reaction-center graphs $G$ and $H$ are **typed isomorphic** if there exists a bijection
-
-$$
-\varphi : V(G) \to V(H)
-$$
-
-such that:
-
-$$
-a_G(v) = a_H(\varphi(v))
-\quad\text{for all } v \in V(G),
-$$
-
-and
-
-$$
-\bigl(b_R, b_P\bigr)_G(\{u,v\})
-=
-\bigl(b_R, b_P\bigr)_H(\{\varphi(u), \varphi(v)\})
-\quad\text{for all } \{u,v\} \in E(G).
-$$
-
-Chemically, this means that the two reactions share the **same local transformation
-pattern**, independent of atom numbering or molecular size.
-
-Reaction-center clustering groups reactions by this equivalence relation.
-
----
-
-### 1.5 Weisfeiler--Lehman hash as a fast prefilter
-
-Exact graph isomorphism testing becomes expensive for large collections of
-reaction-center graphs.
-To accelerate clustering, we use the **Weisfeiler--Lehman (WL) graph hash**.
-
-The WL procedure iteratively refines node labels by hashing:
-
-$$
-\text{current node label}
-\;+\;
-\text{multiset of neighboring node and edge labels}.
-$$
-
-The final WL hash is an **isomorphism invariant**:
-isomorphic graphs always share the same hash.
-However, the invariant is **not complete**:
-non-isomorphic graphs may occasionally collide.
-
-Therefore, WL hashing is used only as a **prefilter**:
-
-1. group reaction-center graphs by identical WL hash;
-2. perform exact typed isomorphism checks only within each hash bucket.
-
-This strategy preserves correctness while dramatically reducing runtime.
-
----
-
-### 1.6 From reaction centers to DPO rules
-
-A **double-pushout (DPO) rule** in graph rewriting is defined as a span
-
-$$
-p
-=
-\left(
-L \xleftarrow{\;\ell\;} K \xrightarrow{\;r\;} R
-\right),
-$$
-
-where:
-
-- $L$ is the **left-hand side** pattern to be matched;
-- $R$ is the **right-hand side** pattern produced by the rewrite;
-- $K$ is the **context graph** that is preserved.
-
-In the setting of atom-mapped chemical reactions:
-
-- nodes of $K$ correspond to atoms preserved through the reaction;
-- edges of $K$ correspond to bonds whose type does not change;
-- edges present in $L$ but not in $R$ are **deleted bonds**;
-- edges present in $R$ but not in $L$ are **created bonds**.
-
-Atom-state changes (e.g. formal charge) are naturally represented as
-node attributes that may differ between $L$ and $R$,
-while $K$ retains only invariant identity information
-(e.g. element symbol).
-
-In practice, we extract rules as follows:
-
-- $L$: reactant-side bonds induced on $C_r$;
-- $R$: product-side bonds induced on $C_r$;
-- $K$: intersection of bonds on $C_r$ whose labels are unchanged.
-
-This construction makes the common intuition of
-“reaction centers as rewriting rules”
-explicit in precise graph-theoretic terms.
-
-
-
-## 2. Atom mapping (already provided)
-
-The downstream ITS / reaction-center pipeline assumes each atom has a **map id** that is consistent
-between reactant and product sides.
-
-In this notebook we **do not run RXNMapper**.
-Instead, we **validate** that the loaded reactions look mapped:
-- the reaction string contains `:n` map annotations,
-- RDKit parses the molecules,
-- at least one mapped atom appears on each side.
-
-
-
-### 2.1 Inspect a mapped reaction
-
-Our dataset stores a reaction SMILES where atoms carry map ids like `:12`.  
-We will parse these map ids and build our ITS.
-
-
-
-## 3. Construct the ITS graph
-
-
-
-### 3.1 Implementation idea (from mapped SMILES → ITS)
-
-We parse the mapped reaction into RDKit molecules on each side.
-
-For each atom (with map id \(m\)) we record (at least):
-
-- element symbol
-- formal charge on reactant side and product side
-
-For each bond between map ids \((u,v)\) we record:
-
-- \(b_R(u,v)\): reactant bond order (or \(\bot\))
-- \(b_P(u,v)\): product bond order (or \(\bot\))
-
-We then take the **union** of reactant and product bonds as edges of the ITS.
-
-> Chemistry convention used here:
-> aromatic bonds are treated as order \(1.5\).
-
-
-
-### 3.2 Visualize an ITS as a typed graph
-
-For readability, we draw each edge label as `(r_order → p_order)` where `None` means \(\bot\) (absent bond).
-Changed bonds are the mechanistic “action”.
-
-
-
-## 4. Extract the reaction center
-
-
-
-### 4.1 Center definition used in this notebook
-
-We define the *core* center atoms \(C_0\) as atoms incident to **changed bonds**:
+A (heavy-atom) molecule is a **typed graph**
 
 \[
-C_0 = \{v \mid \exists e \text{ incident to } v \text{ with } b_R(e)\neq b_P(e)\}.
+G = (V_G, E_G, a_G, b_G),
 \]
 
-Optionally, we also include atoms with **formal charge changes** (reactant vs product),
-because for some chemistries the bond pattern alone does not capture the transformation.
+where:
 
-Finally, we optionally expand to radius \(r\) context and return the induced subgraph.
+- \(V_G\) = atoms (vertices),
+- \(E_G \subseteq \{\{u,v\}\mid u\neq v\}\) = bonds (undirected edges),
+- \(a_G: V_G \to \Sigma_V\) = **atom typing** (element, charge, aromaticity, chirality, …),
+- \(b_G: E_G \to \Sigma_E\) = **bond typing** (order, aromaticity, ring flag, …).
 
+Chemistry interpretation:
+- vertex labels enforce that carbon maps to carbon, etc.
+- edge labels enforce that a double bond is not confused with a single bond unless you *allow* it.
 
+### 1.2 Label-preserving morphisms
 
-### 4.2 Visualize the reaction center on the molecules
+A **typed graph morphism** \(\varphi: G \to H\) is a function on vertices
+\(\varphi_V: V_G \to V_H\) such that:
 
-We highlight center atoms (by map id) on both sides of the mapped reaction.
+1. **Atom label preservation**  
+\[
+a_H(\varphi_V(v)) = a_G(v)\quad \forall v\in V_G.
+\]
 
+2. **Adjacency and bond label preservation**  
+For every \(\{u,v\}\in E_G\),
+\[
+\{\varphi_V(u),\varphi_V(v)\}\in E_H
+\quad\text{and}\quad
+b_H(\{\varphi_V(u),\varphi_V(v)\}) = b_G(\{u,v\}).
+\]
 
+In practice we often restrict to **injective** morphisms (embeddings), written
+\[
+m: G \hookrightarrow H,
+\]
+which is what NetworkX returns in subgraph matching.
 
-## 5. Reaction center clustering via typed isomorphism
+### 1.3 Reaction rules as spans \(L \leftarrow K \rightarrow R\)
 
+A reaction rule is encoded by three typed graphs:
 
+- \(L\) (**left**) — the pattern to be found in a reactant
+- \(R\) (**right**) — what replaces it in the product
+- \(K\) (**context/interface**) — what is preserved (the “atom identity backbone”)
 
-### 5.1 Typed matching predicates
+Formally a DPO rule is a span of morphisms
 
-We treat each center as a typed graph with:
+\[
+L \xleftarrow{\ell} K \xrightarrow{r} R,
+\]
 
-- node labels: \((\text{symbol}, r\_charge, p\_charge)\)
-- edge labels: \((r\_order, p\_order)\)
+where \(\ell\) and \(r\) embed \(K\) into \(L\) and \(R\).
 
-Two centers are equivalent if there exists an isomorphism preserving these labels.
+Chemistry interpretation:
+- \(V_K\) are the atoms that keep their identities through the reaction (the “mapped atoms”).
+- \(E_L \setminus E_K\): bonds that must be **broken** (or bond types that must disappear).
+- \(E_R \setminus E_K\): bonds that must be **formed**.
 
-> You can relax or strengthen these predicates depending on your use-case:
-> - ignore charge,
-> - treat aromatic \(1.5\) specially,
-> - include radius-1 context, etc.
+A bond **order change** is naturally represented by
+- old bond in \(L\) but not in \(K\),
+- new bond in \(R\) but not in \(K\),
+while the endpoints remain in \(K\).
 
+### 1.4 Where can a rule apply? matches \(m: L \hookrightarrow G\)
 
+Given a reactant molecule graph \(G\), a match is an injective morphism
 
-### 5.2 Inspect representative centers
+\[
+m: L \hookrightarrow G.
+\]
 
-A cluster representative is the first center graph assigned to that cluster.
+Chemically: “find a substructure in the reactant that looks like the reacting pattern”.
 
+NetworkX’s `GraphMatcher(G, L).subgraph_isomorphisms_iter()` enumerates all such matches.
 
+### 1.5 Correctness conditions you should care about (chemistry view)
 
-## 6. Accelerate clustering with WL graph hashing (prefilter)
+DPO rewriting is “correct” when two constraints hold (informally):
 
+1. **Dangling condition** (no half-bonds):  
+if you delete an atom (node), you must also delete all incident bonds.  
+Chemistry: you cannot leave a bond to a missing atom.
 
+2. **Identification condition** (don’t accidentally merge distinct atoms):  
+the match must not identify two different pattern atoms onto the same host atom.  
+Chemistry: two atoms in the reacting pattern cannot map to one atom in the molecule.
 
-### 6.1 WL hash prefilter
+In this notebook we focus on the common chemistry case: **atom-conserving rules**
+(\(V_L = V_K = V_R\)) and only **bond changes**.
 
-We compute a WL hash for each center graph using label strings:
 
-- node label: `symbol | r_charge → p_charge`
-- edge label: `r_order → p_order` (with `⊥` for absent)
 
-Then we group by hash and run expensive isomorphism only within each group.
+### 1.6 The categorical DPO diagram (what “double pushout” means)
 
-> **Reminder:** WL hashing is an isomorphism-invariant heuristic, not a proof.
-> We still run exact isomorphism within each hash bucket to obtain correct clusters.
+In category language, rewriting is defined by two pushouts:
 
+\[
+\require{AMScd}
+\begin{CD}
+K @>{r}>> R \\
+@V{\ell}VV @VVV \\
+L @>>> D
+\end{CD}
+\qquad
+\begin{CD}
+L @>{m}>> G \\
+@VVV @VVV \\
+D @>>> H
+\end{CD}
+\]
 
+- The first square constructs the **pushout complement** \(D\): it “removes” \(L\setminus K\) from \(G\) (subject to the dangling condition).
+- The second square glues in \(R\setminus K\) to produce the product \(H\).
 
-### 6.2 Sanity check: WL-prefilter + exact isomorphism equals exact isomorphism alone
+**Chemistry translation**
+- \(K\) are the mapped atoms.
+- \(L\setminus K\) are deleted atoms/bonds (leaving groups, bond cleavage).
+- \(R\setminus K\) are created atoms/bonds (new substituents, bond formation).
 
-Because WL is only a prefilter, the final clustering should be identical to direct isomorphism clustering
-(up to cluster id renaming).
+In this notebook we implement the same effect algorithmically (delete-then-add), and additionally
+construct an ITS graph that records the pre/post state in one object.
 
 
 
-## 7. Convert reaction centers into DPO rules
+### 1.7 Practical correctness checks (what to verify in code)
 
+When you implement rules in practice, you usually want to validate:
 
+1. **Interface consistency:** \(K\) must embed into both \(L\) and \(R\).  
+   (Here we enforce this by using shared node ids for \(K\) inside \(L\) and \(R\).)
 
-### 7.1 Practical rule extraction used here
+2. **Dangling condition (node deletion):** if a host atom is deleted, it must not have bonds to atoms outside the matched subgraph.
 
-Given an ITS graph \(G_{\mathrm{ITS}}\) and a chosen context node set \(C_r\), we build:
+3. **Typing consistency:** labels used in `node_match`/`edge_match` must be consistent across RDKit graphs and rule graphs.
 
-- \(L\): **reactant pattern** on \(C_r\) (keep only bonds with \(b_R\neq\bot\))
-- \(R\): **product pattern** on \(C_r\) (keep only bonds with \(b_P\neq\bot\))
-- \(K\): **preserved context** on \(C_r\) (keep only bonds with \(b_R=b_P\neq\bot\))
+We will implement (2) as an optional filter for matches (useful for leaving group rules).
 
-Nodes:
-- \(L\) nodes carry `symbol` and `charge=r_charge`
-- \(R\) nodes carry `symbol` and `charge=p_charge`
-- \(K\) nodes carry `symbol` only (identity type)
 
-This yields a DPO-style span \(L \leftarrow K \rightarrow R\) that is directly interpretable as:
-“delete bonds in \(L\setminus K\), keep bonds in \(K\), create bonds in \(R\setminus K\)”.
 
-> For production systems, you may also:
-> - include stereochemistry / aromatic flags explicitly,
-> - attach atom environments,
-> - require connected centers,
-> - handle reagents vs true reactants,
-> - normalize charges, etc.
+## 2. RDKit ⇄ NetworkX: typed molecular graphs
 
+We reuse the S01 “typed molecular graph” representation.
 
+**Node attributes** (atoms):
+- `symbol`, `formal_charge`, `aromatic`, `chiral_tag`
+- optionally `total_h`
 
-### 7.2 Extract rules for all reactions and export
+**Edge attributes** (bonds):
+- `order` (1/2/3), `aromatic`, `in_ring`
 
-We extract one DPO rule per reaction (for a chosen center radius), then optionally export:
+This is enough for most pedagogical examples.
 
-- all rules
-- cluster representatives (one per isomorphism class of centers)
 
-The export format is a simple JSON with nodes/edges for L,K,R.
 
+## 3. DPO rewriting kernel (chemistry-friendly)
 
+### 3.1 Why chemistry rules need wildcards
 
-## 8. Exercises & quiz
+A “reaction rule” almost never wants to pin down *every* atom attribute.
+Examples:
+- a Diels–Alder rule wants “carbon, non-aromatic”, but usually not fixed `chiral_tag`.
+- generic rules often allow any `formal_charge` on spectator atoms.
+- aromaticity handling depends on the representation (Kekulé vs aromatic bonds).
 
-<div class="alert alert-block alert-info">
-<b>Cross-referencing.</b> Concepts used here build on:
-- <b>S01</b>: typed graphs, isomorphism, automorphisms
-- <b>S03</b>: (if you have it) reaction-side graph construction and label design choices
-</div>
+So we use **pattern-side wildcards**:
+- if an attribute is missing in the pattern, we ignore it;
+- if present but `None`, we also ignore it;
+- otherwise we require equality.
 
-### Exercise 1 — Center radius as a hyperparameter
+This corresponds to defining a compatibility predicate
+\(\Phi_V(d_G, d_L)\) and \(\Phi_E(d_G, d_L)\).
 
-Implement `radius=2` and compare:
-- cluster counts,
-- representative centers,
-- rule sizes (nodes/edges).
 
-**Chemistry intuition:** larger radii incorporate more “environment”, making rules more specific.
 
-### Exercise 2 — Relax the typing
+### 3.2 Matches in NetworkX: beware mapping direction
 
-Modify the matcher to ignore charge:
+If you build:
 
-- node label uses only `symbol`
-- edge label still uses `(r_order, p_order)`
+```python
+GM = GraphMatcher(G, L)
+```
 
-Does the number of clusters decrease? Which chemistries merge?
+then `subgraph_isomorphisms_iter()` yields dictionaries mapping
 
-### Exercise 3 — WL iterations vs collisions
+\[
+V(G)\to V(L)
+\]
 
-Change `wl_iters` in `cluster_centers_wl_prefilter` and measure:
-- runtime,
-- number of WL buckets,
-- collision rate (bucket size distribution).
+i.e. **host node → pattern node**.
 
-### Quiz (conceptual)
+For rewriting we want **pattern node → host node**, so we invert each mapping.
 
-1. What would go wrong if we define \(K\) as empty for every rule?
-2. How does a bond order change (single→double) appear in the \(L,K,R\) decomposition?
-3. In practice, why is WL hashing only a prefilter and not a proof of isomorphism?
-4. If RXNMapper assigns a wrong map id, which step in the pipeline is most sensitive, and why?
 
 
+## 4. ITS-first rewriting (DPO-like)
 
-# References and further reading
+### 4.1 What is an ITS graph here?
 
-- RXNMapper: Schwaller et al., transformer-based atom mapping (see the RXNMapper repository / publication).
-- ITS graphs in reaction modeling: classic “imaginary transition state” representations in reaction informatics.
-- Double pushout (DPO) graph rewriting: Ehrig et al., algebraic graph transformation (intro texts); chemical applications in rule-based reaction systems.
-- Weisfeiler–Lehman (WL) refinement and hashing: WL test / color refinement; widely used in cheminformatics fingerprints and GNN theory.
-- RDKit documentation and book: https://www.rdkit.org/docs/
-- NetworkX documentation: https://networkx.org/documentation/stable/
+We define an ITS-like graph \(T\) that stores **both** pre- and post- bond types
+on the *same atom identities*.
 
-> For a publication-quality method section, replace these bullets with full BibTeX entries and pin exact tool versions.
+- Nodes represent atom identities (plus possibly created/deleted atoms).
+- Each edge carries a pair:
+  \[
+  (b_{\text{pre}}, b_{\text{post}}),
+  \]
+  where \(b=0\) means “no bond”.
+
+Chemistry reading:
+- formed bond: \(0 \to 1\) (or \(0\to 2\))
+- broken bond: \(1 \to 0\) (or \(2\to 0\))
+- order change: \(1 \to 2\) etc.
+
+### 4.2 Why construct ITS directly?
+
+If you construct a product graph first, you must still maintain an atom mapping.
+In DPO, the “identity backbone” is precisely \(K\), so the natural carrier object is:
+
+> **the change graph** on conserved identities, plus any created/deleted identities.
+
+By building ITS directly, the mapping is trivial:
+- reactant atom \(v\) maps to product atom \(v\) **by node id**.
+
+This makes export to atom-mapped SMARTS clean and deterministic.
+
+
+
+## 5. Export: atom-mapped reaction SMARTS (ITS-native)
+
+### 5.1 DPO-like “identity = node id”
+
+Because we build ITS \(T\) on conserved identities, a node \(v\) refers to:
+
+- the same atom in the reactant graph \(\pi_{\text{pre}}(T)\),
+- the same atom in the product graph \(\pi_{\text{post}}(T)\),
+
+whenever \(v\) is present in both (`present_pre=True` and `present_post=True`).
+
+So atom mapping becomes **identity-by-node-id**:
+\[
+\text{map}(v) := v+1.
+\]
+
+New atoms (if created) naturally get fresh ids \(> \max(V_G)\), therefore also fresh map numbers.
+
+### 5.2 Implementation
+
+We:
+1. project ITS → reactant graph \(G\) and product graph \(H\),
+2. convert each graph to RDKit Mol,
+3. set atom maps by graph node id,
+4. export `MolToSmarts(reactant)>>MolToSmarts(product)`.
+
+This avoids any post-hoc “mapping inference”.
+
+
+
+### 5.3 Practical detail: RDKit atom reordering vs. mapping stability
+
+RDKit may reorder atoms internally during sanitization or SMILES/SMARTS generation.
+That is **not a problem** as long as:
+
+- each atom carries its `AtomMapNum`,
+- the same identity uses the same map number on both sides.
+
+Because we set `map = node_id + 1` after converting from graphs, the mapping remains stable even if RDKit
+chooses a different atom ordering for the final SMARTS string.
+
+
+
+## 6. Worked example: Diels–Alder as a DPO rule
+
+### 6.1 Chemistry view
+
+Diels–Alder (4+2 cycloaddition) is a **concerted** pericyclic reaction:
+
+- two \(\pi\) bonds disappear,
+- two new \(\sigma\) bonds appear,
+- one \(\pi\) bond remains in the cyclohexene product.
+
+We encode this as a bond-rewriting rule that conserves all 6 carbon atoms:
+
+- \(V_L = V_K = V_R\) (atom-conserving)
+- only edges/bond orders change
+
+This is the “cleanest” DPO case, and ideal for educational purposes.
+
+
+
+### 6.2 Apply rule → ITS → (reactant, product) → mapped SMARTS
+
+We:
+- convert RDKit reactant mixture to a typed graph \(G\),
+- apply the rule to get ITS graphs \(T\),
+- decompose the first ITS to reactant/product,
+- export mapped reaction SMARTS.
+
+
+
+**Sanity check:** Diels–Alder is atom-conserving (no node deletion), so the dangling condition is trivially satisfied.
+For leaving-group rules, `strict_dangling=True` helps prevent chemically nonsensical deletions that cut bonds outside the matched substructure.
+
+
+### 6.3 Inspect the ITS: formed / broken / changed bonds
+
+For each ITS edge \(uv\), we look at \((\text{pre\_order}, \text{post\_order})\).
+
+- formed: \(0 \to >0\)
+- broken: \(>0 \to 0\)
+- order change: \(>0 \to >0\) but different
+
+
+
+### 6.3b A compact ITS “transition fingerprint”
+
+A very lightweight mapping-free reaction descriptor is the multiset of bond transitions:
+
+\[
+\{(b_{\text{pre}}, b_{\text{post}})\}_{uv\in E(T)}.
+\]
+
+For example:
+- many \(2\to 1\) transitions indicate \(\pi\)-bonds turning into \(\sigma\)-bonds,
+- \(0\to 1\) counts are bond formations,
+- \(1\to 0\) counts are bond breakages.
+
+This is not as expressive as full ITS isomorphism, but it is cheap and often useful for clustering/filtering.
+
+
+
+Chemistry check (Diels–Alder expectation):
+
+- **broken**: the dienophile double bond \(e=f\) becomes single (often represented as an order change),
+  and one diene double bond changes.
+- **formed**: two new C–C \(\sigma\) bonds close the ring.
+
+Because our minimal rule encodes “remove old double bonds, add new single bonds”, you should see:
+- two **formed** edges,
+- and **order_change** edges accounting for \(\pi\to\sigma\) shifts.
+
+
+
+### 6.4 Verify projections: ITS → reactant graph and product graph
+
+We can reconstruct RDKit molecules from the projected graphs and compare SMILES.
+
+
+
+## 7. Technical notes (what you will want in real chemistry pipelines)
+
+### 7.1 Aromaticity and Kekulé form
+RDKit may represent aromatic systems with aromatic bonds (`BondType.AROMATIC`) or Kekulé double/single.
+A rule library must decide on one representation:
+- either match on `aromatic=True` bonds/nodes,
+- or kekulize all molecules before rewriting.
+
+### 7.2 Stereochemistry (endo/exo, R/S)
+Pericyclic reactions have stereochemical outcomes. Encoding this requires:
+- stereo atom attributes (chiral tags),
+- double bond stereo (E/Z),
+- and rule-side constraints (not just plain graph rewriting).
+
+### 7.3 Atom addition/deletion (leaving groups, proton transfers)
+Many reactions are not atom-conserving in the heavy-atom graph, especially if you omit spectators.
+The ITS design here supports this via:
+- `present_pre`, `present_post` on nodes,
+- `pre_order=0` or `post_order=0` on edges.
+
+### 7.4 Multiple matches and automorphisms
+Symmetric patterns lead to multiple subgraph isomorphisms.
+For chemistry, you often want **unique products**:
+- we deduplicate ITS graphs by isomorphism on `(pre,post)` edge labels.
+
+
+
+## 8. Exercises
+
+Try these without changing the core kernels.
+
+### Exercise 1 — Diels–Alder variants
+Change the Diels–Alder rule so that the remaining double bond is **a–b** instead of **b–c**.
+- How do the ITS “order_change” edges differ?
+- Does RDKit sanitize the product?
+
+### Exercise 2 — Add a wildcard
+Modify matching keys so that the rule matches carbon atoms regardless of `formal_charge`.
+(Hint: omit `formal_charge` from `node_keys`.)
+
+### Exercise 3 — Build a tiny rule for “halogen substitution”
+Encode a rule that replaces `C–Cl` with `C–O` (as in your earlier example) and export mapped SMARTS via ITS.
+- Verify the mapping is identity-by-node-id for conserved atoms.
+
+
+
+<details>
+<summary><b>Solutions (sketch)</b></summary>
+
+**Ex1.** In `diels_alder_rule_minimal`, change which edge in `R` is double.
+You must also ensure the corresponding edges in `L` that should disappear are present (and not in `K`).
+
+**Ex2.** Call:
+
+```python
+Ts = apply_rule_to_its(G, rule_da, node_keys=("symbol","aromatic"), edge_keys=("order","aromatic"))
+```
+
+**Ex3.** Use \(K\) with the carbon node only; in ITS, carbon keeps its node id so map numbers are consistent.
+
+</details>
