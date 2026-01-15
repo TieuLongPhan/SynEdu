@@ -57,6 +57,7 @@ extensions = [
     "IPython.sphinxext.ipython_console_highlighting",
     "sphinx_copybutton",
     "sphinx_gallery.load_style",
+    "myst_parser",
 ]
 
 autosummary_generate = True
