@@ -73,7 +73,8 @@ dev = [
 
 # Documentation
 docs = [
-  "sphinx>=7.2",
+  "sphinx>=7.2,<9",
+  "docutils>=0.20,<0.22",
   "sphinx-material",
   "nbsphinx",
   "nbsphinx-link",
