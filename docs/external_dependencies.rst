@@ -1,86 +1,120 @@
-Packages and webservers used in TeachOpenCADD
-=============================================
+External resources
+==================
 
-TeachOpenCADD uses several external packages and webservers as listed below. 
-If we are using your resource and forgot to add it here, please let us know, thank you!
+.. raw:: html
+
+   <div class="synedu-home-hero synedu-home-hero--compact synedu-home-hero--ecosystem">
+     <div class="synedu-hero-main">
+       <div class="synedu-home-kicker"><span class="synedu-dot"></span> External ecosystem</div>
+       <div class="synedu-home-title">Tools and resources behind SynEdu.</div>
+       <div class="synedu-home-subtitle">
+         SynEdu builds on open-source packages, scientific notebooks, and related SynEco projects.
+       </div>
+     </div>
+   </div>
+
+.. raw:: html
+
+   <div class="synedu-contact-highlights synedu-ecosystem-highlights">
+     <span class="synedu-contact-pill">Chemistry</span>
+     <span class="synedu-contact-pill">Graphs</span>
+     <span class="synedu-contact-pill">Notebooks</span>
+     <span class="synedu-contact-pill">Visualization</span>
+     <span class="synedu-contact-pill">SynEco</span>
+   </div>
+
+.. raw:: html
+
+   <div class="synedu-ecosystem-grid synedu-ecosystem-grid--icons">
+     <div class="synedu-ecosystem-card">
+       <div class="synedu-ecosystem-card__icon">⚗️</div>
+       <div class="synedu-ecosystem-card__title">Cheminformatics</div>
+       <div class="synedu-ecosystem-card__desc">
+         Molecular representations, file conversion, and reaction-aware workflows.
+       </div>
+     </div>
+     <div class="synedu-ecosystem-card">
+       <div class="synedu-ecosystem-card__icon">🕸️</div>
+       <div class="synedu-ecosystem-card__title">Graph modeling</div>
+       <div class="synedu-ecosystem-card__desc">
+         Flexible graph structures and algorithms for reaction and molecular systems.
+       </div>
+     </div>
+     <div class="synedu-ecosystem-card">
+       <div class="synedu-ecosystem-card__icon">📓</div>
+       <div class="synedu-ecosystem-card__title">Notebook workflows</div>
+       <div class="synedu-ecosystem-card__desc">
+         Interactive Jupyter-based teaching and reproducible computational experiments.
+       </div>
+     </div>
+     <div class="synedu-ecosystem-card">
+       <div class="synedu-ecosystem-card__icon">🧪</div>
+       <div class="synedu-ecosystem-card__title">Testing & docs</div>
+       <div class="synedu-ecosystem-card__desc">
+         Tools for documentation, validation, and maintainable educational content.
+       </div>
+     </div>
+   </div>
+
+Overview
+--------
+
+SynEdu builds on open-source Python tools and related SynEco projects. If we use
+your software or resource and it is not yet listed here, please let us know.
 
 Python packages
 ---------------
 
-- Cheminformatics and structural bioinformatics:
+Cheminformatics and graph modeling
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  - ``rdkit``: http://rdkit.org/
-  - ``openbabel``: https://openbabel.org/
-  - ``mdanalysis``: https://www.mdanalysis.org/
-  - ``biopython``: https://biopython.org/
-  - ``biopandas``: https://biopandas.github.io/biopandas/
-  - ``opencadd``: https://opencadd.readthedocs.io/en/latest/
-  - ``plip``: https://github.com/pharmai/plip
-  - ``openff``: https://github.com/openforcefield/openff-toolkit
-  - ``openff-toolkit``: https://github.com/openforcefield/openff-toolkit
-  - ``openmmforcefields``: https://github.com/openmm/openmmforcefields
-  - ``pdbfixer``: https://github.com/openmm/pdbfixer
-  - ``mdanalysis``: https://www.mdanalysis.org/
-  - ``biotite``: https://www.biotite-python.org/
-  - ``smina``: https://sourceforge.net/p/smina/discussion/
+- ``rdkit`` — `RDKit <https://rdkit.org/>`_
+- ``openbabel`` — `Open Babel <https://openbabel.org/>`_
+- ``networkx`` — `NetworkX <https://networkx.org/>`_
 
-- Deep learning: 
+Data science and notebooks
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  - ``pytorch``: https://pytorch.org/
-  - ``pyg``: https://pyg.org/
+- ``numpy`` — `NumPy <https://numpy.org/>`_
+- ``pandas`` — `pandas <https://pandas.pydata.org/>`_
+- ``scikit-learn`` — `scikit-learn <https://scikit-learn.org/>`_
+- ``jupyter`` — `Project Jupyter <https://jupyter.org/>`_
+- ``ipywidgets`` — `ipywidgets <https://ipywidgets.readthedocs.io/>`_
 
-- Data science (PyData stack):
+Visualization
+~~~~~~~~~~~~~
 
-  - ``numpy``: https://numpy.org/
-  - ``pandas``: https://pandas.pydata.org/
-  - ``scikit-learn``: https://scikit-learn.org/
-  - ``keras``: https://keras.io/
-  - ``jupyter``: https://jupyter.org/
-  - ``ipywidgets``: https://ipywidgets.readthedocs.io
+- ``matplotlib`` — `Matplotlib <https://matplotlib.org/>`_
+- ``seaborn`` — `Seaborn <https://seaborn.pydata.org/>`_
 
-- Data visualization:
+Utilities
+~~~~~~~~~
 
-  - ``matplotlib``: https://matplotlib.org/ 
-  - ``mpl_toolkits``: https://matplotlib.org/stable/api/toolkits/mplot3d.html
-  - ``matplotlib_venn``: https://github.com/konstantint/matplotlib-venn
-  - ``seaborn``: https://seaborn.pydata.org/
-  - ``nglview``: http://nglviewer.org/nglview/latest/
+- ``tqdm`` — `tqdm <https://tqdm.github.io/>`_
+- ``requests-cache`` — `requests-cache <https://requests-cache.readthedocs.io/>`_
+- ``redo`` — `redo <https://github.com/mozilla-releng/redo>`_
+- ``google-colab`` — `google-colab <https://pypi.org/project/google-colab/>`_
+- ``condacolab`` — `condacolab <https://pypi.org/project/condacolab/>`_
 
-- Web services clients:
+Testing and documentation
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  - ``pypdb``: https://github.com/williamgilpin/pypdb
-  - ``chembl_webresource_client``: https://github.com/chembl/chembl_webresource_client
-  - ``requests``: https://requests.readthedocs.io/en/latest/
-  - ``bravado``: https://bravado.readthedocs.io/en/stable/
-  - ``beautifulsoup4``: https://www.crummy.com/software/BeautifulSoup/bs4/doc/
+- ``pytest`` — `pytest <https://docs.pytest.org/>`_
+- ``nbval`` — `nbval <https://nbval.readthedocs.io/>`_
+- ``sphinx`` — `Sphinx <https://www.sphinx-doc.org/>`_
+- ``nbsphinx`` — `nbsphinx <https://nbsphinx.readthedocs.io/>`_
+- ``black-nb`` — `black-nb <https://github.com/tomcatling/black-nb>`_
 
-- Utilities:
+SynEco ecosystem
+~~~~~~~~~~~~~~~~
 
-  - ``tqdm``: https://tqdm.github.io/
-  - ``requests_cache``: https://requests-cache.readthedocs.io
-  - ``redo``: https://github.com/mozilla-releng/redo
-  - ``google-colab``: https://pypi.org/project/google-colab/
-  - ``condacolab``: https://pypi.org/project/condacolab/
+- ``SynRBL`` — `PyPI <https://pypi.org/project/synrbl/>`_
+- ``SynKit`` — `Docs <https://synkit.readthedocs.io/en/latest/>`_
+- ``SynTemp`` — `Docs <https://syntemp.readthedocs.io/en/latest/>`_
+- ``SynCat`` — `PyPI <https://pypi.org/project/syncat/>`_
 
-- Continuous integration:
+Acknowledgment
+--------------
 
-  - ``pytest``: https://docs.pytest.org
-  - ``nbval``: https://nbval.readthedocs.io
-
-- Documentation:
-
-  - ``sphinx``: https://www.sphinx-doc.org
-  - ``nbsphinx``: https://nbsphinx.readthedocs.io
-
-- Code style:
-
-  - ``black-nb``: https://github.com/tomcatling/black-nb
-
-Databases and webservers
-------------------------
-
-- ChEMBL: https://www.ebi.ac.uk/chembl/
-- RCSB PDB: https://www.rcsb.org/
-- KLIFS: https://klifs.net/
-- PubMed: https://pubchem.ncbi.nlm.nih.gov/
-- ProteinsPlus: https://proteins.plus/
+We gratefully acknowledge the open-source developers and maintainers whose tools
+make SynEdu possible.

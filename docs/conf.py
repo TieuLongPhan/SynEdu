@@ -85,7 +85,7 @@ highlight_language = "none"
 # ---------------------------------------------------------------------------
 
 html_short_title = "SynEdu"
-html_show_sourcelink = True
+html_show_sourcelink = False
 html_theme = "sphinx_material"
 html_theme_path = sphinx_material.html_theme_path()
 
@@ -103,11 +103,11 @@ html_theme_options = {
     "theme_color": "#0E1B2A",
     "master_doc": False,
     "nav_links": [
-        {"href": "talktorials", "internal": True, "title": "Talktorials"},
-        {"href": "installing", "internal": True, "title": "Run locally"},
+        {"href": "talktorials/index", "internal": True, "title": "Talktorials"},
+        {"href": "installing", "internal": True, "title": "Installing"},
         {"href": "api", "internal": True, "title": "API"},
         {"href": "contribute", "internal": True, "title": "Contribute"},
-        {"href": "citation", "internal": True, "title": "Cite"},
+        # {"href": "citation", "internal": True, "title": "Cite"},
         {"href": "contact", "internal": True, "title": "Contact"},
     ],
     "heroes": {
