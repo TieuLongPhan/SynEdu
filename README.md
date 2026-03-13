@@ -1,14 +1,10 @@
-# **SynEdu** · Graph-based Reaction Modeling Talktorials (S00–S08)
+# SynEdu · Graph-Based Reaction Modeling Talktorials
 
-**SynEdu** is a curated series of **reproducible, theory-driven talktorials** for modern cheminformatics, focusing on **graph-based representations of chemical reactions**, **atom mapping**, and **rule-based reaction modeling**.
+**SynEdu** is a collection of reproducible talktorials for **reaction informatics**, focused on **molecular graphs**, **graph morphisms**, **atom mapping**, and **rule-based reaction modeling**.
 
-Each notebook follows a consistent pedagogical structure:
+The notebooks are designed as a connected learning path from graph-based molecular representation to executable reaction rules and their evaluation.
 
-> **Theory → Formalization → Practical Implementation → Discussion → Quiz**
-
-SynEdu is inspired by *TeachOpenCADD* in style, but goes **beyond tutorials** by introducing **formal semantics (DPO rewriting)**, **algorithmic guarantees**, and **quantitative evaluation**, making the material suitable as:
-- a graduate-level teaching resource, and  
-- a companion repository for **methodological publications** (e.g. *Journal of Cheminformatics*).
+📖 Full documentation: [synedu.readthedocs.io](https://synedu.readthedocs.io/en/latest/)
 
 ---
 
@@ -16,34 +12,22 @@ SynEdu is inspired by *TeachOpenCADD* in style, but goes **beyond tutorials** by
 
 ---
 
-## 📚 Talktorial roadmap (S00–S08)
+## Talktorials
 
-The notebooks are designed to be read **sequentially**, forming a coherent pipeline from molecular graphs to context-aware reaction rules.
-
-### Foundations
-- **S00** — Environment setup, datasets, and notation  
-- **S01** — Typed molecular graphs & chemically valid morphisms  
-- **S02** — Atom mapping: equivalence, comparison, and non-uniqueness  
-
-### Formal reaction semantics
-- **S03** — Double-Pushout (DPO) graph rewriting for chemical reactions  
-- **S04** — Reaction rule extraction via atom maps and reaction-center clustering  
-
-### From rules to systems
-- **S05** — Canonicalization of atom-mapped reactions and rules  
-  *Why multiple atom maps can represent the same chemistry, and how to quotient them*  
-- **S06** — One-step rule application: forward (synthesis) and backward (retrosynthesis)  
-- **S07** — Metrics and trade-offs in rule application  
-  *(coverage, precision, generality, computational cost)*  
-- **S08** — Context graph expansion and rule families  
-  *(radius-based and chemically motivated context control)*  
-
-Together, S01–S08 describe the **full lifecycle** of reaction rules:
-representation → extraction → canonicalization → application → evaluation → refinement.
+- **S01** — From Molecules to Labeled Graphs  
+- **S02** — Graph Morphism in Reaction Informatics  
+- **S03** — Maximum Common Substructure in Reaction Informatics  
+- **S04** — Atom Mapping as Graph Morphism: MCS, RXNMapper, and ITS Equivalence  
+- **S05** — Reaction Rules as Graph Rewriting (DPO) — Chemistry-First, ITS-Native  
+- **S06** — From Atom-Mapped Reactions to DPO Rules: ITS, Reaction Centers, and Fast Clustering  
+- **S07** — Canonicalizing Atom-Mapped Reactions and Rules: Equivalence, Symmetry, Determinism  
+- **S08** — One-Step Rule Application (Forward & Backward): DPO Rules as Reaction Engines  
+- **S09** — Metrics for Rule Application: Coverage, Recall, Branching, and Cost  
+- **S10** — Context Graph Expansion: Systematic Control of Rule Specificity  
 
 ---
 
-## 🚀 Quickstart
+## Quickstart
 
 ```bash
 conda env create -f env/environment.yml
@@ -51,15 +35,15 @@ conda activate synedu
 jupyter lab
 ```
 
-Open notebooks in `synedu/` in order (S00 → S08).
+Open the notebooks in order from **S01** to **S10**.
 
 ## Contributing
-- [Tieu-Long Phan](https://tieulongphan.github.io/)
 
+- [Tieu-Long Phan](https://tieulongphan.github.io/)
 
 ## License
 
-This project is licensed under MIT License - see the [License](LICENSE) file for details.
+MIT License. See [LICENSE](LICENSE).
 
 ## Acknowledgments
 
