@@ -1,0 +1,50 @@
+name: synedu
+
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  - python=3.11
+
+  # Core runtime
+  - numpy>=1.26
+  - pandas>=2.1
+  - networkx>=3.3
+  - matplotlib>=3.8
+  - seaborn>=0.13.2
+  - regex>=2024.11.6
+  - requests>=2.32.3
+  - ipython>=8.18
+  - jupyterlab>=4.0
+
+  # Common notebook support
+  - nbformat>=5.9
+  - nbconvert>=7.16
+
+  # pip for packages not reliably available via conda
+  - pip
+
+  - pip:
+      # Build / packaging
+      - hatchling
+
+      # Developer tools
+      - black>=24.3
+      - flake8>=7.0
+      - flake8-bugbear
+      - flake8-docstrings
+      - pytest>=8.0
+      - nbval>=0.11
+      - pre-commit>=3.6
+
+      # Documentation
+      - sphinx>=7.2,<9
+      - docutils>=0.20,<0.22
+      - sphinx-material
+      - nbsphinx
+      - nbsphinx-link
+      - sphinx-copybutton
+      - sphinx-gallery
+      - myst-parser>=2.0
+      - pypandoc-binary>=1.14
