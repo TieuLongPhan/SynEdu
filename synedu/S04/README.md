@@ -1,479 +1,404 @@
-# S03 · Reaction Rules as Graph Rewriting (DPO) — Chemistry-first, ITS-native
+# S03 · Atom Mapping as Graph Morphism: MCS, RXNMapper, and ITS Equivalence
 
 <div class="alert alert-block alert-info">
-<b>SynEdu (S03).</b><br>
-This notebook continues S01 (typed molecular graphs & matching) and upgrades from “static graphs” to
-<b>transformations</b>: reaction rules, graph rewriting, and chemistry-flavoured examples (Diels–Alder).
+<b>Welcome to S03.</b><br>
+This talktorial extends <b>S01–S02</b> from single-molecule matching to the
+<b>reaction setting</b>. We move from pattern alignment to
+<b>atom mapping</b>, treating mappings as explicit graph morphisms between
+reaction sides.
 </div>
 
 <div class="alert alert-block alert-success">
-<b>Aim.</b><br>
-Represent a reaction as a <b>rule</b> and apply it to molecules in a way that is:
-<ul>
-  <li><b>mathematically precise</b> (typed morphisms, DPO rewriting)</li>
-  <li><b>chemistry interpretable</b> (bond breaking/forming, conserved atoms)</li>
-  <li><b>implementation-ready</b> (RDKit ⇄ NetworkX, atom-mapped reaction SMARTS)</li>
-</ul>
+<b>What you will gain.</b><br>
+You will learn how to construct atom maps from MCS alignments, understand
+their failure modes, apply a modern ML-based mapper (RXNMapper), and compare
+atom maps rigorously using <b>ITS graph isomorphism</b>.
 </div>
 
 <div class="alert alert-block alert-warning">
-<b>Key design decision in S03.</b><br>
-For export and comparison we construct an <b>ITS-like change graph</b> <i>directly</i>, then decompose it into
-reactant/product graphs. This makes atom correspondence <b>identity-by-node-id</b> (no extra mapping step).
+<b>Prerequisites.</b><br>
+You should be comfortable with:
+<ul>
+  <li>Typed molecular graphs and morphisms (S01)</li>
+  <li>Subgraph isomorphism, symmetry, and MCS (S02)</li>
+  <li>Basic reaction SMILES notation</li>
+</ul>
 </div>
 
 
 
+## Aim of this talktorial
+
+In **S01**, we formalized molecules as typed graphs and defined
+label-preserving morphisms.
+In **S02**, we studied subgraph matching and MCS as alignment primitives.
+
+This talktorial (**S03**) brings these ideas into the **reaction domain**.
+We view a chemical reaction as two multisets of molecular graphs
+(reactants → products) and treat **atom mapping** as a
+*label-preserving partial isomorphism* between them.
+
+Concretely, we focus on:
+
+1. **MCS-based atom mapping**  
+   Building an atom correspondence by aligning maximum common substructures
+   between reactants and products.
+
+2. **Failure modes of naive MCS mapping**  
+   Understanding why MCS alone is insufficient:
+   symmetry, multi-component ambiguity, and unbalanced reactions.
+
+3. **Attention-guided atom mapping (RXNMapper)**  
+   Running RXNMapper to obtain mapped reaction SMILES and extracting atom maps.
+
+4. **ITS graph construction**  
+   Encoding a mapped reaction as an **Imaginary Transition State (ITS)** graph.
+
+5. **Map comparison via graph isomorphism**  
+   Comparing different atom maps by testing **ITS isomorphism**, making the
+   comparison invariant to atom-map IDs.
+
+---
+
 ## Learning outcomes
 
-By the end of this talktorial you can:
+After completing this talktorial, you will be able to:
 
-1. Write a reaction rule as a **span** \(L \leftarrow K \rightarrow R\) and explain each part chemically.
-2. Formally define a **match** \(m: L \hookrightarrow G\) and enumerate all applications in a host molecule.
-3. Construct an **ITS graph** \(T\) capturing bond changes (pre/post labels) *without first materializing the product*.
-4. Decompose \(T\) back into reactant/product graphs (projection), and export **atom-mapped reaction SMARTS**.
-5. Implement a worked Diels–Alder example and inspect **formed/broken/changed** bonds.
+- Interpret an **atom map** as a label-preserving (partial) graph morphism.
+- Construct a simple **MCS-based atom map** in code.
+- Identify when and why MCS-based mapping fails.
+- Run **RXNMapper** and parse mapped reaction SMILES.
+- Build an **ITS graph** from a mapped reaction.
+- Decide whether two atom maps are equivalent by checking
+  **ITS graph isomorphism**.
 
-## Roadmap
+---
 
-- **0. Setup** (imports, versions, helpers)
-- **1. Formalism** (typed graphs, morphisms, DPO rewriting, correctness conditions)
-- **2. RDKit ⇄ NetworkX** (typed molecular graphs)
-- **3. DPO kernel** (matching + rewrite) and why chemistry needs *wildcards*
-- **4. ITS-first rewriting** (construct ITS directly; decompose into reactant/product)
-- **5. Export** (atom-mapped reaction SMARTS from ITS)
-- **6. Example**: Diels–Alder (butadiene + ethene → cyclohexene)
-- **7. Exercises**
+## Outline
 
-
-
-## Example molecules used in this notebook
-
-We will use a classic *pericyclic* transformation:
-
-- **Diene**: butadiene (SMILES: `C=CC=C`)
-- **Dienophile**: ethene (SMILES: `C=C`)
-- Combined as a disconnected reactant mixture: `C=CC=C.C=C`
-
-> Chemistry caveat: this is a toy model (no stereochemistry, no substituents, no endo/exo control).
-The point is to demonstrate **bond reorganisation** under a rule-based graph rewriting view.
+0. **Setup & reaction data**
+1. **Atom mapping as a graph morphism**
+2. **MCS-based atom mapping (baseline)**
+3. **Failure cases: symmetry, components, imbalance**
+4. **RXNMapper: attention-based atom mapping**
+5. **ITS construction from mapped reactions**
+6. **Comparing atom maps via ITS isomorphism**
+7. **Discussion, quiz, and references**
 
 
+## 0. Setup & Data
 
-## 1. Formalism: chemistry as typed graph rewriting
+We use:
+- **RDKit** for molecules + MCS (`rdFMCS`)
+- **NetworkX** for ITS graphs + isomorphism tests
+- **rxnmapper** (optional) for a strong baseline mapper
 
-### 1.1 Typed molecular graphs (recap from S01)
-
-A (heavy-atom) molecule is a **typed graph**
-
-\[
-G = (V_G, E_G, a_G, b_G),
-\]
-
-where:
-
-- \(V_G\) = atoms (vertices),
-- \(E_G \subseteq \{\{u,v\}\mid u\neq v\}\) = bonds (undirected edges),
-- \(a_G: V_G \to \Sigma_V\) = **atom typing** (element, charge, aromaticity, chirality, …),
-- \(b_G: E_G \to \Sigma_E\) = **bond typing** (order, aromaticity, ring flag, …).
-
-Chemistry interpretation:
-- vertex labels enforce that carbon maps to carbon, etc.
-- edge labels enforce that a double bond is not confused with a single bond unless you *allow* it.
-
-### 1.2 Label-preserving morphisms
-
-A **typed graph morphism** \(\varphi: G \to H\) is a function on vertices
-\(\varphi_V: V_G \to V_H\) such that:
-
-1. **Atom label preservation**  
-\[
-a_H(\varphi_V(v)) = a_G(v)\quad \forall v\in V_G.
-\]
-
-2. **Adjacency and bond label preservation**  
-For every \(\{u,v\}\in E_G\),
-\[
-\{\varphi_V(u),\varphi_V(v)\}\in E_H
-\quad\text{and}\quad
-b_H(\{\varphi_V(u),\varphi_V(v)\}) = b_G(\{u,v\}).
-\]
-
-In practice we often restrict to **injective** morphisms (embeddings), written
-\[
-m: G \hookrightarrow H,
-\]
-which is what NetworkX returns in subgraph matching.
-
-### 1.3 Reaction rules as spans \(L \leftarrow K \rightarrow R\)
-
-A reaction rule is encoded by three typed graphs:
-
-- \(L\) (**left**) — the pattern to be found in a reactant
-- \(R\) (**right**) — what replaces it in the product
-- \(K\) (**context/interface**) — what is preserved (the “atom identity backbone”)
-
-Formally a DPO rule is a span of morphisms
-
-\[
-L \xleftarrow{\ell} K \xrightarrow{r} R,
-\]
-
-where \(\ell\) and \(r\) embed \(K\) into \(L\) and \(R\).
-
-Chemistry interpretation:
-- \(V_K\) are the atoms that keep their identities through the reaction (the “mapped atoms”).
-- \(E_L \setminus E_K\): bonds that must be **broken** (or bond types that must disappear).
-- \(E_R \setminus E_K\): bonds that must be **formed**.
-
-A bond **order change** is naturally represented by
-- old bond in \(L\) but not in \(K\),
-- new bond in \(R\) but not in \(K\),
-while the endpoints remain in \(K\).
-
-### 1.4 Where can a rule apply? matches \(m: L \hookrightarrow G\)
-
-Given a reactant molecule graph \(G\), a match is an injective morphism
-
-\[
-m: L \hookrightarrow G.
-\]
-
-Chemically: “find a substructure in the reactant that looks like the reacting pattern”.
-
-NetworkX’s `GraphMatcher(G, L).subgraph_isomorphisms_iter()` enumerates all such matches.
-
-### 1.5 Correctness conditions you should care about (chemistry view)
-
-DPO rewriting is “correct” when two constraints hold (informally):
-
-1. **Dangling condition** (no half-bonds):  
-if you delete an atom (node), you must also delete all incident bonds.  
-Chemistry: you cannot leave a bond to a missing atom.
-
-2. **Identification condition** (don’t accidentally merge distinct atoms):  
-the match must not identify two different pattern atoms onto the same host atom.  
-Chemistry: two atoms in the reacting pattern cannot map to one atom in the molecule.
-
-In this notebook we focus on the common chemistry case: **atom-conserving rules**
-(\(V_L = V_K = V_R\)) and only **bond changes**.
+If `rxnmapper` is not installed, the notebook still runs and will skip those parts.
 
 
+## 1. Formal description
 
-### 1.6 The categorical DPO diagram (what “double pushout” means)
+### 1.1 Molecular graphs (S01 recap)
 
-In category language, rewriting is defined by two pushouts:
+In **S01**, a molecule is modeled as a **typed labeled graph**
 
-\[
-\require{AMScd}
-\begin{CD}
-K @>{r}>> R \\
-@V{\ell}VV @VVV \\
-L @>>> D
-\end{CD}
+$$
+G = (V, E, a, b),
+$$
+
+with the following data:
+
+$$
+V \;\text{is a finite set of atoms},
 \qquad
-\begin{CD}
-L @>{m}>> G \\
-@VVV @VVV \\
-D @>>> H
-\end{CD}
-\]
+E \subseteq \{\{u,v\} \mid u,v \in V,\; u \neq v\},
+$$
 
-- The first square constructs the **pushout complement** \(D\): it “removes” \(L\setminus K\) from \(G\) (subject to the dangling condition).
-- The second square glues in \(R\setminus K\) to produce the product \(H\).
+$$
+a : V \longrightarrow \mathcal{A},
+\qquad
+\mathcal{A} = \text{atom label space},
+$$
 
-**Chemistry translation**
-- \(K\) are the mapped atoms.
-- \(L\setminus K\) are deleted atoms/bonds (leaving groups, bond cleavage).
-- \(R\setminus K\) are created atoms/bonds (new substituents, bond formation).
+$$
+b : E \longrightarrow \mathcal{B},
+\qquad
+\mathcal{B} = \text{bond label space}.
+$$
 
-In this notebook we implement the same effect algorithmically (delete-then-add), and additionally
-construct an ITS graph that records the pre/post state in one object.
+A **label-preserving graph morphism**
+
+$$
+\varphi : V(G) \longrightarrow V(H)
+$$
+
+satisfies:
+
+$$
+\text{(M1)} \quad
+a_H(\varphi(v)) = a_G(v)
+\quad \forall v \in V(G),
+$$
+
+$$
+\text{(M2)} \quad
+\{u,v\} \in E(G)
+\;\Rightarrow\;
+\{\varphi(u), \varphi(v)\} \in E(H),
+$$
+
+$$
+\text{(M3)} \quad
+b_H(\{\varphi(u), \varphi(v)\})
+=
+b_G(\{u,v\})
+\quad \text{(optional)}.
+$$
+
+An **isomorphism** is a bijective morphism whose inverse is also a morphism.
+
+---
+
+### 1.2 Reactions and atom mapping as partial isomorphisms
+
+A reaction SMILES is written as
+
+$$
+R \;\gg\; P,
+$$
+
+where \(R\) and \(P\) are multisets of molecules.
+Each side is represented as a **disjoint union of molecular graphs**:
+
+$$
+G_R = \biguplus_i G_{R_i},
+\qquad
+G_P = \biguplus_j G_{P_j}.
+$$
+
+In general,
+
+$$
+G_R \not\cong G_P,
+$$
+
+because reactions may be unbalanced and some atoms may not participate.
+
+An **atom map** is therefore modeled as a **partial isomorphism**:
+find subgraphs
+
+$$
+G_R' \subseteq G_R,
+\qquad
+G_P' \subseteq G_P,
+$$
+
+and an isomorphism
+
+$$
+\varphi : V(G_R') \longrightarrow V(G_P')
+$$
+
+that maximizes
+
+$$
+|V(G_R')|.
+$$
+
+---
+
+### 1.3 Maximum Common Substructure (MCS) and its role (S02)
+
+As formalized in **S02**, a **Maximum Common Substructure (MCS)** between
+\(G_R\) and \(G_P\) is a graph
+
+$$
+K = (V_K, E_K, a_K, b_K)
+$$
+
+together with injective morphisms
+
+$$
+\iota_R : V_K \hookrightarrow V(G_R),
+\qquad
+\iota_P : V_K \hookrightarrow V(G_P),
+$$
+
+such that
+
+$$
+K \in
+\arg\max_{S}
+\left(
+|V(S)|
+\;\middle|\;
+S \hookrightarrow G_R,\;
+S \hookrightarrow G_P
+\right).
+$$
+
+The embeddings \(\iota_R\) and \(\iota_P\) induce an atom map
+
+$$
+\varphi
+=
+\iota_P \circ \iota_R^{-1}
+:
+V(G_R') \longrightarrow V(G_P'),
+$$
+
+where \(G_R' = \iota_R(K)\) and \(G_P' = \iota_P(K)\).
+
+---
+
+### 1.4 From MCS to ITS and map equivalence
+
+Given an atom map \(\varphi\), the **Imaginary Transition State (ITS)** graph
+encodes bond changes via paired labels
+
+$$
+b_{\mathrm{ITS}} : E_{\mathrm{ITS}} \longrightarrow \mathcal{B}_R \times \mathcal{B}_P.
+$$
+
+Two atom maps are considered **equivalent** if their corresponding ITS graphs
+are **isomorphic** under label-preserving graph isomorphism, as defined in **S01**.
 
 
 
-### 1.7 Practical correctness checks (what to verify in code)
+## 2. Utilities: parsing and RDKit helpers
 
-When you implement rules in practice, you usually want to validate:
-
-1. **Interface consistency:** \(K\) must embed into both \(L\) and \(R\).  
-   (Here we enforce this by using shared node ids for \(K\) inside \(L\) and \(R\).)
-
-2. **Dangling condition (node deletion):** if a host atom is deleted, it must not have bonds to atoms outside the matched subgraph.
-
-3. **Typing consistency:** labels used in `node_match`/`edge_match` must be consistent across RDKit graphs and rule graphs.
-
-We will implement (2) as an optional filter for matches (useful for leaving group rules).
+Conventions:
+- mapped atoms are those with `atom.GetAtomMapNum() > 0`
+- our teaching MCS mapper allows **partial mapping** (unbalanced OK)
 
 
+## 3. Atom mapping via MCS (teaching version)
 
-## 2. RDKit ⇄ NetworkX: typed molecular graphs
+### 3.1 Problem with the naive idea
 
-We reuse the S01 “typed molecular graph” representation.
+A naive MCS mapper assumes **one reactant vs one product**.
+It fails on:
+- multi-component reactions (assignment problem),
+- symmetry (many equally valid embeddings),
+- unbalanced reactions (extra/missing atoms).
 
-**Node attributes** (atoms):
-- `symbol`, `formal_charge`, `aromatic`, `chiral_tag`
-- optionally `total_h`
+### 3.2 Patch for teaching
 
-**Edge attributes** (bonds):
-- `order` (1/2/3), `aromatic`, `in_ring`
-
-This is enough for most pedagogical examples.
-
-
-
-## 3. DPO rewriting kernel (chemistry-friendly)
-
-### 3.1 Why chemistry rules need wildcards
-
-A “reaction rule” almost never wants to pin down *every* atom attribute.
-Examples:
-- a Diels–Alder rule wants “carbon, non-aromatic”, but usually not fixed `chiral_tag`.
-- generic rules often allow any `formal_charge` on spectator atoms.
-- aromaticity handling depends on the representation (Kekulé vs aromatic bonds).
-
-So we use **pattern-side wildcards**:
-- if an attribute is missing in the pattern, we ignore it;
-- if present but `None`, we also ignore it;
-- otherwise we require equality.
-
-This corresponds to defining a compatibility predicate
-\(\Phi_V(d_G, d_L)\) and \(\Phi_E(d_G, d_L)\).
+We extend the mapper to:
+- choose a component assignment maximizing total MCS size,
+- allow partial mapping (unmatched atoms remain unmapped),
+- keep deterministic choices (first embedding) for reproducibility.
 
 
+### 3.3 Demo set (balanced, multi-component, symmetry, unbalanced)
 
-### 3.2 Matches in NetworkX: beware mapping direction
 
-If you build:
+### 3.4 Symmetry deep dive: counting MCS embeddings
 
-```python
-GM = GraphMatcher(G, L)
-```
+In symmetric systems, MCS has many matches (S01: automorphisms).
+We count how many embeddings RDKit finds for benzene → chlorobenzene ring conservation.
 
-then `subgraph_isomorphisms_iter()` yields dictionaries mapping
 
+## 4. Attention-guided atom mapping (RXNMapper)
+
+RXNMapper is an *unsupervised* atom-mapping method that extracts atom correspondences from
+attention patterns learned by a Transformer model pretrained on reaction SMILES with a
+masked-language objective (ALBERT/BERT-style), i.e. without requiring gold atom maps.
+
+Let a reaction be written as a token sequence
+$$
+x = (x_1,\dots,x_T),
+\qquad x = R \; \gg \; P,
+$$
+where a subset of tokens correspond to atoms on the reactant side and product side.
+During pretraining, a random subset of tokens is masked and the model is trained to recover them:
+$$
+\min_\theta \; \mathbb{E}\big[ -\log p_\theta(x_{\mathcal{M}} \mid x_{\setminus\mathcal{M}})\big].
+$$
+
+At inference time, we extract an attention-based alignment matrix between reactant-atom tokens
+and product-atom tokens:
+$$
+A \in \mathbb{R}_{\ge 0}^{m \times n},
+\qquad
+A_{ij} := \text{Attn}(r_i \rightarrow p_j),
+$$
+where $r_i$ is the $i$-th reactant atom token and $p_j$ is the $j$-th product atom token
+(typically using a selected layer/head and a scalar sharpening factor).
+
+Atom mapping is then posed as a maximum-weight assignment:
+$$
+\mu = \arg\max_{\mu \in \Pi} \sum_{i=1}^{m} A_{i,\mu(i)},
+$$
+where $\Pi$ is the set of valid (partial) matchings subject to basic chemical constraints
+(e.g., element-type consistency). Because $\mu$ is inferred from attention, bond-order
+preservation is **not** imposed, so bond formation/cleavage and order changes are allowed.
+
+RXNMapper returns:
+- `mapped_rxn`: reaction SMILES annotated with atom-map indices induced by $\mu$,
+- `confidence`: a scalar summary of alignment consistency (higher typically indicates more reliable maps).
+
+
+We follow the Molecular Transformer framework for reaction modeling[^mt] and use RXNMapper for attention-guided atom mapping[^rxn].
+
+[^mt]: Schwaller *et al.* (2019), *Molecular Transformer: A Model for Uncertainty-Calibrated Chemical Reaction Prediction*, ACS Cent. Sci. DOI: 10.1021/acscentsci.9b00576. https://pubs.acs.org/doi/10.1021/acscentsci.9b00576
+[^rxn]: Schwaller *et al.* (2021), *Extraction of organic chemistry grammar from unsupervised learning of chemical reactions* (RXNMapper), Sci. Adv. DOI: 10.1126/sciadv.abe4166. https://www.science.org/doi/10.1126/sciadv.abe4166
+
+
+
+## 5. ITS graph construction
+
+ITS nodes are map numbers. ITS edges carry labels `(br, bp)`:
+- `br`: bond order in reactants (0 if absent)
+- `bp`: bond order in products (0 if absent)
+
+Reaction center edges are those with `br != bp`.
+
+
+## 6. Comparing atom maps via ITS isomorphism (map-number invariant)
+
+We use `networkx.GraphMatcher` (S01) with:
+- `node_match`: compare node labels (`R_*`, `P_*`)
+- `edge_match`: compare `(br,bp)`
+
+
+## 7. End-to-end table: MCS mapper vs RXNMapper
+
+We compute:
+- `mcs_mapped`
+- `rxnmapper_mapped` + `conf` (if available)
+- `ITS_iso(MCS,RXNMapper)` when both exist
+
+
+## 8. Bonus: reaction center from ITS
+
+Reaction center edges:
 \[
-V(G)\to V(L)
+RC = \{ (u,v)\in E(G_{ITS}) : b_R(u,v)\neq b_P(u,v)\}.
 \]
 
-i.e. **host node → pattern node**.
+This is a lightweight extractor that doesn't need templates.
 
-For rewriting we want **pattern node → host node**, so we invert each mapping.
 
+## 9. Exercises
 
+### Exercise 1 (S01 link): make the isomorphism “too permissive”
+Modify `node_match` in `its_isomorphic` to ignore charge and compare results on `sn2_substitution`.
 
-## 4. ITS-first rewriting (DPO-like)
+### Exercise 2: symmetry
+Force a different MCS embedding for benzene chlorination (swap which match you pick) and show ITS-isomorphism stays `True`.
 
-### 4.1 What is an ITS graph here?
+### Exercise 3: scaling
+Why does brute-force component assignment explode? Estimate complexity for `n` components.
 
-We define an ITS-like graph \(T\) that stores **both** pre- and post- bond types
-on the *same atom identities*.
+### Exercise 4: aromatic handling
+Encode aromatic bonds with a special integer (e.g., 15) and see if comparisons change.
 
-- Nodes represent atom identities (plus possibly created/deleted atoms).
-- Each edge carries a pair:
-  \[
-  (b_{\text{pre}}, b_{\text{post}}),
-  \]
-  where \(b=0\) means “no bond”.
 
-Chemistry reading:
-- formed bond: \(0 \to 1\) (or \(0\to 2\))
-- broken bond: \(1 \to 0\) (or \(2\to 0\))
-- order change: \(1 \to 2\) etc.
+## 10. Takeaways
 
-### 4.2 Why construct ITS directly?
-
-If you construct a product graph first, you must still maintain an atom mapping.
-In DPO, the “identity backbone” is precisely \(K\), so the natural carrier object is:
-
-> **the change graph** on conserved identities, plus any created/deleted identities.
-
-By building ITS directly, the mapping is trivial:
-- reactant atom \(v\) maps to product atom \(v\) **by node id**.
-
-This makes export to atom-mapped SMARTS clean and deterministic.
-
-
-
-## 5. Export: atom-mapped reaction SMARTS (ITS-native)
-
-### 5.1 DPO-like “identity = node id”
-
-Because we build ITS \(T\) on conserved identities, a node \(v\) refers to:
-
-- the same atom in the reactant graph \(\pi_{\text{pre}}(T)\),
-- the same atom in the product graph \(\pi_{\text{post}}(T)\),
-
-whenever \(v\) is present in both (`present_pre=True` and `present_post=True`).
-
-So atom mapping becomes **identity-by-node-id**:
-\[
-\text{map}(v) := v+1.
-\]
-
-New atoms (if created) naturally get fresh ids \(> \max(V_G)\), therefore also fresh map numbers.
-
-### 5.2 Implementation
-
-We:
-1. project ITS → reactant graph \(G\) and product graph \(H\),
-2. convert each graph to RDKit Mol,
-3. set atom maps by graph node id,
-4. export `MolToSmarts(reactant)>>MolToSmarts(product)`.
-
-This avoids any post-hoc “mapping inference”.
-
-
-
-### 5.3 Practical detail: RDKit atom reordering vs. mapping stability
-
-RDKit may reorder atoms internally during sanitization or SMILES/SMARTS generation.
-That is **not a problem** as long as:
-
-- each atom carries its `AtomMapNum`,
-- the same identity uses the same map number on both sides.
-
-Because we set `map = node_id + 1` after converting from graphs, the mapping remains stable even if RDKit
-chooses a different atom ordering for the final SMARTS string.
-
-
-
-## 6. Worked example: Diels–Alder as a DPO rule
-
-### 6.1 Chemistry view
-
-Diels–Alder (4+2 cycloaddition) is a **concerted** pericyclic reaction:
-
-- two \(\pi\) bonds disappear,
-- two new \(\sigma\) bonds appear,
-- one \(\pi\) bond remains in the cyclohexene product.
-
-We encode this as a bond-rewriting rule that conserves all 6 carbon atoms:
-
-- \(V_L = V_K = V_R\) (atom-conserving)
-- only edges/bond orders change
-
-This is the “cleanest” DPO case, and ideal for educational purposes.
-
-
-
-### 6.2 Apply rule → ITS → (reactant, product) → mapped SMARTS
-
-We:
-- convert RDKit reactant mixture to a typed graph \(G\),
-- apply the rule to get ITS graphs \(T\),
-- decompose the first ITS to reactant/product,
-- export mapped reaction SMARTS.
-
-
-
-**Sanity check:** Diels–Alder is atom-conserving (no node deletion), so the dangling condition is trivially satisfied.
-For leaving-group rules, `strict_dangling=True` helps prevent chemically nonsensical deletions that cut bonds outside the matched substructure.
-
-
-### 6.3 Inspect the ITS: formed / broken / changed bonds
-
-For each ITS edge \(uv\), we look at \((\text{pre\_order}, \text{post\_order})\).
-
-- formed: \(0 \to >0\)
-- broken: \(>0 \to 0\)
-- order change: \(>0 \to >0\) but different
-
-
-
-### 6.3b A compact ITS “transition fingerprint”
-
-A very lightweight mapping-free reaction descriptor is the multiset of bond transitions:
-
-\[
-\{(b_{\text{pre}}, b_{\text{post}})\}_{uv\in E(T)}.
-\]
-
-For example:
-- many \(2\to 1\) transitions indicate \(\pi\)-bonds turning into \(\sigma\)-bonds,
-- \(0\to 1\) counts are bond formations,
-- \(1\to 0\) counts are bond breakages.
-
-This is not as expressive as full ITS isomorphism, but it is cheap and often useful for clustering/filtering.
-
-
-
-Chemistry check (Diels–Alder expectation):
-
-- **broken**: the dienophile double bond \(e=f\) becomes single (often represented as an order change),
-  and one diene double bond changes.
-- **formed**: two new C–C \(\sigma\) bonds close the ring.
-
-Because our minimal rule encodes “remove old double bonds, add new single bonds”, you should see:
-- two **formed** edges,
-- and **order_change** edges accounting for \(\pi\to\sigma\) shifts.
-
-
-
-### 6.4 Verify projections: ITS → reactant graph and product graph
-
-We can reconstruct RDKit molecules from the projected graphs and compare SMILES.
-
-
-
-## 7. Technical notes (what you will want in real chemistry pipelines)
-
-### 7.1 Aromaticity and Kekulé form
-RDKit may represent aromatic systems with aromatic bonds (`BondType.AROMATIC`) or Kekulé double/single.
-A rule library must decide on one representation:
-- either match on `aromatic=True` bonds/nodes,
-- or kekulize all molecules before rewriting.
-
-### 7.2 Stereochemistry (endo/exo, R/S)
-Pericyclic reactions have stereochemical outcomes. Encoding this requires:
-- stereo atom attributes (chiral tags),
-- double bond stereo (E/Z),
-- and rule-side constraints (not just plain graph rewriting).
-
-### 7.3 Atom addition/deletion (leaving groups, proton transfers)
-Many reactions are not atom-conserving in the heavy-atom graph, especially if you omit spectators.
-The ITS design here supports this via:
-- `present_pre`, `present_post` on nodes,
-- `pre_order=0` or `post_order=0` on edges.
-
-### 7.4 Multiple matches and automorphisms
-Symmetric patterns lead to multiple subgraph isomorphisms.
-For chemistry, you often want **unique products**:
-- we deduplicate ITS graphs by isomorphism on `(pre,post)` edge labels.
-
-
-
-## 8. Exercises
-
-Try these without changing the core kernels.
-
-### Exercise 1 — Diels–Alder variants
-Change the Diels–Alder rule so that the remaining double bond is **a–b** instead of **b–c**.
-- How do the ITS “order_change” edges differ?
-- Does RDKit sanitize the product?
-
-### Exercise 2 — Add a wildcard
-Modify matching keys so that the rule matches carbon atoms regardless of `formal_charge`.
-(Hint: omit `formal_charge` from `node_keys`.)
-
-### Exercise 3 — Build a tiny rule for “halogen substitution”
-Encode a rule that replaces `C–Cl` with `C–O` (as in your earlier example) and export mapped SMARTS via ITS.
-- Verify the mapping is identity-by-node-id for conserved atoms.
-
-
-
-<details>
-<summary><b>Solutions (sketch)</b></summary>
-
-**Ex1.** In `diels_alder_rule_minimal`, change which edge in `R` is double.
-You must also ensure the corresponding edges in `L` that should disappear are present (and not in `K`).
-
-**Ex2.** Call:
-
-```python
-Ts = apply_rule_to_its(G, rule_da, node_keys=("symbol","aromatic"), edge_keys=("order","aromatic"))
-```
-
-**Ex3.** Use \(K\) with the carbon node only; in ITS, carbon keeps its node id so map numbers are consistent.
-
-</details>
+- Atom mapping can be formalized as a **partial isomorphism** between reaction-side graphs (S01 morphisms).
+- MCS is a principled baseline but needs help for multi-component, symmetry, and unbalanced cases.
+- RXNMapper provides a strong practical mapping + confidence.
+- ITS graphs give a compact transformation representation.
+- ITS isomorphism is a clean map-number-invariant way to compare atom maps.
