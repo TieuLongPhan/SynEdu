@@ -1,4 +1,4 @@
-# S08 · Metrics for Rule Application: Coverage, Recall, Branching, and Cost
+# S09 · Context Graph Expansion: Systematic Control of Rule Specificity
 
 <div class="alert alert-block alert-info">
 <b>Welcome to SynEdu.</b><br>
@@ -8,98 +8,91 @@ This talktorial is part of <b>SynEdu</b>, a lightweight, research-oriented teach
 
 <div class="alert alert-block alert-success">
 <b>What you will gain.</b><br>
-Rules are only useful if we can <b>measure</b> how they behave.
-In this notebook we define a practical evaluation protocol for one-step rule application and implement
-metrics that capture the <b>precision–recall–cost</b> trade-offs that appear in rule-based reaction modeling.
+We introduce <b>context expansion</b> as a principled knob to control how general or specific a reaction rule is.
+Starting from a reaction center, we expand the context by a graph radius \(r\) to obtain a family of rules
+\(p_r\). We then measure how \(r\) changes <b>coverage</b>, <b>branching</b>, and <b>hit rate</b>.
 </div>
 
 ## Aim of this talktorial
 
 ## Learning outcomes
 By the end of this notebook, you should be able to:
-- Define one-step tasks (forward prediction and retrosynthesis) in terms of candidate generation.
-- Implement coverage, top-\(k\) recall, branching factor, and simple cost metrics.
-- Build a rule library from mapped reactions and evaluate it on a held-out subset.
-- Understand why context size, matching predicates, and deduplication change the metrics.
+- Define a reaction center \(C\) on the ITS graph and its radius-\(r\) neighborhood \(N_r(C)\).
+- Construct a rule family \(p_r\) by extracting \(L_r,K_r,R_r\) on that neighborhood.
+- Evaluate rule libraries across radii \(r=0,1,2,\dots\) with the S07 metrics.
+- Interpret the specificity–coverage–branching trade-off and choose \(r\) for an application.
 
 ## Roadmap
 - 0. Setup & data
-- 1. Theory: what to measure (and why)
-- 2. Building a rule library (canonicalized)
-- 3. One-step evaluation protocol
-- 4. Results & interpretation
-- 5. Exercises
+- 1. Theory: neighborhoods and rule families
+- 2. Implementation: extract libraries for multiple radii
+- 3. Trade-off curves (coverage vs branching, hit vs branching)
+- 4. Exercises
 
 
 
-## 1. Theory: what to measure
+## 1. Theory: neighborhoods and rule families
 
-A one-step rule engine is a **candidate generator**.
+Let \(G_{\mathrm{ITS}}\) be the ITS graph built from an atom-mapped reaction (S04).
 
-Given:
-- a host \(G\) (reactants, or products for retrosynthesis),
-- a rule library \(\mathcal{P}=\{p_1,\dots,p_M\}\),
-
-we generate a set of candidates:
+### 1.1 Reaction center
+We define the **core center** \(C\subseteq V(G_{\mathrm{ITS}})\) as the set of atoms incident to a changed bond:
 \[
-\mathcal{C}(G) = \bigcup_{p\in\mathcal{P}} \{\,\text{apply}(G,p,m)\ :\ m \in \mathrm{Match}(p,G)\,\}.
+C = \{\,v\in V : \exists (u,v)\in E,\ \mathrm{order}_r(u,v)\neq \mathrm{order}_p(u,v)\,\}
+\]
+(optionally also including formal-charge changes).
+
+### 1.2 Context expansion (radius-\(r\) neighborhood)
+
+For \(r\ge 0\), define the radius-\(r\) neighborhood:
+\[
+N_r(C) = \{\,v\in V : \mathrm{dist}(v, C)\le r\,\}.
 \]
 
-Let the ground truth target for \(G\) be \(T(G)\) (e.g., the true products of that reaction).
+Chemistry meaning:
+- \(r=0\): only atoms directly involved in bond changes (most general, most ambiguous).
+- \(r=1\): include immediate neighbors (often enough to identify functional groups).
+- larger \(r\): include more local environment (more specific, less transferable).
 
-### Metrics
-
-**Coverage**
+### 1.3 Rule family
+From \(N_r(C)\) we extract a DPO rule:
 \[
-\mathrm{cov} = \Pr\big(|\mathcal{C}(G)|>0\big)
+p_r:\quad L_r \leftarrow K_r \rightarrow R_r.
 \]
-Fraction of hosts for which at least one rule applies.
-
-**Top-\(k\) recall** (candidate contains truth)
+As \(r\) increases, \(L_r\) contains more constraints, so matches become rarer:
 \[
-\mathrm{rec@}k = \Pr\big(T(G) \in \mathrm{TopK}(\mathcal{C}(G))\big).
-\]
-In this notebook we will use an unranked version (set membership), i.e. \(k=\infty\), because ranking is a separate topic.
-
-**Branching factor** (candidate explosion)
-\[
-b = \mathbb{E}\big[|\mathcal{C}(G)|\big].
+\mathrm{Match}(L_{r+1},G)\ \subseteq\ \mathrm{Match}(L_{r},G)
+\quad\Rightarrow\quad
+\text{coverage and branching typically decrease.}
 \]
 
-**Cost**
-- runtime per host,
-- number of attempted rule matches,
-- number of successful matches.
-
-These metrics typically trade off:
-- **more general rules** → higher coverage/recall, higher branching,
-- **more specific rules (larger context)** → lower branching, but risk lower coverage.
-
-S08 will make that trade-off systematic by varying context radius.
+In the next section we make this trade-off visible with the S07 metrics.
 
 
 
-## 4. Interpretation: what to look for
+## 3. Choosing a radius in practice
 
-Typical patterns you will see:
+A reasonable workflow:
 
-- High **coverage** but low **hit rate** often means rules apply broadly but generate many wrong candidates
-  (high branching).
-- High **hit rate** with very high branching indicates the truth is present but drowned in many alternatives—
-  you need **ranking** (future notebook) or more context (S08).
-- Low coverage can mean rules are too specific (context too large, or node/edge matching too strict).
+1. Start with \(r=0\) to identify **core transformation types** (high generality).
+2. Increase to \(r=1\) to reduce symmetry-induced ambiguity and “too-many matches”.
+3. Use \(r=2\) or \(r=3\) if you need high precision (e.g., retrosynthesis planning),
+   but expect lower coverage and more fragmented rule libraries.
 
-Also note:
-- “Hit rate” here is unranked set membership (a generous metric).
-- Branching is sensitive to symmetry and deduplication strategy.
+If you see:
+- **high branching at small \(r\)**: consider increasing \(r\), or tightening node/edge match predicates.
+- **low coverage at large \(r\)**: consider decreasing \(r\), or normalizing charges/tautomers upstream.
 
-In S08 we will vary context radius systematically and plot the trade-off curve.
+> Important: context is not the only knob. In real pipelines, ranking (learned or heuristic),
+> reagent handling, and stereochemistry decisions often dominate performance.
 
 
 
-## 5. Exercises
+## 4. Exercises
 
-1. **Indexing.** Improve prefiltering:
-   add an edge-count multiset or a degree multiset to the necessary-condition test.
-2. **Rule size vs branching.** Plot `nL` (rule size) vs average branching contributed by that rule.
-3. **Sanity check.** Reduce `max_matches_per_rule` to 1 and see how branching and hit rate change.
+1. **Backward evaluation.** Repeat the multi-radius study with `direction="backward"`.
+   Is the best radius the same as forward?
+2. **Center definition.** Modify `reaction_center_core_nodes` to include charge changes or exclude aromatic changes.
+   How does the trade-off curve move?
+3. **Hybrid context.** Implement a “ring-aware” expansion:
+   if any core atom is in a ring, include the full ring as context (even if it exceeds radius).

@@ -32,4 +32,3 @@ All talktorials
    S07
    S08
    S09
-   S10
