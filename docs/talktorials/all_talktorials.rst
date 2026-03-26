@@ -20,16 +20,18 @@ All talktorials
      Use this page for direct access to every talktorial in the series.
    </div>
 
-.. toctree::
-   :maxdepth: 1
+.. only:: has_notebook_docs
 
-   S01
-   S02
-   S03
-   S04
-   S05
-   S06
-   S07
-   S08
-   S09
-   S10
+   .. toctree::
+      :maxdepth: 1
+
+      S01
+      S02
+      S03
+      S04
+      S05
+      S06
+      S07
+      S08
+      S09
+      S10

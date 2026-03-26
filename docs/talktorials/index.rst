@@ -76,7 +76,18 @@ Collections
      but each notebook can also be used independently.
    </div>
 
-.. include:: _collections.rst
+.. only:: has_notebook_docs
+
+   .. include:: _collections.rst
+
+.. only:: not has_notebook_docs
+
+   .. raw:: html
+
+      <div class="synedu-talktorial-note">
+        Notebook rendering extensions are unavailable in this build, so the
+        individual talktorial pages are omitted.
+      </div>
 
 Complete talktorial list
 ------------------------
@@ -87,7 +98,9 @@ Complete talktorial list
      All talktorials in numerical order.
    </div>
 
-.. toctree::
-   :maxdepth: 1
+.. only:: has_notebook_docs
 
-   all_talktorials
+   .. toctree::
+      :maxdepth: 1
+
+      all_talktorials

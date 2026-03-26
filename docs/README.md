@@ -1,11 +1,10 @@
-# Compiling opencadd's Documentation
+# Compiling SynEdu Documentation
 
 The docs for this project are built with [Sphinx](http://www.sphinx-doc.org/en/master/).
-To compile the docs, first ensure that Sphinx and the ReadTheDocs theme are installed.
-
+To compile the docs, install the documentation extras first.
 
 ```bash
-conda install sphinx sphinx_rtd_theme
+pip install -e ".[docs]"
 ```
 
 
