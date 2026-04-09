@@ -6,7 +6,6 @@ provides helpers that keep workflows reproducible.
 
 .. autosummary::
    :toctree: _autosummary
-   :recursive:
 
    synedu
    synedu.cli

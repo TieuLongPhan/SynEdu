@@ -1,17 +1,24 @@
-# Compiling SynEdu Documentation
+# Building SynEdu Documentation
 
-The docs for this project are built with [Sphinx](http://www.sphinx-doc.org/en/master/).
-To compile the docs, install the documentation extras first.
+The docs for this project are built with
+[Jupyter Book](https://jupyterbook.org/).
+
+Install docs dependencies first:
 
 ```bash
 pip install -e ".[docs]"
 ```
 
+Build the book:
 
-Once installed, you can use the `Makefile` in this directory to compile static HTML pages by
+```bash
+./build_doc.sh
+```
+
+Alternatively, from `docs/`:
+
 ```bash
 make html
 ```
 
-The compiled docs will be in the `_build` directory and can be viewed by opening `index.html` (which may itself
-be inside a directory called `html/` depending on what version of Sphinx is installed).
+The compiled pages are in `docs/_build/html/index.html`.

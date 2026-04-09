@@ -1,0 +1,25 @@
+format: jb-book
+root: index
+chapters:
+  - file: installing
+  - file: talktorials/index
+    sections:
+      - file: talktorials/all_talktorials
+      - file: talktorials/_generated/S01/notebook
+      - file: talktorials/_generated/S02/notebook
+      - file: talktorials/_generated/S03/notebook
+      - file: talktorials/_generated/S04/notebook
+      - file: talktorials/_generated/S05/notebook
+      - file: talktorials/_generated/S06/notebook
+      - file: talktorials/_generated/S07/notebook
+      - file: talktorials/_generated/S08/notebook
+      - file: talktorials/_generated/S09/notebook
+      - file: talktorials/_generated/S10/notebook
+  - file: api
+  - file: external_dependencies
+  - file: external_tutorials_collections
+  - file: contribute
+  - file: contact
+  - file: funding
+  - file: citation
+  - file: license

@@ -39,12 +39,4 @@ dependencies:
       - pre-commit>=3.6
 
       # Documentation
-      - sphinx>=7.2,<9
-      - docutils>=0.20,<0.22
-      - sphinx-material
-      - nbsphinx
-      - nbsphinx-link
-      - sphinx-copybutton
-      - sphinx-gallery
-      - myst-parser>=2.0
-      - pypandoc-binary>=1.14
+      - jupyter-book>=0.15,<1

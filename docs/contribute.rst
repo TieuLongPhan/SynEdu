@@ -1,62 +1,16 @@
 Contribute
 ==========
 
-.. raw:: html
+Contributions are welcome across notebooks, documentation, utilities, and
+project infrastructure.
 
-   <div class="synedu-home-hero synedu-home-hero--compact synedu-home-hero--contribute">
-     <div class="synedu-hero-main">
-       <div class="synedu-home-kicker"><span class="synedu-dot"></span> Community contributions</div>
-       <div class="synedu-home-title">Help improve SynEdu.</div>
-       <div class="synedu-home-subtitle">
-         Contribute notebooks, tooling, lightweight utilities, and feedback that improve
-         clarity, reproducibility, and usability.
-       </div>
-     </div>
-   </div>
+Where contributions help most
+-----------------------------
 
-.. raw:: html
-
-   <div class="synedu-contrib-grid">
-     <div class="synedu-contrib-card">
-       <div class="synedu-contrib-card__icon">📘</div>
-       <div class="synedu-contrib-card__body">
-         <div class="synedu-contrib-card__title">Talktorials</div>
-         <div class="synedu-contrib-card__desc">
-           Add notebooks, refine explanations, and create exercises or quizzes.
-         </div>
-       </div>
-     </div>
-
-     <div class="synedu-contrib-card">
-       <div class="synedu-contrib-card__icon">🛠️</div>
-       <div class="synedu-contrib-card__body">
-         <div class="synedu-contrib-card__title">Infrastructure</div>
-         <div class="synedu-contrib-card__desc">
-           Improve docs, CI, formatting, packaging, and reproducible workflows.
-         </div>
-       </div>
-     </div>
-
-     <div class="synedu-contrib-card">
-       <div class="synedu-contrib-card__icon">🧩</div>
-       <div class="synedu-contrib-card__body">
-         <div class="synedu-contrib-card__title">Utilities</div>
-         <div class="synedu-contrib-card__desc">
-           Add small helpers that reduce notebook boilerplate without expanding the API unnecessarily.
-         </div>
-       </div>
-     </div>
-
-     <div class="synedu-contrib-card">
-       <div class="synedu-contrib-card__icon">🔍</div>
-       <div class="synedu-contrib-card__body">
-         <div class="synedu-contrib-card__title">Feedback</div>
-         <div class="synedu-contrib-card__desc">
-           Report issues, suggest clarifications, and help improve the learning experience.
-         </div>
-       </div>
-     </div>
-   </div>
+- Improve explanations and exercises in talktorial notebooks
+- Add reusable helpers in ``synedu`` to reduce notebook boilerplate
+- Improve documentation, testing, and packaging
+- Report bugs and suggest clarifications in issues
 
 Workflow
 --------

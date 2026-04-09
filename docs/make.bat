@@ -2,35 +2,40 @@
 
 pushd %~dp0
 
-REM Command file for Sphinx documentation
+REM Command file for Jupyter Book documentation
 
-if "%SPHINXBUILD%" == "" (
-	set SPHINXBUILD=sphinx-build
-)
-set SOURCEDIR=.
-set BUILDDIR=_build
-set SPHINXPROJ=opencadd
+if "%1" == "" goto usage
 
-if "%1" == "" goto help
-
-%SPHINXBUILD% >NUL 2>NUL
+jupyter-book >NUL 2>NUL
 if errorlevel 9009 (
 	echo.
-	echo.The 'sphinx-build' command was not found. Make sure you have Sphinx
-	echo.installed, then set the SPHINXBUILD environment variable to point
-	echo.to the full path of the 'sphinx-build' executable. Alternatively you
-	echo.may add the Sphinx directory to PATH.
+	echo.The 'jupyter-book' command was not found.
+	echo.Install docs dependencies first:
+	echo.  pip install -e ".[docs]"
 	echo.
-	echo.If you don't have Sphinx installed, grab it from
-	echo.http://sphinx-doc.org/
 	exit /b 1
 )
 
-%SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS%
-goto end
+if "%1" == "html" (
+	python ..\script\prepare_doc_notebooks.py
+	jupyter-book build .
+	goto end
+)
 
-:help
-%SPHINXBUILD% -M help %SOURCEDIR% %BUILDDIR% %SPHINXOPTS%
+if "%1" == "clean" (
+	rmdir /s /q _build
+	rmdir /s /q talktorials\_generated
+	goto end
+)
+
+goto usage
+
+:usage
+echo.
+echo.Usage:
+echo.  make.bat html   Build the Jupyter Book
+echo.  make.bat clean  Remove build artifacts
+goto end
 
 :end
 popd

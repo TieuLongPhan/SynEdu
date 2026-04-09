@@ -1,37 +1,13 @@
 All talktorials
 ===============
 
-.. raw:: html
-
-   <div class="synedu-home-hero synedu-home-hero--compact synedu-home-hero--talktorials">
-     <div class="synedu-hero-main">
-       <div class="synedu-home-kicker"><span class="synedu-dot"></span> Complete notebook list</div>
-       <div class="synedu-home-title">All SynEdu talktorials.</div>
-       <div class="synedu-home-subtitle">
-         Browse the full executable notebook series in numerical order, from
-         graph fundamentals to rule construction and application workflows.
-       </div>
-     </div>
-   </div>
-
-.. raw:: html
-
-   <div class="synedu-talktorial-overview__minor">
-     Use this page for direct access to every talktorial in the series.
-   </div>
-
-.. only:: has_notebook_docs
-
-   .. toctree::
-      :maxdepth: 1
-
-      S01
-      S02
-      S03
-      S04
-      S05
-      S06
-      S07
-      S08
-      S09
-      S10
+1. :doc:`S01 — From Molecules to Labeled Graphs <_generated/S01/notebook>`
+2. :doc:`S02 — Graph Morphism in Reaction Informatics <_generated/S02/notebook>`
+3. :doc:`S03 — Maximum Common Substructure in Reaction Informatics <_generated/S03/notebook>`
+4. :doc:`S04 — Atom Mapping as Graph Morphism <_generated/S04/notebook>`
+5. :doc:`S05 — Reaction Rules as Graph Rewriting (DPO) <_generated/S05/notebook>`
+6. :doc:`S06 — From Atom-Mapped Reactions to DPO Rules <_generated/S06/notebook>`
+7. :doc:`S07 — Canonicalizing Atom-Mapped Reactions and Rules <_generated/S07/notebook>`
+8. :doc:`S08 — One-Step Rule Application (Forward & Backward) <_generated/S08/notebook>`
+9. :doc:`S09 — Metrics for Rule Application <_generated/S09/notebook>`
+10. :doc:`S10 — Context Graph Expansion <_generated/S10/notebook>`

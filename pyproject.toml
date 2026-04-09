@@ -73,18 +73,10 @@ dev = [
 
 # Documentation
 docs = [
-  "sphinx>=7.2,<9",
-  "docutils>=0.20,<0.22",
-  "sphinx-material",
-  "nbsphinx",
-  "nbsphinx-link",
-  "sphinx-copybutton",
-  "sphinx-gallery",
+  "jupyter-book>=0.15,<1",
   "ipython>=8.18",
   "nbformat>=5.9",
   "nbconvert>=7.16",
-  "myst-parser>=2.0",
-  "pypandoc-binary>=1.14",
 ]
 
 
@@ -163,6 +155,11 @@ addopts = "-ra"
 testpaths = ["tests"]
 filterwarnings = [
   "ignore::DeprecationWarning",
+]
+
+[dependency-groups]
+dev = [
+    "jupyter-book>=0.15,<1",
 ]
 
 

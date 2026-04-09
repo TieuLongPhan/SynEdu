@@ -1,106 +1,17 @@
 Talktorials
 ===========
 
-.. raw:: html
-
-   <div class="synedu-home-hero synedu-home-hero--compact synedu-home-hero--talktorials">
-     <div class="synedu-hero-main">
-       <div class="synedu-home-kicker"><span class="synedu-dot"></span> Notebook catalog</div>
-       <div class="synedu-home-title">Explore the SynEdu talktorials.</div>
-       <div class="synedu-home-subtitle">
-         Executable Jupyter notebooks for learning chemical graph modeling,
-         reaction rules, and reusable workflow design in the Syn ecosystem.
-       </div>
-     </div>
-   </div>
-
-.. raw:: html
-
-   <div class="synedu-contact-highlights synedu-talktorial-highlights">
-     <span class="synedu-contact-pill">Executable notebooks</span>
-     <span class="synedu-contact-pill">Curated learning paths</span>
-     <span class="synedu-contact-pill">Standalone modules</span>
-     <span class="synedu-contact-pill">Rendered with nbsphinx</span>
-   </div>
-
-.. raw:: html
-
-   <div class="synedu-talktorial-intro">
-     Follow a curated collection or jump directly to any notebook in the complete list below.
-   </div>
+SynEdu talktorials are executable Jupyter notebooks that build a learning path
+from graph foundations to rule application workflows.
 
 Collections
 -----------
 
-.. raw:: html
-
-   <div class="synedu-talktorial-nav">
-     <a class="synedu-talktorial-nav__item synedu-talktorial-nav__item--fund" href="index.html#fundamentals">
-       <div class="synedu-talktorial-nav__top">
-         <div class="synedu-talktorial-nav__icon">◎</div>
-         <div class="synedu-talktorial-nav__label">Stage 1</div>
-       </div>
-       <div class="synedu-talktorial-nav__title">Fundamentals</div>
-       <div class="synedu-talktorial-nav__desc">
-         Graph basics, matching, isomorphism, and automorphisms.
-       </div>
-     </a>
-
-     <a class="synedu-talktorial-nav__item synedu-talktorial-nav__item--lib" href="index.html#rule-library">
-       <div class="synedu-talktorial-nav__top">
-         <div class="synedu-talktorial-nav__icon">◇</div>
-         <div class="synedu-talktorial-nav__label">Stage 2</div>
-       </div>
-       <div class="synedu-talktorial-nav__title">Rule library</div>
-       <div class="synedu-talktorial-nav__desc">
-         Extract, canonicalize, verify, and curate reusable rules.
-       </div>
-     </a>
-
-     <a class="synedu-talktorial-nav__item synedu-talktorial-nav__item--app" href="index.html#rule-application">
-       <div class="synedu-talktorial-nav__top">
-         <div class="synedu-talktorial-nav__icon">↗</div>
-         <div class="synedu-talktorial-nav__label">Stage 3</div>
-       </div>
-       <div class="synedu-talktorial-nav__title">Rule application</div>
-       <div class="synedu-talktorial-nav__desc">
-         Apply transformations, validate outputs, and inspect failures.
-       </div>
-     </a>
-   </div>
-
-.. raw:: html
-
-   <div class="synedu-talktorial-note">
-     Collections are grouped by workflow stage. They work well as a learning path,
-     but each notebook can also be used independently.
-   </div>
-
-.. only:: has_notebook_docs
-
-   .. include:: _collections.rst
-
-.. only:: not has_notebook_docs
-
-   .. raw:: html
-
-      <div class="synedu-talktorial-note">
-        Notebook rendering extensions are unavailable in this build, so the
-        individual talktorial pages are omitted.
-      </div>
+- Fundamentals: :doc:`S01 <_generated/S01/notebook>`, :doc:`S02 <_generated/S02/notebook>`
+- Rule library construction: :doc:`S03 <_generated/S03/notebook>`, :doc:`S04 <_generated/S04/notebook>`, :doc:`S05 <_generated/S05/notebook>`, :doc:`S06 <_generated/S06/notebook>`, :doc:`S10 <_generated/S10/notebook>`
+- Rule application: :doc:`S07 <_generated/S07/notebook>`, :doc:`S08 <_generated/S08/notebook>`, :doc:`S09 <_generated/S09/notebook>`
 
 Complete talktorial list
 ------------------------
 
-.. raw:: html
-
-   <div class="synedu-talktorial-intro">
-     All talktorials in numerical order.
-   </div>
-
-.. only:: has_notebook_docs
-
-   .. toctree::
-      :maxdepth: 1
-
-      all_talktorials
+- :doc:`all_talktorials`

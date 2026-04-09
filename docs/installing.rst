@@ -1,61 +1,6 @@
 Installation
 ============
 
-.. raw:: html
-
-   <div class="synedu-home-hero synedu-home-hero--compact synedu-home-hero--install">
-     <div class="synedu-hero-main">
-       <div class="synedu-home-kicker"><span class="synedu-dot"></span> Local setup</div>
-       <div class="synedu-home-title">Run SynEdu end-to-end on your own machine.</div>
-       <div class="synedu-home-subtitle">
-         Install the package, open the talktorials, and start exploring reaction informatics
-         workflows locally with a clean Python environment.
-       </div>
-     </div>
-   </div>
-
-.. raw:: html
-
-   <div class="synedu-contact-highlights synedu-install-highlights">
-     <span class="synedu-contact-pill">Python ≥ 3.11</span>
-     <span class="synedu-contact-pill">RDKit via conda/mamba</span>
-     <span class="synedu-contact-pill">JupyterLab ready</span>
-     <span class="synedu-contact-pill">PyPI + editable install</span>
-   </div>
-
-.. raw:: html
-
-   <div class="synedu-install-grid">
-     <div class="synedu-install-card">
-       <div class="synedu-install-card__icon">⚙️</div>
-       <div class="synedu-install-card__title">Environment</div>
-       <div class="synedu-install-card__desc">
-         Start from a fresh Python environment with RDKit and JupyterLab installed.
-       </div>
-     </div>
-     <div class="synedu-install-card">
-       <div class="synedu-install-card__icon">📦</div>
-       <div class="synedu-install-card__title">Package</div>
-       <div class="synedu-install-card__desc">
-         Install SynEdu from PyPI for normal use or in editable mode for development.
-       </div>
-     </div>
-     <div class="synedu-install-card">
-       <div class="synedu-install-card__icon">📘</div>
-       <div class="synedu-install-card__title">Talktorials</div>
-       <div class="synedu-install-card__desc">
-         Launch the notebook-based teaching material directly in JupyterLab.
-       </div>
-     </div>
-     <div class="synedu-install-card">
-       <div class="synedu-install-card__icon">🚀</div>
-       <div class="synedu-install-card__title">Quick start</div>
-       <div class="synedu-install-card__desc">
-         Follow a minimal setup path and begin exploring the local workflows immediately.
-       </div>
-     </div>
-   </div>
-
 Overview
 --------
 
@@ -138,15 +83,6 @@ associated files.
 
 Quick start
 -----------
-
-.. raw:: html
-
-   <div class="synedu-install-quickstart">
-     <div class="synedu-install-quickstart__title">Minimal setup path</div>
-     <div class="synedu-install-quickstart__desc">
-       Create a fresh environment, install the package, and launch the talktorials in a few commands.
-     </div>
-   </div>
 
 .. code-block:: bash
 
