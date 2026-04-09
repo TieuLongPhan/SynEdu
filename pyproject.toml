@@ -157,12 +157,6 @@ filterwarnings = [
   "ignore::DeprecationWarning",
 ]
 
-[dependency-groups]
-dev = [
-    "jupyter-book>=0.15,<1",
-]
-
-
 # ---------------------------------------------------------------------
 # NBVAL (implicit via pytest --nbval-lax)
 # ---------------------------------------------------------------------

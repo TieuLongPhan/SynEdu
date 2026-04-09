@@ -49,7 +49,7 @@ def test_start_invalid_workspace(tmp_path: Path):
     """`synedu start` should handle missing workspace path gracefully."""
     bad = tmp_path / "does_not_exist"
     out, err, code = capture(_cmd("start", str(bad)))
-    assert code == 0
+    assert code == 1
     assert "Could not find user-defined location" in out
     assert not err
 

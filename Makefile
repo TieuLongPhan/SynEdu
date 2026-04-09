@@ -1,5 +1,8 @@
 .PHONY: help docs clean
 
+
+all: docs
+
 help:
 	@echo "Targets:"
 	@echo "  make docs   Build the Jupyter Book docs"

@@ -3165,11 +3165,6 @@ docs = [
     { name = "nbformat" },
 ]
 
-[package.dev-dependencies]
-dev = [
-    { name = "jupyter-book" },
-]
-
 [package.metadata]
 requires-dist = [
     { name = "black", marker = "extra == 'dev'", specifier = ">=24.3" },
@@ -3196,9 +3191,6 @@ requires-dist = [
     { name = "seaborn", specifier = ">=0.13.2" },
 ]
 provides-extras = ["dev", "docs"]
-
-[package.metadata.requires-dev]
-dev = [{ name = "jupyter-book", specifier = ">=0.15,<1" }]
 
 [[package]]
 name = "tabulate"

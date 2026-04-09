@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, Iterable, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from rdkit import Chem
 from rdkit.Chem import AllChem
@@ -165,7 +165,7 @@ def visualize_reaction(
     legend: Optional[str] = None,
     fixed_bond_length: float = 22.0,
     padding: float = 0.10,
-) -> Union[str, "PIL.Image.Image"]:
+) -> Union[str, Any]:
     """
     More visual RDKit reaction rendering.
 

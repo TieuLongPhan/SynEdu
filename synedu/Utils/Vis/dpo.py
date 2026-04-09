@@ -104,7 +104,7 @@ def visualize_its(
 
     labels = None
     if show_node_labels:
-        labels = {n: f"{n}:{its.nodes[n].get('element','?')}" for n in its.nodes()}
+        labels = {n: f"{n}:{its.nodes[n].get('element', '?')}" for n in its.nodes()}
 
     nx.draw_networkx_nodes(
         its,
@@ -178,7 +178,7 @@ def visualize_its(
 
         leg1 = ax.legend(handles=edge_legend, loc="upper left", frameon=False)
         if elem_legend:
-            leg2 = ax.legend(
+            ax.legend(
                 handles=elem_legend,
                 loc="lower left",
                 frameon=False,
@@ -367,7 +367,7 @@ def visualize_dpo_rule(
         axp,
         *,
         panel_title: str,
-        dashed_edges: set[Tuple[int, int]] = set(),
+        dashed_edges: Optional[set[Tuple[int, int]]] = None,
         dashed_color: str = "red",
     ):
         axp.set_axis_off()
@@ -402,6 +402,7 @@ def visualize_dpo_rule(
         # split edges into preserved (solid) vs changed (dashed)
         solid = []
         dashed = []
+        dashed_edges = dashed_edges or set()
         for u, v in G.edges():
             if _ekey(u, v) in dashed_edges:
                 dashed.append((u, v))
@@ -530,7 +531,7 @@ def visualize_dpo_rule(
         # put both legends on the middle axis
         leg1 = axes[1].legend(handles=edge_handles, loc="upper left", frameon=False)
         if elem_handles:
-            leg2 = axes[1].legend(
+            axes[1].legend(
                 handles=elem_handles,
                 loc="lower left",
                 frameon=False,
