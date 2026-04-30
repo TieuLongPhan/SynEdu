@@ -25,19 +25,19 @@ project:
           file: synedu/S02/notebook.ipynb
         - title: S03 - Maximum Common Substructure in Reaction Informatics
           file: synedu/S03/notebook.ipynb
-        - title: S04 - Atom Mapping as Graph Morphism: MCS, RXNMapper, and ITS Equivalence
+        - title: "S04 - Atom Mapping as Graph Morphism: MCS, RXNMapper, and ITS Equivalence"
           file: synedu/S04/notebook.ipynb
-        - title: S05 - Reaction Rules as Graph Rewriting (DPO) - Chemistry-First, ITS-Native
+        - title: "S05 - Reaction Rules as Graph Rewriting (DPO) - Chemistry-First, ITS-Native"
           file: synedu/S05/notebook.ipynb
-        - title: S06 - From Atom-Mapped Reactions to DPO Rules: ITS, Reaction Centers, and Fast Clustering
+        - title: "S06 - From Atom-Mapped Reactions to DPO Rules: ITS, Reaction Centers, and Fast Clustering"
           file: synedu/S06/notebook.ipynb
-        - title: S07 - Canonicalizing Atom-Mapped Reactions and Rules: Equivalence, Symmetry, Determinism
+        - title: "S07 - Canonicalizing Atom-Mapped Reactions and Rules: Equivalence, Symmetry, Determinism"
           file: synedu/S07/notebook.ipynb
-        - title: S08 - One-Step Rule Application (Forward & Backward): DPO Rules as Reaction Engines
+        - title: "S08 - One-Step Rule Application (Forward & Backward): DPO Rules as Reaction Engines"
           file: synedu/S08/notebook.ipynb
-        - title: S09 - Metrics for Rule Application: Coverage, Recall, Branching, and Cost
+        - title: "S09 - Metrics for Rule Application: Coverage, Recall, Branching, and Cost"
           file: synedu/S09/notebook.ipynb
-        - title: S10 - Context Graph Expansion: Systematic Control of Rule Specificity
+        - title: "S10 - Context Graph Expansion: Systematic Control of Rule Specificity"
           file: synedu/S10/notebook.ipynb
     - file: api.md
     - file: external_dependencies.md
