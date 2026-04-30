@@ -1,98 +1,21 @@
 # SynEdu
 
-```{raw} html
-<div class="synedu-home-hero synedu-home-hero--landing-clean">
-  <div class="synedu-home-hero__grid synedu-home-hero__grid--clean">
-    <div class="synedu-home-hero__content">
-      <div class="synedu-home-kicker">
-        <span class="synedu-dot"></span> SynEdu · executable talktorials
-      </div>
+SynEdu is a collection of executable talktorials for reaction informatics with chemical graphs, graph morphisms, atom mapping, and rule-based reaction modeling.
 
-      <div class="synedu-home-title">
-        Learn reaction informatics with chemical graphs.
-      </div>
+## Start Here
 
-      <div class="synedu-home-subtitle">
-        Runnable notebooks for graph modeling, reaction rules, and reproducible workflows with RDKit and NetworkX.
-      </div>
+- [Browse talktorials](talktorials/index.md)
+- [Installation](installing.md)
+- [API](api.md)
+- [Contribute](contribute.md)
 
-      <div class="synedu-home-actions">
-        <a class="synedu-btn synedu-btn--primary" href="talktorials/">
-          Browse talktorials
-        </a>
-        <a class="synedu-btn synedu-btn--light" href="installing/">
-          Run locally
-        </a>
-        <a class="synedu-btn" href="api/">API</a>
-        <a class="synedu-btn" href="contribute/">
-          Contribute
-        </a>
-      </div>
+## What This Site Covers
 
-      <div class="synedu-hero-inline">
-        <span class="synedu-contact-pill">Graphs</span>
-        <span class="synedu-contact-pill">Reaction rules</span>
-        <span class="synedu-contact-pill">Executable notebooks</span>
-        <span class="synedu-contact-pill">Reusable workflows</span>
-      </div>
-    </div>
-
-    <div class="synedu-home-hero__logo-wrap">
-      <img src="images/synedu_logo_rectangle_transparent.png"
-           alt="SynEdu logo"
-           class="synedu-home-hero__logo-img synedu-home-hero__logo-img--clean">
-    </div>
-  </div>
-</div>
-```
-
-## Collections
-
-```{raw} html
-<div class="synedu-cardgrid synedu-cardgrid--home">
-  <a class="synedu-card synedu-card--fund" href="talktorials/#fundamentals">
-    <div class="synedu-card__top">
-      <div class="synedu-card__code">S01-S02</div>
-      <span class="synedu-badge synedu-badge--stable">Start here</span>
-    </div>
-    <div class="synedu-card__title">Fundamentals</div>
-    <div class="synedu-card__desc">
-      Molecules as graphs, morphisms, isomorphism, automorphisms.
-    </div>
-    <div class="synedu-meta">
-      <span>Core concepts</span> · <span>Beginner</span>
-    </div>
-  </a>
-
-  <a class="synedu-card synedu-card--lib" href="talktorials/#rule-library">
-    <div class="synedu-card__top">
-      <div class="synedu-card__code">S03-S07, S10</div>
-      <span class="synedu-badge">Build</span>
-    </div>
-    <div class="synedu-card__title">Rule libraries</div>
-    <div class="synedu-card__desc">
-      Extract, canonicalize, verify, and curate reusable reaction rules.
-    </div>
-    <div class="synedu-meta">
-      <span>Core workflow</span> · <span>Intermediate</span>
-    </div>
-  </a>
-
-  <a class="synedu-card synedu-card--app" href="talktorials/#rule-application">
-    <div class="synedu-card__top">
-      <div class="synedu-card__code">S08-S09</div>
-      <span class="synedu-badge">Apply</span>
-    </div>
-    <div class="synedu-card__title">Rule application</div>
-    <div class="synedu-card__desc">
-      Run transformations on datasets, validate outputs, and inspect failures.
-    </div>
-    <div class="synedu-meta">
-      <span>Applied workflows</span> · <span>Advanced</span>
-    </div>
-  </a>
-</div>
-```
+- Graph-based molecular representation
+- Reaction morphisms and symmetry
+- Maximum common substructure and atom mapping
+- Double Pushout rule rewriting
+- Canonicalization and rule application
 
 ## Quickstart
 
@@ -102,14 +25,14 @@ conda activate synedu
 jupyter lab
 ```
 
-Open the notebooks in order from **S01** to **S10**.
+Open the notebooks in order from `S01` to `S10`.
 
-## Documentation
+## Collections
 
-- [Installation](installing.md)
-- [API](api.md)
-- [Talktorials](talktorials/index.md)
+- [Fundamentals](talktorials/index.md#fundamentals): S01 to S02
+- [Rule Library](talktorials/index.md#rule-library): S03 to S07 and S10
+- [Rule Application](talktorials/index.md#rule-application): S08 to S09
 
 ## License
 
-SynEdu is released under the MIT License. See [license.md](license.md).
+SynEdu is released under the MIT License. See [license](license.md).

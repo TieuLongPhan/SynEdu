@@ -2,17 +2,7 @@
 
 Browse the full executable notebook series in numerical order.
 
-```{raw} html
-<div class="synedu-home-hero synedu-home-hero--compact synedu-home-hero--talktorials">
-  <div class="synedu-hero-main">
-    <div class="synedu-home-kicker"><span class="synedu-dot"></span> Complete notebook list</div>
-    <div class="synedu-home-title">All SynEdu talktorials.</div>
-    <div class="synedu-home-subtitle">
-      From graph fundamentals to rule construction and application workflows.
-    </div>
-  </div>
-</div>
-```
+## List
 
 - [S01 - From Molecules to Labeled Graphs](../synedu/S01/notebook.ipynb)
 - [S02 - Graph Morphism in Reaction Informatics](../synedu/S02/notebook.ipynb)
