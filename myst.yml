@@ -1,15 +1,65 @@
 # See docs at: https://mystmd.org/guide/frontmatter
 version: 1
+
 project:
   id: ebabe672-7a28-4f98-aceb-970048931d14
   title: SynEdu
   description: Reproducible, graph-based chemical education via executable talktorials
-  # keywords: []
-  authors: [Tieu Long Phan]
+  authors:
+    - Tieu Long Phan
   github: https://github.com/TieuLongPhan/SynEdu
-  # To autogenerate a Table of Contents, run "jupyter book init --write-toc"
+  exclude:
+    - _build/**
+    - .DS_Store
+    - Thumbs.db
+    - "**/.ipynb_checkpoints"
+    - todo_migrate/**
+  toc:
+    - file: index.md
+    - file: installing.md
+    - title: Talktorials
+      children:
+        - title: S01 - From Molecules to Labeled Graphs
+          file: synedu/S01/notebook.ipynb
+        - title: S02 - Graph Morphism in Reaction Informatics
+          file: synedu/S02/notebook.ipynb
+        - title: S03 - Maximum Common Substructure in Reaction Informatics
+          file: synedu/S03/notebook.ipynb
+        - title: S04 - Atom Mapping as Graph Morphism: MCS, RXNMapper, and ITS Equivalence
+          file: synedu/S04/notebook.ipynb
+        - title: S05 - Reaction Rules as Graph Rewriting (DPO) - Chemistry-First, ITS-Native
+          file: synedu/S05/notebook.ipynb
+        - title: S06 - From Atom-Mapped Reactions to DPO Rules: ITS, Reaction Centers, and Fast Clustering
+          file: synedu/S06/notebook.ipynb
+        - title: S07 - Canonicalizing Atom-Mapped Reactions and Rules: Equivalence, Symmetry, Determinism
+          file: synedu/S07/notebook.ipynb
+        - title: S08 - One-Step Rule Application (Forward & Backward): DPO Rules as Reaction Engines
+          file: synedu/S08/notebook.ipynb
+        - title: S09 - Metrics for Rule Application: Coverage, Recall, Branching, and Cost
+          file: synedu/S09/notebook.ipynb
+        - title: S10 - Context Graph Expansion: Systematic Control of Rule Specificity
+          file: synedu/S10/notebook.ipynb
+    - file: api.md
+    - file: external_dependencies.md
+    - file: external_tutorials_collections.md
+    - file: contribute.md
+    - file: contact.md
+    - file: funding.md
+    - file: citation.md
+    - url: https://github.com/TieuLongPhan/SynEdu/blob/main/LICENSE
+      title: License
+      open_in_same_tab: true
+
 site:
   template: book-theme
-  # options:
-  #   favicon: favicon.ico
-  #   logo: site_logo.png
+  options:
+    folders: true
+    favicon: images/synedu_logo_square_icon_transparent.png
+    logo: images/synedu_logo_square_icon_transparent.png
+    logo_alt: SynEdu
+    logo_text: SynEdu
+  actions:
+    - title: Repository
+      url: https://github.com/TieuLongPhan/SynEdu
+    - title: Issues
+      url: https://github.com/TieuLongPhan/SynEdu/issues
