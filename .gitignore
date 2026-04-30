@@ -212,6 +212,7 @@ synedu/S10/out/uspto50k_mapped_N50016.json.gz
 docs/_build/
 docs/**/.ipynb_checkpoints/
 docs/**/*.ipynb_checkpoints/
+_build/
 
 # OS junk
 .DS_Store
