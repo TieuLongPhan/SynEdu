@@ -1,0 +1,266 @@
+/* SynEdu MyST site styling
+   Minimal theme layer for the new Jupyter Book 2 / MyST site.
+*/
+
+:root{
+  --syn-navy: #0E1B2A;
+  --syn-slate: #1F2A35;
+  --syn-ink: #17202A;
+  --syn-paper: #FFFFFF;
+  --syn-muted: #5B6470;
+  --syn-border: #E6E8EC;
+  --syn-teal: #16B3A8;
+  --syn-teal-2: #0EA5A0;
+  --syn-amber: #FFB142;
+  --syn-rose: #FF6B6B;
+  --syn-shadow: 0 10px 30px rgba(15, 23, 42, 0.10);
+}
+
+body{
+  color: var(--syn-ink);
+}
+
+a{
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+a:link, a:visited{
+  color: var(--syn-teal-2);
+}
+
+a:hover{
+  color: var(--syn-teal);
+}
+
+.synedu-home-hero{
+  border-radius: 18px;
+  padding: 22px 22px 16px;
+  margin: 0.8rem 0 1.2rem;
+  background: radial-gradient(1200px 500px at 10% 10%, rgba(22,179,168,0.25), rgba(0,0,0,0) 60%),
+              linear-gradient(135deg, var(--syn-navy), var(--syn-slate));
+  color: #F9FAFB;
+  box-shadow: var(--syn-shadow);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.synedu-home-hero h1,
+.synedu-home-hero h2,
+.synedu-home-hero h3,
+.synedu-home-hero p{
+  color: #F9FAFB !important;
+}
+
+.synedu-home-kicker{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.86rem;
+  opacity: 0.92;
+  letter-spacing: 0.2px;
+  margin-bottom: 8px;
+}
+
+.synedu-dot{
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--syn-teal);
+  box-shadow: 0 0 0 4px rgba(22,179,168,0.18);
+}
+
+.synedu-home-title{
+  font-size: 1.7rem;
+  font-weight: 800;
+  line-height: 1.15;
+  margin: 0 0 0.35rem;
+}
+
+.synedu-home-subtitle{
+  font-size: 1.02rem;
+  opacity: 0.92;
+  max-width: 70ch;
+  margin-bottom: 14px;
+}
+
+.synedu-home-hero__grid{
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(240px, 0.9fr);
+  gap: 20px;
+  align-items: center;
+}
+
+.synedu-home-hero__content{
+  min-width: 0;
+}
+
+.synedu-home-hero__logo-wrap{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.synedu-home-hero__logo-img{
+  max-width: min(100%, 360px);
+  height: auto;
+  display: block;
+}
+
+@media (max-width: 800px){
+  .synedu-home-hero__grid{
+    grid-template-columns: 1fr;
+  }
+}
+
+.synedu-home-actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin: 8px 0 6px;
+}
+
+.synedu-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding: 9px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.16);
+  background: rgba(255,255,255,0.06);
+  color: #F9FAFB !important;
+  text-decoration: none !important;
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+.synedu-btn:hover{
+  background: rgba(255,255,255,0.10);
+  border-color: rgba(255,255,255,0.24);
+}
+
+.synedu-btn--primary{
+  background: rgba(22,179,168,0.18);
+  border-color: rgba(22,179,168,0.42);
+}
+
+.synedu-btn--primary:hover{
+  background: rgba(22,179,168,0.24);
+  border-color: rgba(22,179,168,0.55);
+}
+
+.synedu-btn--light{
+  background: rgba(255,255,255,0.12);
+}
+
+.synedu-cardgrid{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+  margin: 0.8rem 0 1.2rem;
+}
+
+.synedu-card{
+  border-radius: 16px;
+  padding: 14px 14px 12px;
+  background: var(--syn-paper);
+  border: 1px solid var(--syn-border);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  text-decoration: none !important;
+  color: var(--syn-ink) !important;
+  transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+}
+
+.synedu-card:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.10);
+  border-color: rgba(22,179,168,0.35);
+}
+
+.synedu-card__top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.synedu-card__code{
+  font-weight: 900;
+  letter-spacing: 0.6px;
+  font-size: 0.90rem;
+  color: var(--syn-slate);
+}
+
+.synedu-card__title{
+  font-weight: 800;
+  font-size: 1.05rem;
+  margin: 2px 0 4px;
+  color: var(--syn-ink);
+}
+
+.synedu-card__desc{
+  color: var(--syn-muted);
+  line-height: 1.35;
+  margin-bottom: 10px;
+}
+
+.synedu-meta{
+  display:flex;
+  gap: 8px;
+  flex-wrap:wrap;
+  color: var(--syn-muted);
+  font-size: 0.86rem;
+}
+
+.synedu-badge{
+  font-size: 0.76rem;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--syn-border);
+  background: rgba(31,42,53,0.03);
+  color: var(--syn-slate);
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+.synedu-badge--stable{
+  border-color: rgba(22,179,168,0.35);
+  background: rgba(22,179,168,0.10);
+  color: var(--syn-teal-2);
+}
+
+.synedu-card--fund { border-left: 4px solid rgba(22,179,168,0.75); }
+.synedu-card--lib  { border-left: 4px solid rgba(255,177,66,0.75); }
+.synedu-card--app  { border-left: 4px solid rgba(255,107,107,0.65); }
+
+.synedu-contact-pill{
+  display:inline-flex;
+  align-items:center;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--syn-border);
+  background: rgba(31,42,53,0.02);
+  color: var(--syn-slate);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.synedu-talktorials-list li{
+  margin-bottom: 0.45rem;
+}
+
+.synedu-hero-inline{
+  display:flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.synedu-note{
+  border-left: 4px solid rgba(22,179,168,0.65);
+  padding: 0.8rem 1rem;
+  background: rgba(22,179,168,0.06);
+  border-radius: 10px;
+  margin: 1rem 0;
+}

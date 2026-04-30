@@ -38,7 +38,6 @@ SynEdu builds on open-source Python tools and related SynEco projects. If we use
 - `pytest` - [pytest](https://docs.pytest.org/)
 - `nbval` - [nbval](https://nbval.readthedocs.io/)
 - `jupyter-book` - [Jupyter Book](https://jupyterbook.org/)
-- `sphinx` - [Sphinx](https://www.sphinx-doc.org/)
 - `black-nb` - [black-nb](https://github.com/tomcatling/black-nb)
 
 ### SynEco Ecosystem

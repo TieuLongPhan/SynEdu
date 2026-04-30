@@ -17,8 +17,9 @@ project:
   toc:
     - file: index.md
     - file: installing.md
-    - title: Talktorials
+    - file: talktorials/index.md
       children:
+        - file: talktorials/all_talktorials.md
         - title: S01 - From Molecules to Labeled Graphs
           file: synedu/S01/notebook.ipynb
         - title: S02 - Graph Morphism in Reaction Informatics
@@ -46,14 +47,13 @@ project:
     - file: contact.md
     - file: funding.md
     - file: citation.md
-    - url: https://github.com/TieuLongPhan/SynEdu/blob/main/LICENSE
-      title: License
-      open_in_same_tab: true
+    - file: license.md
 
 site:
   template: book-theme
   options:
     folders: true
+    style: _static/synedu.css
     favicon: images/synedu_logo_square_icon_transparent.png
     logo: images/synedu_logo_square_icon_transparent.png
     logo_alt: SynEdu

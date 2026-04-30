@@ -30,23 +30,12 @@ The notebooks are designed as a connected learning path from graph-based molecul
 ## Quickstart
 
 ```bash
-conda env create -f environment.yml
+conda env create -f env/environment.yml
 conda activate synedu
 jupyter lab
 ```
 
 Open the notebooks in order from **S01** to **S10**.
-
-## Documentation
-
-The website/documentation is built with **Jupyter Book**.
-
-```bash
-pip install -e ".[docs]"
-./build_doc.sh
-```
-
-Output: `docs/_build/html/index.html`
 
 ## Contributing
 
