@@ -221,3 +221,6 @@ Thumbs.db
 #
 .gitignore
 dev/*
+
+# MyST build outputs
+_build

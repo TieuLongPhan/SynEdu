@@ -1,0 +1,15 @@
+# See docs at: https://mystmd.org/guide/frontmatter
+version: 1
+project:
+  id: ebabe672-7a28-4f98-aceb-970048931d14
+  title: SynEdu
+  description: Reproducible, graph-based chemical education via executable talktorials
+  # keywords: []
+  authors: [Tieu Long Phan]
+  github: https://github.com/TieuLongPhan/SynEdu
+  # To autogenerate a Table of Contents, run "jupyter book init --write-toc"
+site:
+  template: book-theme
+  # options:
+  #   favicon: favicon.ico
+  #   logo: site_logo.png

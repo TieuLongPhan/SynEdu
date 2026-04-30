@@ -1,38 +1,14 @@
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
-
-# ---------------------------------------------------------------------
-# Project metadata
-# ---------------------------------------------------------------------
 [project]
 name = "synedu"
 version = "0.1.0"
 description = "Reproducible, graph-based chemical education via executable talktorials"
 readme = "README.md"
 requires-python = ">=3.11"
-
 license = { text = "MIT" }
 license-files = ["LICENSE"]
-
 authors = [
   { name = "Tieu Long Phan", email = "tieu@bioinf.uni-leipzig.de" }
 ]
-
-classifiers = [
-  "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.11",
-  "License :: OSI Approved :: MIT License",
-  "Operating System :: OS Independent",
-  "Topic :: Education",
-  "Topic :: Scientific/Engineering :: Chemistry",
-  "Topic :: Scientific/Engineering :: Bio-Informatics",
-]
-
-# ---------------------------------------------------------------------
-# Core runtime dependencies (keep minimal!)
-# ---------------------------------------------------------------------
 dependencies = [
   "numpy>=1.26",
   "pandas>=2.1",
@@ -42,122 +18,5 @@ dependencies = [
   "regex>=2024.11.6",
   "requests>=2.32.3",
   "ipython>=8.18",
-  "jupyterlab>=4.0",
+  "jupyter-book>=2.0.0",
 ]
-
-
-# ---------------------------------------------------------------------
-# Optional dependency groups
-# ---------------------------------------------------------------------
-[project.optional-dependencies]
-
-# Default "developer" setup for contributors
-dev = [
-  # Formatting / linting
-  "black>=24.3",
-  "flake8>=7.0",
-  "flake8-bugbear",
-  "flake8-docstrings",
-
-  # Testing
-  "pytest>=8.0",
-  "nbval>=0.11",
-
-  # Notebook hygiene
-  "nbformat>=5.9",
-  "nbconvert>=7.16",
-
-  # Convenience
-  "pre-commit>=3.6",
-]
-
-# Documentation
-docs = [
-  "jupyter-book>=0.15,<1",
-  "ipython>=8.18",
-  "nbformat>=5.9",
-  "nbconvert>=7.16",
-]
-
-
-# ---------------------------------------------------------------------
-# Entry points
-# ---------------------------------------------------------------------
-[project.scripts]
-synedu = "synedu.cli:main"
-
-
-# ---------------------------------------------------------------------
-# Hatch build configuration
-# ---------------------------------------------------------------------
-[tool.hatch.build]
-packages = ["synedu"]
-
-[tool.hatch.build.targets.wheel]
-include = [
-  "synedu/**",
-]
-
-[tool.hatch.build.targets.sdist]
-include = [
-  "synedu/**",
-  "tests/**",
-  "README.md",
-  "LICENSE",
-]
-
-
-# ---------------------------------------------------------------------
-# Formatting (Black)
-# ---------------------------------------------------------------------
-[tool.black]
-line-length = 88
-target-version = ["py311"]
-skip-string-normalization = true
-
-
-# ---------------------------------------------------------------------
-# Linting (flake8)
-# ---------------------------------------------------------------------
-[tool.flake8]
-max-line-length = 100
-extend-ignore = [
-  "E203",  # whitespace before ':'
-  "W503",  # line break before binary operator
-  "D100",  # missing module docstring
-  "D104",  # missing package docstring
-  "D401",  # imperative mood
-  "D205",
-  "D400",
-]
-
-exclude = [
-  ".git",
-  "__pycache__",
-  ".venv",
-  "build",
-  "dist",
-  "**/*.ipynb",
-  "synedu/S*/**",
-]
-
-per-file-ignores = [
-  "tests/*:D101,D102,D103",
-  "synedu/__init__.py:F401",
-]
-
-
-# ---------------------------------------------------------------------
-# Pytest
-# ---------------------------------------------------------------------
-[tool.pytest.ini_options]
-addopts = "-ra"
-testpaths = ["tests"]
-filterwarnings = [
-  "ignore::DeprecationWarning",
-]
-
-# ---------------------------------------------------------------------
-# NBVAL (implicit via pytest --nbval-lax)
-# ---------------------------------------------------------------------
-# No extra config needed; invoked explicitly in CI or CLI
