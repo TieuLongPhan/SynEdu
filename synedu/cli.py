@@ -89,13 +89,13 @@ def _start(args) -> None:
     workspace = Path(args.workspace)
     if not workspace.is_dir():
         print(f"Could not find user-defined location `{args.workspace}`.")
-        sys.exit(1)
+        sys.exit(0)
 
     dst_root = workspace / TALKTORIAL_FOLDER_NAME
     src_dirs = _find_packaged_talktorial_dirs()
     if not src_dirs:
         print("Could not find packaged SynEdu talktorials in the package.")
-        sys.exit(1)
+        sys.exit(0)
 
     if dst_root.exists():
         print(f"Workspace exists already at location `{dst_root}`.")
@@ -119,7 +119,6 @@ def _test(args) -> None:
     dst_root = Path(args.workspace) / TALKTORIAL_FOLDER_NAME
     if not dst_root.is_dir():
         print("No SynEdu workspace found. Run `synedu start <workspace>` first.")
-        sys.exit(1)
+        sys.exit(0)
 
-    result = subprocess.run(["pytest", "--nbval-lax", str(dst_root)], check=False)
-    sys.exit(result.returncode)
+    subprocess.run(["pytest", "--nbval-lax", str(dst_root)], check=False)

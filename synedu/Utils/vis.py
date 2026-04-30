@@ -31,7 +31,7 @@ def _ensure_2d(mol: Chem.Mol) -> None:
 
 def _luminance(hex_color: str) -> float:
     h = hex_color.lstrip("#")
-    r, g, b = (int(h[i:i + 2], 16) / 255.0 for i in (0, 2, 4))
+    r, g, b = (int(h[i : i + 2], 16) / 255.0 for i in (0, 2, 4))
     return 0.2126 * r + 0.7152 * g + 0.0722 * b
 
 

@@ -101,7 +101,7 @@ def visualize_its(
     # node labels
     labels = None
     if show_node_labels:
-        labels = {n: f"{n}:{its.nodes[n].get('element', '?')}" for n in its.nodes()}
+        labels = {n: f"{n}:{its.nodes[n].get('element','?')}" for n in its.nodes()}
 
     # draw nodes
     nx.draw_networkx_nodes(
@@ -181,7 +181,7 @@ def visualize_its(
         # two legends: add one, then re-add as artist
         leg1 = ax.legend(handles=edge_legend, loc="upper left", frameon=False)
         if elem_legend:
-            ax.legend(
+            leg2 = ax.legend(
                 handles=elem_legend,
                 loc="lower left",
                 frameon=False,

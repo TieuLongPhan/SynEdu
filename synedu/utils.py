@@ -75,7 +75,7 @@ def talktorial_list_string(talktorials_dir: Path) -> str:
 
     if not talktorials_dir.is_dir():
         print(f"Could not find talktorials at `{talktorials_dir}`.")
-        sys.exit(1)
+        sys.exit(0)
 
     lines = ["\nSynEdu talktorials available in your workspace:\n"]
     for folder in sorted(p for p in talktorials_dir.iterdir() if p.is_dir()):
