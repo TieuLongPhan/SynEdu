@@ -7,7 +7,6 @@ from matplotlib.patches import Patch
 from dataclasses import dataclass
 from typing import Dict, Tuple, Optional, Any
 
-
 _ELEMENT_COLORS = {
     "C": "#4D4D4D",
     "O": "#D62728",

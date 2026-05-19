@@ -29,44 +29,27 @@ Talktorials
      Follow a curated collection or jump directly to any notebook in the complete list below.
    </div>
 
+.. toctree::
+   :hidden:
+   :maxdepth: 1
+
+   S01
+   S02
+   S03
+   S04
+   S05
+   S06
+   S07
+   S08
+   S09
+
 Collections
 -----------
 
 .. raw:: html
 
    <div class="synedu-talktorial-nav">
-     <a class="synedu-talktorial-nav__item synedu-talktorial-nav__item--fund" href="index.html#fundamentals">
-       <div class="synedu-talktorial-nav__top">
-         <div class="synedu-talktorial-nav__icon">◎</div>
-         <div class="synedu-talktorial-nav__label">Stage 1</div>
-       </div>
-       <div class="synedu-talktorial-nav__title">Fundamentals</div>
-       <div class="synedu-talktorial-nav__desc">
-         Graph basics, matching, isomorphism, and automorphisms.
-       </div>
-     </a>
-
-     <a class="synedu-talktorial-nav__item synedu-talktorial-nav__item--lib" href="index.html#rule-library">
-       <div class="synedu-talktorial-nav__top">
-         <div class="synedu-talktorial-nav__icon">◇</div>
-         <div class="synedu-talktorial-nav__label">Stage 2</div>
-       </div>
-       <div class="synedu-talktorial-nav__title">Rule library</div>
-       <div class="synedu-talktorial-nav__desc">
-         Extract, canonicalize, verify, and curate reusable rules.
-       </div>
-     </a>
-
-     <a class="synedu-talktorial-nav__item synedu-talktorial-nav__item--app" href="index.html#rule-application">
-       <div class="synedu-talktorial-nav__top">
-         <div class="synedu-talktorial-nav__icon">↗</div>
-         <div class="synedu-talktorial-nav__label">Stage 3</div>
-       </div>
-       <div class="synedu-talktorial-nav__title">Rule application</div>
-       <div class="synedu-talktorial-nav__desc">
-         Apply transformations, validate outputs, and inspect failures.
-       </div>
-     </a>
+     ...
    </div>
 
 .. raw:: html

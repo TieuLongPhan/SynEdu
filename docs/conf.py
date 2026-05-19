@@ -13,10 +13,8 @@ import sphinx_material
 # Path setup
 # ---------------------------------------------------------------------------
 
-# If the project is not installed, make the repository importable.
 sys.path.insert(0, os.path.abspath(".."))
 
-# Optional: import package version if available.
 try:
     import synedu  # noqa: E402
 except Exception:  # pragma: no cover
@@ -68,6 +66,7 @@ templates_path = ["_templates"]
 source_suffix = ".rst"
 master_doc = "index"
 language = "en"
+
 exclude_patterns = [
     "_build",
     "Thumbs.db",
@@ -89,7 +88,6 @@ html_show_sourcelink = False
 html_theme = "sphinx_material"
 html_theme_path = sphinx_material.html_theme_path()
 
-# Keep html_context cache-friendly (Sphinx 8).
 html_context = {"project": project}
 
 html_theme_options = {
@@ -107,14 +105,12 @@ html_theme_options = {
         {"href": "installing", "internal": True, "title": "Installing"},
         {"href": "api", "internal": True, "title": "API"},
         {"href": "contribute", "internal": True, "title": "Contribute"},
-        # {"href": "citation", "internal": True, "title": "Cite"},
         {"href": "contact", "internal": True, "title": "Contact"},
     ],
     "heroes": {
         "index": "Executable, research-oriented talktorials for chemical graph modeling",
     },
     "table_classes": ["plain"],
-    # "globaltoc_depth": 3,
     "globaltoc_collapse": False,
     "globaltoc_includehidden": True,
 }
@@ -135,6 +131,7 @@ html_sidebars = {
         "logo-text.html",
         "globaltoc.html",
         "localtoc.html",
+        "relations.html",
         "searchbox.html",
     ]
 }
@@ -156,35 +153,54 @@ intersphinx_mapping = {
 
 nbsphinx_execute = "never"
 nbsphinx_allow_errors = False
-
-# Used by the notebook footer CTA (nbsphinx_epilog).
-synedu_talk_order = [f"talktorials/S{idx:02d}" for idx in range(1, 11)]
-
 nbsphinx_epilog = r"""
 {% set docname = env.docname %}
-{% set order = env.config.synedu_talk_order %}
+{% set order = [
+    'talktorials/S01',
+    'talktorials/S02',
+    'talktorials/S03',
+    'talktorials/S04',
+    'talktorials/S05',
+    'talktorials/S06',
+    'talktorials/S07',
+    'talktorials/S08',
+    'talktorials/S09'
+] %}
 
 {% if docname in order %}
 {% set i = order.index(docname) %}
 
 .. raw:: html
 
-   <div class="synedu-continue">
-     <div class="synedu-continue__inner">
-       <div class="synedu-continue__label">Continue</div>
-       <div class="synedu-continue__nav">
-         {% if i > 0 %}
-         <a class="synedu-btn synedu-btn--ghost"
-            href="{{ order[i-1].split('/')[-1] }}.html">&larr; Prev</a>
-         {% endif %}
+   <div class="synedu-bottom-nav">
+     <div class="synedu-bottom-nav__inner">
 
-         <a class="synedu-btn synedu-btn--ghost" href="../talktorials.html">All talktorials</a>
+       {% if i > 0 %}
+       <a class="synedu-bottom-nav__card synedu-bottom-nav__card--prev"
+          href="{{ order[i-1].split('/')[-1] }}.html">
+         <span class="synedu-bottom-nav__label">Previous</span>
+         <span class="synedu-bottom-nav__title">{{ order[i-1].split('/')[-1] }}</span>
+       </a>
+       {% else %}
+       <div class="synedu-bottom-nav__empty"></div>
+       {% endif %}
 
-         {% if i + 1 < order|length %}
-         <a class="synedu-btn synedu-btn--primary"
-            href="{{ order[i+1].split('/')[-1] }}.html">Next &rarr;</a>
-         {% endif %}
-       </div>
+       <a class="synedu-bottom-nav__card synedu-bottom-nav__card--index"
+          href="index.html">
+         <span class="synedu-bottom-nav__label">Talktorials</span>
+         <span class="synedu-bottom-nav__title">All</span>
+       </a>
+
+       {% if i + 1 < order|length %}
+       <a class="synedu-bottom-nav__card synedu-bottom-nav__card--next"
+          href="{{ order[i+1].split('/')[-1] }}.html">
+         <span class="synedu-bottom-nav__label">Next</span>
+         <span class="synedu-bottom-nav__title">{{ order[i+1].split('/')[-1] }}</span>
+       </a>
+       {% else %}
+       <div class="synedu-bottom-nav__empty"></div>
+       {% endif %}
+
      </div>
    </div>
 

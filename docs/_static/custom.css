@@ -1427,3 +1427,110 @@ div.nboutput.container div.output_area > div[class^="highlight"] {
     padding: 0.85rem 0.9rem;
   }
 }
+
+/* =========================================================
+   SynEdu talktorial bottom navigation
+   ========================================================= */
+
+.synedu-bottom-nav {
+  margin-top: 2.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(14, 27, 42, 0.08);
+}
+
+.synedu-bottom-nav__inner {
+  display: grid;
+  grid-template-columns: 1fr 180px 1fr;
+  gap: 0.9rem;
+  align-items: stretch;
+}
+
+.synedu-bottom-nav__card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 84px;
+  padding: 0.9rem 1rem;
+  border-radius: 14px;
+  text-decoration: none !important;
+  background: #ffffff;
+  border: 1px solid rgba(14, 27, 42, 0.08);
+  box-shadow: 0 4px 14px rgba(14, 27, 42, 0.04);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.synedu-bottom-nav__card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(13, 148, 136, 0.28);
+  box-shadow: 0 8px 22px rgba(14, 27, 42, 0.08);
+}
+
+.synedu-bottom-nav__card:focus-visible {
+  outline: 2px solid rgba(13, 148, 136, 0.35);
+  outline-offset: 2px;
+}
+
+.synedu-bottom-nav__card--prev {
+  text-align: left;
+  align-items: flex-start;
+}
+
+.synedu-bottom-nav__card--index {
+  text-align: center;
+  align-items: center;
+  background: linear-gradient(180deg, #f8fbfc 0%, #f2f7f8 100%);
+  border-color: rgba(13, 148, 136, 0.16);
+}
+
+.synedu-bottom-nav__card--next {
+  text-align: right;
+  align-items: flex-end;
+}
+
+.synedu-bottom-nav__label {
+  margin-bottom: 0.2rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.synedu-bottom-nav__title {
+  font-size: 0.98rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #0e1b2a;
+}
+
+.synedu-bottom-nav__card--prev .synedu-bottom-nav__title::before {
+  content: "← ";
+  color: #0d9488;
+}
+
+.synedu-bottom-nav__card--next .synedu-bottom-nav__title::after {
+  content: " →";
+  color: #0d9488;
+}
+
+.synedu-bottom-nav__empty {
+  min-height: 84px;
+}
+
+@media (max-width: 840px) {
+  .synedu-bottom-nav__inner {
+    grid-template-columns: 1fr;
+  }
+
+  .synedu-bottom-nav__card,
+  .synedu-bottom-nav__card--prev,
+  .synedu-bottom-nav__card--index,
+  .synedu-bottom-nav__card--next {
+    text-align: left;
+    align-items: flex-start;
+  }
+
+  .synedu-bottom-nav__empty {
+    display: none;
+  }
+}

@@ -9,7 +9,6 @@ import networkx as nx
 from rdkit import Chem
 from rdkit.Chem import AllChem, Draw
 
-
 _ELEMENT_COLORS = {
     "C": "#4D4D4D",
     "O": "#D62728",

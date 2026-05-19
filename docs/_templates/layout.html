@@ -1,0 +1,27 @@
+{% extends "!layout.html" %}
+
+{% block content %}
+  {{ super() }}
+
+  {% if prev or next %}
+  <div class="synedu-page-nav">
+    <div class="synedu-page-nav__inner">
+      {% if prev %}
+      <a class="synedu-page-nav__link synedu-page-nav__link--prev"
+         href="{{ prev.link|e }}">
+        <span class="synedu-page-nav__label">Previous</span>
+        <span class="synedu-page-nav__title">{{ prev.title }}</span>
+      </a>
+      {% endif %}
+
+      {% if next %}
+      <a class="synedu-page-nav__link synedu-page-nav__link--next"
+         href="{{ next.link|e }}">
+        <span class="synedu-page-nav__label">Next</span>
+        <span class="synedu-page-nav__title">{{ next.title }}</span>
+      </a>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+{% endblock %}
