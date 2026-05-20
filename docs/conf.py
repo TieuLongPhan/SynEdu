@@ -6,8 +6,32 @@ from __future__ import annotations
 import os
 import sys
 from datetime import datetime
+from unittest.mock import MagicMock
 
-import sphinx_material
+# ---------------------------------------------------------------------------
+# Mock heavy C-extension / optional dependencies before any import happens.
+# autosummary runs at builder-inited (before autodoc mocks are applied),
+# so we inject directly into sys.modules here.
+# ---------------------------------------------------------------------------
+_MOCK_MODULES = [
+    "rdkit",
+    "rdkit.Chem",
+    "rdkit.Chem.AllChem",
+    "rdkit.Chem.Draw",
+    "rdkit.Chem.Draw.rdMolDraw2D",
+    "rdkit.Chem.rdChemReactions",
+    "synkit",
+    "synrbl",
+    "sklearn",
+    "sklearn.cluster",
+    "joblib",
+    "tqdm",
+]
+for _mod in _MOCK_MODULES:
+    if _mod not in sys.modules:
+        sys.modules[_mod] = MagicMock()
+
+import sphinx_material  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Path setup
@@ -59,6 +83,14 @@ extensions = [
 ]
 
 autosummary_generate = True
+autodoc_mock_imports = [
+    "rdkit",
+    "synkit",
+    "synrbl",
+    "sklearn",
+    "joblib",
+    "tqdm",
+]
 napoleon_google_docstring = False
 napoleon_use_param = False
 napoleon_use_ivar = True
