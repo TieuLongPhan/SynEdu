@@ -1,0 +1,61 @@
+name: Notebooks
+
+on:
+  workflow_dispatch:
+    inputs:
+      notebook:
+        description: "Notebook to run (e.g. S01, S02, or 'all')"
+        required: false
+        default: "all"
+  schedule:
+    - cron: "0 4 * * 1"  # Every Monday at 04:00 UTC
+
+jobs:
+  execute:
+    name: Execute ${{ matrix.notebook }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        notebook: [S01, S02, S03, S04, S05, S06, S07, S08, S09]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          python-version: "3.11"
+          environment-file: environment.yml
+          activate-environment: synedu
+          auto-activate-base: false
+          miniforge-version: latest
+          channels: conda-forge,defaults
+
+      - name: Install RDKit
+        shell: bash -el {0}
+        run: conda install -y -c conda-forge rdkit
+
+      - name: Install SynEco packages
+        shell: bash -el {0}
+        run: |
+          pip install synkit synrbl
+
+      - name: Install SynEdu
+        shell: bash -el {0}
+        run: pip install -e ".[dev]"
+
+      - name: Execute notebook ${{ matrix.notebook }}
+        shell: bash -el {0}
+        env:
+          SYNEDU_NB: ${{ matrix.notebook }}
+        run: pytest -m slow -v tests/test_notebooks.py
+
+      - name: Upload notebook artifact on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failed-${{ matrix.notebook }}
+          path: synedu/${{ matrix.notebook }}/notebook.ipynb
+          retention-days: 7

@@ -3,25 +3,61 @@
 {% block content %}
   {{ super() }}
 
-  {% if prev or next %}
+  {% set synedu_nav_order = [
+    ("index", "SynEdu"),
+    ("installing", "Getting started"),
+    ("talktorials/index", "Talktorials"),
+    ("contribute", "Contribute"),
+    ("citation", "Cite"),
+    ("api", "API"),
+    ("external_dependencies", "External Resources"),
+    ("external_tutorials_collections", "External Tutorials"),
+    ("syneco_ecosystem", "SynEco"),
+    ("funding", "Funding"),
+    ("license", "License")
+  ] %}
+  {% set synedu_nav = namespace(index=-1) %}
+  {% for nav_item in synedu_nav_order %}
+    {% if nav_item[0] == pagename %}
+      {% set synedu_nav.index = loop.index0 %}
+    {% endif %}
+  {% endfor %}
+
+  {% if synedu_nav.index >= 0 %}
   <div class="synedu-page-nav">
     <div class="synedu-page-nav__inner">
-      {% if prev %}
+      {% if synedu_nav.index > 0 %}
+      {% set prev_item = synedu_nav_order[synedu_nav.index - 1] %}
       <a class="synedu-page-nav__link synedu-page-nav__link--prev"
-         href="{{ prev.link|e }}">
+         href="{{ pathto(prev_item[0]) }}">
         <span class="synedu-page-nav__label">Previous</span>
-        <span class="synedu-page-nav__title">{{ prev.title }}</span>
+        <span class="synedu-page-nav__title">{{ prev_item[1] }}</span>
       </a>
       {% endif %}
 
-      {% if next %}
+      {% if synedu_nav.index + 1 < synedu_nav_order|length %}
+      {% set next_item = synedu_nav_order[synedu_nav.index + 1] %}
       <a class="synedu-page-nav__link synedu-page-nav__link--next"
-         href="{{ next.link|e }}">
+         href="{{ pathto(next_item[0]) }}">
         <span class="synedu-page-nav__label">Next</span>
-        <span class="synedu-page-nav__title">{{ next.title }}</span>
+        <span class="synedu-page-nav__title">{{ next_item[1] }}</span>
       </a>
       {% endif %}
     </div>
   </div>
   {% endif %}
+
+  <footer class="synedu-site-footer" aria-label="SynEdu footer">
+    <div class="synedu-site-footer__brand">
+      <span class="synedu-site-footer__mark">SynEdu</span>
+      <span class="synedu-site-footer__text">Training resources for computational systems chemistry.</span>
+    </div>
+    <nav class="synedu-site-footer__links" aria-label="Footer links">
+      <a href="{{ pathto('installing') }}">Getting started</a>
+      <a href="{{ pathto('talktorials/index') }}">Talktorials</a>
+      <a href="{{ pathto('citation') }}">Cite</a>
+      <a href="{{ pathto('funding') }}">Funding</a>
+      <a href="mailto:tieu.long.phan@gmail.com">Contact</a>
+    </nav>
+  </footer>
 {% endblock %}

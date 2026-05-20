@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, Iterable, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from rdkit import Chem
 from rdkit.Chem import AllChem
@@ -57,7 +57,7 @@ def _mapnum_to_atomidx(m: Chem.Mol) -> Dict[int, int]:
     return out
 
 
-def _find_changed_bonds_by_atommap(
+def _find_changed_bonds_by_atommap(  # noqa: C901
     rxn: rdChemReactions.ChemicalReaction,
 ) -> Optional[RxnHighlights]:
     """
@@ -150,7 +150,7 @@ def _find_changed_bonds_by_atommap(
     )
 
 
-def visualize_reaction(
+def visualize_reaction(  # noqa: C901
     rsmi: str,
     *,
     size: Tuple[int, int] = (1200, 350),
@@ -165,7 +165,7 @@ def visualize_reaction(
     legend: Optional[str] = None,
     fixed_bond_length: float = 22.0,
     padding: float = 0.10,
-) -> Union[str, "PIL.Image.Image"]:
+) -> Union[str, Any]:  # Any covers PIL.Image.Image when Cairo is available
     """
     More visual RDKit reaction rendering.
 

@@ -130,35 +130,6 @@ target-version = ["py311"]
 skip-string-normalization = true
 
 
-# ---------------------------------------------------------------------
-# Linting (flake8)
-# ---------------------------------------------------------------------
-[tool.flake8]
-max-line-length = 100
-extend-ignore = [
-  "E203",  # whitespace before ':'
-  "W503",  # line break before binary operator
-  "D100",  # missing module docstring
-  "D104",  # missing package docstring
-  "D401",  # imperative mood
-  "D205",
-  "D400",
-]
-
-exclude = [
-  ".git",
-  "__pycache__",
-  ".venv",
-  "build",
-  "dist",
-  "**/*.ipynb",
-  "synedu/S*/**",
-]
-
-per-file-ignores = [
-  "tests/*:D101,D102,D103",
-  "synedu/__init__.py:F401",
-]
 
 
 # ---------------------------------------------------------------------
@@ -169,6 +140,9 @@ addopts = "-ra"
 testpaths = ["tests"]
 filterwarnings = [
   "ignore::DeprecationWarning",
+]
+markers = [
+  "slow: notebook execution tests (run with -m slow or omit to skip)",
 ]
 
 

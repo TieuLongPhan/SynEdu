@@ -7,6 +7,7 @@ IGNORE = [
 
 
 def create_nblink(notebook_path):
+    """Return an nblink dict for the given notebook path."""
     d = {}
     d["path"] = str(notebook_path)
     d["extra-media"] = [str(notebook_path.parent / "images/")]
@@ -14,6 +15,7 @@ def create_nblink(notebook_path):
 
 
 def main():
+    """Generate .nblink files for all talktorials."""
     talktorials = Path("../../teachopencadd/talktorials/")
     print(talktorials)
     for path in talktorials.glob("*/"):

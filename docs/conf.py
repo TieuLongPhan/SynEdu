@@ -55,6 +55,7 @@ extensions = [
     "IPython.sphinxext.ipython_console_highlighting",
     "sphinx_copybutton",
     "sphinx_gallery.load_style",
+    "myst_parser",
 ]
 
 autosummary_generate = True
@@ -63,7 +64,15 @@ napoleon_use_param = False
 napoleon_use_ivar = True
 
 templates_path = ["_templates"]
-source_suffix = ".rst"
+source_suffix = {
+    ".rst": "restructuredtext",
+    ".md": "markdown",
+}
+myst_enable_extensions = [
+    "colon_fence",
+    "attrs_inline",
+]
+
 master_doc = "index"
 language = "en"
 
@@ -100,16 +109,8 @@ html_theme_options = {
     "color_accent": "teal",
     "theme_color": "#0E1B2A",
     "master_doc": False,
-    "nav_links": [
-        {"href": "talktorials/index", "internal": True, "title": "Talktorials"},
-        {"href": "installing", "internal": True, "title": "Installing"},
-        {"href": "api", "internal": True, "title": "API"},
-        {"href": "contribute", "internal": True, "title": "Contribute"},
-        {"href": "contact", "internal": True, "title": "Contact"},
-    ],
-    "heroes": {
-        "index": "Executable, research-oriented talktorials for chemical graph modeling",
-    },
+    "nav_links": [],
+    "heroes": {},
     "table_classes": ["plain"],
     "globaltoc_collapse": False,
     "globaltoc_includehidden": True,
@@ -166,6 +167,17 @@ nbsphinx_epilog = r"""
     'talktorials/S08',
     'talktorials/S09'
 ] %}
+{% set titles = {
+    'talktorials/S01': 'Molecules to typed graphs',
+    'talktorials/S02': 'Graph morphism',
+    'talktorials/S03': 'Maximum common substructure',
+    'talktorials/S04': 'Atom mapping',
+    'talktorials/S05': 'Reaction rules',
+    'talktorials/S06': 'Canonicalizing reactions',
+    'talktorials/S07': 'DPO rule library',
+    'talktorials/S08': 'One-step prediction',
+    'talktorials/S09': 'Context graph expansion'
+} %}
 
 {% if docname in order %}
 {% set i = order.index(docname) %}
@@ -179,7 +191,7 @@ nbsphinx_epilog = r"""
        <a class="synedu-bottom-nav__card synedu-bottom-nav__card--prev"
           href="{{ order[i-1].split('/')[-1] }}.html">
          <span class="synedu-bottom-nav__label">Previous</span>
-         <span class="synedu-bottom-nav__title">{{ order[i-1].split('/')[-1] }}</span>
+         <span class="synedu-bottom-nav__title">{{ order[i-1].split('/')[-1] }} · {{ titles[order[i-1]] }}</span>
        </a>
        {% else %}
        <div class="synedu-bottom-nav__empty"></div>
@@ -187,15 +199,15 @@ nbsphinx_epilog = r"""
 
        <a class="synedu-bottom-nav__card synedu-bottom-nav__card--index"
           href="index.html">
-         <span class="synedu-bottom-nav__label">Talktorials</span>
-         <span class="synedu-bottom-nav__title">All</span>
+         <span class="synedu-bottom-nav__label">Talktorial {{ i + 1 }} of {{ order|length }}</span>
+         <span class="synedu-bottom-nav__title">Series overview</span>
        </a>
 
        {% if i + 1 < order|length %}
        <a class="synedu-bottom-nav__card synedu-bottom-nav__card--next"
           href="{{ order[i+1].split('/')[-1] }}.html">
          <span class="synedu-bottom-nav__label">Next</span>
-         <span class="synedu-bottom-nav__title">{{ order[i+1].split('/')[-1] }}</span>
+         <span class="synedu-bottom-nav__title">{{ order[i+1].split('/')[-1] }} · {{ titles[order[i+1]] }}</span>
        </a>
        {% else %}
        <div class="synedu-bottom-nav__empty"></div>

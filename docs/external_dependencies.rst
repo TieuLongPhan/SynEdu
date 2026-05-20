@@ -1,117 +1,46 @@
-External resources
+External Resources
 ==================
 
-.. raw:: html
+SynEdu builds on open-source Python tools for chemistry, graph modeling,
+notebooks, visualization, testing, and documentation. If we use your software
+or resource and it is not yet listed here, please let us know.
 
-   <div class="synedu-home-hero synedu-home-hero--compact synedu-home-hero--ecosystem">
-     <div class="synedu-hero-main">
-       <div class="synedu-home-kicker"><span class="synedu-dot"></span> External ecosystem</div>
-       <div class="synedu-home-title">Tools and resources behind SynEdu.</div>
-       <div class="synedu-home-subtitle">
-         SynEdu builds on open-source packages, scientific notebooks, and related SynEco projects.
-       </div>
-     </div>
-   </div>
+Core software
+-------------
 
-.. raw:: html
+.. rst-class:: synedu-info-table
 
-   <div class="synedu-contact-highlights synedu-ecosystem-highlights">
-     <span class="synedu-contact-pill">Chemistry</span>
-     <span class="synedu-contact-pill">Graphs</span>
-     <span class="synedu-contact-pill">Notebooks</span>
-     <span class="synedu-contact-pill">Visualization</span>
-     <span class="synedu-contact-pill">SynEco</span>
-   </div>
+.. list-table::
+   :widths: 24 46 30
+   :header-rows: 1
 
-.. raw:: html
-
-   <div class="synedu-ecosystem-grid synedu-ecosystem-grid--icons">
-     <div class="synedu-ecosystem-card">
-       <div class="synedu-ecosystem-card__icon">⚗️</div>
-       <div class="synedu-ecosystem-card__title">Cheminformatics</div>
-       <div class="synedu-ecosystem-card__desc">
-         Molecular representations, file conversion, and reaction-aware workflows.
-       </div>
-     </div>
-     <div class="synedu-ecosystem-card">
-       <div class="synedu-ecosystem-card__icon">🕸️</div>
-       <div class="synedu-ecosystem-card__title">Graph modeling</div>
-       <div class="synedu-ecosystem-card__desc">
-         Flexible graph structures and algorithms for reaction and molecular systems.
-       </div>
-     </div>
-     <div class="synedu-ecosystem-card">
-       <div class="synedu-ecosystem-card__icon">📓</div>
-       <div class="synedu-ecosystem-card__title">Notebook workflows</div>
-       <div class="synedu-ecosystem-card__desc">
-         Interactive Jupyter-based teaching and reproducible computational experiments.
-       </div>
-     </div>
-     <div class="synedu-ecosystem-card">
-       <div class="synedu-ecosystem-card__icon">🧪</div>
-       <div class="synedu-ecosystem-card__title">Testing & docs</div>
-       <div class="synedu-ecosystem-card__desc">
-         Tools for documentation, validation, and maintainable educational content.
-       </div>
-     </div>
-   </div>
-
-Overview
---------
-
-SynEdu builds on open-source Python tools and related SynEco projects. If we use
-your software or resource and it is not yet listed here, please let us know.
-
-Python packages
----------------
-
-Cheminformatics and graph modeling
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-- ``rdkit`` — `RDKit <https://rdkit.org/>`_
-- ``openbabel`` — `Open Babel <https://openbabel.org/>`_
-- ``networkx`` — `NetworkX <https://networkx.org/>`_
-
-Data science and notebooks
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-- ``numpy`` — `NumPy <https://numpy.org/>`_
-- ``pandas`` — `pandas <https://pandas.pydata.org/>`_
-- ``scikit-learn`` — `scikit-learn <https://scikit-learn.org/>`_
-- ``jupyter`` — `Project Jupyter <https://jupyter.org/>`_
-- ``ipywidgets`` — `ipywidgets <https://ipywidgets.readthedocs.io/>`_
-
-Visualization
-~~~~~~~~~~~~~
-
-- ``matplotlib`` — `Matplotlib <https://matplotlib.org/>`_
-- ``seaborn`` — `Seaborn <https://seaborn.pydata.org/>`_
-
-Utilities
-~~~~~~~~~
-
-- ``tqdm`` — `tqdm <https://tqdm.github.io/>`_
-- ``requests-cache`` — `requests-cache <https://requests-cache.readthedocs.io/>`_
-- ``redo`` — `redo <https://github.com/mozilla-releng/redo>`_
-- ``google-colab`` — `google-colab <https://pypi.org/project/google-colab/>`_
-- ``condacolab`` — `condacolab <https://pypi.org/project/condacolab/>`_
-
-Testing and documentation
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-- ``pytest`` — `pytest <https://docs.pytest.org/>`_
-- ``nbval`` — `nbval <https://nbval.readthedocs.io/>`_
-- ``sphinx`` — `Sphinx <https://www.sphinx-doc.org/>`_
-- ``nbsphinx`` — `nbsphinx <https://nbsphinx.readthedocs.io/>`_
-- ``black-nb`` — `black-nb <https://github.com/tomcatling/black-nb>`_
-
-SynEco ecosystem
-~~~~~~~~~~~~~~~~
-
-- ``SynRBL`` — `PyPI <https://pypi.org/project/synrbl/>`_
-- ``SynKit`` — `Docs <https://synkit.readthedocs.io/en/latest/>`_
-- ``SynTemp`` — `Docs <https://syntemp.readthedocs.io/en/latest/>`_
-- ``SynCat`` — `PyPI <https://pypi.org/project/syncat/>`_
+   * - Area
+     - Packages
+     - Links
+   * - Cheminformatics
+     - ``rdkit``, ``openbabel``
+     - `RDKit <https://rdkit.org/>`_, `Open Babel <https://openbabel.org/>`_
+   * - Graph modeling
+     - ``networkx``
+     - `NetworkX <https://networkx.org/>`_
+   * - Data science
+     - ``numpy``, ``pandas``, ``scikit-learn``
+     - `NumPy <https://numpy.org/>`_, `pandas <https://pandas.pydata.org/>`_,
+       `scikit-learn <https://scikit-learn.org/>`_
+   * - Notebooks
+     - ``jupyter``, ``ipywidgets``
+     - `Project Jupyter <https://jupyter.org/>`_,
+       `ipywidgets <https://ipywidgets.readthedocs.io/>`_
+   * - Visualization
+     - ``matplotlib``, ``seaborn``
+     - `Matplotlib <https://matplotlib.org/>`_,
+       `Seaborn <https://seaborn.pydata.org/>`_
+   * - Testing and docs
+     - ``pytest``, ``nbval``, ``sphinx``, ``nbsphinx``, ``black-nb``
+     - `pytest <https://docs.pytest.org/>`_,
+       `nbval <https://nbval.readthedocs.io/>`_,
+       `Sphinx <https://www.sphinx-doc.org/>`_,
+       `nbsphinx <https://nbsphinx.readthedocs.io/>`_
 
 Acknowledgment
 --------------
