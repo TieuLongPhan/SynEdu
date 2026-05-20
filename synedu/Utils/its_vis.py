@@ -1,193 +1,335 @@
-import networkx as nx
+from __future__ import annotations
+
+from typing import Dict, List, Optional, Set, Tuple
+
+import matplotlib.patheffects as pe
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
-from matplotlib.patches import Patch
+import networkx as nx
+from rdkit import Chem
+from rdkit.Chem import AllChem
 
-_ELEMENT_COLORS = {
-    "C": "#4D4D4D",
-    "O": "#D62728",
-    "N": "#1F77B4",
-    "S": "#FF7F0E",
-    "Cl": "#2CA02C",
-    "F": "#2CA02C",
-    "Br": "#8C564B",
-    "I": "#9467BD",
-    "P": "#E377C2",
-    "H": "#BBBBBB",
+# ── CPK element palette (fill, border) ───────────────────────────────────
+_ELEMENT_PALETTE: Dict[str, Tuple[str, str]] = {
+    "C": ("#636363", "#3d3d3d"),
+    "O": ("#E8524A", "#b83830"),
+    "N": ("#5B8DD9", "#3a65b0"),
+    "S": ("#E8A838", "#c07a10"),
+    "Cl": ("#3DBE6C", "#1e8a46"),
+    "F": ("#5BC8AF", "#2a9178"),
+    "Br": ("#A0522D", "#6b3118"),
+    "I": ("#8C54C8", "#5e2fa0"),
+    "P": ("#E878C8", "#b84898"),
+    "H": ("#C8C8C8", "#909090"),
+    "Na": ("#AB5CF2", "#7b34c8"),
+    "Mg": ("#8AFF00", "#58b000"),
+    "Si": ("#F0C8A0", "#b88860"),
+}
+_DEFAULT_FILL = "#A0A0A0"
+_DEFAULT_BORDER = "#606060"
+
+# ── edge-change type colors ───────────────────────────────────────────────
+_EDGE_STYLES = {
+    "broken": {
+        "color": "#D62728",
+        "lw_mult": 1.4,
+        "style": "-",
+        "alpha": 0.95,
+        "label": "Broken  (b_r>b_p)",
+    },
+    "formed": {
+        "color": "#2CA02C",
+        "lw_mult": 1.4,
+        "style": "-",
+        "alpha": 0.95,
+        "label": "Formed  (b_r<b_p)",
+    },
+    "changed": {
+        "color": "#FF7F0E",
+        "lw_mult": 1.4,
+        "style": "-",
+        "alpha": 0.95,
+        "label": "Changed (b_r≠b_p)",
+    },
+    "unchanged": {
+        "color": "#888888",
+        "lw_mult": 0.7,
+        "style": "--",
+        "alpha": 0.45,
+        "label": "Unchanged",
+    },
 }
 
 
-def visualize_its(
+def _luminance(hex_color: str) -> float:
+    h = hex_color.lstrip("#")
+    r, g, b = (int(h[i : i + 2], 16) / 255.0 for i in (0, 2, 4))
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+
+def _fill(el: str) -> str:
+    return _ELEMENT_PALETTE.get(el, (_DEFAULT_FILL, _DEFAULT_BORDER))[0]
+
+
+def _border(el: str) -> str:
+    return _ELEMENT_PALETTE.get(el, (_DEFAULT_FILL, _DEFAULT_BORDER))[1]
+
+
+def _pos_from_mol(
+    mol: Chem.Mol, G: nx.Graph
+) -> Optional[Dict[int, Tuple[float, float]]]:
+    """Return {node_id: (x, y)} from RDKit 2D conformer matched via atom_map attribute."""
+    if mol.GetNumConformers() == 0:
+        AllChem.Compute2DCoords(mol)
+    conf = mol.GetConformer(0)
+    mol_pos: Dict[int, Tuple[float, float]] = {
+        a.GetAtomMapNum(): (
+            conf.GetAtomPosition(a.GetIdx()).x,
+            conf.GetAtomPosition(a.GetIdx()).y,
+        )
+        for a in mol.GetAtoms()
+        if a.GetAtomMapNum() > 0
+    }
+    out: Dict[int, Tuple[float, float]] = {}
+    for n in G.nodes():
+        am = G.nodes[n].get("atom_map", n)
+        if am in mol_pos:
+            out[n] = mol_pos[am]
+        elif n in mol_pos:
+            out[n] = mol_pos[n]
+    return out if len(out) == G.number_of_nodes() else None
+
+
+def _classify_edge(br, bp) -> str:
+    br, bp = float(br), float(bp)
+    if abs(br - bp) < 1e-6:
+        return "unchanged"
+    if br > 0 and bp < 1e-6:
+        return "broken"
+    if br < 1e-6 and bp > 0:
+        return "formed"
+    return "changed"
+
+
+def visualize_its(  # noqa: C901
     its: nx.Graph,
     *,
-    ax=None,
-    title: str | None = None,
-    pos: dict | None = None,
+    mol: Optional[Chem.Mol] = None,
+    ax: Optional[plt.Axes] = None,
+    title: Optional[str] = None,
+    pos: Optional[Dict] = None,
     layout: str = "kamada_kawai",  # "spring" | "kamada_kawai" | "circular"
-    node_size: int = 900,
-    font_size: int = 10,
-    edge_width: float = 2.8,
+    node_size: int = 700,
+    font_size: int = 9,
+    edge_width: float = 2.4,
     show_edge_labels: bool = True,
     show_unchanged_edge_labels: bool = False,
     show_node_labels: bool = True,
-    show_legends: bool = False,
-):
+    show_atom_map: bool = False,  # show :mapnum on label
+    show_legend: bool = True,
+    rc_ring_color: str = "#FFD700",  # gold ring on reaction-center nodes
+) -> plt.Axes:
     """
-    Visualize an ITS graph on a given Matplotlib axis.
+    Visualize an ITS graph with CPK node colors, reaction-center rings,
+    and colored edge types (broken/formed/changed/unchanged).
 
-    Nodes:
-      - colored by element (ITS.nodes[n]['element'])
-      - thicker black outline if in reaction center
-
-    Edges (ITS[u][v]['order'] == (br, bp)):
-      - br > bp : broken  (red)
-      - br < bp : formed  (green)
-      - br = bp : unchanged (black, thinner)
+    Edge 'order' attribute expected as (b_r, b_p) tuple.
     """
-    # axis handling (supports subplots)
     created_fig = False
     if ax is None:
-        fig, ax = plt.subplots(figsize=(6, 4))
+        fig, ax = plt.subplots(figsize=(7, 5), facecolor="white")
         created_fig = True
 
+    ax.set_facecolor("white")
     ax.set_axis_off()
     if title:
-        ax.set_title(title, fontsize=font_size + 1)
+        ax.set_title(
+            title, fontsize=font_size + 2, fontweight="bold", pad=8, color="#1a1a1a"
+        )
 
-    # layout
+    # ── layout ───────────────────────────────────────────────────────────
     if pos is None:
-        if layout == "spring":
-            pos = nx.spring_layout(its, seed=0, k=0.9)
-        elif layout == "circular":
-            pos = nx.circular_layout(its)
-        else:
-            pos = nx.kamada_kawai_layout(its)
+        if mol is not None:
+            pos = _pos_from_mol(mol, its)
+        if pos is None:
+            if layout == "spring":
+                pos = nx.spring_layout(its, seed=0, k=1.0)
+            elif layout == "circular":
+                pos = nx.circular_layout(its)
+            else:
+                try:
+                    pos = nx.kamada_kawai_layout(its)
+                except Exception:
+                    pos = nx.spring_layout(its, seed=0)
 
-    # classify edges + reaction center nodes
-    broken, formed, unchanged = [], [], []
-    lbl_b, lbl_f, lbl_u = {}, {}, {}
-    rc_nodes = set()
+    # ── classify edges ───────────────────────────────────────────────────
+    rc_nodes: Set = set()
+    edge_groups: Dict[str, List[Tuple]] = {k: [] for k in _EDGE_STYLES}
+    edge_labels: Dict[str, Dict[Tuple, str]] = {k: {} for k in _EDGE_STYLES}
 
     for u, v, d in its.edges(data=True):
         br, bp = d.get("order", (0.0, 0.0))
-        if br > bp:
-            broken.append((u, v))
-            lbl_b[(u, v)] = f"({br:g},{bp:g})"
+        etype = _classify_edge(br, bp)
+        edge_groups[etype].append((u, v))
+        lbl = f"({float(br):g},{float(bp):g})"
+        edge_labels[etype][(u, v)] = lbl
+        if etype != "unchanged":
             rc_nodes.update([u, v])
-        elif br < bp:
-            formed.append((u, v))
-            lbl_f[(u, v)] = f"({br:g},{bp:g})"
-            rc_nodes.update([u, v])
-        else:
-            unchanged.append((u, v))
-            lbl_u[(u, v)] = f"({br:g},{bp:g})"
 
-    # node styling
-    node_colors, node_edgecolors, node_linewidths = [], [], []
-    elems_present = []
-    for n, d in its.nodes(data=True):
-        elem = d.get("element", "?")
-        if elem not in elems_present:
-            elems_present.append(elem)
+    # ── node styling ─────────────────────────────────────────────────────
+    nodelist = list(its.nodes())
+    node_colors = []
+    node_borders = []
+    label_colors = []
 
-        node_colors.append(_ELEMENT_COLORS.get(elem, "#CCCCCC"))
-        if n in rc_nodes:
-            node_edgecolors.append("#000000")
-            node_linewidths.append(2.2)
-        else:
-            node_edgecolors.append("#666666")
-            node_linewidths.append(1.2)
+    for n in nodelist:
+        el = its.nodes[n].get("element", "?")
+        fill = _fill(el)
+        bord = _border(el)
+        node_colors.append(fill)
+        node_borders.append(bord)
+        label_colors.append("white" if _luminance(fill) < 0.50 else "#1a1a1a")
 
-    # node labels
-    labels = None
-    if show_node_labels:
-        labels = {n: f"{n}:{its.nodes[n].get('element','?')}" for n in its.nodes()}
+    # ── draw reaction-center node glow ───────────────────────────────────
+    rc_list = [n for n in nodelist if n in rc_nodes]
+    if rc_list:
+        nc = nx.draw_networkx_nodes(
+            its,
+            pos,
+            nodelist=rc_list,
+            node_size=int(node_size * 1.9),
+            node_color=rc_ring_color,
+            edgecolors="none",
+            linewidths=0,
+            ax=ax,
+            alpha=0.20,
+        )
+        nc.set_zorder(1)
 
-    # draw nodes
-    nx.draw_networkx_nodes(
+    # ── draw edges in order (unchanged first, then colored) ──────────────
+    for etype in ("unchanged", "broken", "formed", "changed"):
+        eg = edge_groups[etype]
+        if not eg:
+            continue
+        st = _EDGE_STYLES[etype]
+        nx.draw_networkx_edges(
+            its,
+            pos,
+            ax=ax,
+            edgelist=eg,
+            width=edge_width * st["lw_mult"],
+            edge_color=st["color"],
+            alpha=st["alpha"],
+            style=st["style"],
+            arrows=False,
+        )
+
+    # ── draw nodes ───────────────────────────────────────────────────────
+    nc = nx.draw_networkx_nodes(
         its,
         pos,
-        ax=ax,
+        nodelist=nodelist,
         node_size=node_size,
         node_color=node_colors,
-        edgecolors=node_edgecolors,
-        linewidths=node_linewidths,
-    )
-
-    # draw edges (unchanged behind)
-    nx.draw_networkx_edges(
-        its,
-        pos,
+        edgecolors=node_borders,
+        linewidths=max(1.2, node_size**0.5 * 0.055),
         ax=ax,
-        edgelist=unchanged,
-        width=max(1.1, edge_width * 0.55),
-        edge_color="black",
-        alpha=0.55,
     )
-    nx.draw_networkx_edges(
-        its,
-        pos,
-        ax=ax,
-        edgelist=broken,
-        width=edge_width * 1.25,
-        edge_color="red",
-        alpha=0.95,
-    )
-    nx.draw_networkx_edges(
-        its,
-        pos,
-        ax=ax,
-        edgelist=formed,
-        width=edge_width * 1.25,
-        edge_color="green",
-        alpha=0.95,
-    )
+    nc.set_zorder(3)
 
-    # labels
-    if labels is not None:
-        nx.draw_networkx_labels(its, pos, ax=ax, labels=labels, font_size=font_size)
+    # RC ring outline
+    if rc_list:
+        nc = nx.draw_networkx_nodes(
+            its,
+            pos,
+            nodelist=rc_list,
+            node_size=int(node_size * 1.32),
+            node_color="none",
+            edgecolors=rc_ring_color,
+            linewidths=max(2.0, node_size**0.5 * 0.10),
+            ax=ax,
+            alpha=0.9,
+        )
+        nc.set_zorder(4)
 
-    # edge labels
+    # ── node labels ──────────────────────────────────────────────────────
+    if show_node_labels:
+        for i, n in enumerate(nodelist):
+            el = its.nodes[n].get("element", "?")
+            am = its.nodes[n].get("atom_map", 0)
+            if show_atom_map and am:
+                lbl = f"{el}:{am}"
+            else:
+                lbl = el
+            x, y = pos[n]
+            ax.text(
+                x,
+                y,
+                lbl,
+                ha="center",
+                va="center",
+                fontsize=font_size,
+                fontweight="bold",
+                color=label_colors[i],
+                zorder=9,
+                path_effects=[pe.withStroke(linewidth=1.5, foreground="none")],
+            )
+
+    # ── edge labels ──────────────────────────────────────────────────────
     if show_edge_labels:
-        if lbl_b:
+        for etype in ("broken", "formed", "changed"):
+            lbls = edge_labels[etype]
+            if lbls:
+                nx.draw_networkx_edge_labels(
+                    its,
+                    pos,
+                    ax=ax,
+                    edge_labels=lbls,
+                    font_size=font_size - 1,
+                    font_color=_EDGE_STYLES[etype]["color"],
+                    bbox=dict(
+                        boxstyle="round,pad=0.15", fc="white", ec="none", alpha=0.85
+                    ),
+                )
+        if show_unchanged_edge_labels and edge_labels["unchanged"]:
             nx.draw_networkx_edge_labels(
-                its, pos, ax=ax, edge_labels=lbl_b, font_size=font_size - 1
-            )
-        if lbl_f:
-            nx.draw_networkx_edge_labels(
-                its, pos, ax=ax, edge_labels=lbl_f, font_size=font_size - 1
-            )
-        if show_unchanged_edge_labels and lbl_u:
-            nx.draw_networkx_edge_labels(
-                its, pos, ax=ax, edge_labels=lbl_u, font_size=font_size - 3
+                its,
+                pos,
+                ax=ax,
+                edge_labels=edge_labels["unchanged"],
+                font_size=font_size - 2,
+                font_color="#888888",
             )
 
-    # legends
-    if show_legends:
-        edge_legend = [
-            Line2D([0], [0], color="red", lw=3, label="broken (br>bp)"),
-            Line2D([0], [0], color="green", lw=3, label="formed (br<bp)"),
-            Line2D([0], [0], color="black", lw=2, alpha=0.6, label="unchanged (br=bp)"),
-        ]
-        elem_legend = [
-            Patch(
-                facecolor=_ELEMENT_COLORS.get(e, "#CCCCCC"),
-                edgecolor="#666666",
-                label=e,
+    # ── legend ───────────────────────────────────────────────────────────
+    if show_legend:
+        legend_handles = []
+        for etype in ("broken", "formed", "changed", "unchanged"):
+            if not edge_groups[etype]:
+                continue
+            st = _EDGE_STYLES[etype]
+            legend_handles.append(
+                Line2D(
+                    [0],
+                    [0],
+                    color=st["color"],
+                    lw=2.2 * st["lw_mult"],
+                    linestyle=st["style"],
+                    alpha=min(st["alpha"] + 0.1, 1.0),
+                    label=st["label"],
+                )
             )
-            for e in elems_present
-        ]
-
-        # two legends: add one, then re-add as artist
-        leg1 = ax.legend(handles=edge_legend, loc="upper left", frameon=False)
-        if elem_legend:
-            leg2 = ax.legend(
-                handles=elem_legend,
-                loc="lower left",
-                frameon=False,
-                ncol=min(6, len(elem_legend)),
+        if legend_handles:
+            ax.legend(
+                handles=legend_handles,
+                loc="upper right",
+                frameon=True,
+                framealpha=0.92,
+                fontsize=font_size - 1,
+                edgecolor="#cccccc",
+                handlelength=2.0,
+                labelspacing=0.4,
             )
-            ax.add_artist(leg1)
 
     if created_fig:
         plt.tight_layout()

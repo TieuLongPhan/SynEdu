@@ -1,5 +1,7 @@
-Cite
-====
+:orphan:
+
+Citation
+========
 
 If you use SynEdu in academic work, please cite the project.
 

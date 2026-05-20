@@ -210,8 +210,10 @@ synedu/S10/out/uspto50k_mapped_N50016.json.gz
 # Documentation build artifacts
 # -----------------------------
 docs/_build/
+docs/_autosummary/
 docs/**/.ipynb_checkpoints/
 docs/**/*.ipynb_checkpoints/
+_build/
 
 # OS junk
 .DS_Store
@@ -220,3 +222,5 @@ Thumbs.db
 #
 .gitignore
 dev/*
+
+Agent/*

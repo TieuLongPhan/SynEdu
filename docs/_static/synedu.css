@@ -1,25 +1,73 @@
 /* SynEdu Docs UI
-   Distinct visual identity (TACsy-inspired): crisp light pages, deep navy hero,
-   teal accents, warm amber highlights. Designed for high contrast & readability.
+   Stable shared styles for the documentation. Keep vendor compatibility and
+   temporary page-specific experiments in custom.css until they graduate here.
 */
 
+@import url("https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800;900&family=PT+Serif:ital,wght@0,400;1,400&display=swap");
+
+/* ==========================================================================
+   Tokens
+   ========================================================================== */
+
 :root{
-  --syn-navy: #0E1B2A;
-  --syn-slate: #1F2A35;
-  --syn-ink: #17202A;
+  --syn-navy: #28303D;
+  --syn-slate: #303A4A;
+  --syn-ink: #1F2933;
   --syn-paper: #FFFFFF;
+  --syn-soft: #F8FAFC;
   --syn-muted: #5B6470;
   --syn-border: #E6E8EC;
-  --syn-teal: #16B3A8;
-  --syn-teal-2: #0EA5A0;
+  --syn-teal: #01E49C;
+  --syn-teal-2: #00B97F;
   --syn-amber: #FFB142;
   --syn-rose: #FF6B6B;
+  --syn-blue: #2563EB;
+  --syn-radius: 14px;
+  --syn-radius-sm: 10px;
   --syn-shadow: 0 10px 30px rgba(15, 23, 42, 0.10);
+  --syn-shadow-soft: 0 10px 24px rgba(15, 23, 42, 0.06);
+  --syn-font-sans: "Jost", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --syn-font-serif: "PT Serif", Georgia, "Times New Roman", serif;
 }
 
-/* Improve default typography spacing */
+body[data-synedu-theme="dark"]{
+  --syn-ink: #E8EEF5;
+  --syn-paper: #111827;
+  --syn-soft: #0B1220;
+  --syn-muted: #A8B3C3;
+  --syn-border: #263244;
+  --syn-slate: #DCE6F2;
+  background: #0B1220;
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
 .wy-nav-content, .document, .content, .md-content{
   color: var(--syn-ink);
+}
+.md-typeset,
+.md-header,
+.md-nav,
+body{
+  font-family: var(--syn-font-sans);
+}
+.md-typeset h1,
+.md-typeset h2,
+.md-typeset h3{
+  color: var(--syn-slate);
+  font-weight: 500;
+  letter-spacing: 0;
+}
+.md-typeset h1{
+  font-size: 2.05rem;
+  line-height: 1.15;
+}
+.md-typeset > p:first-of-type,
+.md-typeset section > p:first-of-type{
+  font-size: 1.02rem;
+  line-height: 1.72;
 }
 
 /* Link styling */
@@ -33,10 +81,62 @@ a:link, a:visited{
 a:hover{
   color: var(--syn-teal);
 }
+a:focus-visible,
+button:focus-visible,
+input:focus-visible{
+  outline: 2px solid rgba(0,185,127,0.38);
+  outline-offset: 2px;
+}
+.synedu-skip-link{
+  position: absolute;
+  left: 1rem;
+  top: 0.65rem;
+  z-index: 100;
+  padding: 0.45rem 0.7rem;
+  border-radius: 999px;
+  background: var(--syn-paper);
+  color: var(--syn-navy) !important;
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-decoration: none !important;
+  transform: translateY(-4rem);
+  transition: transform 120ms ease;
+}
+.synedu-skip-link:focus{
+  transform: translateY(0);
+}
 
-/* ---------- Home hero ---------- */
+/* Make code blocks slightly softer */
+div.highlight{
+  border-radius: var(--syn-radius-sm);
+  border: 1px solid rgba(31,42,53,0.08);
+}
+
+/* ==========================================================================
+   Layout Primitives
+   ========================================================================== */
+
+.synedu-grid{
+  display:grid;
+  gap: 14px;
+  margin: 0.8rem 0 1.2rem;
+}
+.synedu-grid--auto{
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+.synedu-grid--2{
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.synedu-grid--3{
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* ==========================================================================
+   Heroes
+   ========================================================================== */
+
 .synedu-home-hero{
-  border-radius: 18px;
+  border-radius: var(--syn-radius);
   padding: 20px 20px 14px;
   margin: 0.8rem 0 1.2rem;
   background: radial-gradient(1200px 500px at 10% 10%, rgba(22,179,168,0.25), rgba(0,0,0,0) 60%),
@@ -115,19 +215,23 @@ a:hover{
   background: rgba(255,255,255,0.12);
 }
 
-/* ---------- Cards / tiles ---------- */
+/* ==========================================================================
+   Cards
+   ========================================================================== */
+
 .synedu-cardgrid{
+  /* Reusable grid for repeated project/resource cards; used by the SynEco page. */
   display:grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 14px;
   margin: 0.8rem 0 1.2rem;
 }
 .synedu-card{
-  border-radius: 16px;
+  border-radius: var(--syn-radius);
   padding: 14px 14px 12px;
   background: var(--syn-paper);
   border: 1px solid var(--syn-border);
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  box-shadow: var(--syn-shadow-soft);
   text-decoration: none !important;
   color: var(--syn-ink) !important;
   transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
@@ -161,6 +265,29 @@ a:hover{
   line-height: 1.35;
   margin-bottom: 10px;
 }
+.synedu-card__icon{
+  width: 2.5rem;
+  height: 2.5rem;
+  min-width: 2.5rem;
+  border-radius: var(--syn-radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.12rem;
+  line-height: 1;
+  background: linear-gradient(135deg, #dbeafe 0%, #e0f2fe 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.65);
+}
+.synedu-card--media{
+  display:flex;
+  align-items:flex-start;
+  gap: 0.85rem;
+}
+.synedu-card--soft{
+  background: linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.98) 100%);
+  border-color: rgba(148, 163, 184, 0.18);
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.05);
+}
 .synedu-meta{
   display:flex;
   gap: 8px;
@@ -185,6 +312,10 @@ a:hover{
 
 /* Status badges */
 .synedu-badge{
+  /* Compact status/link badges inside cards; supports optional inline SVG icons. */
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   font-size: 0.76rem;
   padding: 3px 9px;
   border-radius: 999px;
@@ -193,6 +324,12 @@ a:hover{
   color: var(--syn-slate);
   font-weight: 800;
   letter-spacing: 0.2px;
+}
+.synedu-badge svg{
+  width: 0.78rem;
+  height: 0.78rem;
+  flex-shrink: 0;
+  fill: currentColor;
 }
 .synedu-badge--stable{
   border-color: rgba(22,179,168,0.35);
@@ -215,7 +352,10 @@ a:hover{
 .synedu-card--lib  { border-left: 4px solid rgba(255,177,66,0.75); }
 .synedu-card--app  { border-left: 4px solid rgba(255,107,107,0.65); }
 
-/* ---------- Chips ---------- */
+/* ==========================================================================
+   Chips And Badges
+   ========================================================================== */
+
 .synedu-chips{
   display:flex;
   gap: 8px;
@@ -223,6 +363,7 @@ a:hover{
   margin: 8px 0 14px;
 }
 .synedu-chip{
+  /* Standalone pill links or labels for small groups of related actions. */
   display:inline-flex;
   align-items:center;
   gap:8px;
@@ -240,7 +381,10 @@ a:hover{
   background: rgba(22,179,168,0.06);
 }
 
-/* ---------- Section headers ---------- */
+/* ==========================================================================
+   Section Headers
+   ========================================================================== */
+
 .synedu-section{
   display:flex;
   align-items:baseline;
@@ -252,10 +396,264 @@ a:hover{
   font-size: 0.90rem;
 }
 
-/* ---------- Continue CTA (end of notebook) ---------- */
+/* ==========================================================================
+   Docs-Native Homepage Elements
+   ========================================================================== */
+
+.synedu-learning-path{
+  margin: 0.9rem 0 1rem;
+  border: 1px solid var(--syn-border);
+  border-radius: var(--syn-radius-sm);
+  overflow: hidden;
+  box-shadow: var(--syn-shadow-soft);
+}
+.synedu-learning-path table{
+  margin: 0 !important;
+  border: 0 !important;
+}
+.synedu-learning-path th{
+  background: rgba(40,48,61,0.08) !important;
+  color: var(--syn-navy) !important;
+  font-size: 0.84rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.synedu-learning-path td,
+.synedu-learning-path th{
+  border-color: var(--syn-border) !important;
+  padding: 0.78rem 0.9rem;
+  font-size: 0.94rem;
+  line-height: 1.55;
+}
+.synedu-learning-path td:first-child{
+  color: var(--syn-teal-2);
+  font-weight: 900;
+  white-space: nowrap;
+}
+.synedu-context-chips{
+  /* RST list-based chips for scientific keywords on prose-heavy pages. */
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0.4rem 0 1.25rem !important;
+  padding-left: 0 !important;
+  list-style: none !important;
+}
+.synedu-context-chips li{
+  margin: 0 !important;
+  color: var(--syn-slate);
+}
+.synedu-context-chips code{
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.65rem;
+  padding: 0 0.6rem;
+  border-color: rgba(22,179,168,0.22);
+  border-radius: 999px;
+  background: rgba(22,179,168,0.08);
+  color: var(--syn-teal-2);
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   Docs-Native Catalog Tables
+   ========================================================================== */
+
+.synedu-stage-routes,
+.synedu-catalog-table,
+.synedu-info-table{
+  margin: 1rem 0 1.35rem;
+  border: 1px solid rgba(40,48,61,0.12);
+  border-radius: var(--syn-radius-sm);
+  overflow: hidden;
+  background: var(--syn-paper);
+  box-shadow: 0 8px 22px rgba(15,23,42,0.055);
+}
+.synedu-stage-routes table,
+.synedu-catalog-table table,
+.synedu-info-table table{
+  margin: 0 !important;
+  border: 0 !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+.synedu-stage-routes th,
+.synedu-catalog-table th,
+.synedu-info-table th{
+  background: #edf3f7 !important;
+  color: #28303d !important;
+  font-size: 0.82rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+.synedu-stage-routes td,
+.synedu-stage-routes th,
+.synedu-catalog-table td,
+.synedu-catalog-table th,
+.synedu-info-table td,
+.synedu-info-table th{
+  border-color: rgba(40,48,61,0.10) !important;
+  padding: 0.92rem 1rem;
+  font-size: 0.98rem;
+  line-height: 1.58;
+  vertical-align: top;
+}
+.synedu-stage-routes tbody tr:nth-child(even),
+.synedu-catalog-table tbody tr:nth-child(even),
+.synedu-info-table tbody tr:nth-child(even){
+  background: rgba(248,250,252,0.72);
+}
+.synedu-stage-routes tbody tr:hover,
+.synedu-catalog-table tbody tr:hover,
+.synedu-info-table tbody tr:hover{
+  background: rgba(1,228,156,0.045);
+}
+.synedu-stage-routes td:first-child,
+.synedu-catalog-table td:first-child,
+.synedu-info-table td:first-child{
+  color: var(--syn-navy);
+  font-weight: 800;
+  white-space: nowrap;
+}
+.synedu-catalog-table td:nth-child(2){
+  font-weight: 800;
+}
+.md-typeset table:not(.highlighttable){
+  border: 1px solid rgba(40,48,61,0.12);
+  border-radius: var(--syn-radius-sm);
+  overflow: hidden;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  background: var(--syn-paper);
+  box-shadow: 0 8px 22px rgba(15,23,42,0.055);
+}
+.md-typeset table:not(.highlighttable) th{
+  background: #edf3f7 !important;
+  color: #28303d !important;
+  font-size: 0.82rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+.md-typeset table:not(.highlighttable) td,
+.md-typeset table:not(.highlighttable) th{
+  border-color: rgba(40,48,61,0.10) !important;
+  padding: 0.92rem 1rem;
+  font-size: 0.98rem;
+  line-height: 1.58;
+}
+.md-typeset table:not(.highlighttable) tbody tr:nth-child(even){
+  background: rgba(248,250,252,0.72);
+}
+.md-typeset table:not(.highlighttable) tbody tr:hover{
+  background: rgba(1,228,156,0.045);
+}
+.md-typeset table.synedu-funding-logos{
+  margin: 1.2rem 0 1.35rem;
+  border: 1px solid var(--syn-border);
+  border-radius: var(--syn-radius-sm);
+  box-shadow: none;
+  background: var(--syn-paper);
+}
+.md-typeset table.synedu-funding-logos td{
+  padding: 1.05rem 1.2rem;
+  text-align: center;
+  vertical-align: middle;
+  background: var(--syn-paper);
+}
+.md-typeset table.synedu-funding-logos tbody tr,
+.md-typeset table.synedu-funding-logos tbody tr:hover{
+  background: transparent;
+}
+.md-typeset table.synedu-funding-logos p{
+  margin: 0;
+}
+.md-typeset table.synedu-funding-logos img{
+  display: inline-block;
+  width: auto;
+  max-width: 100%;
+  max-height: 7rem;
+  object-fit: contain;
+}
+@media (max-width: 700px){
+  html,
+  body,
+  .md-container,
+  .md-main,
+  .md-main__inner,
+  .md-content,
+  .md-content__inner{
+    width: 100vw !important;
+    max-width: 100vw !important;
+    min-width: 0 !important;
+    overflow-x: hidden !important;
+  }
+  .md-grid,
+  .md-main,
+  .md-main__inner,
+  .md-content,
+  .md-content__inner,
+  .md-typeset{
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+  .md-main__inner{
+    display: block !important;
+    margin: 0 !important;
+  }
+  .md-content{
+    overflow-x: hidden;
+  }
+  .md-content__inner{
+    margin: 0 !important;
+    padding: 1.35rem 1rem 2rem !important;
+  }
+  .md-typeset{
+    width: calc(100vw - 2rem) !important;
+    overflow-wrap: break-word;
+  }
+  .md-typeset p,
+  .md-typeset li,
+  .md-typeset h1,
+  .md-typeset h2,
+  .md-typeset h3,
+  .md-typeset figure,
+  .md-typeset .section{
+    max-width: calc(100vw - 2rem) !important;
+  }
+  .md-typeset table:not(.highlighttable){
+    display: block;
+    width: 100% !important;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  .synedu-masthead__tagline{
+    max-width: 100%;
+    white-space: normal;
+  }
+  .md-typeset table.synedu-funding-logos td{
+    display: block;
+    width: 100%;
+    padding: 0.9rem 1rem;
+  }
+  .md-typeset table.synedu-funding-logos tbody,
+  .md-typeset table.synedu-funding-logos tr{
+    display: block;
+    width: 100%;
+  }
+  .md-typeset table.synedu-funding-logos img{
+    max-height: 5.5rem;
+  }
+}
+
+/* ==========================================================================
+   Continue CTA
+   ========================================================================== */
+
 .synedu-continue{
   margin-top: 22px;
-  border-radius: 16px;
+  border-radius: var(--syn-radius);
   border: 1px solid var(--syn-border);
   background: linear-gradient(135deg, rgba(14,165,160,0.06), rgba(255,177,66,0.06));
   padding: 14px 14px 12px;
@@ -285,10 +683,267 @@ a:hover{
   border-color: rgba(22,179,168,0.32);
 }
 
-/* Make code blocks slightly softer */
-div.highlight{
-  border-radius: 10px;
-  border: 1px solid rgba(31,42,53,0.08);
+/* ==========================================================================
+   Page Navigation
+   ========================================================================== */
+
+.synedu-page-nav{
+  margin: 2.35rem 0 0;
+  padding-top: 1.15rem;
+  border-top: 1px solid rgba(40,48,61,0.12);
+}
+.synedu-page-nav__inner{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+.synedu-page-nav__inner:has(> :only-child){
+  grid-template-columns: 1fr;
+}
+.synedu-page-nav__link{
+  min-height: 4.25rem;
+  padding: 0.85rem 1rem 0.9rem;
+  border: 1px solid rgba(40,48,61,0.12);
+  border-radius: var(--syn-radius-sm);
+  background: linear-gradient(180deg, #ffffff, #fbfcfe);
+  box-shadow: 0 8px 20px rgba(15,23,42,0.045);
+  color: var(--syn-slate) !important;
+  text-decoration: none !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: border-color 120ms ease, background-color 120ms ease, transform 120ms ease;
+}
+.synedu-page-nav__link:hover{
+  border-color: rgba(0,185,127,0.35);
+  background: linear-gradient(180deg, #ffffff, rgba(1,228,156,0.055));
+  transform: translateY(-1px);
+}
+.synedu-page-nav__link--next{
+  text-align: right;
+  align-items: flex-end;
+}
+.synedu-page-nav__link--prev{
+  text-align: left;
+  align-items: flex-start;
+}
+.synedu-page-nav__label{
+  margin-bottom: 0.2rem;
+  color: var(--syn-muted);
+  font-size: 0.70rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+.synedu-page-nav__link--prev .synedu-page-nav__label::before{
+  content: "< ";
+  color: var(--syn-teal-2);
+}
+.synedu-page-nav__link--next .synedu-page-nav__label::after{
+  content: " >";
+  color: var(--syn-teal-2);
+}
+.synedu-page-nav__title{
+  color: var(--syn-slate);
+  font-size: 0.98rem;
+  font-weight: 800;
+  line-height: 1.3;
+}
+.synedu-site-footer{
+  margin: 1.25rem 0 0;
+  padding: 1.05rem 0 0.25rem;
+  border-top: 1px solid rgba(40,48,61,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--syn-muted);
+  font-size: 0.84rem;
+}
+.synedu-site-footer__brand{
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+.synedu-site-footer__mark{
+  color: var(--syn-navy);
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
+.synedu-site-footer__text{
+  color: var(--syn-muted);
+}
+.synedu-site-footer__links{
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+.synedu-site-footer__links a{
+  color: var(--syn-slate) !important;
+  font-weight: 700;
+  text-decoration: none !important;
+}
+.synedu-site-footer__links a:hover{
+  color: var(--syn-teal-2) !important;
+}
+
+/* Talktorial-to-talktorial navigation injected by nbsphinx_epilog. */
+.synedu-bottom-nav{
+  margin: 2.25rem 0 0;
+  padding-top: 1.15rem;
+  border-top: 1px solid rgba(40,48,61,0.12);
+}
+.synedu-bottom-nav__inner{
+  display: grid;
+  grid-template-columns: minmax(0,1fr) minmax(150px,0.55fr) minmax(0,1fr);
+  gap: 0.85rem;
+  align-items: stretch;
+}
+.synedu-bottom-nav__card{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 4.4rem;
+  padding: 0.85rem 1rem 0.9rem;
+  border: 1px solid rgba(40,48,61,0.12);
+  border-radius: var(--syn-radius-sm);
+  background: linear-gradient(180deg, #ffffff, #fbfcfe);
+  box-shadow: 0 8px 20px rgba(15,23,42,0.045);
+  color: var(--syn-slate) !important;
+  text-decoration: none !important;
+  transition: border-color 120ms ease, background-color 120ms ease, transform 120ms ease;
+}
+.synedu-bottom-nav__card:hover{
+  border-color: rgba(0,185,127,0.35);
+  background: linear-gradient(180deg, #ffffff, rgba(1,228,156,0.055));
+  transform: translateY(-1px);
+}
+.synedu-bottom-nav__card:focus-visible{
+  outline: 2px solid rgba(0,185,127,0.28);
+  outline-offset: 2px;
+}
+.synedu-bottom-nav__card--prev{
+  text-align: left;
+  align-items: flex-start;
+}
+.synedu-bottom-nav__card--index{
+  text-align: center;
+  align-items: center;
+  border-color: rgba(0,185,127,0.20);
+  background: rgba(1,228,156,0.055);
+}
+.synedu-bottom-nav__card--next{
+  text-align: right;
+  align-items: flex-end;
+}
+.synedu-bottom-nav__label{
+  margin-bottom: 0.2rem;
+  color: var(--syn-muted);
+  font-size: 0.70rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+.synedu-bottom-nav__title{
+  color: var(--syn-slate);
+  font-size: 0.98rem;
+  font-weight: 800;
+  line-height: 1.3;
+}
+.synedu-bottom-nav__card--prev .synedu-bottom-nav__title::before{
+  content: "< ";
+  color: var(--syn-teal-2);
+}
+.synedu-bottom-nav__card--next .synedu-bottom-nav__title::after{
+  content: " >";
+  color: var(--syn-teal-2);
+}
+.synedu-bottom-nav__empty{
+  min-height: 4.4rem;
+}
+.synedu-scroll-control{
+  position: fixed;
+  right: 1.05rem;
+  bottom: 1.1rem;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(0.4rem);
+  transition: opacity 140ms ease, transform 140ms ease;
+}
+.synedu-scroll-control.is-visible{
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+.synedu-scroll-control__button{
+  width: 2.35rem;
+  height: 2.35rem;
+  border: 1px solid rgba(40,48,61,0.16);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.94);
+  box-shadow: 0 8px 20px rgba(15,23,42,0.12);
+  color: var(--syn-navy);
+  cursor: pointer;
+  font: 900 1.05rem/1 var(--syn-font-sans);
+  text-align: center;
+  transition: border-color 120ms ease, background-color 120ms ease, transform 120ms ease;
+}
+.synedu-scroll-control__button:hover{
+  border-color: rgba(0,185,127,0.42);
+  background: rgba(1,228,156,0.12);
+  transform: translateY(-1px);
+}
+.synedu-scroll-control__button:focus-visible{
+  outline: 2px solid rgba(0,185,127,0.35);
+  outline-offset: 2px;
+}
+.md-footer-nav{
+  display: none;
+}
+@media (max-width: 700px){
+  .synedu-page-nav__inner{
+    grid-template-columns: 1fr;
+  }
+  .synedu-page-nav__link--next{
+    text-align: left;
+    align-items: flex-start;
+  }
+  .synedu-site-footer{
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .synedu-site-footer__links{
+    justify-content: flex-start;
+  }
+  .synedu-bottom-nav__inner{
+    grid-template-columns: 1fr;
+  }
+  .synedu-bottom-nav__card,
+  .synedu-bottom-nav__card--prev,
+  .synedu-bottom-nav__card--index,
+  .synedu-bottom-nav__card--next{
+    text-align: left;
+    align-items: flex-start;
+  }
+  .synedu-bottom-nav__empty{
+    display: none;
+  }
+  .synedu-scroll-control{
+    right: 0.75rem;
+    bottom: 0.85rem;
+  }
+  .synedu-scroll-control__button{
+    width: 2.15rem;
+    height: 2.15rem;
+  }
 }
 
 /* Keep raw HTML blocks from collapsing in narrow layouts */
@@ -296,12 +951,289 @@ div.highlight{
   .synedu-home-title{ font-size: 1.35rem; }
 }
 
-/* ---------- Sphinx Material theme overrides ---------- */
-.md-header, .md-tabs{
-  background-color: var(--syn-navy) !important;
+@media (max-width: 900px){
+  .synedu-grid--2,
+  .synedu-grid--3{
+    grid-template-columns: 1fr;
+  }
 }
-.md-header-nav__title, .md-tabs__link{
-  color: #F9FAFB !important;
+
+/* ==========================================================================
+   Sphinx Material Theme Overrides
+   ========================================================================== */
+
+.md-header{
+  position: static;
+  height: auto;
+  background:
+    linear-gradient(90deg, rgba(22,179,168,0.16), rgba(37,99,235,0.07) 42%, rgba(14,27,42,0) 80%),
+    var(--syn-navy) !important;
+  box-shadow: none;
+}
+.md-container{
+  padding-top: 0;
+}
+.md-tabs{
+  display: none;
+}
+.synedu-masthead{
+  min-height: 7.8rem;
+  padding: 0.25rem 0.9rem 0;
+  color: #FFFFFF;
+}
+.synedu-masthead__top{
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.synedu-masthead__brand{
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex: 0 0 auto;
+}
+.synedu-logo{
+  color: #FFFFFF !important;
+}
+.synedu-masthead__title{
+  color: #FFFFFF !important;
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none !important;
+}
+.synedu-masthead__menu{
+  color: rgba(255,255,255,0.86) !important;
+}
+.synedu-masthead__tagline{
+  max-width: 46rem;
+  margin: 0.75rem 0 0.6rem;
+  color: #FFFFFF;
+  font-size: 1.02rem;
+  font-weight: 400;
+  line-height: 1.4;
+}
+.synedu-masthead__nav{
+  display: inline-flex;
+  align-items: center;
+  gap: 1.45rem;
+  white-space: nowrap;
+}
+.synedu-masthead__nav a{
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0;
+  color: rgba(255,255,255,0.76) !important;
+  font-size: 0.86rem;
+  font-weight: 500;
+  text-decoration: none !important;
+}
+.synedu-masthead__nav a:hover{
+  color: #FFFFFF !important;
+}
+.synedu-masthead__tools{
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.45rem;
+  flex: 0 0 auto;
+}
+.synedu-search-form{
+  display: inline-flex;
+  align-items: center;
+  width: 14.4rem;
+  height: 2.25rem;
+  padding: 0 0.75rem;
+  border: 0;
+  border-radius: 0;
+  background: rgba(255,255,255,0.08);
+  box-shadow: inset 0 -1px 0 rgba(255,255,255,0.18);
+  color: #FFFFFF;
+}
+.synedu-search-form .md-icon{
+  width: auto;
+  height: auto;
+  margin-right: 0.32rem;
+  font-size: 1rem;
+}
+.synedu-search-form input{
+  min-width: 0;
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #FFFFFF;
+  font-size: 0.88rem;
+}
+.synedu-search-form input::placeholder{
+  color: rgba(255,255,255,0.78);
+}
+.synedu-header-icon{
+  width: 1.8rem;
+  height: 1.8rem;
+  border: 0;
+  border-radius: 0.2rem;
+  background: transparent;
+  color: rgba(255,255,255,0.92) !important;
+  cursor: pointer;
+  text-decoration: none !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.synedu-header-icon .md-icon{
+  width: auto;
+  height: auto;
+  margin: 0;
+  font-size: 1.12rem;
+  line-height: 1;
+}
+.synedu-header-icon svg{
+  fill: currentColor;
+}
+.synedu-header-icon:hover{
+  background: rgba(255,255,255,0.10);
+  color: #FFFFFF !important;
+}
+.synedu-header-icon--zenodo span{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  font-family: "Roboto Mono", "Courier New", monospace;
+  line-height: 1;
+}
+body[data-synedu-theme="dark"] .synedu-theme-toggle{
+  background: rgba(255,255,255,0.13);
+  color: #FFFFFF !important;
+}
+.synedu-mobile-search{
+  display: none;
+}
+body[data-synedu-theme="dark"] .md-content,
+body[data-synedu-theme="dark"] .md-content__inner,
+body[data-synedu-theme="dark"] .md-sidebar,
+body[data-synedu-theme="dark"] .md-nav{
+  background: var(--syn-soft);
+}
+body[data-synedu-theme="dark"] .md-typeset,
+body[data-synedu-theme="dark"] .md-nav__link,
+body[data-synedu-theme="dark"] .md-nav__title,
+body[data-synedu-theme="dark"] .md-typeset h1,
+body[data-synedu-theme="dark"] .md-typeset h2,
+body[data-synedu-theme="dark"] .md-typeset h3,
+body[data-synedu-theme="dark"] .md-typeset p,
+body[data-synedu-theme="dark"] .md-typeset li,
+body[data-synedu-theme="dark"] .md-typeset dt,
+body[data-synedu-theme="dark"] .md-typeset dd{
+  color: var(--syn-ink);
+}
+body[data-synedu-theme="dark"] .synedu-card,
+body[data-synedu-theme="dark"] .synedu-continue,
+body[data-synedu-theme="dark"] .synedu-page-nav__link,
+body[data-synedu-theme="dark"] div.highlight,
+body[data-synedu-theme="dark"] .synedu-learning-path,
+body[data-synedu-theme="dark"] .synedu-stage-routes,
+body[data-synedu-theme="dark"] .synedu-catalog-table,
+body[data-synedu-theme="dark"] .synedu-info-table{
+  background: var(--syn-paper);
+  border-color: var(--syn-border);
+}
+body[data-synedu-theme="dark"] .synedu-learning-path th,
+body[data-synedu-theme="dark"] .synedu-stage-routes th,
+body[data-synedu-theme="dark"] .synedu-catalog-table th,
+body[data-synedu-theme="dark"] .synedu-info-table th{
+  background: rgba(232,238,245,0.07) !important;
+  color: #A8B3C3 !important;
+}
+body[data-synedu-theme="dark"] .synedu-stage-routes tbody tr:nth-child(even),
+body[data-synedu-theme="dark"] .synedu-catalog-table tbody tr:nth-child(even),
+body[data-synedu-theme="dark"] .synedu-info-table tbody tr:nth-child(even),
+body[data-synedu-theme="dark"] .md-typeset table:not(.highlighttable) tbody tr:nth-child(even){
+  background: rgba(232,238,245,0.035);
+}
+body[data-synedu-theme="dark"] .synedu-stage-routes tbody tr:hover,
+body[data-synedu-theme="dark"] .synedu-catalog-table tbody tr:hover,
+body[data-synedu-theme="dark"] .synedu-info-table tbody tr:hover,
+body[data-synedu-theme="dark"] .md-typeset table:not(.highlighttable) tbody tr:hover{
+  background: rgba(1,228,156,0.075);
+}
+body[data-synedu-theme="dark"] .synedu-stage-routes td:first-child,
+body[data-synedu-theme="dark"] .synedu-catalog-table td:first-child,
+body[data-synedu-theme="dark"] .synedu-info-table td:first-child{
+  color: #E8EEF5;
+}
+body[data-synedu-theme="dark"] .synedu-card__desc{
+  color: var(--syn-muted);
+}
+body[data-synedu-theme="dark"] .synedu-badge{
+  border-color: rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.05);
+  color: #A8B3C3;
+}
+body[data-synedu-theme="dark"] .synedu-context-chips code{
+  border-color: rgba(22,179,168,0.30);
+  background: rgba(22,179,168,0.12);
+}
+body[data-synedu-theme="dark"] .md-typeset table:not(.highlighttable) th{
+  background: rgba(232,238,245,0.07) !important;
+  color: #A8B3C3 !important;
+}
+body[data-synedu-theme="dark"] .synedu-page-nav,
+body[data-synedu-theme="dark"] .synedu-bottom-nav,
+body[data-synedu-theme="dark"] .synedu-site-footer{
+  border-color: var(--syn-border);
+}
+body[data-synedu-theme="dark"] .synedu-page-nav__link{
+  background: linear-gradient(180deg, rgba(17,24,39,0.96), rgba(11,18,32,0.96));
+  box-shadow: none;
+}
+body[data-synedu-theme="dark"] .synedu-bottom-nav__card{
+  background: linear-gradient(180deg, rgba(17,24,39,0.96), rgba(11,18,32,0.96));
+  border-color: var(--syn-border);
+  box-shadow: none;
+}
+body[data-synedu-theme="dark"] .synedu-bottom-nav__card--index{
+  background: rgba(1,228,156,0.09);
+  border-color: rgba(1,228,156,0.24);
+}
+body[data-synedu-theme="dark"] .synedu-page-nav__link:hover{
+  background: rgba(1,228,156,0.08);
+}
+body[data-synedu-theme="dark"] .synedu-bottom-nav__card:hover{
+  background: rgba(1,228,156,0.08);
+}
+body[data-synedu-theme="dark"] .synedu-bottom-nav__title{
+  color: var(--syn-ink);
+}
+body[data-synedu-theme="dark"] .synedu-scroll-control__button{
+  border-color: var(--syn-border);
+  background: rgba(17,24,39,0.94);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.30);
+  color: var(--syn-ink);
+}
+body[data-synedu-theme="dark"] .synedu-scroll-control__button:hover{
+  border-color: rgba(1,228,156,0.35);
+  background: rgba(1,228,156,0.12);
+}
+body[data-synedu-theme="dark"] .synedu-site-footer__mark,
+body[data-synedu-theme="dark"] .synedu-site-footer__links a{
+  color: var(--syn-ink) !important;
+}
+body[data-synedu-theme="dark"] .synedu-site-footer__links a:hover{
+  color: var(--syn-teal) !important;
+}
+body[data-synedu-theme="dark"] .md-sidebar--primary .md-nav__title--site{
+  background: var(--syn-paper);
+  color: var(--syn-ink);
 }
 .md-tabs__link--active, .md-nav__link--active{
   color: var(--syn-teal) !important;
@@ -312,10 +1244,113 @@ div.highlight{
 .md-sidebar{
   border-right: 1px solid rgba(31,42,53,0.08);
 }
+.md-sidebar--primary .md-sidebar__inner{
+  padding-top: 0.35rem;
+}
+.md-sidebar--primary .md-nav__title--site{
+  min-height: 3.2rem;
+  padding: 0.75rem 0.9rem;
+  background: #fff;
+  color: var(--syn-navy);
+  border-bottom: 1px solid rgba(31,42,53,0.08);
+  font-weight: 800;
+}
+.md-sidebar--primary .md-nav__title--site .md-logo{
+  color: var(--syn-teal-2);
+}
+.md-sidebar--primary .md-nav__source{
+  display: none;
+}
+.md-sidebar--primary .md-nav__list{
+  padding: 0.25rem 0;
+}
+.md-sidebar--primary .md-nav__item{
+  margin: 0;
+}
+.md-sidebar--primary .md-nav__link{
+  min-height: 1.9rem;
+  margin: 0;
+  padding: 0.38rem 0.9rem;
+  border-left: 3px solid transparent;
+  color: var(--syn-slate);
+  font-size: 0.86rem;
+}
+.md-sidebar--primary .md-nav__link:hover,
+.md-sidebar--primary .md-nav__link--active{
+  background: rgba(22,179,168,0.07);
+  border-left-color: var(--syn-teal);
+  color: var(--syn-teal-2) !important;
+}
+.md-sidebar--primary .caption,
+.md-sidebar--primary .md-nav__item--section > .md-nav__link{
+  margin-top: 0.6rem;
+  padding: 0.35rem 0.9rem 0.2rem;
+  color: var(--syn-muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.md-sidebar--secondary .md-nav__title,
+.md-sidebar--secondary .md-nav__title[for="__toc"]{
+  display: none;
+}
 
-/* ---------- Notebook alert blocks (Bootstrap-like) ---------- */
+@media (max-width: 1180px){
+  .synedu-masthead__nav{
+    gap: 1.1rem;
+  }
+  .synedu-search-form{
+    width: 11rem;
+  }
+}
+
+@media (max-width: 980px){
+  .synedu-masthead__tagline{
+    margin: 0.7rem 0 0.55rem;
+    font-size: 1rem;
+  }
+  .synedu-masthead__nav a{
+    font-size: 0.78rem;
+  }
+  .synedu-search-form{
+    width: 9rem;
+  }
+}
+
+@media (max-width: 860px){
+  .synedu-masthead__nav,
+  .synedu-search-form{
+    display: none;
+  }
+  .synedu-mobile-search{
+    display: inline-flex;
+  }
+}
+
+@media (max-width: 520px){
+  .synedu-masthead{
+    min-height: 6.8rem;
+    padding: 0.25rem 0.45rem 0;
+  }
+  .synedu-masthead__title{
+    display: none;
+  }
+  .synedu-masthead__tagline{
+    margin: 0.6rem 0 0.4rem;
+    font-size: 0.97rem;
+  }
+  .synedu-header-icon{
+    width: 1.7rem;
+  }
+}
+
+/* ==========================================================================
+   Notebook Alert Blocks
+   ========================================================================== */
+
 .alert{
-  border-radius: 14px;
+  border-radius: var(--syn-radius);
   padding: 12px 14px;
   margin: 12px 0;
   border: 1px solid var(--syn-border);
@@ -337,4 +1372,63 @@ div.highlight{
 .alert-danger{
   border-color: rgba(255,107,107,0.30);
   background: rgba(255,107,107,0.10);
+}
+
+/* ==========================================================================
+   Two-column notebook layout (text left, figure right)
+   ========================================================================== */
+.two-column{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+  margin: 1rem 0 1.25rem;
+}
+.left-text, .right-fig{
+  min-width: 0;
+}
+.left-text pre{
+  margin: 0;
+  font-size: 0.88rem;
+}
+@media (max-width: 700px){
+  .two-column{
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   Notebook inline figure with hover + caption
+   ========================================================================== */
+.hover-figure{
+  display: inline-block;
+  background: var(--syn-paper);
+  border: 1px solid var(--syn-border);
+  border-radius: var(--syn-radius-sm);
+  padding: 0.75rem 0.75rem 0;
+  margin: 0.5rem 0;
+  max-width: 100%;
+  overflow: hidden;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  cursor: zoom-in;
+}
+.hover-figure:hover{
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(15,23,42,0.10);
+  border-color: rgba(1,228,156,0.45);
+}
+.hover-figure img{
+  display: block;
+  max-width: 100%;
+}
+.figure-caption{
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--syn-muted);
+  padding: 0.5rem 0 0.6rem;
+  margin-top: 0.5rem;
+  border-top: 1px solid var(--syn-border);
+}
+body[data-synedu-theme="dark"] .hover-figure:hover{
+  box-shadow: 0 10px 28px rgba(0,0,0,0.35);
 }

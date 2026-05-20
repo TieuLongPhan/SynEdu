@@ -1,93 +1,70 @@
+:orphan:
+
 Talktorials
 ===========
 
-.. raw:: html
+The SynEdu talktorials form a connected notebook series for reaction
+informatics. Start with molecular graph representation, move into atom mapping
+and DPO reaction rules, then apply those rules in prediction and context
+analysis workflows.
 
-   <div class="synedu-home-hero synedu-home-hero--compact synedu-home-hero--talktorials">
-     <div class="synedu-hero-main">
-       <div class="synedu-home-kicker"><span class="synedu-dot"></span> Notebook catalog</div>
-       <div class="synedu-home-title">Explore the SynEdu talktorials.</div>
-       <div class="synedu-home-subtitle">
-         Executable Jupyter notebooks for learning chemical graph modeling,
-         reaction rules, and reusable workflow design in the Syn ecosystem.
-       </div>
-     </div>
-   </div>
+Each notebook can be read independently, but the sequence is designed so that
+concepts introduced early are reused later in more realistic reaction modeling
+tasks.
 
-.. raw:: html
+Choose a route
+--------------
 
-   <div class="synedu-contact-highlights synedu-talktorial-highlights">
-     <span class="synedu-contact-pill">Executable notebooks</span>
-     <span class="synedu-contact-pill">Curated learning paths</span>
-     <span class="synedu-contact-pill">Standalone modules</span>
-     <span class="synedu-contact-pill">Rendered with nbsphinx</span>
-   </div>
+.. rst-class:: synedu-stage-routes
 
-.. raw:: html
+.. list-table::
+   :widths: 19 31 50
+   :header-rows: 1
 
-   <div class="synedu-talktorial-intro">
-     Follow a curated collection or jump directly to any notebook in the complete list below.
-   </div>
+   * - Route
+     - Start here
+     - Use this route when you want to
+   * - Fundamentals
+     - :doc:`S01 <S01>` to :doc:`S03 <S03>`
+     - Learn molecular graphs, graph morphisms, symmetry, substructure search,
+       and maximum common substructure.
+   * - Rule library construction
+     - :doc:`S04 <S04>` to :doc:`S07 <S07>`
+     - Move from atom-mapped reactions to ITS graphs, DPO rules,
+       canonicalization, and reusable rule libraries.
+   * - Rule application
+     - :doc:`S08 <S08>` to :doc:`S09 <S09>`
+     - Apply rules for one-step prediction, evaluate generated products, and
+       tune rule specificity with context expansion.
 
-Collections
------------
+Reading order
+-------------
 
-.. raw:: html
+If you are new to graph-based reaction modeling, read the notebooks in order
+from S01 to S09. If you already know molecular graphs and subgraph matching,
+start at S04. If your focus is reaction prediction, review S05 first and then
+continue with S08 and S09.
 
-   <div class="synedu-talktorial-nav">
-     <a class="synedu-talktorial-nav__item synedu-talktorial-nav__item--fund" href="index.html#fundamentals">
-       <div class="synedu-talktorial-nav__top">
-         <div class="synedu-talktorial-nav__icon">◎</div>
-         <div class="synedu-talktorial-nav__label">Stage 1</div>
-       </div>
-       <div class="synedu-talktorial-nav__title">Fundamentals</div>
-       <div class="synedu-talktorial-nav__desc">
-         Graph basics, matching, isomorphism, and automorphisms.
-       </div>
-     </a>
+Full catalog
+------------
 
-     <a class="synedu-talktorial-nav__item synedu-talktorial-nav__item--lib" href="index.html#rule-library">
-       <div class="synedu-talktorial-nav__top">
-         <div class="synedu-talktorial-nav__icon">◇</div>
-         <div class="synedu-talktorial-nav__label">Stage 2</div>
-       </div>
-       <div class="synedu-talktorial-nav__title">Rule library</div>
-       <div class="synedu-talktorial-nav__desc">
-         Extract, canonicalize, verify, and curate reusable rules.
-       </div>
-     </a>
-
-     <a class="synedu-talktorial-nav__item synedu-talktorial-nav__item--app" href="index.html#rule-application">
-       <div class="synedu-talktorial-nav__top">
-         <div class="synedu-talktorial-nav__icon">↗</div>
-         <div class="synedu-talktorial-nav__label">Stage 3</div>
-       </div>
-       <div class="synedu-talktorial-nav__title">Rule application</div>
-       <div class="synedu-talktorial-nav__desc">
-         Apply transformations, validate outputs, and inspect failures.
-       </div>
-     </a>
-   </div>
-
-.. raw:: html
-
-   <div class="synedu-talktorial-note">
-     Collections are grouped by workflow stage. They work well as a learning path,
-     but each notebook can also be used independently.
-   </div>
-
-.. include:: _collections.rst
-
-Complete talktorial list
-------------------------
-
-.. raw:: html
-
-   <div class="synedu-talktorial-intro">
-     All talktorials in numerical order.
-   </div>
+See :doc:`all_talktorials` for the complete notebook list with descriptions.
 
 .. toctree::
+   :hidden:
    :maxdepth: 1
 
-   all_talktorials
+   S01
+   S02
+   S03
+   S04
+   S05
+   S06
+   S07
+   S08
+   S09
+
+.. .. toctree::
+..    :maxdepth: 1
+
+..    all_talktorials

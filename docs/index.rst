@@ -1,127 +1,124 @@
 SynEdu
 ======
 
-.. raw:: html
+Computational reaction chemistry increasingly depends on open software,
+reproducible datasets, and reusable graph-based workflows. The individual
+tools are often documented, but learners still need worked examples that
+connect chemical intuition, mathematical abstractions, and executable code.
 
-   <div class="synedu-home-hero synedu-home-hero--landing-clean">
-     <div class="synedu-home-hero__grid synedu-home-hero__grid--clean">
-       <div class="synedu-home-hero__content">
-         <div class="synedu-home-kicker">
-           <span class="synedu-dot"></span> SynEdu · executable talktorials
-         </div>
+SynEdu is a nine-part talktorial series for learning reaction informatics
+through molecular graphs, graph morphisms, reaction rules, and prediction
+workflows. The notebooks use RDKit as the chemical authority layer and
+NetworkX as an explicit graph engine, with links to the broader
+:doc:`SynEco <syneco_ecosystem>` where production-ready tooling is
+useful.
 
-         <div class="synedu-home-title">
-           Learn reaction informatics with chemical graphs.
-         </div>
+The material is designed for self-study, classroom teaching, and early
+research prototyping. Each talktorial combines a concept explanation with a
+runnable Python workflow, so readers can inspect the assumptions, modify the
+code, and reuse the workflow in their own projects.
 
-         <div class="synedu-home-subtitle">
-           Runnable notebooks for graph modeling, reaction rules, and reproducible workflows with RDKit and NetworkX.
-         </div>
+What you learn
+--------------
 
-         <div class="synedu-home-actions">
-           <a class="synedu-btn synedu-btn--primary" href="talktorials/index.html">
-             Browse talktorials
-           </a>
-           <a class="synedu-btn synedu-btn--light" href="installing.html">
-             Run locally
-           </a>
-           <a class="synedu-btn" href="api.html">API</a>
-           <a class="synedu-btn" href="contribute.html">Contribute</a>
-         </div>
+SynEdu is organized as a practical route through reaction informatics rather
+than a loose collection of notebooks.
 
-         <div class="synedu-home-inline-features">
-           <span>Graphs</span>
-           <span>Reaction</span>
-           <span>Executable</span>
-           <span>Reusable</span>
-         </div>
-       </div>
+.. rst-class:: synedu-learning-path
 
-       <div class="synedu-home-hero__logo-wrap">
-         <img src="_static/synedu_logo_rectangle_transparent.png"
-              alt="SynEdu logo"
-              class="synedu-home-hero__logo-img synedu-home-hero__logo-img--clean">
-       </div>
-     </div>
-   </div>
+.. list-table::
+   :widths: 18 27 55
+   :header-rows: 1
 
-Collections
------------
+   * - Stage
+     - Focus
+     - Outcome
+   * - 01
+     - Molecules to graphs
+     - Represent molecules and reactions as labelled graph objects that can be
+       inspected, compared, and transformed.
+   * - 02
+     - Graphs to reaction rules
+     - Build atom mappings, ITS graphs, DPO rules, and reusable rule libraries.
+   * - 03
+     - Rules to prediction
+     - Apply rules for one-step prediction, retrosynthesis-style exploration,
+       evaluation, and context expansion.
 
-.. raw:: html
+.. rst-class:: synedu-context-chips
 
-   <div class="synedu-cardgrid synedu-cardgrid--home">
-     <a class="synedu-card synedu-card--fund" href="talktorials/index.html#fundamentals">
-       <div class="synedu-card__top">
-         <div class="synedu-card__code">S01–S02</div>
-         <span class="synedu-badge synedu-badge--stable">Start here</span>
-       </div>
-       <div class="synedu-card__title">Fundamentals</div>
-       <div class="synedu-card__desc">
-         Molecules as graphs, morphisms, isomorphism, automorphisms.
-       </div>
-       <div class="synedu-meta">
-         <span>Core concepts</span> · <span>Beginner</span>
-       </div>
-     </a>
+- ``RDKit``
+- ``NetworkX``
+- ``Molecular graphs``
+- ``Graph morphisms``
+- ``Reaction rules``
+- ``Executable notebooks``
 
-     <a class="synedu-card synedu-card--lib" href="talktorials/index.html#rule-library">
-       <div class="synedu-card__top">
-         <div class="synedu-card__code">S03–S06, S10</div>
-         <span class="synedu-badge">Build</span>
-       </div>
-       <div class="synedu-card__title">Rule libraries</div>
-       <div class="synedu-card__desc">
-         Extract, canonicalize, verify, and curate reusable reaction rules.
-       </div>
-       <div class="synedu-meta">
-         <span>Core workflow</span> · <span>Intermediate</span>
-       </div>
-     </a>
+.. figure:: ../synedu/synedu.png
+   :alt: SynEdu talktorial overview
+   :align: center
+   :width: 85%
 
-     <a class="synedu-card synedu-card--app" href="talktorials/index.html#rule-application">
-       <div class="synedu-card__top">
-         <div class="synedu-card__code">S07–S09</div>
-         <span class="synedu-badge">Apply</span>
-       </div>
-       <div class="synedu-card__title">Rule application</div>
-       <div class="synedu-card__desc">
-         Run transformations on datasets, validate outputs, and inspect failures.
-       </div>
-       <div class="synedu-meta">
-         <span>Applied workflows</span> · <span>Advanced</span>
-       </div>
-     </a>
-   </div>
+   The SynEdu talktorial series follows a learning path from molecular graph
+   representation to graph rewriting rules and one-step reaction prediction.
 
-Quickstart
-----------
+Software and resources
+----------------------
 
-.. raw:: html
+- :doc:`SynEdu talktorials <talktorials/index>` · Runnable notebooks for
+  learning reaction informatics workflows.
+- :doc:`Run locally <installing>` · Installation notes for setting up RDKit,
+  JupyterLab, and SynEdu.
+- :doc:`API reference <api>` · Small helper API used by the notebooks and
+  reproducible workflows.
+- `GitHub repository <https://github.com/TieuLongPhan/SynEdu>`_ · Source code,
+  notebooks, issues, and pull requests.
 
-   <div class="synedu-home-quickstart">
-     <div class="synedu-home-step">
-       <div class="synedu-home-step__num">1</div>
-       <div class="synedu-home-step__text">Install SynEdu</div>
-     </div>
-     <div class="synedu-home-step">
-       <div class="synedu-home-step__num">2</div>
-       <div class="synedu-home-step__text">Open a talktorial</div>
-     </div>
-     <div class="synedu-home-step">
-       <div class="synedu-home-step__num">3</div>
-       <div class="synedu-home-step__text">Reuse the workflow</div>
-     </div>
-   </div>
+Learning path
+-------------
 
-See :doc:`installing` for local setup instructions.
+- :ref:`Fundamentals <fundamentals>` · S01-S03 introduce molecular graphs,
+  graph morphisms, symmetry, substructure search, and MCS.
+- :ref:`Rule library construction <rule-library>` · S04-S07 cover atom mapping,
+  ITS graphs, DPO rewriting, canonicalization, and rule library construction.
+- :ref:`Rule application <rule-application>` · S08-S09 apply reaction rules for
+  prediction, retrosynthesis, evaluation, and context expansion.
+
+Project details
+-------------------
+
+Maintainer
+   Tieu Long Phan
+
+Funding
+   SynEdu is part of a broader research and training effort in computational
+   chemistry and reaction informatics. See :doc:`funding` for details.
+
+Citation
+   If you use SynEdu in academic work, please cite the project. Citation
+   information is available in :doc:`citation`.
+
+Contributing
+   Feedback, issue reports, notebook improvements, and documentation fixes are
+   welcome. See :doc:`contribute` for the contribution workflow.
 
 .. toctree::
    :maxdepth: 2
    :hidden:
 
-   funding
-   license
-   citation
+   api
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+
    external_dependencies
    external_tutorials_collections
+   syneco_ecosystem
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+
+   funding
+   license

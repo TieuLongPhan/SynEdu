@@ -1,0 +1,197 @@
+.smiles-card {
+  padding: 1rem;
+  border-radius: 10px;
+  margin: 1rem 0;
+}
+
+.smiles-card-blue {
+  border-left: 6px solid #4D96FF;
+  background: #F3F8FF;
+}
+
+.smiles-card-yellow {
+  border: 1px solid #F0D98C;
+  background: #FFF8E6;
+}
+
+.smiles-card-orange {
+  border: 1px solid #FFD1A8;
+  background: #FFF4EA;
+}
+
+.smiles-card-pink {
+  border: 1px solid #F4B6E7;
+  background: #FFF0FB;
+}
+
+.smiles-card-cyan {
+  border: 1px solid #B7DFFF;
+  background: #EEF7FF;
+}
+
+.smiles-card-purple {
+  border: 1px solid #D8C1FF;
+  background: #F6F0FF;
+}
+
+.smiles-card-green {
+  border: 1px solid #A7E8B0;
+  background: #F0FFF4;
+}
+
+.smiles-card-gray {
+  border: 1px solid #DDD;
+  background: #F9F9F9;
+}
+
+.smiles-note {
+  padding: 1rem;
+  border-left: 5px solid #999;
+  background: #F7F7F7;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.smiles-callout-orange {
+  padding: 1rem;
+  border-left: 5px solid #FF7F0E;
+  background: #FFF4EA;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.smiles-callout-pink {
+  padding: 1rem;
+  border-left: 5px solid #E377C2;
+  background: #FFF0FB;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.smiles-callout-cyan {
+  padding: 1rem;
+  border-left: 5px solid #1F77B4;
+  background: #EEF7FF;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.smiles-callout-purple {
+  padding: 1rem;
+  border-left: 5px solid #9467BD;
+  background: #F6F0FF;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.smiles-callout-green {
+  padding: 1rem;
+  border-left: 5px solid #2CA02C;
+  background: #F0FFF4;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.smiles-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.smiles-mini-card {
+  padding: 1rem;
+  border: 1px solid #DDD;
+  border-radius: 10px;
+  background: #FAFAFA;
+}
+
+.smiles-example-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+  align-items: center;
+}
+
+.smiles-example-grid-wide {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 1.2rem;
+  align-items: center;
+}
+
+.smiles-figure-box {
+  text-align: center;
+  background: white;
+  padding: 0.75rem;
+  border-radius: 8px;
+}
+
+.smiles-code {
+  font-size: 1.25rem;
+  font-family: monospace;
+  background: #ffffff;
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  display: inline-block;
+  margin-bottom: 0.75rem;
+}
+
+.tok-atom {
+  color: #4D4D4D;
+  font-weight: bold;
+}
+
+.tok-aromatic {
+  color: #1F77B4;
+  font-weight: bold;
+}
+
+.tok-double {
+  color: #D62728;
+  font-weight: bold;
+}
+
+.tok-triple {
+  color: #8C564B;
+  font-weight: bold;
+}
+
+.tok-branch {
+  color: #FF7F0E;
+  font-weight: bold;
+}
+
+.tok-ring {
+  color: #E377C2;
+  font-weight: bold;
+}
+
+.tok-stereo {
+  color: #9467BD;
+  font-weight: bold;
+}
+
+.tok-bracket {
+  color: #2CA02C;
+  font-weight: bold;
+}
+
+.rdkit-img {
+  max-width: 240px;
+  width: 100%;
+}
+
+.rdkit-img-large {
+  max-width: 280px;
+  width: 100%;
+}
+
+@media screen and (max-width: 768px) {
+  .smiles-overview-grid,
+  .smiles-example-grid,
+  .smiles-example-grid-wide {
+    grid-template-columns: 1fr;
+  }
+}

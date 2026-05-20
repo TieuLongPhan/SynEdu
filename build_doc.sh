@@ -58,6 +58,7 @@ echo "==> Building Sphinx documentation..."
 
 cd "${DOCS_DIR}"
 rm -rf _build
+mkdir -p _build/doctrees/nbsphinx
 make html
 
 echo

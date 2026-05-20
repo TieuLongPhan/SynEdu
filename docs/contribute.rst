@@ -1,70 +1,44 @@
+:orphan:
+
 Contribute
 ==========
 
-.. raw:: html
+SynEdu welcomes contributions that improve clarity, reproducibility, and the
+learning experience. The most useful changes are usually small, well-scoped,
+and easy to review.
 
-   <div class="synedu-home-hero synedu-home-hero--compact synedu-home-hero--contribute">
-     <div class="synedu-hero-main">
-       <div class="synedu-home-kicker"><span class="synedu-dot"></span> Community contributions</div>
-       <div class="synedu-home-title">Help improve SynEdu.</div>
-       <div class="synedu-home-subtitle">
-         Contribute notebooks, tooling, lightweight utilities, and feedback that improve
-         clarity, reproducibility, and usability.
-       </div>
-     </div>
-   </div>
+Contribution areas
+------------------
 
-.. raw:: html
+.. rst-class:: synedu-info-table
 
-   <div class="synedu-contrib-grid">
-     <div class="synedu-contrib-card">
-       <div class="synedu-contrib-card__icon">📘</div>
-       <div class="synedu-contrib-card__body">
-         <div class="synedu-contrib-card__title">Talktorials</div>
-         <div class="synedu-contrib-card__desc">
-           Add notebooks, refine explanations, and create exercises or quizzes.
-         </div>
-       </div>
-     </div>
+.. list-table::
+   :widths: 24 76
+   :header-rows: 1
 
-     <div class="synedu-contrib-card">
-       <div class="synedu-contrib-card__icon">🛠️</div>
-       <div class="synedu-contrib-card__body">
-         <div class="synedu-contrib-card__title">Infrastructure</div>
-         <div class="synedu-contrib-card__desc">
-           Improve docs, CI, formatting, packaging, and reproducible workflows.
-         </div>
-       </div>
-     </div>
-
-     <div class="synedu-contrib-card">
-       <div class="synedu-contrib-card__icon">🧩</div>
-       <div class="synedu-contrib-card__body">
-         <div class="synedu-contrib-card__title">Utilities</div>
-         <div class="synedu-contrib-card__desc">
-           Add small helpers that reduce notebook boilerplate without expanding the API unnecessarily.
-         </div>
-       </div>
-     </div>
-
-     <div class="synedu-contrib-card">
-       <div class="synedu-contrib-card__icon">🔍</div>
-       <div class="synedu-contrib-card__body">
-         <div class="synedu-contrib-card__title">Feedback</div>
-         <div class="synedu-contrib-card__desc">
-           Report issues, suggest clarifications, and help improve the learning experience.
-         </div>
-       </div>
-     </div>
-   </div>
+   * - Area
+     - Good contributions
+   * - Talktorials
+     - Refine explanations, add exercises, repair broken outputs, and keep
+       notebooks runnable from top to bottom.
+   * - Documentation
+     - Improve installation notes, page structure, citations, links, and
+       scientific context.
+   * - Utilities
+     - Add small helpers that reduce notebook boilerplate without expanding the
+       public API unnecessarily.
+   * - Feedback
+     - Report broken pages, unclear concepts, missing dependencies, or examples
+       that are hard to reproduce.
 
 Workflow
 --------
 
 1. Fork the repository and create a feature branch.
-2. Run tests and checks locally.
-3. Open a pull request with a clear description.
-4. Include screenshots when visual or documentation changes are involved.
+2. Make a focused change.
+3. Run tests and checks locally.
+4. Open a pull request with a clear description.
+5. Include screenshots when visual or documentation changes are involved.
 
 .. code-block:: bash
 
@@ -78,3 +52,11 @@ Guidelines
 - Prefer small, composable functions in library code.
 - Move reusable logic into ``synedu`` instead of duplicating it in notebooks.
 - Keep helper utilities lightweight and teaching-focused.
+- Explain changes in terms of learner value and reproducibility.
+
+Project links
+-------------
+
+- `GitHub repository <https://github.com/TieuLongPhan/SynEdu>`_
+- `Issue tracker <https://github.com/TieuLongPhan/SynEdu/issues>`_
+- `Pull requests <https://github.com/TieuLongPhan/SynEdu/pulls>`_

@@ -1,38 +1,64 @@
 Funding
 =======
 
-SynEdu is part of a broader research and training effort in computational chemistry and reaction informatics.
+SynEdu is part of a broader research and training effort in computational
+chemistry and reaction informatics.
 
-.. raw:: html
+Funding summary
+---------------
 
-   <div class="synedu-funding-panel">
-     <div class="synedu-funding-panel__media">
-       <a href="https://tacsy.eu/" target="_blank" rel="noopener noreferrer" class="synedu-funding-panel__logo-link">
-         <img src="_static/images/tacsy-logo-dark-small.jpg" alt="TACsy logo" class="synedu-funding-panel__logo">
-       </a>
-     </div>
+.. rst-class:: synedu-info-table
 
-     <div class="synedu-funding-panel__body">
-       <div class="synedu-funding-panel__eyebrow">Supported by</div>
-       <div class="synedu-funding-panel__title">
-         <a href="https://tacsy.eu/" target="_blank" rel="noopener noreferrer">
-           TACsy — Training Alliance for Computational systems chemistry
-         </a>
-       </div>
-       <div class="synedu-funding-panel__text">
-         This project has received funding from the European Union's Horizon Europe Doctoral Network programme under the Marie Skłodowska-Curie grant agreement No 101072930.
-       </div>
+.. list-table::
+   :widths: 28 44 28
+   :header-rows: 1
 
-       <div class="synedu-funding-badges">
-         <span class="synedu-funding-badge">Horizon Europe</span>
-         <span class="synedu-funding-badge">MSCA Doctoral Network</span>
-         <span class="synedu-funding-badge">Grant No 101072930</span>
-       </div>
+   * - Programme
+     - Role in SynEdu
+     - Reference
+   * - TACsy
+     - Doctoral training network connecting computational systems chemistry,
+       reaction informatics, and reusable education material.
+     - `tacsy.eu <https://tacsy.eu/>`_
+   * - Horizon Europe
+     - European Union research and innovation programme supporting the TACsy
+       doctoral network.
+     - Grant No 101072930
+   * - Marie Skłodowska-Curie Actions
+     - Doctoral Network framework supporting training, mobility, and research
+       exchange.
+     - MSCA Doctoral Network
 
-       <div class="synedu-funding-actions">
-         <a href="https://tacsy.eu/" target="_blank" rel="noopener noreferrer" class="synedu-funding-link">
-           Visit TACsy website →
-         </a>
-       </div>
-     </div>
-   </div>
+Acknowledgement
+---------------
+
+`TACsy <https://tacsy.eu/>`_ is the Training Alliance for Computational Systems
+Chemistry, a doctoral network focused on computational methods for large
+chemical reaction networks.
+
+.. list-table::
+   :class: synedu-funding-logos
+   :widths: 42 58
+
+   * - .. image:: _static/images/tacsy-logo-dark-small.jpg
+          :alt: TACsy logo
+          :target: https://tacsy.eu/
+          :width: 230px
+
+     - .. image:: _static/images/eu-funded-en.jpg
+          :alt: Funded by the European Union
+          :target: https://ec.europa.eu/regional_policy/information-sources/logo-download-center_en
+          :width: 360px
+
+This project has received funding from the European Union's Horizon Europe
+Doctoral Network programme under the Marie Skłodowska-Curie grant agreement No
+101072930.
+
+.. rst-class:: synedu-context-chips
+
+- ``Horizon Europe``
+- ``MSCA Doctoral Network``
+- ``Grant No 101072930``
+- ``Computational systems chemistry``
+
+See the `TACsy website <https://tacsy.eu/>`_ for the broader training network.

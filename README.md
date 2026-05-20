@@ -17,13 +17,12 @@ The notebooks are designed as a connected learning path from graph-based molecul
 - **S01** — From Molecules to Labeled Graphs  
 - **S02** — Graph Morphism in Reaction Informatics  
 - **S03** — Maximum Common Substructure in Reaction Informatics  
-- **S04** — Atom Mapping as Graph Morphism: MCS, RXNMapper, and ITS Equivalence  
-- **S05** — Reaction Rules as Graph Rewriting (DPO) — Chemistry-First, ITS-Native  
-- **S06** — From Atom-Mapped Reactions to DPO Rules: ITS, Reaction Centers, and Fast Clustering  
-- **S07** — Canonicalizing Atom-Mapped Reactions and Rules: Equivalence, Symmetry, Determinism  
-- **S08** — One-Step Rule Application (Forward & Backward): DPO Rules as Reaction Engines  
-- **S09** — Metrics for Rule Application: Coverage, Recall, Branching, and Cost  
-- **S10** — Context Graph Expansion: Systematic Control of Rule Specificity  
+- **S04** — Atom Mapping as Graph Morphism: MCS and ITS Equivalence  
+- **S05** — Reaction Rules as Graph Rewriting (DPO)  
+- **S06** — Canonicalizing Atom-Mapped Reactions and Rules  
+- **S07** — From Atom-Mapped Reactions to DPO Rules  
+- **S08** — One-Step Reaction Prediction (Forward & Backward)  
+- **S09** — Context Graph Expansion: Systematic Control of Rule Specificity  
 
 ---
 
@@ -35,11 +34,12 @@ conda activate synedu
 jupyter lab
 ```
 
-Open the notebooks in order from **S01** to **S10**.
+Open the notebooks in order from **S01** to **S09**.
 
-## Contributing
+## Contributors
 
 - [Tieu-Long Phan](https://tieulongphan.github.io/)
+- [Lukas Böhm](https://github.com/lukasbm)
 
 ## License
 
@@ -47,4 +47,4 @@ MIT License. See [LICENSE](LICENSE).
 
 ## Acknowledgments
 
-This project has received funding from the European Unions Horizon Europe Doctoral Network programme under the Marie-Skłodowska-Curie grant agreement No 101072930 ([TACsy](https://tacsy.eu/) -- Training Alliance for Computational)
+This project has received funding from the European Union's Horizon Europe Doctoral Network programme under the Marie-Skłodowska-Curie grant agreement No 101072930 ([TACsy](https://tacsy.eu/) — Training Alliance for Computational Synthesis).

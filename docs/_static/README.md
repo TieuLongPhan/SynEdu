@@ -14,3 +14,13 @@ templates_path = ['_static']
 * Custom Cascading Style Sheets
 * Custom JavaScript code
 * Static logo images
+
+## SynEdu CSS ownership
+
+- `synedu.css` contains stable shared SynEdu UI tokens, base rules, reusable
+  components, Sphinx Material overrides, and notebook alert styles.
+- `custom.css` currently contains Sphinx-gallery compatibility, cookie-consent
+  compatibility, small notebook output fixes, and temporary page-specific styles
+  for existing raw HTML blocks in the docs.
+- New reusable docs UI patterns should graduate into `synedu.css`. Keep
+  one-off compatibility or vendor rules in `custom.css`.
