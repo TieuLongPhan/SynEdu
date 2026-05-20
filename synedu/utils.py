@@ -30,18 +30,14 @@ def show_pdf(pdf_url: str) -> None:
     """Render a PDF inline in a Jupyter notebook."""
     from IPython.display import HTML, display
 
-    display(
-        HTML(
-            f"""
+    display(HTML(f"""
             <iframe
                 src="https://docs.google.com/viewer?url={pdf_url}&embedded=true"
                 width="900"
                 height="600"
                 frameborder="0">
             </iframe>
-            """
-        )
-    )
+            """))
 
 
 def greeting_string() -> str:
