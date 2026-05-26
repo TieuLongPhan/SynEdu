@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 import matplotlib.patheffects as pe
 import matplotlib.pyplot as plt
@@ -8,6 +8,8 @@ from matplotlib.lines import Line2D
 import networkx as nx
 from rdkit import Chem
 from rdkit.Chem import AllChem
+
+from .conversion import graph_to_mol
 
 # ── CPK element palette (fill, border) ───────────────────────────────────
 _ELEMENT_PALETTE: Dict[str, Tuple[str, str]] = {
@@ -77,7 +79,7 @@ def _border(el: str) -> str:
 
 def _pos_from_mol(
     mol: Chem.Mol, G: nx.Graph
-) -> Optional[Dict[int, Tuple[float, float]]]:
+) -> Optional[Dict[Any, Tuple[float, float]]]:
     """Return {node_id: (x, y)} from RDKit 2D conformer matched via atom_map attribute."""
     if mol.GetNumConformers() == 0:
         AllChem.Compute2DCoords(mol)
@@ -90,7 +92,7 @@ def _pos_from_mol(
         for a in mol.GetAtoms()
         if a.GetAtomMapNum() > 0
     }
-    out: Dict[int, Tuple[float, float]] = {}
+    out: Dict[Any, Tuple[float, float]] = {}
     for n in G.nodes():
         am = G.nodes[n].get("atom_map", n)
         if am in mol_pos:
@@ -98,6 +100,139 @@ def _pos_from_mol(
         elif n in mol_pos:
             out[n] = mol_pos[n]
     return out if len(out) == G.number_of_nodes() else None
+
+
+def _side_index(coordinate: str) -> Optional[int]:
+    key = coordinate.lower().strip()
+    if key in {"its", "auto", "none"}:
+        return None
+    if key in {"reactant", "reactants", "r", "left", "lhs"}:
+        return 0
+    if key in {"product", "products", "p", "right", "rhs"}:
+        return 1
+    raise ValueError(
+        f"coordinate must be 'its', 'reactant', or 'product' (got {coordinate!r})"
+    )
+
+
+def _side_value(value: Any, idx: int) -> Any:
+    if isinstance(value, (tuple, list)) and len(value) > idx:
+        return value[idx]
+    return value
+
+
+def _as_order(value: Any, idx: int) -> float:
+    value = _side_value(value, idx)
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def its_to_side_graph(its: nx.Graph, coordinate: str = "reactant") -> nx.Graph:
+    """
+    Project an ITS graph onto the reactant or product molecular graph.
+
+    ITS edges store bond orders as ``(b_reactant, b_product)``.  This helper
+    keeps only bonds present on the requested side and converts tuple-valued
+    node attributes, such as formal charge or hydrogen count, to that side.
+    """
+    idx = _side_index(coordinate)
+    if idx is None:
+        raise ValueError("its_to_side_graph requires 'reactant' or 'product'")
+
+    G = nx.Graph()
+    for node, data in its.nodes(data=True):
+        attrs = {key: _side_value(value, idx) for key, value in data.items()}
+        attrs.setdefault("atom_map", node)
+        if not attrs.get("atom_map"):
+            attrs["atom_map"] = node
+        G.add_node(node, **attrs)
+
+    for u, v, data in its.edges(data=True):
+        order = _as_order(data.get("order", (0.0, 0.0)), idx)
+        if order <= 1e-6:
+            continue
+        attrs = {key: _side_value(value, idx) for key, value in data.items()}
+        attrs["order"] = order
+        attrs["aromatic"] = (
+            bool(attrs.get("aromatic", False)) or abs(order - 1.5) < 1e-6
+        )
+        G.add_edge(u, v, **attrs)
+
+    return G
+
+
+def _set_atom_maps_from_graph(mol: Chem.Mol, G: nx.Graph) -> Chem.Mol:
+    for atom, node in zip(mol.GetAtoms(), G.nodes()):
+        atom_map = G.nodes[node].get("atom_map", node)
+        try:
+            atom_map = int(atom_map)
+        except (TypeError, ValueError):
+            continue
+        if atom_map > 0:
+            atom.SetAtomMapNum(atom_map)
+    return mol
+
+
+def its_to_side_mol(
+    its: nx.Graph, coordinate: str = "reactant", sanitize: bool = True
+) -> Chem.Mol:
+    """
+    Convert an ITS graph to the reactant-side or product-side RDKit molecule.
+
+    This is the molecular counterpart to :func:`its_to_side_graph`.
+    """
+    side_graph = its_to_side_graph(its, coordinate)
+    mol = graph_to_mol(side_graph, sanitize=sanitize)
+    return _set_atom_maps_from_graph(mol, side_graph)
+
+
+def _pos_from_its_coordinate(
+    its: nx.Graph, coordinate: str
+) -> Optional[Dict[Any, Tuple[float, float]]]:
+    """Return RDKit 2D coordinates from a reactant/product ITS projection."""
+    try:
+        side_graph = its_to_side_graph(its, coordinate)
+    except Exception:
+        return None
+
+    try:
+        mol = its_to_side_mol(its, coordinate, sanitize=True)
+    except Exception:
+        try:
+            mol = its_to_side_mol(its, coordinate, sanitize=False)
+        except Exception:
+            return None
+
+    if mol.GetNumConformers() == 0:
+        AllChem.Compute2DCoords(mol)
+    conf = mol.GetConformer(0)
+    nodes = list(side_graph.nodes())
+    if len(nodes) != mol.GetNumAtoms():
+        return None
+    return {
+        node: (
+            conf.GetAtomPosition(atom_idx).x,
+            conf.GetAtomPosition(atom_idx).y,
+        )
+        for atom_idx, node in enumerate(nodes)
+    }
+
+
+def its_coordinate_layout(
+    its: nx.Graph, coordinate: str = "reactant"
+) -> Dict[Any, Tuple[float, float]]:
+    """
+    Return RDKit 2D coordinates for an ITS graph on one reaction side.
+
+    Use ``coordinate="reactant"`` to lay atoms out from reactant-side bonds, or
+    ``coordinate="product"`` to lay them out from product-side bonds.
+    """
+    pos = _pos_from_its_coordinate(its, coordinate)
+    if pos is None:
+        raise ValueError(f"Could not compute {coordinate!r} coordinates for ITS graph")
+    return pos
 
 
 def _classify_edge(br, bp) -> str:
@@ -118,6 +253,7 @@ def visualize_its(  # noqa: C901
     ax: Optional[plt.Axes] = None,
     title: Optional[str] = None,
     pos: Optional[Dict] = None,
+    coordinate: str = "its",
     layout: str = "kamada_kawai",  # "spring" | "kamada_kawai" | "circular"
     node_size: int = 700,
     font_size: int = 9,
@@ -134,6 +270,10 @@ def visualize_its(  # noqa: C901
     and colored edge types (broken/formed/changed/unchanged).
 
     Edge 'order' attribute expected as (b_r, b_p) tuple.
+
+    :param coordinate: ``"its"`` uses a graph layout, ``"reactant"`` lays the
+        ITS over the reactant-side molecular graph, and ``"product"`` lays it
+        over the product-side molecular graph.
     """
     created_fig = False
     if ax is None:
@@ -149,7 +289,10 @@ def visualize_its(  # noqa: C901
 
     # ── layout ───────────────────────────────────────────────────────────
     if pos is None:
-        if mol is not None:
+        coord_idx = _side_index(coordinate)
+        if coord_idx is not None:
+            pos = _pos_from_its_coordinate(its, coordinate)
+        if pos is None and mol is not None:
             pos = _pos_from_mol(mol, its)
         if pos is None:
             if layout == "spring":

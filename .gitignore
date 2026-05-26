@@ -224,3 +224,4 @@ Thumbs.db
 dev/*
 
 Agent/*
+*.tex

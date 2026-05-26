@@ -1,100 +1,519 @@
-# S01 · From Molecules to Typed Graphs: Fundamentals
-
-<div class="alert alert-block alert-info">
-<b>Welcome to SynEdu.</b><br>
-This talktorial is part of <b>SynEdu</b>, a lightweight, research-oriented teaching series built around the
-<b>Syn</b> ecosystem and <b>RDKit</b> for practical, reproducible chemical and reaction modeling.
-</div>
-
-<div class="alert alert-block alert-success">
-<b>What you will gain.</b><br>
-You will learn how to represent molecules as <b>typed graphs</b> and how to reason about
-structure-preserving matches that underpin graph-based reaction modeling: <b>graph morphisms</b>,
-<b>isomorphism</b>, and <b>automorphisms</b>.
-</div>
-
-<div class="alert alert-block alert-warning">
-<b>Reproducibility note.</b><br>
-This notebook is self-contained and meant to be run top-to-bottom. If you are following the full SynEdu series,
-continue with <b>S02</b> for <i>subgraph isomorphism</i> and <i>MCS</i>.
-</div>
+# S01 : From Molecules to Labeled Graphs
 
 
 ## Aim of this talktorial
 
-Reaction modeling via **graph transformation** (e.g. DPO rules) relies on two pillars:
+This talktorial focuses on **molecular representation**: how molecules are encoded, canonicalized, and converted into labeled graphs suitable for downstream graph transformation workflows.
 
-1. **Representation** — converting molecules into graphs with chemically meaningful labels (typed graphs).
-2. **Matching** — reliably identifying when two graphs (or parts of graphs) correspond, via **typed graph morphisms**:
-   - isomorphisms,
-   - automorphisms,
-   - subgraph isomorphisms,
-   - MCS-based alignments.
+1. A compact **RDKit** tutorial.
+2. The **SMILES** string representation and canonicalization.  
+3. **Graph representations** that encode molecules as labeled graphs with chemically meaningful node and edge attributes.
 
-This talktorial establishes both pillars with minimal, transparent implementations using:
 
-- **RDKit** as the chemical ground truth (sanitization, aromaticity, valence, MCS),
-- **NetworkX** as the generic graph engine for matching, automorphism analysis, and later rewriting.
+This talktorial introduces these pillars with **minimal, explicit implementations** so the underlying assumptions are transparent. We combine:
 
-**Data example:** `data/molecules.csv`  
+- **RDKit** as the chemistry reference layer (sanitization, aromaticity, valence semantics) <a href="#ref-1">[1]</a>, and  
+- **NetworkX** as a lightweight graph engine for matching, symmetry analysis, and later graph rewriting  <a href="#ref-2">[2]</a>.
+
+The goal is not raw performance but **conceptual clarity**: to expose how choices in labeling and symmetry handling affect downstream tasks such as rule extraction and application in later **SynEdu** notebooks.
 
 ---
 
 ## Learning outcomes
 
-After completing this talktorial, you will be able to:
+After completing this talktorial you will be able to:
 
-- Convert SMILES into a **typed NetworkX molecular graph** (atoms → nodes, bonds → edges).
-- Perform a **round-trip**: RDKit → NetworkX → RDKit and check what is preserved.
-- State and use the formal definition of a **typed graph morphism** and its special cases:
-  - homomorphism, monomorphism, isomorphism, automorphism.
-- Distinguish and apply:
-  - **graph isomorphism** (same structure under relabeling),
-  - **automorphisms** (symmetries of one graph),
-  - **subgraph isomorphism** (pattern inside host),
-  - **MCS** (maximum common substructure) as a practical alignment primitive.
-- Compare **RDKit morphisms** (SMARTS-based, chemistry-aware) to **NetworkX morphisms** (pure structure+attributes).
-- Understand why **symmetry** and **attribute choices** strongly influence rule extraction and rule application later in SynEdu.
+- Parse SMILES with **RDKit** and understand what sanitization does.  
+- Produce canonical SMILES.
+- Convert SMILES into **labeled molecular graphs** (atoms → nodes, bonds → edges).  
+- Perform a **round-trip conversion** between RDKit and NetworkX and identify which chemical details are preserved or lost.  
+- Explain why **symmetry** and **label design** are critical for reaction rule discovery and application.
 
 ---
 
 ## Outline
 
-0. **Setup & data**
-1. **Theory: typed graphs and morphisms**
-2. **RDKit → NetworkX typed graphs**
-3. **Round-trip: NetworkX → RDKit and sanity checks**
-4. **Isomorphism & automorphisms**
-5. **Subgraph isomorphism (pattern → host)**
-6. **MCS alignment with RDKit**
-7. **RDKit vs NetworkX morphisms: comparison**
-8. **Discussion, quiz, and references**
+<ul class="synedu-outline">
+  <li><a href="#0-setup--data">0. Setup &amp; data</a></li>
+  <li><a href="#s01-rdkit">1. Introduction to RDKit</a></li>
+  <li><a href="#s01-smiles">2. SMILES</a></li>
+  <li><a href="#s01-graph">3. Molecular Graph representation</a></li>
+  <li><a href="#s01-discussion">4. Discussion</a></li>
+  <li><a href="#s01-quiz">5. Quiz</a></li>
+  <li><a href="#s01-references">6. References</a></li>
+</ul>
+
+
+<a id="0-setup--data"></a>
+
+## 0. Setup & data
+
+
+<a id="s01-rdkit"></a>
+
+## 1. Introduction to RDKit
+
+
+Use `IPythonConsole` to render RDKit atom indices on molecular structures.
+
+
+RDKit’s `Draw.MolsToGridImage` allows you to display a list of molecules
+as a grid for rapid visual inspection and comparison.
+
+
+We now explore basic information encoded in the RDKit representation of osimertinib.
+
+
+Using `rdkit.Chem.Descriptors`, we can compute common physicochemical
+properties directly from the RDKit molecular representation of osimertinib.
+
+
+**Q1 — LogP**
+ 
+Compute the octanol–water partition coefficient (logP) of osimertinib using RDKit.
+
+<details> <summary><b>Solution</b></summary>
+
+```python
+from rdkit.Chem.Crippen import MolLogP
+logp = MolLogP(osimertinib)
+```
+</details>
+
+
+In medicinal chemistry, it is important to prioritize the most promising molecules in order to reduce experimental and computational costs. One of the simplest and most widely used heuristics for early-stage compound selection is [Lipinski’s Rule of Five](https://en.wikipedia.org/wiki/Lipinski%27s_rule_of_five), which describes four physicochemical criteria associated with favorable oral bioavailability.
+
+## Lipinski’s Rule of Five
+
+<div style="border:1px solid #d0d7de; padding:1rem; border-radius:6px;">
+
+**Lipinski’s Rule of Five** defines a set of empirical physicochemical criteria commonly used to assess whether a small molecule is likely to exhibit acceptable oral drug-like properties.
+
+</div>
+
+<br>
+
+<table>
+  <thead>
+    <tr>
+      <th align="left">Parameter</th>
+      <th align="left">Recommended threshold</th>
+      <th align="left">Physicochemical rationale</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Hydrogen bond donors</strong></td>
+      <td>≤ 5</td>
+      <td>Excessive donor capacity may reduce passive membrane permeability.</td>
+    </tr>
+    <tr>
+      <td><strong>Hydrogen bond acceptors</strong></td>
+      <td>≤ 10</td>
+      <td>High acceptor count is often associated with increased polarity and reduced intestinal absorption.</td>
+    </tr>
+    <tr>
+      <td><strong>Molecular weight</strong></td>
+      <td>&lt; 500 Da</td>
+      <td>Larger molecules generally show reduced passive diffusion across biological membranes.</td>
+    </tr>
+    <tr>
+      <td><strong>logP</strong></td>
+      <td>&lt; 5</td>
+      <td>Excessive lipophilicity may impair aqueous solubility and pharmacokinetic behavior.</td>
+    </tr>
+  </tbody>
+</table>
+
+<br>
+
+<div style="border-left:3px solid #666; padding:0.75rem 1rem;">
+
+<strong>Interpretation:</strong> Molecules satisfying these criteria are more likely to possess physicochemical properties compatible with oral absorption. However, the rule should be considered a prioritization heuristic rather than an absolute filter. Deviations may occur for specific chemical classes, including natural products, macrocycles, peptides, and compounds relying on active transport mechanisms.
+
+</div>
+
+<br>
+
+<div class="hover-figure caption-hover" style="max-width:800px; width:100%; margin:0 auto;">
+  <img
+    src="../../docs/_static/images/talks/RO5.svg"
+    alt="Visualization of Lipinski’s Rule of Five"
+    style="width:100%; height:auto;"
+  >
+  <div class="figure-caption">
+    Figure: Visualization of Lipinski’s Rule of Five, summarizing four physicochemical thresholds associated with oral drug-likeness.
+  </div>
+</div>
+
+
+**Q2**
+ 
+Compute the number of hydrogen bond donors and acceptors for each molecule in
+`mols`.
+
+<details> <summary><b>Solution</b></summary>
+
+```python
+from rdkit.Chem.Descriptors import NumHAcceptors, NumHDonors
+
+nh_acc_mols = [NumHAcceptors(mol) for mol in mols]
+nh_do_mols  = [NumHDonors(mol) for mol in mols]
+```
+</details>
+
+
+We can now use the `Lipinski` function to filter molecules based on
+Lipinski’s Rule of Five.
+
+
+**Q3 — Lipinski filtering**
+ 
+Apply the Lipinski filter to the dataset and annotate the DataFrame with a
+pass/fail flag.
+
+<details>
+<summary><b>Solution</b></summary>
+
+```python
+from rdkit import Chem
+
+df["mol"] = df["smiles"].apply(Chem.MolFromSmiles)
+df["Lipinski"] = df["mol"].apply(passes_lipinski)
+
+```
+</details>
+
+
+### Dataset-level property distributions
+
+The four Lipinski properties computed across the full 1,000-molecule dataset.
+Dashed black lines mark the Rule of Five thresholds; bars are coloured by pass/fail status.
+
+
+<a id="s01-smiles"></a>
+
+## 2. SMILES
+
+<div style="padding: 1rem; border-left: 6px solid #4D96FF; background: #F3F8FF; border-radius: 10px;">
+
+**SMILES** stands for **Simplified Molecular Input Line Entry System**.
+
+It is a compact, human-readable text notation that encodes a molecular **graph**, where:
+
+| Graph concept | Molecular meaning | SMILES representation |
+|---|---|---|
+| **Nodes** | Atoms | `C`, `N`, `O`, `Cl`, `[NH4+]` |
+| **Edges** | Bonds | implicit single bonds, `=`, `#` |
+| **Branches** | Side chains | `(...)` |
+| **Cycles** | Rings | matching digits such as `1...1` |
+| **Geometry** | Stereochemistry | `@`, `@@`, `/`, `\` |
+
+</div>
+
+
+---
 
 
 
 
-## 0. Setup & Data
+### 2.1. Overview
+
+SMILES encodes molecular structure using a small set of compact symbols.
+
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 1rem;">
+
+<div style="padding: 1rem; border: 1px solid #DDD; border-radius: 10px; background: #FAFAFA;">
+<b>Atoms</b>
+
+<code>C</code>, <code>N</code>, <code>O</code>, <code>Cl</code>
+
+<p>Atoms are written using element symbols.</p>
+</div>
+
+<div style="padding: 1rem; border: 1px solid #DDD; border-radius: 10px; background: #FAFAFA;">
+<b>Bonds</b>
+
+<code>CC</code>, <code>C=C</code>, <code>C#N</code>
+
+<p>Single bonds are usually implicit.</p>
+</div>
+
+<div style="padding: 1rem; border: 1px solid #DDD; border-radius: 10px; background: #FAFAFA;">
+<b>Branches</b>
+
+<code>CC(O)C</code>
+
+<p>Parentheses create side chains.</p>
+</div>
+
+<div style="padding: 1rem; border: 1px solid #DDD; border-radius: 10px; background: #FAFAFA;">
+<b>Rings</b>
+
+<code>C1CCCCC1</code>
+
+<p>Matching digits close rings.</p>
+</div>
+
+</div>
+
+<br>
+
+#### Token legend
+
+| Token type | Example | Meaning |
+|---|---|---|
+| <span style="color:#4D4D4D;"><b>Aliphatic atom</b></span> | `C`, `N`, `O`, `Cl` | Standard non-aromatic atoms |
+| <span style="color:#1F77B4;"><b>Aromatic atom</b></span> | `c`, `n`, `o` | Aromatic atoms, usually lowercase |
+| <span style="color:#D62728;"><b>Double bond</b></span> | `=` | Explicit double bond |
+| <span style="color:#8C564B;"><b>Triple bond</b></span> | `#` | Explicit triple bond |
+| <span style="color:#FF7F0E;"><b>Branch</b></span> | `(...)` | Side chain |
+| <span style="color:#E377C2;"><b>Ring closure</b></span> | `1`, `2`, `%10` | Connects two atoms to form a ring |
+| <span style="color:#9467BD;"><b>Stereochemistry</b></span> | `@`, `@@`, `/`, `\` | Chirality or double-bond geometry |
+| <span style="color:#2CA02C;"><b>Bracketed atom</b></span> | `[NH4+]`, `[13C]`, `[O-]` | Explicit hydrogens, isotopes, charges, or uncommon valence |
+
+<div style="padding: 1rem; border-left: 5px solid #999; background: #F7F7F7; border-radius: 8px;">
+
+**Key rule:**  
+SMILES is not just a string. It is a compact way to encode a molecular graph.
+
+</div>
 
 
-## 1. Theory: Typed Graphs and Morphisms
+---
 
-### 1.1 Typed molecular graphs
 
-In computational reaction modeling, we represent molecules as **typed graphs** so that “matching” respects
-chemical identity (elements, charges, bond orders), not just connectivity.
 
-A **typed graph** is a quadruple
+
+### 2.2. Atoms & bonds
+
+Atoms are represented by element symbols such as `C`, `N`, `O`, and `Cl`.
+
+Single bonds are usually **implicit**, while double and triple bonds are written explicitly.
+
+| SMILES | Visual interpretation | Meaning |
+|---|---|---|
+| `C` | C | methane carbon with implicit hydrogens |
+| `CCO` | C–C–O | ethanol-like fragment |
+| `C=O` | C=O | carbonyl double bond |
+| `C#N` | C≡N | triple bond |
+| `[Na+]` | Na⁺ | explicit sodium cation |
+
+```text
+C      # methane carbon with implicit hydrogens
+CCO    # ethanol fragment, C–C–O
+C=O    # formaldehyde-like carbonyl
+C#N    # hydrogen cyanide or nitrile-like triple bond
+[Na+]  # explicit sodium cation
+```
+
+<div class="hover-figure caption-hover">
+  <img src="../../docs/_static/images/S01/carbonyl.svg" alt="Carbonyl group — C=O double bond">
+  <div class="figure-caption">Figure: Carbonyl group — C=O double bond</div>
+</div>
+
+
+
+### 2.3. Branches
+
+Parentheses create branches or side chains.
+
+```text
+CCO       # linear chain
+CC(O)C    # branch: hydroxyl on the middle carbon
+C(C)(C)C  # tert-butyl-like branching
+```
+<div class="hover-figure caption-hover">
+  <img src="../../docs/_static/images/S01/ethanol.svg" alt="Ethanol — branch notation CC(O)C">
+  <div class="figure-caption">Figure: Ethanol — branch notation CC(O)C</div>
+</div>
+
+
+
+### 2.4. Rings
+
+Ring closures use matching digits to connect two positions in the SMILES string.
+
+```text
+C1CCCCC1      # cyclohexane
+c1ccccc1      # benzene, aromatic SMILES
+C1=CC=CC=C1   # benzene-like Kekulé notation
+```
+For ring labels above `9`, use `%`.
+
+```text
+C%10CCCCCCCCC%10
+```
+
+<div class="hover-figure caption-hover">
+  <img src="../../docs/_static/images/S01/cyclohexane.svg" alt="Cyclohexane — ring closure C1CCCCC1">
+  <div class="figure-caption">Figure: Cyclohexane — ring closure C1CCCCC1</div>
+</div>
+
+
+
+### 2.5. Aromaticity
+
+Aromatic atoms are commonly written using lowercase letters.
+
+| SMILES | Meaning |
+|---|---|
+| `c1ccccc1` | benzene |
+| `n1ccccc1` | pyridine-like aromatic ring |
+
+```text
+c1ccccc1   # benzene, aromatic
+n1ccccc1   # pyridine-like aromatic ring
+```
+<div class="hover-figure caption-hover">
+  <img src="../../docs/_static/images/S01/benzene.svg" alt="Benzene — aromatic SMILES c1ccccc1">
+  <div class="figure-caption">Figure: Benzene — aromatic SMILES c1ccccc1</div>
+</div>
+
+
+
+### 2.6. Stereochemistry
+
+SMILES can encode stereochemical information.
+
+| Notation | Used for | Example |
+|---|---|---|
+| `@` | tetrahedral chirality | <code>C&#91;C@H&#93;(O)Cl</code> |
+| `@@` | opposite tetrahedral configuration | <code>C&#91;C@@H&#93;(O)Cl</code> |
+| `/` and `\` | double-bond geometry | <code>C/C=C\C</code> |
+
+```text
+C&#91;C@H&#93;(O)Cl      # chiral centre with explicit stereochemistry
+C/C=C\C          # defined double-bond geometry
+```
+RDKit preserves stereochemical flags when parsing and writing SMILES with:
+
+```python
+Chem.MolToSmiles(mol, isomericSmiles=True)
+```
+
+<div class="hover-figure caption-hover">
+  <img src="../../docs/_static/images/S01/chiral_example.svg" alt="Chiral centre — tetrahedral stereo C&#91;C@H&#93;(O)Cl">
+  <div class="figure-caption">Figure: Chiral centre — tetrahedral stereo C&#91;C@H&#93;(O)Cl</div>
+</div>
+
+
+
+### 2.7. Bracketed atoms & special cases
+
+Brackets are used when the default SMILES rules are not enough.
+
+Use brackets for:
+
+| Case | Examples |
+|---|---|
+| explicit hydrogens | `[NH2]`, `[nH]` |
+| charges | `[O-]`, `[NH4+]` |
+| isotopes | `[13C]` |
+| unusual valence states | `[Fe+2]`, `[Se]` |
+| explicit atom specification | `[Cl]`, `[Na+]` |
+
+```text
+c1ccccc1[NH2]     # aniline with explicit NH2
+c1cc[nH]c1        # aromatic nitrogen with explicit H
+CC(=O)[O-]        # acetate anion
+[NH4+]            # ammonium cation
+[NH4+].[Cl-]      # ammonium chloride, ionic pair
+[13CH3]C(=O)O     # acetic acid with 13C-labelled methyl carbon
+C[Se]C            # dimethyl selenide
+```
+
+<div class="hover-figure caption-hover">
+  <img src="../../docs/_static/images/S01/acetate.svg" alt="Acetate anion — CC(=O)[O-]">
+  <div class="figure-caption">Figure: Acetate anion — CC(=O)[O-]</div>
+</div>
+
+
+
+### 2.8. Common beginner mistakes
+
+<details>
+<summary><b>Click to expand common SMILES mistakes</b></summary>
+
+<br>
+
+| Mistake | Example | Why it matters |
+|---|---|---|
+| Confusing uppercase and lowercase atoms | `C` vs `c` | `C` is aliphatic, `c` is aromatic |
+| Forgetting ring digit pairs | `C1CCCC` | ring closure is incomplete |
+| Misplacing branches | `CC(O)C` vs `CCC(O)` | branches attach to the atom before `(` |
+| Ignoring stereochemistry | <code>C&#91;C@H&#93;(O)Cl</code> vs <code>CC(O)Cl</code> | stereochemistry may change molecular identity |
+| Overusing brackets | `[C][C][O]` | most common atoms do not need brackets |
+| Missing charge notation | `[O-]` vs `O` | charged and neutral atoms are different |
+
+</details>
+
+
+---
+
+
+
+
+### 2.9. Summary
+
+<div style="padding: 1rem; border-left: 6px solid #4D96FF; background: #F3F8FF; border-radius: 10px;">
+
+SMILES is compact because it relies on a small set of rules:
+
+| Feature | Main notation |
+|---|---|
+| Atoms | `C`, `N`, `O`, `Cl` |
+| Aromatic atoms | lowercase, e.g. `c`, `n` |
+| Single bonds | usually implicit |
+| Double bonds | `=` |
+| Triple bonds | `#` |
+| Branches | `(...)` |
+| Rings | matching digits, e.g. `1...1` |
+| Charges/isotopes/explicit H | brackets, e.g. `[NH4+]`, `[13C]` |
+| Stereochemistry | `@`, `@@`, `/`, `\` |
+
+</div>
+
+
+Now experiment with some examples
+
+The cell below color-codes each SMILES token by its syntactic role — useful for parsing unfamiliar strings.
+Each color corresponds to a token class (aromatic atom, branch, ring closure, stereo, etc.).
+
+
+SMILES strings can have many valid variants for the same molecule.
+
+
+The
+simplest and most reliable way to compare or normalise SMILES is to convert
+them to a **canonical form** in RDKit.
+
+
+Graph canonicalization (canonical SMILES, toolkit differences) will be covered in later talktorials (**S06**).
+
+
+
+<a id="s01-graph"></a>
+
+## 3. Molecular Graph representation
+
+In computational reaction modeling, we represent molecules as **labeled graphs** so that any notion of
+“matching” respects **chemical identity**, such as element type, charge, and bond order, rather than bare
+connectivity alone.
+
+A **labeled molecular graph** is a quadruple
 
 $$
-G = (V, E, \tau_V, \tau_E),
+G = (V, E, a, b),
 $$
 
 where:
 
 - **Vertices** $V$ represent **atoms**.
-- **Edges** $E \subseteq \{\{u,v\}\mid u,v\in V,\ u\neq v\}$ represent **bonds** (finite, undirected, simple: no loops, no parallel edges).
-- $\tau_V: V \to \mathcal{A}_V$ assigns **atom attributes** (chemical labels).
-- $\tau_E: E \to \mathcal{A}_E$ assigns **bond attributes** (chemical labels).
+- **Edges** $E \subseteq \{\{u,v\}\mid u,v\in V,\ u\neq v\}$ represent **bonds**
+  (finite, undirected, simple: no loops, no parallel edges).
+- $a$: atom labelling function.
+- $b$: bond labelling function.
 
 We often write $V(G)$ and $E(G)$ for the vertex and edge sets of $G$. For a vertex $v\in V(G)$:
 
@@ -107,16 +526,21 @@ We often write $V(G)$ and $E(G)$ for the vertex and edge sets of $G$. For a vert
   \deg_G(v)=|N_G(v)|.
   $$
 
-#### Labels (typed graphs)
+These graph-theoretic notions correspond chemically to an atom’s bonded neighbours and coordination number,
+abstracting away geometry while retaining connectivity.
 
-“Types” are encoded as labelling maps
+---
+
+### 3.1. Labels and chemical types
+
+Attributes are encoded via explicit labelling maps
 
 $$
 \ell_V: V(G)\to L_V,\qquad \ell_E: E(G)\to L_E,
 $$
 
 where $L_V$ and $L_E$ are finite, non-empty label sets.
-For molecular graphs we use the chemistry-specific notation:
+For molecular graphs, we use the chemistry-specific notation:
 
 $$
 a_G: V(G)\to L_V \quad\text{(atom labels)},\qquad
@@ -124,103 +548,14 @@ b_G: E(G)\to L_E \quad\text{(bond labels)}.
 $$
 
 Let $\mathcal{G}$ denote the class of all labelled molecular graphs equipped with $(a_G,b_G)$.
-In chemistry, $a_G(v)$ encodes *what atom this is* (element, charge, aromaticity, …), 
+In chemistry, $a_G(v)$ encodes *what atom this is* (element, charge, aromaticity, hydrogen count, …), 
 while $b_G(uv)$ encodes *what bond this is* (order, aromaticity, ring status, …).
 
----
-
-### 1.2 Graph morphisms
-
-Let $G,H\in\mathcal{G}$ be labelled molecular graphs with atom- and bond-labelling functions
-$(a_G,b_G)$ and $(a_H,b_H)$.
-
-A **(labelled) graph morphism** from $G$ to $H$ is a map
-
-$$
-\varphi:V(G)\to V(H)
-$$
-
-that preserves **chemical identity at atoms**, and preserves **bonds and their types**.
-Formally, $\varphi$ must satisfy:
-
-#### (M1) Atom-label preservation
-For every atom $v\in V(G)$,
-
-$$
-a_H(\varphi(v)) = a_G(v).
-$$
-
-> **Chemistry meaning**  
-> $\varphi$ never maps a carbon to a nitrogen, or a neutral atom to a charged atom, if those are encoded in $a_\cdot$.
-
-#### (M2) Adjacency (bond existence) preservation
-For every bond $uv\in E(G)$,
-
-$$
-\varphi(u)\varphi(v)\in E(H).
-$$
-
-> **Chemistry meaning**  
-> Bonded atoms in $G$ must map to bonded atoms in $H$ (no bond can “disappear” under the map).
-
-#### (M3) Bond-label preservation
-For every bond $uv\in E(G)$,
-
-$$
-b_H\!\big(\varphi(u)\varphi(v)\big) = b_G(uv).
-$$
-
-> **Chemistry meaning**  
-> If $uv$ is a double bond in $G$, its image must be a double bond in $H$ (and likewise for aromaticity if included).
-
-> **Summary**  
-> A morphism $\varphi$ is a label-preserving embedding of the local chemical graph of $G$ into $H$.  
-> It preserves “what atoms are” and “how they are connected”.
+All subsequent notions of equivalence, symmetry, and matching in this talktorial are defined **relative to these labels**.
 
 ---
 
-#### Compatibility predicates (practical generalization)
-
-In practice, chemoinformatics representations may differ (e.g. aromatic vs Kekulé, resonance conventions).
-We therefore sometimes relax strict equality into **compatibility**:
-
-- atom compatibility:
-  $$
-  a_H(\varphi(v)) \sim_V a_G(v),
-  $$
-- bond compatibility:
-  $$
-  b_H(\varphi(u)\varphi(v)) \sim_E b_G(uv),
-  $$
-
-where $\sim_V$ and $\sim_E$ encode allowed correspondences (e.g. “aromatic bond” compatible with alternating single/double under a chosen model).
-
-> **For chemists**  
-> This is where you decide whether two representations should be considered “the same chemistry”.  
-> For example, strict matching distinguishes aromatic vs Kekulé; compatibility matching can treat them as equivalent.
-
----
-
-#### Standard special cases (matching tasks)
-
-- **Monomorphism (injective morphism)**  
-  $\varphi$ is injective (distinct atoms in $G$ map to distinct atoms in $H$).  
-  $\rightarrow$ This is the formal object behind **substructure search / subgraph isomorphism**.
-
-- **Isomorphism**  
-  $\varphi$ is bijective and $\varphi^{-1}$ is also a morphism.  
-  $\rightarrow$ We write $G\simeq H$ (same molecule up to relabeling).
-
-- **Automorphism**  
-  An isomorphism $\varphi:G\to G$.  
-  $\rightarrow$ Encodes **molecular symmetry**, which can multiply equivalent matches and motivates deduplication.
-
-> **Interpretation for reaction rules**  
-> Applying a graph-rewrite rule begins by finding a **monomorphism** from the rule LHS into the host molecule.  
-> Automorphisms (symmetry) can generate many equivalent embeddings; later SynEdu notebooks introduce symmetry-aware deduplication.
-
-
-## 2. RDKit ⇄ NetworkX: Typed Molecular Graphs
+### 3.2. Graph representations in practice
 
 In SynEdu, **RDKit** and **NetworkX** play complementary roles:
 
@@ -229,348 +564,296 @@ In SynEdu, **RDKit** and **NetworkX** play complementary roles:
   and later graph rewriting.
 
 To ensure that graph-based operations remain chemically meaningful, we require a **reversible interface**
-between the two representations.
+between the two representations:
+a molecule converted from RDKit to a labeled NetworkX graph must be convertible back without loss of
+the chemical information encoded in $(a_G,b_G)$.
+
+This reversible interface forms the foundation for all later notions—graph isomorphism, automorphisms,
+and eventually reaction rules—introduced in subsequent SynEdu notebooks.
 
 
-### Exercise: Round-trip accuracy (RDKit ⇄ NetworkX)
 
-The goal of this exercise is to verify that converting
+**Definition (Labeled Molecular Graph).**  
+A *labeled molecular graph* is a 4-tuple
 
-RDKit → NetworkX → RDKit
+$$
+G = (V,\, E,\, \mathbf{a},\, \mathbf{b})
+$$
 
-preserves the **chemical information we care about**.
+where $V$ is the set of **heavy atoms** (nodes), $E \subseteq V \times V$ is the set of **covalent bonds** (edges), $\mathbf{a}: V \to \mathcal{A}$ assigns each atom a tuple of **node attributes** (element symbol, formal charge, aromaticity, hydrogen count), and $\mathbf{b}: E \to \mathcal{B}$ assigns each bond a tuple of **edge attributes** (bond order, aromaticity).
 
-You should treat the two functions provided above as a black box.
+A *labeled graph morphism* $\varphi: G_1 \to G_2$ is a pair of maps $\varphi_V: V_1 \to V_2$, $\varphi_E: E_1 \to E_2$ that (i) preserves adjacency: $\varphi_E(\{u,v\}) = \{\varphi_V(u), \varphi_V(v)\}$, and (ii) preserves labels: $\mathbf{a}_2(\varphi_V(v)) = \mathbf{a}_1(v)$ and $\mathbf{b}_2(\varphi_E(e)) = \mathbf{b}_1(e)$ for all $v \in V_1$, $e \in E_1$.
 
----
-
-#### Q1 — Heavy-atom SMILES invariance
-
-Write a function `roundtrip_smiles_equal(smiles)` that:
-
-1. parses a SMILES string into an RDKit molecule,
-2. converts it to a typed graph using `mol_to_graph`,
-3. reconstructs a molecule using `graph_to_mol`,
-4. compares the **canonical heavy-atom SMILES** of the original and reconstructed molecules.
-
-The function should return `True` if the two SMILES are identical, and `False` otherwise.
-
----
-
-#### Q2 — Count invariants
-
-Extend your check in **Q1** to also verify that:
-
-- the number of **heavy atoms** is preserved,
-- the number of **heavy-atom bonds** is preserved.
-
-Return `True` only if *all* invariants are satisfied.
-
-> Hint: use `Chem.RemoveHs(mol)` before counting atoms or bonds.
-
----
+**Remark.** The attribute schema used throughout SynEdu is  
+`a(v) = (element, formal_charge, aromatic, hcount)` and `b(e) = (order, aromatic)`.  
+Hydrogen atoms are stored implicitly in `hcount` to keep graphs small.
 
 
+
+#### Graph attribute inspection
+
+The DataFrames below show the concrete realization of the label functions $a_G$ (node attributes) and $b_G$ (edge attributes) for phenol.
+This makes explicit what information is stored — and therefore what is available for downstream matching and rewriting.
+
+
+> **Stored in `synedu.Utils`** — both `mol_to_graph` and `graph_to_mol` (defined above) are packaged in `synedu.Utils.conversion` so every later talktorial can import them without redefining them:
+> ```python
+> from synedu.Utils.conversion import mol_to_graph, graph_to_mol
+> ```
+> `smiles_to_graph` and `graph_to_smi` (thin wrappers around these) are available there too.
+
+
+#### Kekulé vs aromatic — graph label differences
+
+The same molecule (benzene) written in two SMILES notations produces **different bond-order labels** in the graph:
+- **Kekulé** (`C1=CC=CC=C1`): alternating single (1.0) and double (2.0) bonds.
+- **Aromatic** (`c1ccccc1`): uniform aromatic bonds (order 1.5), with an `aromatic=True` flag on all nodes and edges.
+
+This distinction matters for graph isomorphism and reaction rule matching in later notebooks.
+
+
+### 3.3. Matrix representations
+
+A labeled molecular graph can be encoded as several **matrices**, each capturing a different structural aspect:
+
+| Matrix | Shape | Entry meaning |
+|---|---|---|
+| **Adjacency** $A$ | $n \times n$ | $A_{ij}$ = bond order between atoms $i$ and $j$ |
+| **Distance** $D$ | $n \times n$ | $D_{ij}$ = shortest-path length (in bonds) between $i$ and $j$ |
+| **Incidence** $B$ | $n \times m$ | $B_{ij} = 1$ if atom $i$ participates in bond $j$ |
+| **Bond-Electron** $BE$ | $n \times n$ | off-diag = bond order; **diagonal = free (non-bonding) electrons** |
+
+The BE matrix generalises the adjacency matrix by placing lone-pair electron counts on the diagonal.
+For a reaction, the **difference** $\Delta BE = BE_\text{products} - BE_\text{reactants}$ encodes the full electron reorganisation — this is developed in **S04**.
+
+
+#### Adjacency
+
+The **adjacency matrix** $A \in \mathbb{R}^{n \times n}$ encodes pairwise atom connectivity.
+Three variants are informative:
+
+| Panel | Entry $A_{ij}$ | When useful |
+|---|---|---|
+| **Binary** | 1 if bond exists, else 0 | Connectivity-only algorithms (BFS, diameter) |
+| **Weighted — aromatic** | Bond order from aromatic SMILES (1.5 for ring bonds) | Aromatic-aware descriptors |
+| **Weighted — Kekulé** | Bond order from Kekulé SMILES (1.0 or 2.0) | Reaction-rule matching, BE matrix |
+
+Key properties shared by all variants:
+- **Symmetric**: $A_{ij} = A_{ji}$ (undirected bonds)
+- **Zero diagonal**: no self-loops ($A_{ii} = 0$)
+- Diagonal entries of $A + D$ give the degree (valence) of each atom, where $D$ is the degree matrix
+
+
+#### Distance matrix
+
+The **topological distance matrix** $D \in \mathbb{N}^{n \times n}$ records the
+shortest-path length (measured in bonds) between every pair of atoms.
+$D_{ij}$ is the minimum number of bonds to traverse to reach atom $j$ from atom $i$,
+computed via Floyd–Warshall or breadth-first search on the unweighted graph.
+
+Key properties:
+- **Zero diagonal**: $D_{ii} = 0$
+- **Symmetric**: $D_{ij} = D_{ji}$
+- The **graph diameter** $\max_{i,j} D_{ij}$ is the longest shortest path — a
+  compact measure of molecular "stretch"
+- Distance-based **Wiener index** $W = \tfrac{1}{2}\sum_{i,j} D_{ij}$ correlates
+  with boiling points for alkanes
+
+
+#### Incidence matrix
+
+The **node-edge incidence matrix** $B \in \{0,1\}^{n \times m}$ maps atoms to bonds:
+$B_{ij} = 1$ if atom $i$ participates in bond $j$, and 0 otherwise.
+
+Key properties:
+- Each **column** has exactly two 1s (every bond connects exactly two atoms)
+- Each **row sum** equals the heavy-atom degree (valence) of that atom
+- $B B^\top = \Delta + A$, where $\Delta$ is the diagonal degree matrix and $A$ is
+  the binary adjacency matrix — a fundamental identity in algebraic graph theory
+- Incidence matrices appear in spectral graph theory and in the cycle-space
+  formulation of Kirchhoff's current laws
+
+
+#### Bond-electron matrix
+
+The **Bond-Electron (BE) matrix** $M \in \mathbb{R}^{n \times n}$ extends the
+weighted adjacency matrix by encoding electron counts on the diagonal:
+
+$$
+M_{ij} = \begin{cases}
+  b_{ij} & i \neq j \quad (\text{bond order between atoms } i \text{ and } j) \\
+  v_i - q_i - \displaystyle\sum_j b_{ij} - h_i & i = j \quad (\text{free / non-bonding electrons on atom } i)
+\end{cases}
+$$
+
+where $v_i$ is the valence electron count, $q_i$ the formal charge, and $h_i$ the
+implicit hydrogen count.
+
+**Aromatic vs Kekulé** — two panels below highlight a key practical concern:
+- In the **aromatic** form, ring bond orders are 1.5, giving fractional diagonal values
+  that have no physical meaning.
+- In the **Kekulé** form, all bond orders are integers, and the diagonal is a
+  well-defined electron count.
+
+For this reason, reaction-informatics tools always work with the **Kekulé BE matrix**.
+The reaction-level version — the **ΔBE matrix** — is developed in **S04**.
+
+
+> **Stored in `synedu.Utils`** — `build_be_matrix` is also packaged for later graph-representation tasks:
+> ```python
+> from synedu.Utils.graph import build_be_matrix
+> ```
+> Later notebooks can reuse the same bond-electron matrix convention instead of redefining it.
+
+
+
+**Q4 — Conversion**
+
+**Goal**
+Convert the SMILES below to a graph and back to SMILES.  
+Explain **why the round-trip fails**.
+
+```python
+smiles = "c1cc[nH]c1"
+```
+
+<br>
 
 <details>
-<summary><b>Solution:</b></summary>
-
-### Q1–Q2: Round-trip checker (heavy SMILES + count invariants)
+<summary><b>Solution</b></summary>
 
 ```python
 from rdkit import Chem
-from rdkit.Chem import rdmolops  # optional: useful for extra invariants
 
-def canonical_heavy_smiles(m: Chem.Mol) -> str:
-    """Return canonical SMILES after removing H (heavy-atom skeleton)."""
-    return Chem.MolToSmiles(Chem.RemoveHs(m), canonical=True)
+def naive_roundtrip(smiles: str) -> str:
+    mol = Chem.MolFromSmiles(smiles)
+    G = mol_to_graph(mol)
+    mol2 = graph_to_mol(G)
+    return Chem.MolToSmiles(mol2, canonical=True)
 
-def heavy_counts(m: Chem.Mol) -> tuple[int, int]:
-    """Return (n_heavy_atoms, n_heavy_bonds) after removing H."""
-    mh = Chem.RemoveHs(m)
-    return mh.GetNumAtoms(), mh.GetNumBonds()
-
-def roundtrip_ok(smiles: str, verbose: bool = True) -> bool:
-    """
-    RDKit → NetworkX → RDKit round-trip check.
-
-    Criteria:
-    1) canonical heavy-atom SMILES preserved
-    2) heavy atom count preserved
-    3) heavy bond count preserved
-    """
-    m1 = Chem.MolFromSmiles(smiles)
-    if m1 is None:
-        if verbose:
-            print("Parse failed:", smiles)
-        return False
-
-    G = mol_to_graph(m1, include_implicit_h=True)
-    m2 = graph_to_mol(G, make_explicit_h=False)
-
-    s1, s2 = canonical_heavy_smiles(m1), canonical_heavy_smiles(m2)
-    c1, c2 = heavy_counts(m1), heavy_counts(m2)
-
-    ok = (s1 == s2) and (c1 == c2)
-
-    if verbose and not ok:
-        print("FAIL:", smiles)
-        print(" heavy SMILES:", s1, "vs", s2)
-        print(" counts:", c1, "vs", c2)
-
-    return ok
+naive_roundtrip("c1cc[nH]c1")
+>> 'c1ccnc1'
 ```
+Why it fails
 
-### Quick test (run on a small subset)
+- `[nH]` is an aromatic nitrogen with an **explicit hydrogen**
+- **Heavy-atom graphs discard hydrogens**
+- RDKit cannot recover this on rebuild: `[nH] → [n]`
+- This is **information loss by representation**, not a bug
+
+> **Conclusion:** Heavy-atom graphs are **not information-complete** for SMILES round-trip.
+
+
+</details> 
+
+
+Since the hydrogen count is already stored in the graph (`hcount`), it can be
+propagated back during molecule reconstruction:
 
 ```python
-n_test = min(50, len(df))
-fails = []
-
-for s in df["smiles"].head(n_test):
-    if not roundtrip_ok(s, verbose=False):
-        fails.append(s)
-
-print("Checked:", n_test)
-print("Failures:", len(fails))
-if fails:
-    print("Example failures:", fails[:5])
-
-# Optional: inspect one failure in detail
-if fails:
-    _ = roundtrip_ok(fails[0], verbose=True)
+for node, data in G.nodes(data=True):
+    n_h = int(data.get("hcount", 0))
+    heavy_atom.SetNoImplicit(True)
+    heavy_atom.SetNumExplicitHs(n_h)
 ```
-
-
-
-## 3. Isomorphism
-
-We connect **formal graph-morphism definitions** to concrete
-`networkx` matchers used in practice.
-
-### Attribute predicates
-
-We denote the **vertex** and **edge** attribute predicates as:
-
-$$
-\Phi_V : V(G) \times V(H) \rightarrow \{\text{true}, \text{false}\}
-$$
-
-$$
-\Phi_E : E(G) \times E(H) \rightarrow \{\text{true}, \text{false}\}
-$$
-
-In code, these predicates are implemented as Python functions:
-
-- `node_match(n1, n2)` — compares atom (vertex) attributes
-- `edge_match(e1, e2)` — compares bond (edge) attributes
-
-### Compatibility used in S01
-
-For **S01**, we adopt a *strict-but-minimal* chemical compatibility model:
-
-- same atom `symbol` (element),
-- same `formal_charge`,
-- same `aromatic` flag,
-- same bond `order`.
-
-
-
-### Exercise: Isomorphism
-**Q3 — Fix the matcher**
-
-Implement `node_match` that requires matching `symbol` **and** either `total_h` or `formal_charge` (or both). Replace the existing `node_match` with your function and re-run the demo so that:
-
-- `benzene` still matches, and  
-- `aniline` (`c1ccccc1N`) **does not** match `anilinium` (`c1ccccc1[NH3+]`).
-
-> Hint: `mol_to_graph(..., include_implicit_h=True)` stores H as `total_h`. Use `n.get("total_h",0)` or `n.get("formal_charge",0)`.
-
-
-
-
-<details> <summary><b>Solution:</b></summary>
-
+This logic is exposed via:
 ```python
-# Solution: enhanced matcher that checks symbol + (total_h OR formal_charge)
-def enhanced_node_match(n1, n2):
-    return (
-        n1.get("symbol") == n2.get("symbol")
-        and (
-            int(n1.get("total_h", 0)) == int(n2.get("total_h", 0))
-            or int(n1.get("formal_charge", 0)) == int(n2.get("formal_charge", 0))
-        )
-    )
-
-# run the demo with the enhanced matcher (uses existing `pairs`, `graphs`, `edge_match`, `iso_and_count`)
-print("=== enhanced matcher (symbol + total_h/charge) ===")
-for name in pairs:
-    G1 = graphs[f"{name}_a"]; G2 = graphs[f"{name}_b"]
-    iso_flag, n_maps = iso_and_count(G1, G2, enhanced_node_match, edge_match)
-    print(f"{name:8} | isomorphic: {int(iso_flag):1d} | mappings: {n_maps}")
-
-# quick instructor checks
-assert iso_and_count(graphs["benzene_a"], graphs["benzene_b"], enhanced_node_match, edge_match)[0]
-assert not iso_and_count(graphs["aniline_a"], graphs["aniline_b"], enhanced_node_match, edge_match)[0]
+graph_to_mol(G, use_hcount=True)
 ```
+With `use_hcount=True`, explicit hydrogens (e.g. `[nH]`) are preserved, making the
+SMILES round-trip reversible.
+
+
+
+**Q5 — Round-trip conversion**
+
+**Goal.** Verify that SMILES in a DataFrame survive a  
+SMILES → RDKit → graph → RDKit round-trip **without losing heavy-atom information**.
+
+**Input.** A DataFrame `df` with:
+- `smiles`: SMILES string  
+- `name`: molecule name  
+
+**Task.**
+1. Implement `roundtrip_smiles_equal(smiles)` that:
+   - parses a SMILES with RDKit,
+   - converts it to a labeled graph (`mol_to_graph`),
+   - reconstructs a molecule (`graph_to_mol`),
+   - compares **canonical heavy-atom SMILES** (hydrogens removed).
+2. Apply it to `df["smiles"]`.
+3. Report molecules that fail the round-trip (if any).
+
+---
+
 <details>
-
-
-## 4. Automorphisms & orbits
-
-**Observation.** In the benzene example you enumerated **12 mappings** — these are the automorphisms of the benzene heavy-atom graph (the dihedral group \(D_6\), where \(|D_6| = 12\)).
-
-**Definition.** An automorphism is a graph isomorphism from the graph to itself:
-
-$$
-f : G \longrightarrow G.
-$$
-
-The automorphism group is
-
-$$
-\mathrm{Aut}(G).
-$$
-
-The **orbit** of a vertex \(v\) is the set of images of \(v\) under all automorphisms:
-
-$$
-\mathrm{Orbit}(v)=\{\psi(v)\;|\;\psi\in\mathrm{Aut}(G)\}.
-$$
-
-**Facts.** For benzene:
-
-$$
-|\mathrm{Aut}(G)| = |D_6| = 12,
-$$
-
-and all six carbon atoms lie in a single orbit.
-
-**Why it matters.** Symmetric hosts produce many equivalent embeddings → duplicate matches and wasted work.
-
-**Simple remedies.**
-- Deduplicate by host-atom set: use `frozenset(mapping.values())`.  
-- Use orbit representatives (e.g. choose the $\min$ index per orbit).  
-- Accept only a canonical mapping (WL/lexicographic tie-break).
-
-**Practical tips.**
-- Include chemical attributes (`total_h`, `formal_charge`, stereochemistry) in matchers to reduce false symmetry.  
-- Pre-filter with cheap signatures (degree, label counts, WL hashes) before enumerating automorphisms.
-
-
-
-
-### Exercise: Automorphisms of a Molecular Graph
-
-### Q4 — Develop a function `enumerate_automorphisms` to enumerate all automorphisms of a graph
-
-**Hint:** An automorphism of a graph \(G\) is an isomorphism from \(G\) to itself.
-
-Equivalently, the automorphism group satisfies
-
-$$
-\mathrm{Aut}(G) \subseteq \mathrm{Iso}(G, G).
-$$
-
-
-
-
-<details> <summary><b>Solution:</b></summary>
+<summary><b>Solution</b></summary>
 
 ```python
-def enumerate_automorphisms(G: nx.Graph):
-    GM_self = iso.GraphMatcher(G, G, node_match=node_match, edge_match=edge_match)
-    return list(GM_self.isomorphisms_iter())
+def standardize(smiles):
+    return Chem.CanonSmiles(smiles, useChiral=False)
+
+
+def roundtrip_smiles_equal(smiles: str) -> bool:
+    new_smiles = roundtrip(smiles)
+    return (
+        standardize(new_smiles) == standardize(smiles)) 
+
+df["ok"] = df["smiles"].apply(roundtrip_smiles_equal)
+df.loc[~df["ok"], ["name", "smiles"]]
 ```
+</details> 
 
 
-We can now analyse the symmetry of a molecular graph by computing the
-**orbits induced by its automorphism group**.
+<a id="s01-discussion"></a>
 
-Under the natural action of the automorphism group on the vertex set,
-two vertices belong to the same orbit if there exists an automorphism
-mapping one to the other.
+## 4. Discussion
 
-$$
-\text{For } u, v \in V(G), \quad
-u \sim v
-\;\Longleftrightarrow\;
-\exists\, \varphi \in \mathrm{Aut}(G)
-\text{ such that }
-\varphi(u) = v .
-$$
+- A **labeled graph morphism** provides a precise abstraction for
+  structure- and attribute-preserving mappings, making the notion of
+  “sameness” explicit and inspectable.
 
-Each orbit therefore represents a set of **symmetry-equivalent atoms**.
+- Our **labeled molecular graph** adopts a deliberately minimal attribute
+  schema (`symbol`, `formal_charge`, `aromatic`, `order`). This strikes a
+  balance between chemical faithfulness and algorithmic tractability:
+  too few labels induce spurious symmetries, while too many hinder matching
+  and reuse.
 
-
-
-## 5. Discussion
-- A **typed graph morphism** formalizes structure- and attribute-preserving maps between graphs.
-- Our **typed molecular graphs** use a minimal attribute schema (`symbol`, `formal_charge`, `aromatic`, `order`) to define what “same” means.
-- **Round-trip conversion** (RDKit → NetworkX → RDKit) is valuable for debugging and peer review; we preserve heavy-atom topology, but exact RDKit internal state may differ.
-- **Automorphisms** describe symmetries; they inflate match enumeration. Deduplicate (e.g. by host-atom set) to prevent combinatorial explosion.
+- **Round-trip conversion** (RDKit → NetworkX → RDKit) serves as a practical
+  validation tool. While exact RDKit internal states need not be preserved,
+  maintaining **heavy-atom topology and labels** ensures semantic
+  equivalence and reproducibility.
 
 
-## 6. Quiz · Graph Matching Fundamentals
+<a id="s01-quiz"></a>
 
-Answer the following questions using **both chemical intuition and formal graph language**.
+## 5. Quiz
+
+Answer briefly using what you learned about **RDKit**, **SMILES**, and **molecular graphs**.
 
 ---
 
-### 1. Typed graph morphism
-
-In one or two sentences, define a **typed graph morphism**.
-
-$$
-f : G \rightarrow H
-$$
-
-- What objects does f map?
-- Which **atom** and **bond** properties must be preserved?
-- Give one example of a mapping that would be **invalid** in chemistry.
-
+### RDKit
+- 1. What is molecule sanitization?
+- 2. Why is it needed?
 
 ---
 
-### 2. Isomorphism  
-What **additional requirement** must a graph morphism satisfy to become an  
-**isomorphism**?
-
-- How does this relate to the idea of *two molecules having the same structure*?
+### SMILES
+- 3. Can one molecule have multiple SMILES?
+- 4. What is canonical SMILES and why is it useful?
 
 ---
 
-### 3. Automorphism and symmetry  
-What is an **automorphism** of a molecular graph?
-
-- Why do symmetric molecules (e.g. benzene) have **many automorphisms**?
-- Why do automorphisms cause **duplicate subgraph matches** during matching?
-
----
-
-### 4. Deduplicating subgraph matches  
-Subgraph matching often returns many equivalent matches.
-
-- Explain how using **sets of host atom indices** can be used to
-  **deduplicate** equivalent matches.
-- Why does this work even when atom ordering differs?
+### Molecular graphs
+- 5. What do nodes represent?
+- 6. What do edges represent?
+- 7. Name two atom properties and one bond property used as labels.
 
 ---
 
-### 5. RDKit vs NetworkX (practice vs theory)  
-Give **one practical advantage** of each approach:
+### Conversion and information loss
+- 8. What information is preserved when converting RDKit → NetworkX?
+- 9. What information may be lost?
+- 10. Why is this acceptable here?
 
-- **RDKit** substructure matching  
-- **NetworkX** graph matching  
-
-In which situations would you prefer one over the othe
-
-
-
-## 7. References and further reading
-
-- RDKit documentation: https://www.rdkit.org/docs/  
-- RDKit Book: https://www.rdkit.org/docs/Book.html  
-- NetworkX documentation: https://networkx.org/documentation/stable/  
-- NetworkX isomorphism: https://networkx.org/documentation/stable/reference/algorithms/isomorphism.html  
-- RDKit MCS (rdFMCS): https://www.rdkit.org/docs/source/rdkit.Chem.rdFMCS.html
+---

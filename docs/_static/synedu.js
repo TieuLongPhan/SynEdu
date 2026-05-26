@@ -23,8 +23,15 @@
     return document.documentElement || document.body;
   }
 
+  function pageScrollHeight() {
+    return Math.max(
+      document.body ? document.body.scrollHeight : 0,
+      document.documentElement ? document.documentElement.scrollHeight : 0
+    );
+  }
+
   function pageIsScrollable() {
-    return scrollTargetTop().scrollHeight > window.innerHeight + 240;
+    return pageScrollHeight() > window.innerHeight + 240;
   }
 
   function createScrollControl() {
@@ -52,7 +59,7 @@
     });
 
     bottomButton.addEventListener("click", function () {
-      window.scrollTo({ top: scrollTargetTop().scrollHeight, behavior: "smooth" });
+      window.scrollTo({ top: pageScrollHeight(), behavior: "smooth" });
     });
 
     control.appendChild(topButton);
@@ -69,6 +76,39 @@
 
     syncVisibility();
     window.addEventListener("resize", syncVisibility);
+    window.addEventListener("load", syncVisibility);
+    window.setTimeout(syncVisibility, 600);
+    window.setTimeout(syncVisibility, 1600);
+  }
+
+  function notebookReferenceSection() {
+    var main = document.querySelector(".md-content__inner");
+    if (!main || !/\/talktorials\/S\d+\.html$/.test(window.location.pathname)) {
+      return null;
+    }
+
+    var headings = main.querySelectorAll("h2, h3");
+    for (var index = 0; index < headings.length; index += 1) {
+      if (/^\s*\d*\.?\s*References\s*$/i.test(headings[index].textContent || "")) {
+        return headings[index].closest("section");
+      }
+    }
+    return null;
+  }
+
+  function repairNotebookReferenceTargets() {
+    var section = notebookReferenceSection();
+    if (!section) {
+      return;
+    }
+
+    var items = section.querySelectorAll("ol > li");
+    for (var index = 0; index < items.length; index += 1) {
+      var id = "ref-" + (index + 1);
+      if (!document.getElementById(id)) {
+        items[index].id = id;
+      }
+    }
   }
 
   document.addEventListener("DOMContentLoaded", function () {
@@ -80,6 +120,7 @@
     }
     setTheme(body, initial || "light");
     createScrollControl();
+    repairNotebookReferenceTargets();
 
     var toggle = document.querySelector(".synedu-theme-toggle");
     if (!toggle) {

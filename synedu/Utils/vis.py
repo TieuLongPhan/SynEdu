@@ -10,6 +10,8 @@ import networkx as nx
 from rdkit import Chem
 from rdkit.Chem import AllChem, Draw
 
+from .conversion import graph_to_mol
+
 # ── CPK-inspired palette (fill, border) ───────────────────────────────────
 _ELEMENT_PALETTE: Dict[str, Tuple[str, str]] = {
     "C": ("#636363", "#3d3d3d"),
@@ -144,9 +146,70 @@ def _draw_aromatic_circles(ax, G, pos, scale):
         )
 
 
+def _set_padded_limits(ax, pos: Dict[int, Tuple[float, float]], avg_len: float) -> None:
+    """Pad plot limits so node markers and index labels are not clipped."""
+    if not pos:
+        return
+
+    xs = [p[0] for p in pos.values()]
+    ys = [p[1] for p in pos.values()]
+    x_span = max(xs) - min(xs)
+    y_span = max(ys) - min(ys)
+    pad = max(avg_len * 0.45, x_span * 0.08, y_span * 0.08, 0.20)
+
+    ax.set_xlim(min(xs) - pad, max(xs) + pad)
+    ax.set_ylim(min(ys) - pad, max(ys) + pad)
+
+
+def _ordered_graph_for_layout(
+    G: nx.Graph, nodelist: List[int]
+) -> Tuple[nx.Graph, Dict[int, int]]:
+    """Create an insertion-ordered graph and mapping node id -> RDKit atom idx."""
+    ordered = nx.Graph()
+    for node in nodelist:
+        ordered.add_node(node, **G.nodes[node])
+    for u, v, data in G.edges(data=True):
+        ordered.add_edge(int(u), int(v), **data)
+    return ordered, {node: idx for idx, node in enumerate(nodelist)}
+
+
+def _graph_to_layout_mol(G: nx.Graph) -> Chem.Mol:
+    try:
+        return graph_to_mol(G, sanitize=True)
+    except Exception:
+        return graph_to_mol(G, sanitize=False)
+
+
+def _layout_from_graph_mol(
+    G: nx.Graph,
+    nodelist: List[int],
+) -> Dict[int, Tuple[float, float]]:
+    """
+    Compute RDKit 2D coordinates for graph nodes.
+
+    The molecule is reconstructed from the graph itself so callers do not need
+    to pass a parallel RDKit Mol object. Coordinates are mapped back to the
+    original graph node ids.
+    """
+    try:
+        ordered, node_to_atom = _ordered_graph_for_layout(G, nodelist)
+        layout_mol = _graph_to_layout_mol(ordered)
+        _ensure_2d(layout_mol)
+        conf = layout_mol.GetConformer(0)
+        pos = {}
+        for node in nodelist:
+            p = conf.GetAtomPosition(node_to_atom[node])
+            pos[node] = (p.x, p.y)
+        return pos
+    except Exception:
+        return {
+            int(k): (float(v[0]), float(v[1]))
+            for k, v in nx.kamada_kawai_layout(G).items()
+        }
+
+
 def draw_molecular_graph(  # noqa: C901
     G: nx.Graph,
-    mol: Optional[Chem.Mol] = None,
     *,
     ax: Optional[plt.Axes] = None,
     title: Optional[str] = None,
@@ -167,6 +230,8 @@ def draw_molecular_graph(  # noqa: C901
     highlight_alpha: float = 0.85,
     # --- custom node colors (overrides element palette) ---
     custom_node_colors: Optional[Dict[int, str]] = None,
+    # --- per-edge color overrides (overrides default black bond line) ---
+    edge_colors: Optional[Dict[Tuple[int, int], str]] = None,
     # --- typography ---
     element_fontsize: Optional[int] = None,
     index_fontsize: Optional[int] = None,
@@ -218,19 +283,8 @@ def draw_molecular_graph(  # noqa: C901
     )
     _ifs = index_fontsize if index_fontsize is not None else _efs + 1
 
-    # ── positions: RDKit 2D > spring ────────────────────────────────────
-    pos: Dict[int, Tuple[float, float]] = {}
-    if mol is not None:
-        _ensure_2d(mol)
-        conf = mol.GetConformer(0)
-        for n in nodelist:
-            p = conf.GetAtomPosition(int(n))
-            pos[int(n)] = (p.x, p.y)
-    else:
-        pos = {
-            int(k): (float(v[0]), float(v[1]))
-            for k, v in nx.kamada_kawai_layout(G).items()
-        }
+    # ── positions: graph -> RDKit 2D layout; fallback to NetworkX layout ──
+    pos = _layout_from_graph_mol(G, nodelist)
 
     avg_len = _avg_edge_length(pos, G)
     bond_offset = avg_len * 0.09
@@ -313,6 +367,12 @@ def draw_molecular_graph(  # noqa: C901
                 zorder=2,
             )
 
+        _bond_color = "#2a2a2a"
+        if edge_colors:
+            _ekey = (min(u, v), max(u, v))
+            if _ekey in edge_colors:
+                _bond_color = edge_colors[_ekey]
+
         _draw_bond_lines(
             ax_g,
             p1,
@@ -322,7 +382,7 @@ def draw_molecular_graph(  # noqa: C901
             aromatic_style=aromatic_style,
             offset=bond_offset,
             lw=_lw,
-            color="#2a2a2a",
+            color=_bond_color,
         )
 
         if show_bond_labels and not aromatic:
@@ -417,22 +477,28 @@ def draw_molecular_graph(  # noqa: C901
             title, fontsize=title_fontsize, fontweight="bold", pad=6, color="#1a1a1a"
         )
 
+    _set_padded_limits(ax_g, pos, avg_len)
     ax_g.set_axis_off()
     ax_g.set_aspect("equal")
 
     # ── optional RDKit panel ──────────────────────────────────────────────
     if include_mol:
         ax_mol.set_axis_off()
-        if mol is not None:
-            _ensure_2d(mol)
+        try:
+            ordered, _ = _ordered_graph_for_layout(G, nodelist)
+            display_mol = _graph_to_layout_mol(ordered)
+        except Exception:
+            display_mol = None
+        if display_mol is not None:
+            _ensure_2d(display_mol)
             try:
                 dopt = Draw.MolDrawOptions()
                 dopt.addAtomIndices = bool(show_indices)
                 img = Draw.MolToImage(
-                    mol, size=(500, 500), kekulize=False, options=dopt
+                    display_mol, size=(500, 500), kekulize=False, options=dopt
                 )
             except Exception:
-                img = Draw.MolToImage(mol, size=(500, 500), kekulize=False)
+                img = Draw.MolToImage(display_mol, size=(500, 500), kekulize=False)
             ax_mol.imshow(img)
         if created_fig:
             fig.tight_layout()

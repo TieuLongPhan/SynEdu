@@ -22,8 +22,8 @@
 
       <div class="synedu-masthead__tools">
         <form class="synedu-search-form" action="{{ pathto('search') }}" method="get" role="search">
-          <i class="md-icon">search</i>
-          <input type="text" name="q" placeholder="Search" aria-label="Search">
+          <i class="md-icon" aria-hidden="true">search</i>
+          <input type="text" name="q" placeholder="Search docs" aria-label="Search documentation">
         </form>
         <button class="synedu-header-icon synedu-theme-toggle" type="button" title="Toggle light or dark mode" aria-label="Toggle light or dark mode">
           <i class="md-icon">brightness_6</i>
@@ -36,7 +36,7 @@
         <a class="synedu-header-icon" href="https://github.com/TieuLongPhan/SynEdu/issues" title="Issues" aria-label="Issues">
           <i class="md-icon">bug_report</i>
         </a>
-        <a class="synedu-header-icon synedu-header-icon--zenodo" href="https://zenodo.org/search?q=SynEdu" title="Zenodo record" aria-label="Zenodo record">
+        <a class="synedu-header-icon synedu-header-icon--zenodo" href="https://doi.org/10.5281/zenodo.20315655" title="Zenodo DOI" aria-label="Zenodo DOI">
           <span aria-hidden="true">Z</span>
         </a>
         <a class="synedu-header-icon" href="mailto:tieu.long.phan@gmail.com" title="Contact by email" aria-label="Contact by email">
@@ -53,10 +53,10 @@
     </p>
 
     <div class="synedu-masthead__nav">
-      <a href="{{ pathto('installing') }}">Getting started</a>
-      <a href="{{ pathto('talktorials/index') }}">Talktorials</a>
-      <a href="{{ pathto('contribute') }}">Contribute</a>
-      <a href="{{ pathto('citation') }}">Citation</a>
+      <a href="{{ pathto('installing') }}" class="{% if pagename == 'installing' %}is-active{% endif %}">Getting started</a>
+      <a href="{{ pathto('talktorials/index') }}" class="{% if pagename.startswith('talktorials/') %}is-active{% endif %}">Talktorials</a>
+      <a href="{{ pathto('contribute') }}" class="{% if pagename == 'contribute' %}is-active{% endif %}">Contribute</a>
+      <a href="{{ pathto('citation') }}" class="{% if pagename == 'citation' %}is-active{% endif %}">Citation</a>
     </div>
   </nav>
 </header>

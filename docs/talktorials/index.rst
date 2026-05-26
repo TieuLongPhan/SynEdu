@@ -54,6 +54,7 @@ See :doc:`all_talktorials` for the complete notebook list with descriptions.
    :hidden:
    :maxdepth: 1
 
+   all_talktorials
    S01
    S02
    S03

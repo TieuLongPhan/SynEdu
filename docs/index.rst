@@ -77,11 +77,11 @@ Software and resources
 Learning path
 -------------
 
-- :ref:`Fundamentals <fundamentals>` · S01-S03 introduce molecular graphs,
+- :doc:`Fundamentals <talktorials/S01>` · S01-S03 introduce molecular graphs,
   graph morphisms, symmetry, substructure search, and MCS.
-- :ref:`Rule library construction <rule-library>` · S04-S07 cover atom mapping,
+- :doc:`Rule library construction <talktorials/S04>` · S04-S07 cover atom mapping,
   ITS graphs, DPO rewriting, canonicalization, and rule library construction.
-- :ref:`Rule application <rule-application>` · S08-S09 apply reaction rules for
+- :doc:`Rule application <talktorials/S08>` · S08-S09 apply reaction rules for
   prediction, retrosynthesis, evaluation, and context expansion.
 
 Project details
@@ -96,7 +96,7 @@ Funding
 
 Citation
    If you use SynEdu in academic work, please cite the project. Citation
-   information is available in :doc:`citation`.
+   information and the Zenodo DOI are available in :doc:`citation`.
 
 Contributing
    Feedback, issue reports, notebook improvements, and documentation fixes are
@@ -106,6 +106,7 @@ Contributing
    :maxdepth: 2
    :hidden:
 
+   whats_new
    api
 
 .. toctree::

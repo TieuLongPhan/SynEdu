@@ -482,8 +482,8 @@ div.highlight{
 .synedu-info-table th{
   background: #edf3f7 !important;
   color: #28303d !important;
-  font-size: 0.82rem;
-  letter-spacing: 0.05em;
+  font-size: 0.76rem;
+  letter-spacing: 0.045em;
   text-transform: uppercase;
   font-weight: 800;
 }
@@ -494,9 +494,9 @@ div.highlight{
 .synedu-info-table td,
 .synedu-info-table th{
   border-color: rgba(40,48,61,0.10) !important;
-  padding: 0.92rem 1rem;
-  font-size: 0.98rem;
-  line-height: 1.58;
+  padding: 0.72rem 0.82rem;
+  font-size: 0.90rem;
+  line-height: 1.48;
   vertical-align: top;
 }
 .synedu-stage-routes tbody tr:nth-child(even),
@@ -513,11 +513,11 @@ div.highlight{
 .synedu-catalog-table td:first-child,
 .synedu-info-table td:first-child{
   color: var(--syn-navy);
-  font-weight: 800;
+  font-weight: 750;
   white-space: nowrap;
 }
 .synedu-catalog-table td:nth-child(2){
-  font-weight: 800;
+  font-weight: 750;
 }
 .md-typeset table:not(.highlighttable){
   border: 1px solid rgba(40,48,61,0.12);
@@ -531,23 +531,36 @@ div.highlight{
 .md-typeset table:not(.highlighttable) th{
   background: #edf3f7 !important;
   color: #28303d !important;
-  font-size: 0.82rem;
-  letter-spacing: 0.05em;
+  font-size: 0.76rem;
+  letter-spacing: 0.045em;
   text-transform: uppercase;
   font-weight: 800;
 }
 .md-typeset table:not(.highlighttable) td,
 .md-typeset table:not(.highlighttable) th{
   border-color: rgba(40,48,61,0.10) !important;
-  padding: 0.92rem 1rem;
-  font-size: 0.98rem;
-  line-height: 1.58;
+  padding: 0.72rem 0.82rem;
+  font-size: 0.90rem;
+  line-height: 1.48;
 }
 .md-typeset table:not(.highlighttable) tbody tr:nth-child(even){
   background: rgba(248,250,252,0.72);
 }
 .md-typeset table:not(.highlighttable) tbody tr:hover{
   background: rgba(1,228,156,0.045);
+}
+.md-typeset li[id^="ref-"]{
+  scroll-margin-top: 5.5rem;
+}
+.md-typeset a[href^="#ref-"]{
+  color: #006f62 !important;
+  font-weight: 750;
+  text-decoration: none !important;
+  border-bottom: 1px solid rgba(0,111,98,0.28);
+}
+.md-typeset a[href^="#ref-"]:hover{
+  color: var(--syn-navy) !important;
+  border-bottom-color: rgba(40,48,61,0.45);
 }
 .md-typeset table.synedu-funding-logos{
   margin: 1.2rem 0 1.35rem;
@@ -576,6 +589,38 @@ div.highlight{
   max-height: 7rem;
   object-fit: contain;
 }
+.nbinput,
+.nboutput,
+.nbinput .input_area,
+.nboutput .output_area,
+.nboutput .output_png,
+.nboutput .output_svg,
+.nboutput .output_html{
+  box-sizing: border-box;
+  max-width: 100%;
+}
+.nbinput,
+.nboutput{
+  overflow-x: auto;
+}
+.nbinput .input_area,
+.nboutput .output_area{
+  border-radius: var(--syn-radius-sm);
+}
+.nbinput pre,
+.nboutput pre,
+.nbinput code,
+.nboutput code{
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.nboutput img,
+.nboutput svg,
+.nbinput img,
+.nbinput svg{
+  max-width: 100%;
+  height: auto;
+}
 @media (max-width: 700px){
   html,
   body,
@@ -584,8 +629,9 @@ div.highlight{
   .md-main__inner,
   .md-content,
   .md-content__inner{
-    width: 100vw !important;
-    max-width: 100vw !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: 100% !important;
     min-width: 0 !important;
     overflow-x: hidden !important;
   }
@@ -610,7 +656,8 @@ div.highlight{
     padding: 1.35rem 1rem 2rem !important;
   }
   .md-typeset{
-    width: calc(100vw - 2rem) !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
     overflow-wrap: break-word;
   }
   .md-typeset p,
@@ -620,13 +667,30 @@ div.highlight{
   .md-typeset h3,
   .md-typeset figure,
   .md-typeset .section{
-    max-width: calc(100vw - 2rem) !important;
+    max-width: 100% !important;
   }
   .md-typeset table:not(.highlighttable){
     display: block;
     width: 100% !important;
     max-width: 100%;
     overflow-x: auto;
+  }
+  .md-typeset div.highlight,
+  .md-typeset pre,
+  .nbinput,
+  .nboutput,
+  .nbinput .input_area,
+  .nboutput .output_area{
+    max-width: 100% !important;
+    overflow-x: auto !important;
+  }
+  .nbinput .prompt,
+  .nboutput .prompt{
+    display: none;
+  }
+  .nbinput .input_area,
+  .nboutput .output_area{
+    margin-left: 0 !important;
   }
   .synedu-masthead__tagline{
     max-width: 100%;
@@ -1034,6 +1098,21 @@ div.highlight{
 .synedu-masthead__nav a:hover{
   color: #FFFFFF !important;
 }
+.synedu-masthead__nav a.is-active{
+  position: relative;
+  color: #FFFFFF !important;
+  font-weight: 800;
+}
+.synedu-masthead__nav a.is-active::after{
+  position: absolute;
+  right: 0;
+  bottom: -0.08rem;
+  left: 0;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--syn-teal);
+  content: "";
+}
 .synedu-masthead__tools{
   display: inline-flex;
   align-items: center;
@@ -1070,6 +1149,10 @@ div.highlight{
 }
 .synedu-search-form input::placeholder{
   color: rgba(255,255,255,0.78);
+}
+.synedu-search-form:focus-within{
+  background: rgba(255,255,255,0.13);
+  box-shadow: inset 0 -2px 0 var(--syn-teal);
 }
 .synedu-header-icon{
   width: 1.8rem;
@@ -1118,6 +1201,46 @@ body[data-synedu-theme="dark"] .synedu-theme-toggle{
 .synedu-mobile-search{
   display: none;
 }
+#search-results{
+  margin-top: 1rem;
+}
+#search-results h2{
+  margin-top: 1.4rem;
+  font-size: 1.1rem;
+}
+#search-results ul.search{
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+#search-results ul.search li{
+  margin: 0 0 0.7rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(40,48,61,0.12);
+  border-radius: var(--syn-radius-sm);
+  background: var(--syn-paper);
+  box-shadow: 0 8px 20px rgba(15,23,42,0.045);
+}
+#search-results ul.search li a{
+  color: var(--syn-navy) !important;
+  font-weight: 900;
+  text-decoration: none !important;
+}
+#search-results ul.search li a:hover{
+  color: var(--syn-teal-2) !important;
+}
+#search-results .context,
+#search-results .highlighted{
+  color: var(--syn-muted);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+#search-results .highlighted{
+  border-radius: 0.25rem;
+  background: rgba(1,228,156,0.16);
+  color: var(--syn-navy);
+  font-weight: 800;
+}
 body[data-synedu-theme="dark"] .md-content,
 body[data-synedu-theme="dark"] .md-content__inner,
 body[data-synedu-theme="dark"] .md-sidebar,
@@ -1139,6 +1262,7 @@ body[data-synedu-theme="dark"] .md-typeset dd{
 body[data-synedu-theme="dark"] .synedu-card,
 body[data-synedu-theme="dark"] .synedu-continue,
 body[data-synedu-theme="dark"] .synedu-page-nav__link,
+body[data-synedu-theme="dark"] #search-results ul.search li,
 body[data-synedu-theme="dark"] div.highlight,
 body[data-synedu-theme="dark"] .synedu-learning-path,
 body[data-synedu-theme="dark"] .synedu-stage-routes,
@@ -1230,6 +1354,13 @@ body[data-synedu-theme="dark"] .synedu-site-footer__links a{
 }
 body[data-synedu-theme="dark"] .synedu-site-footer__links a:hover{
   color: var(--syn-teal) !important;
+}
+body[data-synedu-theme="dark"] #search-results ul.search li a{
+  color: var(--syn-ink) !important;
+}
+body[data-synedu-theme="dark"] #search-results .highlighted{
+  background: rgba(1,228,156,0.16);
+  color: var(--syn-ink);
 }
 body[data-synedu-theme="dark"] .md-sidebar--primary .md-nav__title--site{
   background: var(--syn-paper);

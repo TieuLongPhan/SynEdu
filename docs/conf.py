@@ -110,9 +110,17 @@ language = "en"
 
 exclude_patterns = [
     "_build",
+    "README.md",
     "Thumbs.db",
     ".DS_Store",
     "**.ipynb_checkpoints",
+    "talktorials/S00.nblink",
+    "talktorials/_collections.rst",
+]
+
+suppress_warnings = [
+    "config.cache",
+    "docutils",
 ]
 
 pygments_style = "default"

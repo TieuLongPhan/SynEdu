@@ -1,53 +1,70 @@
-# S03 · Reaction Rules as Graph Rewriting (DPO) — Chemistry-first, ITS-native
-
-<div class="alert alert-block alert-info">
-<b>SynEdu (S03).</b><br>
-This notebook continues S01 (typed molecular graphs & matching) and upgrades from “static graphs” to
-<b>transformations</b>: reaction rules, graph rewriting, and chemistry-flavoured examples (Diels–Alder).
-</div>
-
-<div class="alert alert-block alert-success">
-<b>Aim.</b><br>
-Represent a reaction as a <b>rule</b> and apply it to molecules in a way that is:
-<ul>
-  <li><b>mathematically precise</b> (typed morphisms, DPO rewriting)</li>
-  <li><b>chemistry interpretable</b> (bond breaking/forming, conserved atoms)</li>
-  <li><b>implementation-ready</b> (RDKit ⇄ NetworkX, atom-mapped reaction SMARTS)</li>
-</ul>
-</div>
-
-<div class="alert alert-block alert-warning">
-<b>Key design decision in S03.</b><br>
-For export and comparison we construct an <b>ITS-like change graph</b> <i>directly</i>, then decompose it into
-reactant/product graphs. This makes atom correspondence <b>identity-by-node-id</b> (no extra mapping step).
-</div>
+# S05 : Reaction Rules as Graph Rewriting
 
 
+
+## Aim of this talktorial
+
+This talktorial (**S05**) introduces **Double Pushout (DPO) graph rewriting** as a formal way to turn reaction rules into exact, atom-mapped graph transformations.
+
+The key idea is to represent a reaction rule as a span
+
+$$
+L \xleftarrow{\,l\,} K \xrightarrow{\,r\,} R,
+$$
+
+where $L$ is the pattern before the rewrite, $R$ is the pattern after the rewrite, and $K$ is the conserved interface that glues the transformation together.
+
+Concretely, we focus on:
+
+1. **Rules as spans**  
+   Interpreting $L$, $K$, and $R$ chemically as deleted, preserved, and added structure.
+
+2. **Injective matching and symmetry**  
+   Finding all valid matches $m: L \hookrightarrow G$ in a host molecule and understanding duplicate matches caused by automorphism.
+
+3. **Pushout complement**  
+   Deleting $L \setminus K$ from the host while checking the dangling condition.
+
+4. **Pushout construction**  
+   Gluing $R \setminus K$ onto the preserved context to obtain the rewritten product graph.
+
+5. **Atom mapping from node identity**  
+   Preserving node identities through the rewrite so atom maps arise naturally from the graph transformation.
+
+6. **Inverse application and SynKit tooling**  
+   Applying rules in reverse and comparing the hand-built DPO workflow with `SynReactor`.
+
+---
 
 ## Learning outcomes
 
-By the end of this talktorial you can:
+After completing this talktorial, you will be able to:
 
-1. Write a reaction rule as a **span** \(L \leftarrow K \rightarrow R\) and explain each part chemically.
-2. Formally define a **match** \(m: L \hookrightarrow G\) and enumerate all applications in a host molecule.
-3. Construct an **ITS graph** \(T\) capturing bond changes (pre/post labels) *without first materializing the product*.
-4. Decompose \(T\) back into reactant/product graphs (projection), and export **atom-mapped reaction SMARTS**.
-5. Implement a worked Diels–Alder example and inspect **formed/broken/changed** bonds.
+- write a reaction rule as `L`, `K`, and `R`, and state what is deleted, preserved, and added,
+- find injective rule matches in a host molecule,
+- identify symmetry-related matches and choose canonical representatives,
+- build the **pushout complement** and check the dangling condition,
+- construct the **pushout** product graph, and
+- chain the steps into a single pipeline that produces exact atom maps.
 
-## Roadmap
+---
 
-- **0. Setup** (imports, versions, helpers)
-- **1. Formalism** (typed graphs, morphisms, DPO rewriting, correctness conditions)
-- **2. RDKit ⇄ NetworkX** (typed molecular graphs)
-- **3. DPO kernel** (matching + rewrite) and why chemistry needs *wildcards*
-- **4. ITS-first rewriting** (construct ITS directly; decompose into reactant/product)
-- **5. Export** (atom-mapped reaction SMARTS from ITS)
-- **6. Example**: Diels–Alder (butadiene + ethene → cyclohexene)
-- **7. Exercises**
+## Outline
+
+<ul class="synedu-outline">
+  <li><a href="#0-setup--data">0. Setup &amp; Data</a></li>
+  <li><a href="#1-reaction-rules">1. Reaction rules</a></li>
+  <li><a href="#2-double-pushout-graph-rewriting">2. Double Pushout Graph Rewriting</a></li>
+  <li><a href="#3-synkit">3. SynKit</a></li>
+  <li><a href="#4-quiz">4. Quiz</a></li>
+  <li><a href="#5-discussion">5. Discussion</a></li>
+</ul>
 
 
+## 0. Setup & Data
 
-## Example molecules used in this notebook
+
+**Example molecules used in this notebook**
 
 We will use a classic *pericyclic* transformation:
 
@@ -60,420 +77,709 @@ The point is to demonstrate **bond reorganisation** under a rule-based graph rew
 
 
 
-## 1. Formalism: chemistry as typed graph rewriting
+## 1. Reaction rules
 
-### 1.1 Typed molecular graphs (recap from S01)
+A reaction rule is a **DPO span**
+$$
+L \xleftarrow{\;\ell\;} K \xrightarrow{\;r\;} R,
+$$
+where $L$ is the reacting pattern, $R$ the replacement, and $K$ the preserved
+**context**.
 
-A (heavy-atom) molecule is a **typed graph**
+Chemically:
+$$
+V_K = \text{atoms with conserved identity},
+$$
+$$
+E_L\setminus E_K = \text{bonds broken},\qquad
+E_R\setminus E_K = \text{bonds formed}.
+$$
+Bond-order changes appear as deletion in $L$ and creation in $R$ with endpoints fixed in $K$.
 
-\[
-G = (V_G, E_G, a_G, b_G),
-\]
+Now we will use a classic *pericyclic* transformation:
 
-where:
+- **Diene**: butadiene (SMILES: `C=CC=C`)
+- **Dienophile**: ethene (SMILES: `C=C`)
+- **Product**: cyclohexen(SMILES: `C1C=CCCC1`)
 
-- \(V_G\) = atoms (vertices),
-- \(E_G \subseteq \{\{u,v\}\mid u\neq v\}\) = bonds (undirected edges),
-- \(a_G: V_G \to \Sigma_V\) = **atom typing** (element, charge, aromaticity, chirality, …),
-- \(b_G: E_G \to \Sigma_E\) = **bond typing** (order, aromaticity, ring flag, …).
 
-Chemistry interpretation:
-- vertex labels enforce that carbon maps to carbon, etc.
-- edge labels enforce that a double bond is not confused with a single bond unless you *allow* it.
+**Definition (DPO Reaction Rule / Span).**  
+A *DPO reaction rule* is a pair of injective graph morphisms
 
-### 1.2 Label-preserving morphisms
+$$
+p:\quad L \xleftarrow{\;l\;} K \xrightarrow{\;r\;} R
+$$
 
-A **typed graph morphism** \(\varphi: G \to H\) is a function on vertices
-\(\varphi_V: V_G \to V_H\) such that:
+where $L$, $K$, $R$ are labeled graphs (with node attributes $\mathbf{a}$ and edge attributes $\mathbf{b}$), $l: K \hookrightarrow L$ and $r: K \hookrightarrow R$ are inclusions.
 
-1. **Atom label preservation**  
-\[
-a_H(\varphi_V(v)) = a_G(v)\quad \forall v\in V_G.
-\]
+- $K$ — the *gluing graph* or *interface*: atoms and bonds **preserved** by the reaction  
+- $L \setminus l(K)$ — atoms and bonds **consumed** (deleted) in the left-hand side  
+- $R \setminus r(K)$ — atoms and bonds **produced** (created) in the right-hand side  
 
-2. **Adjacency and bond label preservation**  
-For every \(\{u,v\}\in E_G\),
-\[
-\{\varphi_V(u),\varphi_V(v)\}\in E_H
-\quad\text{and}\quad
-b_H(\{\varphi_V(u),\varphi_V(v)\}) = b_G(\{u,v\}).
-\]
+**Definition (Pattern Match).**  
+A *match* of rule $p$ in a host graph $G$ is an injective graph morphism $m: L \hookrightarrow G$ that is *label-preserving*. A match is *valid* if it satisfies the **dangling condition**: no edge $e \in E(G)$ is incident to a deleted node $m(v)$, $v \in V(L) \setminus V(K)$, without also being in $m(E(L))$.
 
-In practice we often restrict to **injective** morphisms (embeddings), written
-\[
-m: G \hookrightarrow H,
-\]
-which is what NetworkX returns in subgraph matching.
+**Definition (DPO Rewriting Step).**  
+Given a valid match $m: L \hookrightarrow G$, the *DPO rewriting step* $G \Rightarrow_p H$ produces the result graph $H$ by the double pushout construction:
 
-### 1.3 Reaction rules as spans \(L \leftarrow K \rightarrow R\)
+$$
+L \xleftarrow{l} K \xrightarrow{r} R
+\quad\Big\Updownarrow\quad
+G \xleftarrow{m} D \xrightarrow{} H
+$$
 
-A reaction rule is encoded by three typed graphs:
-
-- \(L\) (**left**) — the pattern to be found in a reactant
-- \(R\) (**right**) — what replaces it in the product
-- \(K\) (**context/interface**) — what is preserved (the “atom identity backbone”)
-
-Formally a DPO rule is a span of morphisms
-
-\[
-L \xleftarrow{\ell} K \xrightarrow{r} R,
-\]
-
-where \(\ell\) and \(r\) embed \(K\) into \(L\) and \(R\).
-
-Chemistry interpretation:
-- \(V_K\) are the atoms that keep their identities through the reaction (the “mapped atoms”).
-- \(E_L \setminus E_K\): bonds that must be **broken** (or bond types that must disappear).
-- \(E_R \setminus E_K\): bonds that must be **formed**.
-
-A bond **order change** is naturally represented by
-- old bond in \(L\) but not in \(K\),
-- new bond in \(R\) but not in \(K\),
-while the endpoints remain in \(K\).
-
-### 1.4 Where can a rule apply? matches \(m: L \hookrightarrow G\)
-
-Given a reactant molecule graph \(G\), a match is an injective morphism
-
-\[
-m: L \hookrightarrow G.
-\]
-
-Chemically: “find a substructure in the reactant that looks like the reacting pattern”.
-
-NetworkX’s `GraphMatcher(G, L).subgraph_isomorphisms_iter()` enumerates all such matches.
-
-### 1.5 Correctness conditions you should care about (chemistry view)
-
-DPO rewriting is “correct” when two constraints hold (informally):
-
-1. **Dangling condition** (no half-bonds):  
-if you delete an atom (node), you must also delete all incident bonds.  
-Chemistry: you cannot leave a bond to a missing atom.
-
-2. **Identification condition** (don’t accidentally merge distinct atoms):  
-the match must not identify two different pattern atoms onto the same host atom.  
-Chemistry: two atoms in the reacting pattern cannot map to one atom in the molecule.
-
-In this notebook we focus on the common chemistry case: **atom-conserving rules**
-(\(V_L = V_K = V_R\)) and only **bond changes**.
+where $D = G \setminus m(L \setminus K)$ is the *pushout complement* (host minus deleted items) and $H$ is obtained by gluing $R$ to $D$ along $K$.
 
 
 
-### 1.6 The categorical DPO diagram (what “double pushout” means)
-
-In category language, rewriting is defined by two pushouts:
-
-\[
-\require{AMScd}
-\begin{CD}
-K @>{r}>> R \\
-@V{\ell}VV @VVV \\
-L @>>> D
-\end{CD}
-\qquad
-\begin{CD}
-L @>{m}>> G \\
-@VVV @VVV \\
-D @>>> H
-\end{CD}
-\]
-
-- The first square constructs the **pushout complement** \(D\): it “removes” \(L\setminus K\) from \(G\) (subject to the dangling condition).
-- The second square glues in \(R\setminus K\) to produce the product \(H\).
-
-**Chemistry translation**
-- \(K\) are the mapped atoms.
-- \(L\setminus K\) are deleted atoms/bonds (leaving groups, bond cleavage).
-- \(R\setminus K\) are created atoms/bonds (new substituents, bond formation).
-
-In this notebook we implement the same effect algorithmically (delete-then-add), and additionally
-construct an ITS graph that records the pre/post state in one object.
+<figure style="text-align: center;">
+  <img src="../../docs/_static/S05/diels_alder_dpo.svg"
+       alt="DPO span anatomy — Diels–Alder"
+       style="width: 100%; max-width: 900px;">
+  <figcaption>
+    <b>Figure 1.</b> DPO span for the Diels&#x2013;Alder reaction: rule span
+    <i>L</i> &larr;<sup><i>l</i></sup> <i>K</i> &rarr;<sup><i>r</i></sup> <i>R</i> (top)
+    and its application
+    <i>G</i> &larr;<sup><i>g</i></sup> <i>D</i> &rarr;<sup><i>h</i></sup> <i>H</i> (bottom).
+    Red bonds are broken; green bonds are formed; grey nodes/bonds are preserved context.
+  </figcaption>
+</figure>
 
 
+## 2. Double Pushout Graph Rewriting
 
-### 1.7 Practical correctness checks (what to verify in code)
+Two categorical pushouts compactly encode the familiar chemical workflow **delete → add** (remove broken bonds / atoms, then glue in the new fragment). The usual DPO diagram is:
 
-When you implement rules in practice, you usually want to validate:
+$$
+\begin{array}{ccccc}
+\displaystyle L & \xleftarrow{\;\ell\;} & \displaystyle K & \xrightarrow{\;r\;} & \displaystyle R \\[10pt]
+\displaystyle \downarrow^{m} & & \displaystyle \downarrow^{m'} & & \displaystyle \downarrow^{m''} \\[10pt]
+\displaystyle G & \xleftarrow{\;g\;} & \displaystyle D & \xrightarrow{\;h\;} & \displaystyle H
+\end{array}
+$$
 
-1. **Interface consistency:** \(K\) must embed into both \(L\) and \(R\).  
-   (Here we enforce this by using shared node ids for \(K\) inside \(L\) and \(R\).)
-
-2. **Dangling condition (node deletion):** if a host atom is deleted, it must not have bonds to atoms outside the matched subgraph.
-
-3. **Typing consistency:** labels used in `node_match`/`edge_match` must be consistent across RDKit graphs and rule graphs.
-
-We will implement (2) as an optional filter for matches (useful for leaving group rules).
-
-
-
-## 2. RDKit ⇄ NetworkX: typed molecular graphs
-
-We reuse the S01 “typed molecular graph” representation.
-
-**Node attributes** (atoms):
-- `symbol`, `formal_charge`, `aromatic`, `chiral_tag`
-- optionally `total_h`
-
-**Edge attributes** (bonds):
-- `order` (1/2/3), `aromatic`, `in_ring`
-
-This is enough for most pedagogical examples.
+- $L$ — **left-hand side** (pattern to match: atoms/bonds that may be deleted or preserved).  
+- $R$ — **right-hand side** (pattern to be inserted).  
+- $K$ — **interface / context** (the part preserved during the rewrite: $K\subseteq L,R$).  
+- $m$ — the **match** $L\hookrightarrow G$ (where the rule is found inside the host graph $G$).  
+- $D$ — the **pushout complement** (result of deleting $L\setminus K$ from $G$).  
+- $H$ — the **product graph** after the rewrite.
 
 
+**Chemical intuition**
 
-## 3. DPO rewriting kernel (chemistry-friendly)
+1. find the pattern $L$ in molecule $G$ (this chooses *where* the chemistry happens);  
+2. remove the atoms/bonds that should disappear (everything in $L\setminus K$) — this is the **deletion** step;  
+3. attach the new fragment $R\setminus K$ to the remaining context $K$ — this is the **addition** step;  
+4. the result $H$ is the new molecule after the transformation.
 
-### 3.1 Why chemistry rules need wildcards
 
-A “reaction rule” almost never wants to pin down *every* atom attribute.
-Examples:
-- a Diels–Alder rule wants “carbon, non-aromatic”, but usually not fixed `chiral_tag`.
-- generic rules often allow any `formal_charge` on spectator atoms.
-- aromaticity handling depends on the representation (Kekulé vs aromatic bonds).
+**Formal constraints**
 
-So we use **pattern-side wildcards**:
-- if an attribute is missing in the pattern, we ignore it;
-- if present but `None`, we also ignore it;
-- otherwise we require equality.
+1. *Injective match*
+The mapping $m:L\hookrightarrow G$ must be **injective** (no two distinct nodes in $L$ map to the same node of $G$). This prevents unwanted atom merging.
 
-This corresponds to defining a compatibility predicate
-\(\Phi_V(d_G, d_L)\) and \(\Phi_E(d_G, d_L)\).
+2. *Dangling condition (no half-bonds)*
+If a node of $G$ is removed, we must not leave an edge with only one endpoint. Formally:
+
+$$ 
+   \forall\ \{x,y\}\in E(G):\qquad \big(x\in S\big)\Longrightarrow\big(y\in S\big).
+   $$
+
+   or, symmetrically,
+   $$
+   E(G)\cap\bigl(S\times (V(G)\setminus S)\bigr)=\varnothing.
+   $$
+
+Equivalently: every edge adjacent to a deleted node must also be deleted (i.e., both endpoints are deleted), otherwise you would create a dangling (half) bond.
+
+3. *Chemical sanity after rewrite*
+After forming $H$ check chemical invariants you care about (valence bounds, formal charge consistency, stereochemistry handling, etc.). These are *domain-specific* checks not enforced by the abstract DPO construction.
 
 
 
-### 3.2 Matches in NetworkX: beware mapping direction
 
-If you build:
+Now we try with Diels Alder reaction as an example
+
+
+### 2.1. Pattern matching (where a rule applies)
+
+A reaction rule is given as a span
+$$
+p := \bigl( L \xleftarrow{\;\ell\;} K \xrightarrow{\;r\;} R \bigr),
+$$
+where $L$ is the reactant pattern, $R$ the product pattern, and $K$ the
+interface of conserved atoms.
+
+Given a host (reactant) molecular graph $G$, the rule applies at any
+**injective match**
+$$
+m : L \hookrightarrow G,
+$$
+that is, a labeled subgraph monomorphism embedding the reaction pattern $L$
+into the host graph $G$ and thereby identifying the reaction center.
+
+
+
+**Q1 — Pattern match**
+
+Implement `find_pattern_match(G, L)` using `node_match`, `edge_match`, `_automorphisms`; enumerate all injective embeddings $m: L \hookrightarrow G$ and yield one canonical representative per `Aut(L)` orbit, then run on the given `L`/`G`.
+
+---
+
+<details> <summary><b>Solution:</b></summary>
 
 ```python
-GM = GraphMatcher(G, L)
+def find_pattern_match(G: nx.Graph, L: nx.Graph) -> Iterable[Dict[Any, Any]]:
+    """Yield one representative per Aut(L)-orbit of subgraph monomorphisms L -> G."""
+    # automorphisms of L (L -> L)
+    auts = list(iso.GraphMatcher(L, L, node_match=node_match, edge_match=edge_match).isomorphisms_iter())
+    L_nodes = tuple(sorted(L.nodes()))
+    seen: Set[Tuple[Any, ...]] = set()
+
+    # find embeddings (G -> L -> invert to L -> G)
+    GM = iso.GraphMatcher(G, L, node_match=lambda Gd, Ld: node_match(Ld, Gd),
+                                  edge_match=lambda Gd, Ld: edge_match(Ld, Gd))
+    for m_G_to_L in GM.subgraph_isomorphisms_iter():
+        m = {l: g for g, l in m_G_to_L.items()}  # L -> G
+        key = min((tuple(m[a[n]] for n in L_nodes) for a in auts), default=tuple(m[n] for n in L_nodes))
+        if key in seen:
+            continue
+        seen.add(key)
+        yield m
+
+maps  = find_pattern_match(G, L)
+for i in maps:
+    print(i)
+```
+Output
+```text
+{5: 6, 6: 7, 2: 3, 3: 4, 4: 5, 1: 2}
 ```
 
-then `subgraph_isomorphisms_iter()` yields dictionaries mapping
-
-\[
-V(G)\to V(L)
-\]
-
-i.e. **host node → pattern node**.
-
-For rewriting we want **pattern node → host node**, so we invert each mapping.
-
-
-
-## 4. ITS-first rewriting (DPO-like)
-
-### 4.1 What is an ITS graph here?
-
-We define an ITS-like graph \(T\) that stores **both** pre- and post- bond types
-on the *same atom identities*.
-
-- Nodes represent atom identities (plus possibly created/deleted atoms).
-- Each edge carries a pair:
-  \[
-  (b_{\text{pre}}, b_{\text{post}}),
-  \]
-  where \(b=0\) means “no bond”.
-
-Chemistry reading:
-- formed bond: \(0 \to 1\) (or \(0\to 2\))
-- broken bond: \(1 \to 0\) (or \(2\to 0\))
-- order change: \(1 \to 2\) etc.
-
-### 4.2 Why construct ITS directly?
-
-If you construct a product graph first, you must still maintain an atom mapping.
-In DPO, the “identity backbone” is precisely \(K\), so the natural carrier object is:
-
-> **the change graph** on conserved identities, plus any created/deleted identities.
-
-By building ITS directly, the mapping is trivial:
-- reactant atom \(v\) maps to product atom \(v\) **by node id**.
-
-This makes export to atom-mapped SMARTS clean and deterministic.
-
-
-
-## 5. Export: atom-mapped reaction SMARTS (ITS-native)
-
-### 5.1 DPO-like “identity = node id”
-
-Because we build ITS \(T\) on conserved identities, a node \(v\) refers to:
-
-- the same atom in the reactant graph \(\pi_{\text{pre}}(T)\),
-- the same atom in the product graph \(\pi_{\text{post}}(T)\),
-
-whenever \(v\) is present in both (`present_pre=True` and `present_post=True`).
-
-So atom mapping becomes **identity-by-node-id**:
-\[
-\text{map}(v) := v+1.
-\]
-
-New atoms (if created) naturally get fresh ids \(> \max(V_G)\), therefore also fresh map numbers.
-
-### 5.2 Implementation
-
-We:
-1. project ITS → reactant graph \(G\) and product graph \(H\),
-2. convert each graph to RDKit Mol,
-3. set atom maps by graph node id,
-4. export `MolToSmarts(reactant)>>MolToSmarts(product)`.
-
-This avoids any post-hoc “mapping inference”.
-
-
-
-### 5.3 Practical detail: RDKit atom reordering vs. mapping stability
-
-RDKit may reorder atoms internally during sanitization or SMILES/SMARTS generation.
-That is **not a problem** as long as:
-
-- each atom carries its `AtomMapNum`,
-- the same identity uses the same map number on both sides.
-
-Because we set `map = node_id + 1` after converting from graphs, the mapping remains stable even if RDKit
-chooses a different atom ordering for the final SMARTS string.
-
-
-
-## 6. Worked example: Diels–Alder as a DPO rule
-
-### 6.1 Chemistry view
-
-Diels–Alder (4+2 cycloaddition) is a **concerted** pericyclic reaction:
-
-- two \(\pi\) bonds disappear,
-- two new \(\sigma\) bonds appear,
-- one \(\pi\) bond remains in the cyclohexene product.
-
-We encode this as a bond-rewriting rule that conserves all 6 carbon atoms:
-
-- \(V_L = V_K = V_R\) (atom-conserving)
-- only edges/bond orders change
-
-This is the “cleanest” DPO case, and ideal for educational purposes.
-
-
-
-### 6.2 Apply rule → ITS → (reactant, product) → mapped SMARTS
-
-We:
-- convert RDKit reactant mixture to a typed graph \(G\),
-- apply the rule to get ITS graphs \(T\),
-- decompose the first ITS to reactant/product,
-- export mapped reaction SMARTS.
-
-
-
-**Sanity check:** Diels–Alder is atom-conserving (no node deletion), so the dangling condition is trivially satisfied.
-For leaving-group rules, `strict_dangling=True` helps prevent chemically nonsensical deletions that cut bonds outside the matched substructure.
-
-
-### 6.3 Inspect the ITS: formed / broken / changed bonds
-
-For each ITS edge \(uv\), we look at \((\text{pre\_order}, \text{post\_order})\).
-
-- formed: \(0 \to >0\)
-- broken: \(>0 \to 0\)
-- order change: \(>0 \to >0\) but different
-
-
-
-### 6.3b A compact ITS “transition fingerprint”
-
-A very lightweight mapping-free reaction descriptor is the multiset of bond transitions:
-
-\[
-\{(b_{\text{pre}}, b_{\text{post}})\}_{uv\in E(T)}.
-\]
-
-For example:
-- many \(2\to 1\) transitions indicate \(\pi\)-bonds turning into \(\sigma\)-bonds,
-- \(0\to 1\) counts are bond formations,
-- \(1\to 0\) counts are bond breakages.
-
-This is not as expressive as full ITS isomorphism, but it is cheap and often useful for clustering/filtering.
-
-
-
-Chemistry check (Diels–Alder expectation):
-
-- **broken**: the dienophile double bond \(e=f\) becomes single (often represented as an order change),
-  and one diene double bond changes.
-- **formed**: two new C–C \(\sigma\) bonds close the ring.
-
-Because our minimal rule encodes “remove old double bonds, add new single bonds”, you should see:
-- two **formed** edges,
-- and **order_change** edges accounting for \(\pi\to\sigma\) shifts.
-
-
-
-### 6.4 Verify projections: ITS → reactant graph and product graph
-
-We can reconstruct RDKit molecules from the projected graphs and compare SMILES.
-
-
-
-## 7. Technical notes (what you will want in real chemistry pipelines)
-
-### 7.1 Aromaticity and Kekulé form
-RDKit may represent aromatic systems with aromatic bonds (`BondType.AROMATIC`) or Kekulé double/single.
-A rule library must decide on one representation:
-- either match on `aromatic=True` bonds/nodes,
-- or kekulize all molecules before rewriting.
-
-### 7.2 Stereochemistry (endo/exo, R/S)
-Pericyclic reactions have stereochemical outcomes. Encoding this requires:
-- stereo atom attributes (chiral tags),
-- double bond stereo (E/Z),
-- and rule-side constraints (not just plain graph rewriting).
-
-### 7.3 Atom addition/deletion (leaving groups, proton transfers)
-Many reactions are not atom-conserving in the heavy-atom graph, especially if you omit spectators.
-The ITS design here supports this via:
-- `present_pre`, `present_post` on nodes,
-- `pre_order=0` or `post_order=0` on edges.
-
-### 7.4 Multiple matches and automorphisms
-Symmetric patterns lead to multiple subgraph isomorphisms.
-For chemistry, you often want **unique products**:
-- we deduplicate ITS graphs by isomorphism on `(pre,post)` edge labels.
-
-
-
-## 8. Exercises
-
-Try these without changing the core kernels.
-
-### Exercise 1 — Diels–Alder variants
-Change the Diels–Alder rule so that the remaining double bond is **a–b** instead of **b–c**.
-- How do the ITS “order_change” edges differ?
-- Does RDKit sanitize the product?
-
-### Exercise 2 — Add a wildcard
-Modify matching keys so that the rule matches carbon atoms regardless of `formal_charge`.
-(Hint: omit `formal_charge` from `node_keys`.)
-
-### Exercise 3 — Build a tiny rule for “halogen substitution”
-Encode a rule that replaces `C–Cl` with `C–O` (as in your earlier example) and export mapped SMARTS via ITS.
-- Verify the mapping is identity-by-node-id for conserved atoms.
-
-
-
-<details>
-<summary><b>Solutions (sketch)</b></summary>
-
-**Ex1.** In `diels_alder_rule_minimal`, change which edge in `R` is double.
-You must also ensure the corresponding edges in `L` that should disappear are present (and not in `K`).
-
-**Ex2.** Call:
-
-```python
-Ts = apply_rule_to_its(G, rule_da, node_keys=("symbol","aromatic"), edge_keys=("order","aromatic"))
-```
-
-**Ex3.** Use \(K\) with the carbon node only; in ITS, carbon keeps its node id so map numbers are consistent.
+- `raw` lists all injective embeddings (here: **4** raw maps).  
+- **Do not** quotient by the full `Aut(L)` when `L` is disconnected — that mixes symmetries across fragments and over-collapses distinct placements.  
+- **Fix (generic):** choose **one anchor component** (e.g. largest or explicit `anchor_nodes`) and **do not** quotient that component; quotient only the other components by their own `Aut`.  
+- Use a component-aware matcher (e.g. `find_pattern_match_components(anchor="largest")`).  
+- With this policy your example yields **2** canonical maps (diene orientations kept distinct, ethene deduped) instead of 1.
 
 </details>
+
+
+#### Pattern match gallery — all valid matches of $L$ in $G$
+
+We enumerate all injective matches $m: L \hookrightarrow G$ and display each one,
+highlighting the matched subgraph in $G$. Orbit-deduplication then collapses
+symmetry-equivalent matches.
+
+
+### 2.2. Pushout Complement
+
+Given graphs $L$, $K \subseteq L$, a host graph $G$, and an injective match
+$$
+m : L \hookrightarrow G,
+$$
+the **pushout complement** is
+$$
+D = G \setminus m(L \setminus K),
+$$
+if it exists.
+
+**Deletion**
+$$
+V_{\text{del}} = m\!\left(V(L)\setminus V(K)\right), \qquad
+E_{\text{del}} = \{\, e=\{u,v\}\in E(G)\mid u\in V_{\text{del}} \ \text{or}\ v\in V_{\text{del}} \,\}.
+$$
+$$
+D = \bigl(V(G)\setminus V_{\text{del}},\; E(G)\setminus E_{\text{del}}\bigr),
+$$
+with all attributes and node IDs inherited from \(G\).
+
+**Dangling condition**
+$$
+\forall\, \{u,v\}\in E(G):\quad
+u\in V_{\text{del}} \Rightarrow v\in V_{\text{del}}.
+$$
+
+**Interface map**
+$$
+m' : K \hookrightarrow D, \qquad m'(v)=m(v)\ \ \forall v\in V(K).
+$$
+
+
+
+
+#### Example — Dangling condition
+
+Consider a **molecular graph** (ethanol):
+
+$$
+G:\quad \mathrm{C_1{-}C_2{-}O_3}
+$$
+
+Edges:
+$$
+E(G)=\{\{C_1,C_2\},\{C_2,O_3\}\}
+$$
+
+---
+
+#### Invalid pushout complement (dangling)
+
+Let
+$$
+L = \{C_2\}, \qquad K=\varnothing,
+$$
+with injective match
+$$
+m(C_2)=C_2.
+$$
+
+Then
+$$
+V_{\text{del}}=\{C_2\}.
+$$
+
+But in $G$:
+$$
+\{C_2,O_3\}\in E(G),\quad
+C_2\in V_{\text{del}},\; O_3\notin V_{\text{del}}.
+$$
+
+This would leave a **dangling bond** at $O_3$.
+
+❌ **Dangling condition violated → no pushout complement.**
+
+---
+
+#### Valid pushout complement (corrected)
+
+Consider the ethanol host graph
+$$
+G:\quad \mathrm{C_1{-}C_2{-}O_3}.
+$$
+
+Let the rule delete the **entire molecule**:
+$$
+L=\{C_1,C_2,O_3\}, \qquad K=\varnothing,
+$$
+with injective match
+$$
+m(C_1)=C_1,\; m(C_2)=C_2,\; m(O_3)=O_3.
+$$
+
+Then
+$$
+V_{\text{del}}=\{C_1,C_2,O_3\}.
+$$
+
+Every edge of \(G\) is incident to deleted nodes and is contained in \(m(E(L))\),
+so no half-edges are created.
+
+Remaining graph:
+$$
+D=\varnothing.
+$$
+
+✅ **Dangling condition satisfied.**
+
+
+
+
+**Q2 — Dangling condition**
+
+Implement `violates_dangling(G, L, K, m)` to verify whether a given match `m : L -> G`
+violates the DPO dangling condition (i.e. some edge in `G` is incident to a deleted node
+but is not deleted as part of `L \ K`).
+
+---
+
+<details> <summary><b>Solution</b></summary>
+
+```python
+import networkx as nx
+from typing import Dict, Hashable, Set, FrozenSet
+
+def violates_dangling(
+    G: nx.Graph,
+    L: nx.Graph,
+    K: nx.Graph,
+    m: Dict[Hashable, Hashable],  # L.node -> G.node
+) -> bool:
+    
+    # basic sanity checks
+    if not set(K.nodes).issubset(set(L.nodes)):
+        raise ValueError("K must be a subgraph of L (K.nodes ⊆ L.nodes).")
+    if set(m.keys()) != set(L.nodes) and not set(L.nodes).issubset(set(m.keys())):
+        # allow m to be defined on a superset but require mapping for all L.nodes
+        raise ValueError("Mapping m must provide an image for every node in L.")
+    if len(set(m[v] for v in L.nodes)) != len(list(L.nodes)):
+        raise ValueError("Mapping m must be injective on L.nodes.")
+
+    # nodes to be deleted: image of L \ K
+    V_del: Set[Hashable] = {m[v] for v in L.nodes if v not in K.nodes}
+
+    # edges to be deleted: image of edges in L that are not fully contained in K
+    E_del: Set[FrozenSet[Hashable]] = set()
+    for u, v in L.edges:
+        # if at least one endpoint lies in L\K, that L-edge will be removed
+        if (u not in K.nodes) or (v not in K.nodes):
+            E_del.add(frozenset({m[u], m[v]}))
+
+    # check every edge in G: if it touches a deleted node it must be in E_del
+    for u, v in G.edges:
+        e = frozenset({u, v})
+        if (u in V_del) or (v in V_del):
+            if e not in E_del:
+                return True
+    return False
+
+
+# 1) Invalid: delete only middle carbon -> dangling at O3
+L1 = nx.Graph()
+L1.add_node("c2")
+K1 = nx.Graph()  # empty
+m1 = {"c2": 2}
+print("case1 (delete c2 only) ->", violates_dangling(G, L1, K1, m1))  # True
+
+# 2) Invalid: delete c2 + o3 but L does NOT include edge {c1,c2} -> dangling at C1
+L2 = nx.Graph()
+L2.add_nodes_from(["c2", "o3"])
+L2.add_edge("c2", "o3")
+K2 = nx.Graph()  # empty
+m2 = {"c2": 2, "o3": 3}
+print("case2 (delete c2+o3 but L misses c1-c2) ->", violates_dangling(G, L2, K2, m2))  # True
+
+# 3) Valid substitution: delete O3 (leaving group), preserve C1-C2 backbone
+L3 = nx.Graph()
+L3.add_nodes_from(["c1", "c2", "o3"])
+L3.add_edges_from([("c1", "c2"), ("c2", "o3")])
+K3 = nx.Graph()
+K3.add_nodes_from(["c1", "c2"])
+K3.add_edge("c1", "c2")
+m3 = {"c1": 1, "c2": 2, "o3": 3}
+print("case3 (substitution C-C-O -> C-C-? ) ->", violates_dangling(G, L3, K3, m3))  # False
+```
+
+</details>
+
+
+Now we have 2 `D` since we have 2 maps
+
+
+#### Pushout complement: $G \to D$ (deletion step)
+
+$D$ is obtained by removing the atoms/bonds in $L \setminus K$ from $G$.
+The highlighted region in $G$ shows which nodes/edges are matched and will be deleted.
+
+
+### 2.3 Pushout
+
+Now we have $D$ and $m'$ (or $m_K$); with interface $K$ and right pattern $R$, we construct the pushout $H$
+
+
+$$
+  V(H)=V(D)\;\cup\;\bigl(V(R)\setminus V(K)\bigr)\ /\ \{\,x\sim m'(x)\ (x\in K)\,\},
+  $$
+  $$
+  E(H)=E(D)\;\cup\;m''\bigl(E(R)\bigr),
+$$
+where $m'':V(R)\to V(H)$ maps $x\mapsto m_K(x)$ for $x\in K$ and sends $x\in V(R)\setminus V(K)$ to fresh copies in $H$.
+
+
+
+
+#### Pushout step by step
+
+DPO rewriting proceeds in two stages:
+
+1. **Pushout complement** $D = G \setminus m(L \setminus K)$ — remove the matched atoms/bonds that belong to $L$ but not $K$ (orange region).
+2. **Pushout** $H = D \cup_K R$ — glue $R$ onto $D$ along the interface $K$.
+
+Each panel below corresponds to one stage for match 1 of the Diels-Alder rule.
+
+
+**Q3 — Implicit hydrogen**
+
+Convert explicit hydrogen nodes into an integer `hcount` attribute on their bonded heavy atom.
+Robust, configurable, and returns a new graph (or mutates in-place).
+
+---
+
+<details> <summary><b>Solution</b></summary>
+
+```python
+import networkx as nx
+def h_to_implicit(G: nx.Graph) -> nx.Graph:
+    """Convert explicit hydrogen atoms to implicit counts on heavy atoms.
+
+    For each hydrogen atom ('element' == 'H'), its neighbor (assumed to be a heavy atom)
+    will have its 'hcount' attribute incremented. The hydrogen nodes are then removed.
+
+    Parameters
+    ----------
+    G : nx.Graph
+        Input graph with explicit hydrogen atoms as nodes (element='H').
+        Heavy atoms must have 'element' and optionally 'hcount' attributes.
+
+    Returns
+    -------
+    nx.Graph
+        A copy of the original graph with hydrogen atoms removed and their counts
+        added to the corresponding heavy atoms' 'hcount' attribute.
+    """
+    H2 = G.copy()
+    h_nodes = [n for n, d in H2.nodes(data=True) if d.get("element") == "H"]
+
+    for h in h_nodes:
+        neighbors = list(H2.neighbors(h))
+        for heavy in neighbors:
+            if H2.nodes[heavy].get("element") != "H":
+                H2.nodes[heavy]["hcount"] = H2.nodes[heavy].get("hcount", 0) + 1
+        H2.remove_node(h)
+
+    return H2
+
+```
+
+</details>
+
+
+Now we make it into 1 pipeline now
+
+
+How do we obtain **atom maps** for the generated reactions?
+
+In DPO rewriting we explicitly construct the transformation
+$$
+G \;\longrightarrow\; H,
+$$
+rather than inferring correspondence post hoc.
+
+**Key observation**
+
+- Nodes of the host graph \(G\) that are **preserved** through the
+  pushout complement and pushout remain the *same graph nodes* in \(H\).
+- Therefore, **node indices are preserved along the rewrite**.
+
+**Consequence**
+
+We can directly use the node index as the atom-map number:
+$$
+\texttt{atom\_map}(v) \;=\; \texttt{node\_id}(v),
+\qquad v \in V(H).
+$$
+
+
+**Q4 — Inverse rule application**
+
+Given an input SMILES `CC1C=CCCC1C=O`, can we apply the **inverse** of the above rule?
+
+---
+
+<details> <summary><b>Solution</b></summary>
+
+Yes.  
+In DPO rewriting, a rule
+$$
+p:\quad L \xleftarrow{} K \xrightarrow{} R
+$$
+is inverted simply by **swapping $L$ and $R$**. The same categorical
+construction (match → pushout complement → pushout) applies.
+
+
+```python
+
+def dpo_rule_apply(smiles, rule, use_aam=True, inverse = False):
+
+    # 0. Parse input
+    G = smiles_to_graph(smiles)
+    
+    if inverse:
+        R, L = rsmi_to_graph(rule)
+    else:
+        L, R = rsmi_to_graph(rule)
+
+    # 1. Find matches m : L -> G
+    matches = list(find_pattern_match_components(host=G, pattern=L))
+    if not matches:
+        return []
+
+    # 2. Pushout complements
+    Ds = []
+    mks = []
+    for m in matches:
+        try:
+            D, mk = pushout_complement(L, K, G, m)
+        except ValueError:
+            # dangling condition or invalid match
+            continue
+        Ds.append(D)
+        mks.append(mk)
+
+    if not Ds:
+        return []
+
+    # 3. Pushouts
+    Hs = []
+    for D, mk in zip(Ds, mks):
+        try:
+            H, _ = pushout(R, K, D, mk)
+        except ValueError:
+            continue
+        Hs.append(h_to_implicit(H))
+
+    if not Hs:
+        return []
+
+    if use_aam:
+        G = set_atom_map_from_node_index(G)
+        smiles = graph_to_smi(G)
+        Hs = [set_atom_map_from_node_index(i) for i in Hs]
+    # 4. Convert to SMILES (single evaluation, deduplicated)
+    out_smi = {
+        smi
+        for H in Hs
+        if (smi := graph_to_smi(H)) is not None
+    }
+
+    return [f"{smiles}>>{smi}" for smi in out_smi]
+
+```
+
+</details>
+
+
+## 3. SynKit
+
+Instead of implementing the full DPO pipeline manually, we can directly use
+`SynReactor` from **SynKit**, which natively supports DPO rewriting with
+implicit hydrogens.
+
+
+### Forward vs inverse rule application
+
+The same DPO span $L \xleftarrow{l} K \xrightarrow{r} R$ works in both directions:
+- **Forward**: Diels–Alder cyclization (diene + dienophile → cyclohexene)
+- **Inverse**: retrosynthetic disconnection (cyclohexene → diene + dienophile)
+
+Swapping $L$ and $R$ is all it takes.
+
+
+## 4. Quiz
+
+Answer the following questions using **formal DPO graph-rewriting terminology**.
+
+---
+
+### 1. The Dangling Condition
+
+A match $m: L \hookrightarrow G$ *violates the dangling condition* when an edge $e \in E(G)$ is incident to a to-be-deleted node $m(v)$, $v \in V(L) \setminus V(K)$, but $e \notin m(E(L))$.
+
+- **a)** Give a chemical example where the dangling condition is violated. What happens to the substrate graph if we ignore it?
+- **b)** Describe two strategies for handling dangling edges. Which does SynReactor use, and why?
+
+---
+
+### 2. DPO Uniqueness
+
+Given a valid match $m: L \hookrightarrow G$, is the pushout complement $D$ always unique up to isomorphism?
+
+- State the precise mathematical condition guaranteeing uniqueness.
+- Can two *different* valid matches $m_1 \neq m_2$ yield isomorphic products $H_1 \cong H_2$? Give a chemical example involving a symmetric substrate.
+
+---
+
+### 3. Inverse Rules and Retrosynthesis
+
+The *inverse* of a DPO rule $p: L \xleftarrow{\,l\,} K \xrightarrow{\,r\,} R$ is $p^{-1}: R \xleftarrow{\,r\,} K \xrightarrow{\,l\,} L$.
+
+- **a)** Implement `invert_rule(L, K, R) -> (R, K, L)` in one line.
+- **b)** Show that applying the Diels–Alder rule in inverse mode corresponds to the retrosynthetic disconnection of the cyclohexene ring.
+- **c)** Does the dangling condition still apply to $p^{-1}$? Is there an additional condition?
+
+<details>
+<summary><b>Hint</b></summary>
+
+The inverse rule deletes the bonds $R \setminus K$ and creates bonds $L \setminus K$.  
+The dangling condition for $p^{-1}$ is checked in $G$ (the product) the same way as for $p$.
+</details>
+
+---
+
+### 4. Rule Composition
+
+Two rules $p_1: L_1 \leftarrow K_1 \rightarrow R_1$ and $p_2: L_2 \leftarrow K_2 \rightarrow R_2$ can be composed when there exists an injective morphism $R_1 \hookrightarrow L_2$ that is compatible with the $K$-embedding.
+
+- **a)** When is the composed rule well-defined (no orphan nodes)?
+- **b)** Describe chemically a "Diels–Alder then oxidation" composed rule. What would $K_{12}$ preserve?
+
+---
+
+### 5. Orbit-Aware Deduplication (connection to S02)
+
+The Diels–Alder pattern $L$ contains the diene fragment $C=C{-}C=C$.
+
+- **a)** Is $|\mathrm{Aut}(L)| > 1$? If so, identify the non-trivial automorphism.
+- **b)** If there are $n$ total injective matches $m: L \hookrightarrow G$ and $|\mathrm{Aut}(L)| = k$, what is the maximum number of orbit-distinct products?
+- **c)** Modify the pipeline so that orbit-equivalent matches are detected and collapsed before rule application.
+
+
+
+## 5. Discussion
+
+### Key Takeaways
+
+**DPO graph rewriting provides a precise, reversible, and composable framework for reaction rules.**
+
+---
+
+#### The span representation
+
+A reaction rule as a span $L \xleftarrow{\,l\,} K \xrightarrow{\,r\,} R$ cleanly separates:
+
+| Component | Meaning | Chemical interpretation |
+|---|---|---|
+| $L \setminus K$ | deleted items | bonds broken, atoms leaving |
+| $K$ | preserved context | atoms present in both reactant and product |
+| $R \setminus K$ | created items | bonds formed, atoms added |
+
+This is *exactly* the non-zero off-diagonal entries of the ΔBE matrix introduced in **S01**.
+
+---
+
+#### The dangling condition
+
+The dangling condition is not a limitation — it is a *correctness guarantee*. Ignoring it would produce invalid graphs (edges pointing to deleted nodes). In practice, SynKit resolves this by tracking implicit hydrogens separately: an atom deleted from the heavy-atom graph implicitly releases its H-count, which is then re-assigned after the rewrite.
+
+---
+
+#### Reversibility
+
+DPO rules are **naturally invertible**: swapping $L$ and $R$ turns any forward synthesis rule into a retrosynthetic disconnection rule. This is the theoretical foundation for the backward prediction pipeline in **S08**: the same `SynReactor` engine is reused with $L$ and $R$ exchanged.
+
+---
+
+#### Orbit-aware deduplication (connection to S02)
+
+Two matches $m_1, m_2: L \hookrightarrow G$ that differ only by an automorphism of $L$ produce **isomorphic** products $H_1 \cong H_2$. Collapsing them before running the rewrite avoids redundant computation and prevents inflated candidate lists in the prediction pipeline (**S08**).
+
+---
+
+#### Practical limitations
+
+- **NP-completeness**: Pattern matching (subgraph isomorphism) is NP-complete in general, but sparse molecular graphs keep it tractable in practice.
+- **Selectivity**: A rule with a small $K$ (minimal context) fires many times; one with a large $K$ fires rarely. The trade-off between specificity and coverage is studied quantitatively in **S09**.
+- **Rule composition**: Chaining two DPO rules into a single multi-step pathway requires careful handling of intermediate graphs. This is an active research direction beyond the current series.
+
+---
+
+### Connection to the rest of the series
+
+| Concept | First seen | Re-used in |
+|---|---|---|
+| DPO span $L \leftarrow K \rightarrow R$ | **S05** (here) | S07 (rule library), S08 (prediction), S09 (context) |
+| Orbit-aware match dedup | S02 | S07 (WL clustering), S08 (candidate dedup) |
+| Rule inversion | **S05** (here) | S08 (backward prediction) |
+| ITS graph as $K$-encoding | S04 | S06 (canonicalization), S07 (clustering) |
+| ΔBE ↔ span equivalence | S01 (ΔBE), S05 (span) | S07 (rule fingerprint) |

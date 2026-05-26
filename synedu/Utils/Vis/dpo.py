@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import networkx as nx
 import matplotlib.pyplot as plt
+import matplotlib.patheffects as pe
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 from dataclasses import dataclass
@@ -9,6 +10,9 @@ from typing import Dict, Tuple, Optional, Any
 
 from rdkit import Chem
 from rdkit.Chem import AllChem
+
+from ..conversion import graph_to_mol
+from ..its_vis import visualize_its as _visualize_its
 
 # ── CPK element palette (fill, border) — matches its_vis / vis ────────────
 _ELEMENT_PALETTE: Dict[str, Tuple[str, str]] = {
@@ -414,6 +418,53 @@ def _layout_pos(G: nx.Graph, layout: str, seed: int = 0) -> Dict[Any, Any]:
     raise ValueError("layout must be one of: 'spring', 'kamada_kawai', 'circular'")
 
 
+def _graph_to_layout_pos(G: nx.Graph) -> Optional[Dict[Any, Tuple[float, float]]]:
+    """Use graph_to_mol + RDKit 2D coordinates, mapped back to graph node ids."""
+    nodelist = list(G.nodes())
+    ordered = nx.Graph()
+    for node in nodelist:
+        ordered.add_node(node, **G.nodes[node])
+    for u, v, data in G.edges(data=True):
+        ordered.add_edge(u, v, **data)
+
+    try:
+        mol = graph_to_mol(ordered, sanitize=True)
+    except Exception:
+        try:
+            mol = graph_to_mol(ordered, sanitize=False)
+        except Exception:
+            return None
+
+    if mol.GetNumConformers() == 0:
+        AllChem.Compute2DCoords(mol)
+    conf = mol.GetConformer(0)
+    return {
+        node: (
+            conf.GetAtomPosition(atom_idx).x,
+            conf.GetAtomPosition(atom_idx).y,
+        )
+        for atom_idx, node in enumerate(nodelist)
+    }
+
+
+def _set_shared_limits(axes, pos: Dict[Any, Tuple[float, float]]) -> None:
+    if not pos:
+        return
+    xs = [p[0] for p in pos.values()]
+    ys = [p[1] for p in pos.values()]
+    x_span = max(xs) - min(xs)
+    y_span = max(ys) - min(ys)
+    pad = max(x_span * 0.12, y_span * 0.12, 0.45)
+    for ax in axes:
+        ax.set_xlim(min(xs) - pad, max(xs) + pad)
+        ax.set_ylim(min(ys) - pad, max(ys) + pad)
+        ax.set_aspect("equal")
+
+
+def _edge_order_label(order: float) -> str:
+    return str(int(order)) if float(order).is_integer() else f"{order:g}"
+
+
 # ============================================================
 # DPO visualizer
 # ============================================================
@@ -441,8 +492,9 @@ def visualize_dpo_rule(  # noqa: C901
     """
     Visualize a DPO rule as L | K (or ITS) | R with a shared layout.
 
-    Pass *mol* (an RDKit molecule with 2D coords and atom-map numbers) to use
-    chemically correct layout instead of the graph-theoretic fallback.
+    The default layout is chemistry-aware: the union graph is converted with
+    ``graph_to_mol`` and laid out by RDKit. The ``mol`` argument is kept for
+    older notebooks but is no longer required.
 
     - use_its=False: middle panel is K (context); changed edges are dashed.
     - use_its=True: middle panel shows the full ITS with (br,bp) edge labels.
@@ -475,6 +527,8 @@ def visualize_dpo_rule(  # noqa: C901
         if mol is not None:
             pos = _pos_from_mol(mol, union)
         if pos is None:
+            pos = _graph_to_layout_pos(union)
+        if pos is None:
             pos = _layout_pos(union, layout=layout, seed=seed)
 
     rc_nodes = set()
@@ -486,8 +540,10 @@ def visualize_dpo_rule(  # noqa: C901
         axp,
         *,
         panel_title: str,
+        panel_subtitle: str = "",
         dashed_edges: Optional[set] = None,
         dashed_color: str = "#D62728",
+        dashed_label: str = "",
     ):
         axp.set_facecolor("white")
         axp.set_axis_off()
@@ -498,6 +554,17 @@ def visualize_dpo_rule(  # noqa: C901
             pad=6,
             color="#1a1a1a",
         )
+        if panel_subtitle:
+            axp.text(
+                0.5,
+                0.98,
+                panel_subtitle,
+                transform=axp.transAxes,
+                ha="center",
+                va="top",
+                fontsize=max(7, font_size - 2),
+                color="#555555",
+            )
 
         nodes = list(G.nodes())
         node_colors = [_fill(G.nodes[n].get("element", "?")) for n in nodes]
@@ -510,6 +577,65 @@ def visualize_dpo_rule(  # noqa: C901
             )
             for n in nodes
         ]
+
+        _dashed = dashed_edges or set()
+        solid, dashed = [], []
+        for u, v in G.edges():
+            if _ekey(u, v) in _dashed:
+                dashed.append((u, v))
+            else:
+                solid.append((u, v))
+
+        if solid:
+            nx.draw_networkx_edges(
+                G,
+                pos,
+                ax=axp,
+                edgelist=solid,
+                width=max(1.1, edge_width * 0.65),
+                edge_color="#2a2a2a",
+                alpha=0.65,
+                arrows=False,
+            )
+        if dashed:
+            nx.draw_networkx_edges(
+                G,
+                pos,
+                ax=axp,
+                edgelist=dashed,
+                width=edge_width * 3.2,
+                edge_color=dashed_color,
+                alpha=0.18,
+                arrows=False,
+            )
+            nx.draw_networkx_edges(
+                G,
+                pos,
+                ax=axp,
+                edgelist=dashed,
+                width=edge_width * 1.35,
+                edge_color=dashed_color,
+                style="dashed",
+                alpha=0.95,
+                arrows=False,
+            )
+
+        if rc_nodes:
+            rc_in_panel = [n for n in nodes if n in rc_nodes]
+            if rc_in_panel:
+                nc = nx.draw_networkx_nodes(
+                    G,
+                    pos,
+                    ax=axp,
+                    nodelist=rc_in_panel,
+                    node_size=int(node_size * 1.9),
+                    node_color="#FFD700",
+                    edgecolors="none",
+                    linewidths=0,
+                    alpha=0.16,
+                )
+                nc.set_zorder(1)
+
         lw = [
             (
                 max(2.0, node_size**0.5 * 0.10)
@@ -550,45 +676,14 @@ def visualize_dpo_rule(  # noqa: C901
                     fontweight="bold",
                     color=label_colors[i],
                     zorder=9,
+                    path_effects=[pe.withStroke(linewidth=1.4, foreground="none")],
                 )
-
-        _dashed = dashed_edges or set()
-        solid, dashed = [], []
-        for u, v in G.edges():
-            if _ekey(u, v) in _dashed:
-                dashed.append((u, v))
-            else:
-                solid.append((u, v))
-
-        if solid:
-            nx.draw_networkx_edges(
-                G,
-                pos,
-                ax=axp,
-                edgelist=solid,
-                width=max(1.1, edge_width * 0.65),
-                edge_color="#2a2a2a",
-                alpha=0.65,
-                arrows=False,
-            )
-        if dashed:
-            nx.draw_networkx_edges(
-                G,
-                pos,
-                ax=axp,
-                edgelist=dashed,
-                width=edge_width * 1.35,
-                edge_color=dashed_color,
-                style="dashed",
-                alpha=0.95,
-                arrows=False,
-            )
 
         if show_edge_labels:
             elabs = {}
             for u, v, d in G.edges(data=True):
                 o = float(d.get("order", 1.0))
-                elabs[(u, v)] = str(int(o)) if o.is_integer() else f"{o:g}"
+                elabs[(u, v)] = _edge_order_label(o)
             if elabs:
                 nx.draw_networkx_edge_labels(
                     G,
@@ -601,22 +696,46 @@ def visualize_dpo_rule(  # noqa: C901
                     ),
                 )
 
+        if dashed_label and dashed:
+            axp.text(
+                0.5,
+                0.04,
+                dashed_label,
+                transform=axp.transAxes,
+                ha="center",
+                va="bottom",
+                fontsize=max(7, font_size - 2),
+                color=dashed_color,
+                fontweight="bold",
+                bbox=dict(
+                    boxstyle="round,pad=0.25",
+                    fc="white",
+                    ec=dashed_color,
+                    alpha=0.90,
+                    linewidth=1.0,
+                ),
+            )
+
     if title and created_fig:
         fig.suptitle(title, fontsize=font_size + 2, fontweight="bold", color="#1a1a1a")
 
     _draw_panel(
         L,
         axes[0],
-        panel_title="L  (reactant pattern)",
+        panel_title="L  reactant pattern",
+        panel_subtitle=f"{L.number_of_nodes()} atoms · {L.number_of_edges()} bonds",
         dashed_edges=dec.L_only_edges,
         dashed_color="#D62728",
+        dashed_label=(
+            f"delete {len(dec.L_only_edges)} bond(s)" if dec.L_only_edges else ""
+        ),
     )
 
     if use_its:
-        visualize_its(
+        _visualize_its(
             its,
             ax=axes[1],
-            title="ITS",
+            title="ITS  bond-change view",
             pos=pos,
             layout=layout,
             node_size=node_size,
@@ -626,18 +745,45 @@ def visualize_dpo_rule(  # noqa: C901
             show_unchanged_edge_labels=show_unchanged_edge_labels,
             show_node_labels=show_node_labels,
             show_atom_map=show_atom_map,
-            show_legends=False,
+            show_legend=False,
         )
     else:
-        _draw_panel(K, axes[1], panel_title="K  (context)")
+        _draw_panel(
+            K,
+            axes[1],
+            panel_title="K  preserved context",
+            panel_subtitle=f"{K.number_of_nodes()} atoms · {K.number_of_edges()} preserved bonds",
+        )
 
     _draw_panel(
         R,
         axes[2],
-        panel_title="R  (product pattern)",
+        panel_title="R  product pattern",
+        panel_subtitle=f"{R.number_of_nodes()} atoms · {R.number_of_edges()} bonds",
         dashed_edges=dec.R_only_edges,
         dashed_color="#2CA02C",
+        dashed_label=f"add {len(dec.R_only_edges)} bond(s)" if dec.R_only_edges else "",
     )
+
+    if created_fig:
+        axes[0].annotate(
+            "",
+            xy=(1.03, 0.50),
+            xytext=(0.97, 0.50),
+            xycoords="axes fraction",
+            arrowprops=dict(arrowstyle="-|>", color="#6b7280", lw=1.4),
+            annotation_clip=False,
+        )
+        axes[1].annotate(
+            "",
+            xy=(1.03, 0.50),
+            xytext=(0.97, 0.50),
+            xycoords="axes fraction",
+            arrowprops=dict(arrowstyle="-|>", color="#6b7280", lw=1.4),
+            annotation_clip=False,
+        )
+
+    _set_shared_limits(axes, pos)
 
     # legends (optional)
     if show_legends:
@@ -686,24 +832,31 @@ def visualize_dpo_rule(  # noqa: C901
             Patch(facecolor=_fill(e), edgecolor=_border(e), label=e) for e in elems
         ]
 
-        leg1 = axes[1].legend(
-            handles=edge_handles,
-            loc="upper left",
-            frameon=False,
-            fontsize=font_size - 1,
-        )
-        if elem_handles:
+        legend_handles = edge_handles + elem_handles
+        legend_labels = [h.get_label() for h in legend_handles]
+        if created_fig:
+            fig.legend(
+                legend_handles,
+                legend_labels,
+                loc="lower center",
+                ncol=min(5, len(legend_handles)),
+                frameon=True,
+                framealpha=0.94,
+                fontsize=font_size - 1,
+                bbox_to_anchor=(0.5, -0.01),
+            )
+        else:
             axes[1].legend(
-                handles=elem_handles,
-                loc="lower left",
-                frameon=False,
-                ncol=min(6, len(elem_handles)),
+                legend_handles,
+                legend_labels,
+                loc="upper left",
+                frameon=True,
+                framealpha=0.94,
                 fontsize=font_size - 1,
             )
-            axes[1].add_artist(leg1)
 
     if created_fig:
-        plt.tight_layout()
+        plt.tight_layout(rect=(0, 0.08, 1, 1))
         plt.show()
 
     return axes, dec, pos, its
