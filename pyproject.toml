@@ -60,10 +60,10 @@ dependencies = [
 # Default "developer" setup for contributors
 dev = [
   # Formatting / linting
-  "black>=24.3",
-  "flake8>=7.0",
-  "flake8-bugbear",
-  "flake8-docstrings",
+  "black==25.12.0",
+  "flake8==7.3.0",
+  "flake8-bugbear==25.11.29",
+  "flake8-docstrings==1.7.0",
 
   # Testing
   "pytest>=8.0",
@@ -128,6 +128,11 @@ include = [
 line-length = 88
 target-version = ["py311"]
 skip-string-normalization = true
+extend-exclude = '''
+(
+  \.ipynb$
+)
+'''
 
 
 

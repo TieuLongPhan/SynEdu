@@ -58,17 +58,3 @@ and reading order, return to the :doc:`index`.
      - How does neighborhood radius control the balance between rule
        generality, specificity, and evaluation performance?
      - Application
-
-.. toctree::
-   :hidden:
-   :maxdepth: 1
-
-   S01
-   S02
-   S03
-   S04
-   S05
-   S06
-   S07
-   S08
-   S09

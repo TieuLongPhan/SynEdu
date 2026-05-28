@@ -1,44 +1,14 @@
-# S02 · Subgraph Isomorphism and MCS: Symmetry-aware Matching
+# S02: Graph Morphisms in Reaction Informatics
 
-<div class="alert alert-block alert-info">
-<b>Welcome back to SynEdu.</b><br>
-This talktorial continues from <b>S01</b>. We build on typed molecular graphs to study
-<b>pattern matching</b> and <b>maximum common substructure (MCS)</b> with careful treatment of symmetry.
-</div>
+This talktorial studies graph morphisms as the matching language behind molecular equivalence, symmetry, substructure search, and later reaction-rule application. RDKit provides chemistry-native matching, while NetworkX keeps the graph morphism explicit and inspectable [\[1\]](#6.-References), [\[2\]](#6.-References).
 
-<div class="alert alert-block alert-success">
-<b>What you will gain.</b><br>
-You will learn how to compute <b>subgraph isomorphisms</b> (pattern → host),
-how to <b>deduplicate</b> symmetry-inflated matches using automorphism orbits,
-and how to interpret <b>MCS</b> results in both RDKit and NetworkX.
-</div>
-
-<div class="alert alert-block alert-warning">
-<b>Prerequisites.</b><br>
-You should be comfortable with the definitions and code utilities from <b>S01</b>
-(typed graphs, morphisms, isomorphism, automorphisms).
-</div>
 
 
 ## Aim of this talktorial
 
-In **S01**, we built the foundations: **typed molecular graphs** and **typed morphisms**
-(isomorphisms, automorphisms) as the matching backbone for graph transformation.
-
-This talktorial (**S02**) moves to the *workhorse alignments* that appear throughout reaction modeling
-and rule-based systems (e.g., DPO-style rewriting):
-
-1. **Subgraph matching**: finding when a *pattern* graph occurs inside a *host* graph
-   via **typed subgraph monomorphisms** (a.k.a. subgraph isomorphisms in practice).
-2. **MCS alignment**: using **maximum common substructure (MCS)** as a pragmatic alignment primitive
-   when an exact pattern is unknown or when molecules differ by edits.
-
-We keep implementations minimal and transparent, using:
-
-- **NetworkX** for explicit, attribute-based subgraph morphisms and symmetry-aware deduplication,
-- **RDKit** for chemistry-aware substructure/MCS behavior (sanitization, aromaticity, valence, MCS).
-
-**Data example:** `data/molecules.csv`
+1. Define and compute **graph isomorphism** for exact equivalence under atom renumbering.
+2. Use **graph automorphism** to understand molecular symmetry and duplicate-looking matches.
+3. Compare **subgraph isomorphism** in NetworkX with chemistry-aware RDKit substructure matching.
 
 ---
 
@@ -46,36 +16,274 @@ We keep implementations minimal and transparent, using:
 
 After completing this talktorial, you will be able to:
 
-- Formulate **typed subgraph matching** as an **injective typed graph morphism**
+- Formulate **labeled subgraph matching** as an **injective labeled graph morphism**
   $$
   \varphi : V(P) \hookrightarrow V(H),
   $$
-- Compute **subgraph isomorphisms** (pattern → host) in **NetworkX**, and interpret multiple matches.
-- Apply **symmetry-aware deduplication** of matches using automorphism or orbit ideas.
-- Use **RDKit substructure matching** and understand when it differs from a pure graph matcher.
-- Compute **MCS with RDKit** and turn it into an **alignment map** between two molecules.
-- Compare **RDKit vs NetworkX** matching behavior and attribute choices, and decide which is appropriate for
-  later steps (rule extraction, reaction center localization, DPO rule application).
+- compute **graph isomorphisms** and interpret molecule equivalence under atom renumbering,
+- enumerate **automorphisms** and explain how symmetry creates duplicate-looking matches,
+- compute **subgraph isomorphisms** in **NetworkX** and inspect multiple pattern-to-host mappings,
+- use **RDKit substructure matching** and explain why it can differ from a pure graph matcher,
+- compute **MCS with RDKit** and convert it into an alignment map between two molecules, and
+- decide which matching semantics are appropriate for later tasks such as rule extraction, reaction-center localization, and DPO rule application.
 
 ---
 
 ## Outline
 
-0. **Setup & data**
-1. **NetworkX subgraph isomorphism (pattern → host)**
-2. **Symmetry and deduplicating equivalent matches**
-3. **RDKit substructure matching: chemistry-aware behavior**
-4. **MCS with RDKit: maximum common substructure as alignment**
-5. **From MCS to atom maps: building a practical correspondence**
-6. **RDKit vs NetworkX morphisms: comparison and pitfalls**
-7. **Discussion, quiz, and references**
-
+- [0. Setup & Data](#0.-Setup-&-Data)
+- [1. Graph isomorphism](#1.-Graph-isomorphism)
+- [2. Graph automorphisms](#2.-Graph-automorphisms)
+- [3. Subgraph isomorphism](#3.-Subgraph-isomorphism)
+- [4. Discussion](#4.-Discussion)
+- [5. Quiz](#5.-Quiz)
+- [6. References](#6.-References)
 
 
 ## 0. Setup & Data
 
 
-## 1. Subgraph isomorphism (pattern → host)
+## 1. Graph isomorphism
+
+To make “same molecule” precise, we model molecules as labeled graphs and compare them via
+**label-preserving maps**. This section introduces **labeled graph morphisms** and the induced notion of
+**graph isomorphism** [\[3\]](#6.-References), [\[4\]](#6.-References).
+
+<figure style="text-align: center;">
+  <img src="../../docs/_static/images/SO2/morphism.svg"
+       alt="Graph morphism examples"
+       style="width: 1000%; max-width: 1000px;">
+  <figcaption>
+    <b>Figure 1.</b> Examples of graph morphism-related mappings: morphism,
+    subgraph isomorphism, induced subgraph isomorphism, isomorphism,
+    automorphism, and maximum common substructure.
+  </figcaption>
+</figure>
+
+---
+
+### 1.1 Graph morphisms
+
+Let $G,H \in \mathcal{G}$ be labeled molecular graphs with atom/bond labeling functions
+$(a_G,b_G)$ and $(a_H,b_H)$.
+
+A **(labeled) graph morphism** from $G$ to $H$ is a map
+
+$$
+\varphi : V(G) \to V(H)
+$$
+
+that preserves atom types and bond structure. Concretely, for all $v \in V(G)$ and $uv \in E(G)$:
+
+**(M1) Atom-label preservation**
+$$
+a_H(\varphi(v)) = a_G(v).
+$$
+
+**(M2) Adjacency preservation**
+$$
+\varphi(u)\varphi(v) \in E(H).
+$$
+
+**(M3) Bond-label preservation**
+$$
+b_H\!\big(\varphi(u)\varphi(v)\big) = b_G(uv).
+$$
+
+---
+
+### 1.2 Graph isomorphism
+
+Two labeled molecular graphs $G,H\in\mathcal{G}$ are **isomorphic**, written
+
+$$
+G \cong H,
+$$
+
+if there exists a **bijective** morphism
+
+$$
+\varphi : V(G) \to V(H)
+$$
+
+satisfying (M1)–(M3), whose inverse $\varphi^{-1}$ also satisfies (M1)–(M3).
+
+
+
+> **Chemical intuition**  
+> $G \cong H$ means the two graphs encode the *same chemical structure* up to a renumbering of atoms.
+
+### 1.3. Practice
+
+In practice, `networkx` tests $G \cong H$ by searching for such a bijection under the chosen
+`node_match` / `edge_match`. The result therefore depends on the label scheme (and any compatibility rules).
+
+$$
+\Phi_V : V(G)\times V(H)\to\{\text{true},\text{false}\},
+\qquad
+\Phi_E : E(G)\times E(H)\to\{\text{true},\text{false}\},
+$$
+
+Throughout this talktorials, we use a *strict-but-minimal* label model:
+
+- atom: `element`, `formal_charge`, `aromatic`,
+- bond: `order`.
+
+This keeps the equivalence relation explicit and reproducible; later notebooks revisit and relax these choices.
+
+
+**Q1 - Isomorphism**
+
+Implement `node_match` that requires matching `symbol` **and** either `hcount` or `formal_charge` (or both). Replace the existing `node_match` with your function and re-run the demo so that:
+
+- `benzene` still matches, and  
+- `aniline` (`c1ccccc1N`) **does not** match `anilinium` (`c1ccccc1[NH3+]`).
+
+> Hint: `mol_to_graph(..., include_implicit_h=True)` stores H as `hcount`. Use `n.get("hcount",0)` or `n.get("formal_charge",0)`.
+
+<details class="synedu-solution">
+<summary><strong>Solution</strong></summary>
+
+```python
+def enhanced_node_match(n1, n2):
+    return (
+        n1.get("element") == n2.get("element")
+        and (
+            int(n1.get("hcount", 0)) == int(n2.get("hcount", 0))
+            or int(n1.get("formal_charge", 0)) == int(n2.get("formal_charge", 0))
+        )
+    )
+
+print("=== enhanced matcher (element + hcount/charge) ===")
+for name in pairs:
+    G1 = graphs[f"{name}_a"]; G2 = graphs[f"{name}_b"]
+    iso_flag, n_maps = iso_and_count(G1, G2, enhanced_node_match, edge_match)
+    print(f"{name:8} | isomorphic: {int(iso_flag):1d} | mappings: {n_maps}")
+
+# quick instructor checks
+assert iso_and_count(graphs["benzene_a"], graphs["benzene_b"], enhanced_node_match, edge_match)[0]
+assert not iso_and_count(graphs["aniline_a"], graphs["aniline_b"], enhanced_node_match, edge_match)[0]
+```
+
+</details>
+
+
+
+## 2. Graph automorphisms
+
+### 2.1. Automorphsim
+
+**Observation.** In the benzene example you enumerated **12 mappings** - these are the automorphisms of the benzene heavy-atom graph (the dihedral group \(D_6\), where \(|D_6| = 12\)).
+
+**Definition.** An automorphism [\[3\]](#6.-References), [\[4\]](#6.-References) is a graph isomorphism from the graph to itself:
+
+$$
+f : G \longrightarrow G.
+$$
+
+The automorphism group is
+
+$$
+\mathrm{Aut}(G) \subseteq \mathrm{Iso}(G, G).
+$$
+
+
+##### Automorphism group as permutation matrices
+
+Each automorphism $\sigma \in \mathrm{Aut}(G)$ is a bijection $\sigma: V \to V$.
+We represent it as a **permutation matrix** $P_\sigma \in \{0,1\}^{|V| \times |V|}$
+where $P_\sigma[i,j] = 1$ iff $\sigma(v_i) = v_j$.
+
+For benzene the full group has order $|\mathrm{Aut}(G)| = 12$ (dihedral group $D_6$).
+
+
+**Q2 - Automorphism group**
+
+Consider the molecular graph of **aniline** (`c1ccccc1N`).
+
+1. Enumerate **all graph automorphisms** that preserve atom and bond labels.
+2. Identify which atoms are **symmetry-equivalent** under these automorphisms.
+
+<details class="synedu-solution">
+<summary><strong>Solution</strong></summary>
+
+```python
+smiles = 'c1ccccc1N'
+mol = Chem.MolFromSmiles(smiles)
+graph = mol_to_graph(mol)
+
+draw_molecular_graph(graph)
+enumerate_automorphisms(graph)
+
+```
+
+</details>
+
+
+
+### 3.2 Orbit
+
+The **orbit** of an atom \(v\) is the set of atoms it can be mapped to by
+molecular symmetries [\[3\]](#6.-References), [\[4\]](#6.-References):
+$$
+\mathrm{Orbit}(v)=\{\psi(v)\mid \psi\in\mathrm{Aut}(G)\}.
+$$
+
+Two atoms are **symmetry-equivalent** if one can be exchanged for the other
+without changing the molecule:
+$$
+u \sim v
+\;\Longleftrightarrow\;
+\exists\,\varphi\in\mathrm{Aut}(G)\ \text{s.t.}\ \varphi(u)=v .
+$$
+
+**Chemical intuition.**  
+Atoms in the same orbit are indistinguishable by connectivity alone-they
+share the same local environment and chemical role.
+
+**Benzene example.**
+$$
+|\mathrm{Aut}(G)| = |D_6| = 12,
+$$
+and all six carbon atoms form a **single orbit**.
+
+**Why it matters.**  
+Orbits identify symmetry-equivalent atoms, enabling symmetry-aware
+deduplication, canonical mappings, and reduced search in subgraph matching.
+
+
+**Stored in `synedu.Utils`** - the symmetry helpers used here are reusable in later matching and rule-application tasks:
+```python
+from synedu.Utils.graph import enumerate_automorphisms, compute_orbits_from_automorphisms
+```
+We keep the first implementation visible for teaching, then import the packaged version later when the workflow becomes repetitive.
+
+
+**Orbit coloring**
+
+Nodes are coloured by orbit index - atoms of the same colour are **symmetry-equivalent** under $\mathrm{Aut}(G)$.
+Breaking symmetry (a methyl group, a chiral centre) splits large orbits into smaller ones.
+
+
+**Q3 - Orbits**
+
+You have computed the automorphisms and orbits for **benzene**, where all
+carbons fall into a single orbit.
+
+**Goal.** Explore how small chemical changes break symmetry and split orbits.
+
+**Tasks.**
+1. Starting from the benzene example, **modify only the SMILES input** to:
+   - pyridine: `c1ccncc1`
+   - toluene: `Cc1ccccc1`
+2. Re-run the same code and record:
+   - the number of automorphisms,
+   - the number of orbits,
+   - the atoms in each orbit.
+3. Compare the results to benzene.
+
+
+## 3. Subgraph isomorphism
 
 In rule-based reaction modeling, we repeatedly solve the **pattern-in-host** query:
 
@@ -84,7 +292,7 @@ $$
 \quad \text{If yes, what are the embeddings?}
 $$
 
-Formally, a **subgraph isomorphism** is an **injective, label-preserving graph morphism**
+Formally, a **subgraph isomorphism** [\[3\]](#6.-References), [\[4\]](#6.-References) is an **injective, label-preserving graph morphism**
 
 $$
 f : V(P) \hookrightarrow V(G)
@@ -98,20 +306,15 @@ such that:
 - **Bond existence and bond types are preserved**
   $$uv \in E(P)\ \Rightarrow\ f(u)f(v) \in E(G), \quad b_G(f(u)f(v)) = b_P(uv)$$
 
-Intuitively, \(f\) is a **typed monomorphism**: it embeds the pattern into the host
+Intuitively, \(f\) is a **labeled monomorphism**: it embeds the pattern into the host
 without collisions (injective), while respecting chemical identity (types).
 
-### Practical note: many matches due to symmetry
-Even when the chemical occurrence is “the same”, symmetric graphs can admit many
-equally valid embeddings:
 
-- **Host symmetry** (automorphisms of \(G\)) produces multiple placements.
-- **Pattern symmetry** (automorphisms of \(P\)) produces multiple equivalent mappings.
-- If both are symmetric, matches can multiply combinatorially.
+### 3.1. NetworkX subgraph match
 
-NetworkX exposes this via:
+NetworkX exposes this via the VF2-style matcher implemented in `networkx.algorithms.isomorphism` [\[2\]](#6.-References), [\[5\]](#6.-References):
 
-- `GraphMatcher.subgraph_isomorphisms_iter()` — enumerates all injective embeddings
+- `GraphMatcher.subgraph_isomorphisms_iter()` - enumerates all injective embeddings
   that satisfy `node_match` and `edge_match`.
 
 For downstream tasks (reaction center extraction, rule application, deduplication),
@@ -120,9 +323,19 @@ embeddings, typically by orbit-based canonicalization or choosing a canonical
 representative embedding.
 
 
-## 2. Deduplication of subgraph embeddings
+For matching **benzene** \(P\) inside **naphthalene** \(G\), the algorithm reports
+**24 matches**, arising purely from symmetry:
 
-Raw subgraph matches often contain many symmetry-equivalent embeddings.  
+- **Host symmetry**: automorphisms of \(G\) create multiple placements.
+- **Pattern symmetry**: automorphisms of \(P\) create equivalent labelings.
+- **Combined effect**:
+$$
+\#\text{matches} \;\sim\; |\mathrm{Aut}(G)| \cdot |\mathrm{Aut}(P)|
+$$
+
+
+### 3.2. Deduplication of subgraph embeddings
+
 We give a minimal, renderer-friendly description of the **host-image**
 deduplication strategy.
 
@@ -149,83 +362,41 @@ nodes (i.e., different bijections with the same image) and yields the distinct
 *placements* of the pattern inside the host.
 
 
-
-### Q1 — Deduplicate modulo pattern automorphisms
-
-**Goal.**  
-Implement a function `dedup_by_pattern_image_with_orbits(matches, pattern_autos, ...)` that groups/filters pattern→host mappings **modulo pattern automorphisms**.
-
-Intuitively, two mappings \(m_1,m_2: P \to H\) are equivalent if there exists a pattern automorphism \(\varphi \in \mathrm{Aut}(P)\) such that
-$$
-m_2 \;=\; m_1 \circ \varphi .
-$$
-Equivalently, \(m_1\) and \(m_2\) differ only by a permutation of the pattern nodes.
-
-
-<details> <summary><b>Solution:</b></summary>
-
+**Stored in `synedu.Utils`** - the subgraph-matching and deduplication helpers are now available for later talktorials:
 ```python
-from collections import defaultdict
-from typing import Dict, Iterable, List, Tuple, Optional, Union
-
-def dedup_by_pattern_image_with_orbits(
-    matches: Iterable[Dict[int,int]],
-    *,
-    pattern_autos: Iterable[Dict[int,int]],
-    pattern_node_order: Optional[Iterable[int]] = None,
-    return_groups: bool = False,
-) -> Union[List[Dict[int,int]], Dict[Tuple[int,...], List[Dict[int,int]]]]:
-    matches = list(matches)
-    if not matches:
-        return {} if return_groups else []
-
-    # deterministic pattern node order
-    if pattern_node_order is None:
-        pattern_node_order = tuple(sorted(matches[0].keys()))
-    else:
-        pattern_node_order = tuple(pattern_node_order)
-
-    # pre-list autos for repeated use
-    autos = list(pattern_autos)
-
-    # helper: canonical tuple for mapping m under all pattern automorphisms
-    def canonical_tuple_for_mapping(m: Dict[int,int]) -> Tuple[int, ...]:
-        best = None
-        for phi in autos:
-            tup = tuple(m[phi[p]] for p in pattern_node_order)
-            if best is None or tup < best:
-                best = tup
-        return best
-
-    # bucket by canonical tuple
-    buckets: Dict[Tuple[int,...], List[Dict[int,int]]] = defaultdict(list)
-    for m in matches:
-        key = canonical_tuple_for_mapping(m)
-        buckets[key].append(m)
-
-    # deterministic ordering of keys
-    ordered_keys = sorted(buckets.keys())
-
-    if return_groups:
-        return {k: buckets[k] for k in ordered_keys}
-
-    # select deterministic representative per bucket:
-    # pick mapping with smallest tuple according to pattern_node_order
-    def ordering_tuple(m: Dict[int,int]) -> Tuple[int, ...]:
-        return tuple(m[p] for p in pattern_node_order)
-
-    representatives: List[Dict[int,int]] = []
-    for k in ordered_keys:
-        group = buckets[k]
-        rep = min(group, key=ordering_tuple)
-        representatives.append(rep)
-
-    return representatives
-
+from synedu.Utils.graph import nx_subgraph_matches, dedup_by_host_image_with_orbits
 ```
+These functions become important when reaction-rule matching produces many symmetry-equivalent embeddings.
 
 
-### Q2 — Detect ethanol as a subgraph in a molecule table
+**Deduplication - before / after**
+
+Raw match counts grow with molecular symmetry; deduplication by host-image collapses them to the number of **chemically distinct placements**.
+The reduction factor equals $|\mathrm{Aut}(P)| \times$ (host symmetry multiplicity).
+
+
+**Q4 - Deduplicate modulo pattern automorphisms**
+
+Implement a function `dedup_by_pattern_image_with_orbits(matches, pattern_autos, ...)` that groups pattern-to-host mappings **modulo pattern automorphisms**.
+
+Intuitively, two mappings are equivalent when they differ only by a symmetry operation of the pattern graph. A robust implementation should:
+
+1. choose a deterministic pattern-node order,
+2. apply every pattern automorphism to each mapping,
+3. convert each transformed mapping into a tuple of host nodes,
+4. keep the lexicographically smallest tuple as the canonical key, and
+5. return one deterministic representative per key.
+
+<details class="synedu-solution">
+<summary><strong>Solution idea</strong></summary>
+
+use a dictionary keyed by the canonical tuple. This is the same orbit-aware deduplication idea used later for reaction-rule matches.
+
+</details>
+
+
+
+**Q5 - Detect ethanol as a subgraph in a molecule table**
 
 **Goal.**  
 Given a table of molecules represented by SMILES strings, determine which
@@ -237,12 +408,12 @@ dataframe-based workflow.
 
 ---
 
-**Step-by-step tasks**
+**Tasks**
 
 1. **Convert SMILES to RDKit molecules**  
    Create a column `mol` by parsing the SMILES strings with RDKit.
 
-2. **Convert molecules to typed graphs**  
+2. **Convert molecules to labeled graphs**  
    Create a column `graph` by converting each RDKit molecule to a
    NetworkX graph using `mol_to_graph`.
 
@@ -257,8 +428,8 @@ dataframe-based workflow.
    Add a boolean column `is_subgraph_ethanol` indicating whether at least
    one subgraph embedding exists.
 
-
-<details> <summary><b>Solution:</b></summary>
+<details class="synedu-solution">
+<summary><strong>Solution</strong></summary>
 
 ```python
 from rdkit import Chem
@@ -266,13 +437,13 @@ from rdkit import Chem
 # 1. Convert SMILES to RDKit molecules
 df["mol"] = df["smiles"].apply(Chem.MolFromSmiles)
 
-# 2. Convert molecules to typed NetworkX graphs
+# 2. Convert molecules to labeled NetworkX graphs
 df["graph"] = df["mol"].apply(mol_to_graph)
 
 # 3. Select ethanol as the pattern graph
 ethanol_G = df.loc[0, "graph"]
 
-# 4. Subgraph test: ethanol ⊆ host
+# 4. Subgraph test: ethanol subgraph in host
 def has_ethanol_subgraph(host_G):
     matches = nx_subgraph_matches(
         host_G=host_G,
@@ -286,16 +457,19 @@ df["is_subgraph_ethanol"] = df["graph"].apply(has_ethanol_subgraph)
 
 ```
 
+</details>
 
-## 3. RDKit subgraph search
 
 
-RDKit performs pattern-in-host queries via **substructure matching**:
+### 3.3. RDKit subgraph search
+
+
+RDKit performs pattern-in-host queries via **substructure matching**, a chemistry-specific form of subgraph isomorphism [\[1\]](#6.-References), [\[6\]](#6.-References):
 
 ```python
 host_mol.GetSubstructMatches(pattern_mol)
 ```
-Each returned match is a mapping **pattern atom index → host atom index**.
+Each returned match is a mapping **pattern atom index -> host atom index**.
 
 **Practical limitations:**
 - Atom indices are fixed by RDKit’s internal molecule ordering and cannot be
@@ -310,11 +484,35 @@ As a result, RDKit substructure matching is efficient and chemically robust,
 but less flexible for algorithmic experimentation and symmetry-aware workflows.
 
 
+**Stored in `synedu.Utils`** - the RDKit comparison wrapper is also packaged:
+```python
+from synedu.Utils.graph import rdkit_subgraph_matches
+```
+We will use this side-by-side with NetworkX matching when checking chemical substructure behaviour.
 
-### Q3 — Detect ethanol subgraphs using RDKit and compare with NetworkX
+
+**RDKit vs NetworkX matching comparison**
+
+Applying both matchers to a common test set (ethanol pattern across six host molecules) lets us verify that orbit-based deduplication matches RDKit's `uniquify=True` result, and flag any edge cases where the two frameworks disagree.
+
+
+**Why aspirin differs**
+
+Aspirin is the useful edge case in this table. The difference is **not a deduplication problem**: deduplication only groups matches that the matcher has already found. The mismatch appears earlier, during subgraph matching.
+
+Our NetworkX matcher uses the explicit graph labels from S01 and requires atom `element`, `formal_charge`, and `aromatic` to agree. RDKit's molecule-query match for `CCO` is more permissive in this context. It also finds an embedding where the first carbon of the ethanol pattern maps onto an aromatic ring carbon in aspirin. NetworkX rejects that embedding because the pattern carbon is non-aromatic but the host atom is aromatic.
+
+So the interpretation is:
+
+- **NetworkX strict** = graph morphism with our chosen labels.
+- **RDKit uniquify** = toolkit substructure semantics for the query molecule.
+- **Deduplication** = post-processing; it cannot recover embeddings rejected by the matcher.
+
+
+**Q6 - Detect ethanol subgraphs using RDKit and compare with NetworkX**
 
 **Goal.**  
-Repeat **Q2** using **RDKit substructure matching** instead of NetworkX,
+Repeat **Q5** using **RDKit substructure matching** instead of NetworkX,
 and compare the resulting boolean column with the NetworkX-based result.
 
 This exercise highlights practical differences between:
@@ -343,8 +541,9 @@ This exercise highlights practical differences between:
 
 
 
-<details> <summary><b>Solution:</b></summary>
 
+<details class="synedu-solution">
+<summary><strong>Solution</strong></summary>
 
 ```python
 from rdkit import Chem
@@ -372,267 +571,42 @@ comparison = df[
 comparison
 ```
 
+</details>
 
-## 4. MCS (Maximum Common Substructure) — RDKit + NetworkX views
 
-The **Maximum Common Substructure (MCS)** problem asks for the largest subgraph that two molecular graphs share.
-It is a core *alignment primitive* used in similarity, substructure transfer, and as a common starting point for **atom mapping**.
 
----
+## 4. Discussion
 
-### 4.1 Formal definition (typed molecular graphs)
-
-Let
-$$
-G = (V_G, E_G, a_G, b_G)
-\quad \text{and} \quad
-H = (V_H, E_H, a_H, b_H)
-$$
-be **typed molecular graphs**, where
-\( a(\cdot) \) assigns atom labels (element, charge, aromaticity) and
-\( b(\cdot) \) assigns bond labels (bond order, aromaticity).
-
-A graph \( S \) is a **common subgraph** of \( G \) and \( H \) if there exist
-**injective typed morphisms** (subgraph embeddings)
-
-
-$$
-f: S \hookrightarrow G, \qquad g: S \hookrightarrow H
-$$
-
-such that labels and bonds are preserved (same predicates as subgraph isomorphism).
-
-An **MCS** is any common subgraph \(S^\*\) that maximizes a size objective:
-
-$$
-S^* \in \arg\max_{S}
-\left(
-|V(S)| \;\text{or}\; w_V |V(S)| + w_E |E(S)|
-\right)
-\quad
-\text{subject to } S \hookrightarrow G \text{ and } S \hookrightarrow H.
-$$
-
-
-**Notes.**
-- The MCS need not be unique (multiple maximum solutions may exist).
-- Constraints (ring-only matching, atom types, bond types, chirality) change the feasible set and thus the MCS.
-
----
-
-### 4.2 RDKit view: MCS as a SMARTS pattern + match lists
-
-RDKit provides a practical MCS solver:
-
-- `rdFMCS.FindMCS([mol1, mol2], ...)` returns an object whose `smartsString`
-  encodes a **query substructure** \(Q\) (SMARTS) intended to represent a largest shared substructure under constraints.
-
-We then compute embeddings of the SMARTS query into each molecule:
-
-$$
-\mathrm{Match}_G(Q) = \{\, f_i : V(Q)\hookrightarrow V(G)\,\}, \qquad
-\mathrm{Match}_H(Q) = \{\, g_j : V(Q)\hookrightarrow V(H)\,\}.
-$$
-
-In practice:
-- `mol.GetSubstructMatches(query)` returns many embeddings (symmetry variants).
-- When multiple matchings exist, choosing a canonical representative (or a best-scoring one) is a separate step.
-
-**Interpretation.**  
-RDKit’s MCS output gives you:
-1) a *candidate* maximum common substructure (as a query), and  
-2) potentially many embeddings in each molecule.
-
----
-
-### 4.3 NetworkX view: MCS as a maximum common *subgraph isomorphism*
-
-When we convert molecules to NetworkX graphs, MCS corresponds to finding a largest typed graph \(S\)
-that is simultaneously subgraph-isomorphic to both graphs.
-
-Conceptually:
-
-$$
-S \subseteq G,\; S \subseteq H
-\quad\Longleftrightarrow\quad
-\exists\, f: S\hookrightarrow G,\; \exists\, g: S\hookrightarrow H.
-$$
-
-In the NX world, this is typically attacked by:
-- searching over candidate node/bond subsets, or
-- using MCS heuristics (e.g., expand from seeds; branch-and-bound; constraint propagation),
-because exact MCS is NP-hard.
-
-**Why still use NX here?**
-- You can enforce *your* exact chemical typing predicates (`node_match`, `edge_match`).
-- You can integrate symmetry handling (automorphism orbits) and custom constraints.
-- You can expose intermediate states for teaching (what gets pruned, what expands).
-
----
-
-### 4.4 Symmetry and non-uniqueness (important for mapping)
-
-Both RDKit and NetworkX share the same caveats:
-
-- **Multiple maximum solutions:** the same maximum subgraph size can be achieved by different subgraphs.
-- **Many embeddings:** even one fixed maximum subgraph can have many matches due to molecular symmetry.
-- **Implication:** MCS is a useful starting point for atom mapping, but not sufficient on its own — a tie-breaking or scoring rule is still required.
-
----
-
-### 4.5 Practical pipeline (RDKit ↔ NX)
-
-A common didactic workflow is:
-
-1. **RDKit MCS**
-   - compute a SMARTS query \(Q\) using `rdFMCS.FindMCS`.
-2. **RDKit embeddings**
-   - enumerate `GetSubstructMatches(Q)` for each molecule.
-3. **NX analysis**
-   - convert selected embeddings to NX node correspondences,
-   - optionally deduplicate symmetry-equivalent matches using orbits,
-   - use the resulting correspondence as a seed for atom mapping or reaction-center extraction.
-
-This makes MCS an excellent bridge between *chemistry-native toolkits* (RDKit) and *graph-theoretic control* (NetworkX).
-
-
-### Q4 — Compute the MCS between ethanol and another molecule
-
-**Goal.**  
-Use **RDKit MCS** to compute the maximum common substructure between **ethanol**
-and each molecule in the table, and record the **size of the MCS**.
-
-This exercise shows how RDKit abstracts chemical similarity beyond strict
-subgraph containment.
-
----
-
-**Step-by-step tasks**
-
-1. **Select ethanol as the reference molecule**  
-   Use the RDKit molecule corresponding to ethanol (row 0).
-
-2. **Compute RDKit MCS**  
-   For each molecule, compute the MCS SMARTS between ethanol and the molecule
-   using `rdkit_mcs_smarts`.
-
-3. **Convert SMARTS to a molecule**  
-   Turn the SMARTS into an RDKit query molecule.
-
-4. **Measure MCS size**  
-   Record the number of atoms in the MCS (or `0` if no MCS is found).
-
-5. **Store the result**  
-   Add a column `mcs_size_ethanol_rdkit`.
-
-
-
-<details> <summary><b>Solution:</b></summary>
-
-```python
-ethanol_mol = df.loc[0, "mol"]
-
-def rdkit_mcs_size_with_ethanol(mol):
-    smarts = rdkit_mcs_smarts([ethanol_mol, mol])
-    if not smarts:
-        return 0
-    mcs_mol = Chem.MolFromSmarts(smarts)
-    if mcs_mol is None:
-        return 0
-    return mcs_mol.GetNumAtoms()
-
-df["mcs_size_ethanol_rdkit"] = df["mol"].apply(rdkit_mcs_size_with_ethanol)
-df
-```
-
-
-### Q5 — Compute the MCS between ethanol and another molecule (NetworkX view)
-
-**Goal.**  
-Compute the **Maximum Common Substructure (MCS)** between **ethanol** and each
-molecule in the table using the **NetworkX-based MCS implementation**, and
-record the size of the resulting common subgraph.
-
-This exercise emphasizes a **strict graph-theoretic view** of MCS, in contrast
-to the chemistry-aware RDKit approach in Q4.
-
----
-
-**Step-by-step tasks**
-
-1. **Select ethanol as the reference graph**  
-   Use the NetworkX graph corresponding to ethanol (row 0).
-
-2. **Compute NetworkX MCS**  
-   For each molecule graph, compute an MCS using `nx_mcs`.
-
-3. **Measure MCS size**  
-   Record the number of nodes (atoms) in the resulting MCS graph.
-
-4. **Store the result**  
-   Add a new column `mcs_size_ethanol_nx` to the dataframe.
-
-
-
-<details> <summary><b>Solution:</b></summary>
-
-```python
-# Reference graph: ethanol
-ethanol_G = df.loc[0, "graph"]
-
-def nx_mcs_size_with_ethanol(host_G):
-    S = nx_mcs(
-        ethanol_G,
-        host_G,
-        node_match=node_match,
-        edge_match=edge_match,
-    )
-    if S is None:
-        return 0
-    return S.number_of_nodes()
-
-# Add NetworkX MCS size column
-df["mcs_size_ethanol_nx"] = df["graph"].apply(nx_mcs_size_with_ethanol)
-```
-
-
-## 5. Discussion
+- **Graph automorphisms** encode molecular symmetry. Unchecked, they inflate
+  match enumeration and lead to redundant computation. Orbit-aware
+  deduplication (e.g. by host-atom sets or orbit representatives) converts
+  symmetry from a liability into a computational advantage.
 
 - **Subgraph isomorphism** is the core operation for rule application later in SynEdu.
 - **MCS** is a chemistry-aware alignment primitive, but it is heuristic and sometimes non-unique; always log settings and timeouts.
 - **RDKit vs NetworkX**:
-  - RDKit: chemistry-aware SMARTS matching, built-in `uniquify`.
+  - RDKit: SMARTS matching, built-in `uniquify`.
   - NetworkX: full control over attributes and morphism semantics; you manage deduplication and interpretation.
 
 
-## 6. Quiz
+<a id="5-quiz"></a>
 
-Answer the following questions using **both chemical intuition and formal graph language**.
+## 5. Quiz
 
----
+Answer using both **chemical intuition** and **graph-theoretic language**.
 
-### 1. Deduplicating subgraph matches  
-Subgraph matching often returns many equivalent matches.
-
-- Explain how using **sets of host atom indices** can be used to
-  **deduplicate** equivalent matches.
-- Why does this work even when atom ordering differs?
-
----
-
-### 2. RDKit vs NetworkX (practice vs theory)  
-Give **one practical advantage** of each approach:
-
-- **RDKit** substructure matching  
-- **NetworkX** graph matching  
-
-In which situations would you prefer one over the othe
+1. What additional requirement turns a label-preserving graph morphism into a graph isomorphism, and how does this relate to saying that two molecules have the same structure?
+2. What is an automorphism of a molecular graph, and why do symmetric molecules such as benzene produce multiple equivalent matches?
+3. How can host-atom index sets be used to deduplicate equivalent subgraph matches returned by a matcher?
+4. Why can RDKit substructure matching and a strict NetworkX labeled-graph matcher return different answers for the same molecule pair?
 
 
-## 7. References and further reading
 
-- RDKit documentation: https://www.rdkit.org/docs/  
-- RDKit Book: https://www.rdkit.org/docs/Book.html  
-- NetworkX documentation: https://networkx.org/documentation/stable/  
-- NetworkX isomorphism: https://networkx.org/documentation/stable/reference/algorithms/isomorphism.html  
-- RDKit MCS (rdFMCS): https://www.rdkit.org/docs/source/rdkit.Chem.rdFMCS.html
+## 6. References
+
+1. RDKit documentation. https://www.rdkit.org/docs/
+2. NetworkX documentation. https://networkx.org/documentation/stable/
+3. Bonchev, D.; Rouvray, D. H., eds. *Chemical Graph Theory: Introduction and Fundamentals*. Abacus Press (1991).
+4. Diestel, R. *Graph Theory*, 5th ed. Springer (2017). https://doi.org/10.1007/978-3-662-53622-3
+5. Cordella, L. P.; Foggia, P.; Sansone, C.; Vento, M. A (Sub)Graph Isomorphism Algorithm for Matching Large Graphs. *IEEE Transactions on Pattern Analysis and Machine Intelligence* **26**, 1367-1372 (2004). https://doi.org/10.1109/TPAMI.2004.75
+6. Ullmann, J. R. An Algorithm for Subgraph Isomorphism. *Journal of the ACM* **23**, 31-42 (1976). https://doi.org/10.1145/321921.321925

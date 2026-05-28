@@ -1,541 +1,649 @@
-# S04 · From Atom-Mapped Reactions to DPO Rules: ITS, Reaction Centers, and Fast Clustering
+# S07: From Atom-Mapped Reactions to DPO Rules
 
-<div class="alert alert-block alert-info">
-<b>Welcome to SynEdu.</b><br>
-This talktorial is part of <b>SynEdu</b>, a lightweight, research-oriented teaching series built around the
-<b>Syn</b> ecosystem and <b>RDKit</b> for practical, reproducible reaction modeling.
-</div>
+This talktorial builds the bridge from atom-mapped reaction records to a reusable DPO reaction-rule library. It combines standardization, ensemble mapping, ITS construction, WL prefiltering, graph isomorphism, and optional MØD export [\[1\]](#6.-References), [\[2\]](#6.-References), [\[3\]](#6.-References).
 
-<div class="alert alert-block alert-success">
-<b>What you will gain.</b><br>
-You will learn a complete, <b>mapping → ITS → reaction center → clustering → rule</b> pipeline:
-starting from <b>1000 pre-mapped reactions (from a local JSON/JSON.GZ dataset)</b>, we assume atom maps are already present (generated e.g. with RXNMapper upstream), construct an
-<b>ITS (Imaginary Transition State)</b> graph, extract a <b>reaction center</b>, cluster centers by
-<b>typed isomorphism</b>, accelerate clustering with a <b>Weisfeiler–Lehman (WL) hash prefilter</b>,
-and finally convert each center into a <b>DPO (double-pushout) graph transformation rule</b>.
-</div>
 
-<div class="alert alert-block alert-warning">
-<b>Reproducibility note.</b><br>
-Atom-mapping quality and rule extraction depend on tool versions, sanitization, charge handling,
-and the precise definition of “reaction center” (bonds only vs bonds + atoms + radius context).
-Always record package versions and settings, and persist intermediate artifacts:
-mapped reaction SMILES, ITS graphs, centers, hashes, and extracted rules.
-</div>
 
 ## Aim of this talktorial
 
-Build a chemically interpretable and mathematically clean pipeline from *mapped reactions* to *graph rewriting rules*.
+1. Standardize and canonicalize mapped reaction strings so equivalent maps can be compared reliably.
+2. Construct high-confidence reaction centers from ensemble atom maps and ITS graphs.
+3. Cluster, deduplicate, and export reaction centers as DPO rules.
+
+---
 
 ## Learning outcomes
 
-After completing S04, you can:
+After completing this talktorial, you will be able to:
 
-1. Map a batch of reaction SMILES using <b>RXNMapper</b>.
-2. Construct an <b>ITS graph</b> from a mapped reaction (atoms as nodes, (reactant,product) bond labels as edges).
-3. Extract a <b>reaction center</b> and (optionally) a <b>radius-r context</b>.
-4. Cluster reaction centers using <b>typed graph isomorphism</b>.
-5. Speed up clustering via <b>WL hashing</b> as an isomorphism-invariant *prefilter*.
-6. Convert a reaction center into a <b>DPO rule</b> \(L \leftarrow K \rightarrow R\) (delete/add bonds; keep context).
+- standardize and canonicalize mapped reaction SMILES,
+- construct an **ensemble atom map** by comparing multiple mapper outputs,
+- build an **ITS graph** from a mapped reaction,
+- extract a **reaction center** from an ITS graph,
+- cluster reaction centers using **WL hashing** and exact **graph isomorphism**,
+- convert a reaction center into a **DPO rule** $L \leftarrow K \rightarrow R$, and
+- explain why consensus mapping and deduplication improve the reliability of a rule library.
 
-## Roadmap
+---
 
-- **0. Setup & data** (1000 mapped reactions from `./data/smart.json.gz`)
-- **1. Theory** (mapped reactions, ITS, center, isomorphism, WL, DPO)
-- **2. (Optional) Atom-mapping** (RXNMapper, if you start from unmapped reactions)
-- **3. ITS construction**
-- **4. Reaction center extraction**
-- **5. Center clustering via isomorphism**
-- **6. WL hash prefilter acceleration**
-- **7. Convert centers to DPO rules + export**
-- **8. Exercises & quiz**
+## Outline
+
+- [0. Setup & data](#0.-Setup-&-data)
+- [1. Reaction preprocessing](#1.-Reaction-preprocessing)
+- [2. Ensemble atom-to-atom mapping agreement](#2.-Ensemble-atom-to-atom-mapping-agreement)
+- [3. Rule library construction](#3.-Rule-library-construction)
+- [4. Discussion](#4.-Discussion)
+- [5. Quiz](#5.-Quiz)
+- [6. References](#6.-References)
 
 
+<p>
+  The complete S07 workflow can be summarized as a linear pipeline.
+  Each step progressively reduces mapping ambiguity and improves the reproducibility
+  of graph-based reaction rule extraction.
+</p>
 
-## Authors and contributions
-
-- Tieu-Long Phan (SynEdu / Syn ecosystem)
-- (Add contributors here)
-
-> If you reuse code snippets or figures from this notebook, please cite SynEdu appropriately and pin versions in your supplement.
-
+<figure style="text-align: left;">
+  <img src="../../docs/_static/S07/flow_chart.svg"
+       alt="S07 workflow for consensus-driven reaction rule extraction"
+       style="width: 100%; max-width: 900px;">
+  <figcaption>
+    <b>Figure 1.</b> Overview of the S07 workflow for extracting graph-based reaction
+    rules from atom-to-atom mapped reactions. Reactions are first standardized and
+    canonicalized, filtered by ensemble agreement, converted into ITS graphs, and
+    reduced to reaction centers. Reaction centers are clustered to identify unique
+    representatives, completed with hydrogen information, and finally exported as
+    GML reaction rules. Discard branches indicate cases rejected because of
+    insufficient mapping consensus or ambiguous hydrogen completion.
+  </figcaption>
+</figure>
 
 
 ## 0. Setup & data
 
 
 
-### 0.0 Note on atom mapping (RXNMapper)
+This notebook uses **SynKit** [\[1\]](#6.-References). to accelerate development: fast access to molecular graphs, rule application (DPO/ITS), pattern matching, and utilities for building reaction-centric workflows.
 
-In **S01/S04** we often start from *unmapped* reaction SMILES and run **RXNMapper** to obtain atom-map IDs.
-In this S04 run, we **skip mapping** because our dataset file `./data/smart.json.gz` already contains **atom-mapped** reactions.
-
-> If you ever start from unmapped reactions, you can still plug RXNMapper into the same pipeline:
-> produce a column `mapped_rxn` and continue with ITS construction below.
-
+we can easily install synkit via pypi:
+```bash
+pip install synkit
+```
 
 
-### 0.1 Reaction data (1000 mapped reactions)
-
-We load a local dataset from:
-
-- `./data/smart.json.gz`
-
-The file may be either:
-
-- **plain JSON** (often misnamed as `.gz`), or
-- **gzip-compressed JSON**.
-
-Each entry is expected to contain a **mapped reaction string** (reaction SMILES/SMARTS) with atom-map IDs like `:12`.
-In our dataset, the mapped reaction is stored under the key **`"smart"`** (and optionally an identifier like `"R-id"`).
-
-We will load **1000 mapped reactions** and store them in a DataFrame `df_map` with at least:
-
-- `mapped_rxn` — mapped reaction string (`reactants >> products`)
-- `rxn_id` — optional id (if available)
+The dataset incorporates three distinct atom mapping methodologies: `rxn_mapper` [\[4\]](#6.-References), `graphormer` mapper [\[5\]](#6.-References), and `local_mapper` [\[6\]](#6.-References).
 
 
+## 1. Reaction preprocessing
 
-## 1. Theory (formal, but chemist-friendly)
+1. Validate & standardize SMILES using `Standardize` [\[7\]](#6.-References) (drop invalid/unparsable).
 
-### 1.1 Atom-mapped reactions as typed structures
+2. Canonicalize atom-map numbers with `CanonRSMI` (from **S06**) for identical mappings.
 
-An unmapped reaction SMILES is a string
+
+## 2. Ensemble atom-to-atom mapping agreement
+
+Compare the canonicalized mapper outputs by exact string equality, rows where all canonical maps match are high-confidence aam assignments [\[8\]](#6.-References).
+
+
+**Definition (Canonical Reaction SMILES).**  
+Two atom-mapped reaction SMILES $s_1$ and $s_2$ are *equivalent* if their corresponding ITS graphs $\Gamma_1$ and $\Gamma_2$ are isomorphic as labeled graphs: $\Gamma_1 \cong \Gamma_2$. The *canonical reaction SMILES* $\mathrm{canon}(s)$ is the lexicographically smallest string in the equivalence class, obtained by applying a canonical atom-map permutation $\pi: \mathbb{N} \to \mathbb{N}$ computed via WL refinement (approximation) or IR (exact).
+
+**Definition (Ensemble Agreement).**  
+Given $n$ atom-mapping functions $\varphi_1, \ldots, \varphi_n$ applied to the same reaction $\varrho$, the ensemble *agrees* on $\varrho$ if all canonical strings are identical:
 
 $$
-\texttt{rxn} = \texttt{R} \;\gg\; \texttt{P},
+\mathrm{canon}(\varphi_1(\varrho)) = \mathrm{canon}(\varphi_2(\varrho)) = \cdots = \mathrm{canon}(\varphi_n(\varrho))
 $$
 
-where $\texttt{R}$ (reactants and reagents) and $\texttt{P}$ (products) are dot-separated
-lists of molecules.
+When the ensemble disagrees, *refinement* (exact isomorphism check) is used to resolve the discrepancy.
 
-An **atom-mapped reaction** augments each atom with an integer **map identifier**.
-Conceptually, atom mapping defines a *partial correspondence* between atoms on the
-reactant and product sides.
-
-Let
+**Definition (WL Reaction Hash).**  
+The *WL hash* of a reaction center ITS $\Gamma_{\mathrm{RC}}$ is the string representation of the stable WL partition histogram:
 
 $$
-A_R \quad\text{and}\quad A_P
+h_{\mathrm{WL}}(\Gamma_{\mathrm{RC}}) = \mathrm{encode}\!\left(\mathcal{P}^*(\Gamma_{\mathrm{RC}})\right)
 $$
 
-be the sets of atoms on the reactant and product sides, respectively, and let
+Reactions with identical WL hashes are *candidate isomorphs*; exact isomorphism (graph matching) is then used to confirm.
 
-$$
-M \subset \mathbb{N}
-$$
 
-be the set of map identifiers appearing in the reaction.
-The atom-mapped reaction induces two functions
 
-$$
-\mu_R : A_R \to M,
-\qquad
-\mu_P : A_P \to M,
-$$
+ Weisfeiler-Lehman [\[2\]](#6.-References) based canonicalization is fast but not exact. Use WL to filter and only run an exact isomorphism check on mappings that WL says are different (or on any ambiguous cases).
 
-where atoms sharing the same map identifier are interpreted as representing
-“the same atom through the transformation”.
+In **SynKit**, we expose `AAMValidator` to compare directly atom-to-atom map by converting to ITS and checking isomorphism
 
-In practice, atom mapping may be imperfect:
-missing map identifiers, duplicated identifiers, or unmapped leaving groups may occur.
-All downstream constructions are therefore designed to be **robust**:
-invalid or inconsistent cases are detected, warned about, and skipped.
+
+### Ensemble mapper agreement distribution
+
+Three mappers (RXNMapper, Graphormer, Local Mapper) each produce an atom map for each reaction. The ensemble step classifies reactions by how many mappers agree. High-confidence reactions (all three agree) form the primary training signal; disagreements are resolved by WL-based isomorphism checking or discarded.
+
+
+**Q1 — Ensemble mapping**
+
+Given a DataFrame with several mapper columns, `ensemble_maps(df, map_cols)`:
+- canonicalizes each mapper column with `std_canon(...)`,
+- accepts rows where all canonical values are identical,
+- runs `refinement(...)` on the leftovers,
+- returns `(solved_df, unsolved_df)` where `solved_df` keeps only metadata + one `aam` column.
+- combine all high-confident maps and drop duplicate if possible
+
 
 ---
 
-### 1.2 ITS (Imaginary Transition State) graph
+<details> <summary><b>Solution:</b></summary>
 
-The **Imaginary Transition State (ITS)** represents the reaction as a single graph
-by explicitly encoding bond changes between reactants and products.
+```python
+from typing import List, Tuple
+import pandas as pd
+from tqdm.auto import tqdm
 
-Let $B$ be the set of allowed bond labels
-(e.g. $\{1,2,3,1.5\}$ for single, double, triple, and aromatic bonds),
-and introduce a special symbol $\bot$ denoting **bond absence**.
+tqdm.pandas() 
 
-The ITS of an atom-mapped reaction is defined as a **typed graph**
+def ensemble_maps(df: pd.DataFrame, map_cols: List[str]) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    missing = [c for c in map_cols if c not in df.columns]
+    if missing:
+        raise KeyError(f"missing columns: {missing}")
+
+    canon_cols = []
+    for col in map_cols:
+        tgt = f"{col}_canon"
+        canon_cols.append(tgt)
+        tqdm.pandas(desc=f"Canonicalization {col}") 
+        df[tgt] = df[col].progress_apply(std_canon)
+
+    match, unmatch = extract_aam(df, keys=tuple(canon_cols))
+    solve, unsolve = refinement(unmatch, aam_cols=tuple(canon_cols))
+
+    out = pd.concat([match, solve], axis=0).reset_index(drop=True)
+    out = out.drop_duplicates(subset="aam", keep="first").reset_index(drop=True)
+    return out, unsolve
+
+    
+```
+</details>
+
+
+## 3. Rule library construction
+
+With high-confidence `aam` maps in hand, convert each mapped reaction into an ITS graph, extract the reaction center, and turn that center into a reusable rule entry for the library.
+
+
+### 3.1. Graph construction
+
+
+We now use **synedu.Utils** to convert each atom-mapped reaction to an ITS graph and extract the reaction center.
+
+
+
+### 3.2. Core refinement
+
+
+#### Graph Clustering
+
+Now we have 8,962 reaction centers, but some of them can be isomorphic [\[9\]](#6.-References), we can develop a simple pairwise grouping algorithm
+
+With a set $S=\{\Gamma_1,\Gamma_2,\dots,\Gamma_n\},\qquad n\ge 2$, we want a partition $T$ of $S$ into isomorphism classes.
+
+**Pseudocode**
 
 $$
-G_{\mathrm{ITS}} = (V, E, a, b_R, b_P),
+\begin{array}{l}
+T \leftarrow \varnothing\\[4pt]
+S \leftarrow \{\Gamma_1,\Gamma_2,\dots,\Gamma_n\}\\[6pt]
+\text{while } S \neq \varnothing :\\
+\quad q^{*} \leftarrow \text{arbitrary element of } S\\
+\quad S \leftarrow S \setminus \{q^{*}\}\\
+\quad C \leftarrow \{q^{*}\}\\
+\quad \text{for each } q \in \mathrm{copy}(S) :\\
+\quad\quad \text{if }\operatorname{VF2\_iso}(q,q^{*}) \text{ then}\\
+\quad\quad\quad C \leftarrow C \cup \{q\}\\
+\quad\quad\quad S \leftarrow S \setminus \{q\}\\
+\quad\quad \text{end if}\\
+\quad \text{end for}\\
+\quad T \leftarrow T \cup \{C\}\\
+\text{end while}\\[4pt]
+\text{return } T
+\end{array}
 $$
 
-where:
 
-- $V \subseteq M$ is the set of atom map identifiers used as node identifiers;
-- $a : V \to \Sigma$ assigns atom types (e.g. element symbol, optionally charge);
-- $E$ is the set of unordered edges between atom identifiers;
-- $b_R : E \to B \cup \{\bot\}$ assigns the **reactant-side bond label**;
-- $b_P : E \to B \cup \{\bot\}$ assigns the **product-side bond label**.
 
-Chemical interpretation:
+In SynKit, this algorithm is implemented in `GraphCluster`
 
-- $b_R(e) = \bot$ and $b_P(e) \neq \bot$ corresponds to **bond formation**;
-- $b_R(e) \neq \bot$ and $b_P(e) = \bot$ corresponds to **bond breaking**;
-- $b_R(e) \neq b_P(e)$ with both present corresponds to a **bond order or aromaticity change**.
 
-Thus, the ITS compactly encodes the full local transformation in a single object.
+**Q2 — Unique rules**
+
+You have a list of dictionaries where each item represents a reaction-center record and contains a `class` label (the isomorphism class). Implement `get_unique_rc(...)` to extract one representative reaction center per class.
 
 ---
 
-### 1.3 Reaction center and radius-$r$ context
+<details> <summary><b>Solution:</b></summary>
 
-The **reaction center** is defined as the part of the ITS where changes occur.
+```python
+from typing import List, Dict, Any
 
-First, define the set of changed edges
+def get_unique_rc(
+    items: List[Dict[str, Any]],
+    class_key: str = "class",
+    rc_key: str = "RC",
+    keep: str = "first",
+) -> List[Any]:
+    if keep not in ("first", "last"):
+        raise ValueError("keep must be 'first' or 'last'")
 
-$$
-\Delta E = \{\, e \in E \mid b_R(e) \neq b_P(e) \,\}.
-$$
+    reps: dict = {}  # class -> (idx, rc)
+    for i, it in enumerate(items):
+        cls = it.get(class_key)
+        if cls is None:
+            continue
+        rc = it.get(rc_key)
+        if keep == "first":
+            if cls not in reps:
+                reps[cls] = (i, rc)
+        else:  # keep == "last"
+            reps[cls] = (i, rc)
 
-The **core atom set** is then
+    # sort by stored index and return rc values
+    ordered = sorted(reps.values(), key=lambda x: x[0])
+    return [rc for _, rc in ordered]
 
-$$
-C_0
-=
-\{\, v \in V \mid \exists e \in \Delta E \text{ incident to } v \,\},
-$$
 
-i.e. the atoms directly involved in bond changes.
-Optionally, atoms with changed intrinsic states
-(e.g. formal charge changes) may also be included in $C_0$.
+    
+```
+</details>
 
-To incorporate local chemical context, we define the **radius-$r$ expansion**
 
-$$
-C_r
-=
-\{\, u \in V \mid \mathrm{dist}_{G_{\mathrm{ITS}}}(u, C_0) \le r \,\},
-$$
+Alternatively, we can leverage Synkit’s utility functions
 
-where $\mathrm{dist}_{G_{\mathrm{ITS}}}$ denotes the graph distance in the ITS.
-The induced subgraph
 
-$$
-G_{\mathrm{ITS}}[C_r]
-$$
+#### Hydrogen completion in reaction centers
 
-is referred to as the **reaction-center graph with radius $r$**.
+Implicit hydrogens are stored as a `hcount = (h_r, h_p)` tuple on each ITS node.
+When `h_r ≠ h_p` a hydrogen atom is *transferred* between molecules.
+Graph Modelling Language format require **explicit H nodes** so the rule engine can track every atom.
+
+**`h_expand_its` — four-step pipeline**
+
+| Step | Action |
+|------|--------|
+| ① | Decompose ITS → separate reactant / product graphs (convert tuple attrs → scalars) |
+| ② | Identify *donor* atoms (`h_r > h_p`) and *acceptor* atoms (`h_r < h_p`) |
+| ③ | Pair donors ↔ acceptors (`n_shared = min(|donors|, |acceptors|)`); add one **shared H node** per pair |
+| ④ | Rebuild ITS — the shared H node gets **two edges** |
+
+| H edge | `order` | GML block | Colour |
+|--------|---------|-----------|--------|
+| H – donor    | `(1, 0)` | `left`  | 🔴 broken |
+| H – acceptor | `(0, 1)` | `right` | 🟢 formed |
+
+> **Only balanced transfers are expanded.**  
+> If donors and acceptors do not have the same count (e.g. H is gained from an unmapped
+> solvent molecule), the surplus is left implicit.  Adding single-ended H nodes (broken
+> *or* formed only) to a DPO rule would introduce atoms with no counterpart on the other
+> side — chemically meaningless and rejected by MØD.
+
+> **Ambiguous cases** — when multiple donors and acceptors exist, different pairings can
+> produce **non-isomorphic** reaction centers (see §3.2).
+
+
+#### Ambiguous hydrogen expansion
+
+When an RC contains **multiple donor atoms and multiple acceptor atoms**,
+more than one valid donor-acceptor pairing exists.  Different pairings can produce
+**non-isomorphic** reaction centers, each representing a different mechanistic picture.
+
+The reaction below involves **trichloroacetonitrile reacting with an *N*-hydroxy compound**.
+Its RC has two donors and two acceptors:
+
+| Atom | Role | hcount change |
+|------|------|---------------|
+| **O6** (N–O–H oxygen) | donor  | (1→0) loses H |
+| **C12** (aromatic C–H) | donor  | (1→0) loses H |
+| **N5** (amine nitrogen) | acceptor | (0→1) gains H |
+| **N18** (nitrile nitrogen) | acceptor | (0→1) gains H |
+
+This gives **two distinct pairings**:
+
+| Pairing | O6 donates to | C12 donates to | Topology |
+|---------|---------------|----------------|----------|
+| A (natural) | **N5** | **N18** | H stays near its original bond partner |
+| B (crossed) | **N18** | **N5**  | H crosses — different bridge topology |
+
+`h_expand_all` enumerates every permutation and returns only the **structurally distinct** outcomes.
+
+
+
+### 3.3. Rule selectrion
+
+
+#### Rule library size vs dataset size
+
+A key question: does the rule vocabulary *saturate* (good for generalization)
+or grow indefinitely (poor coverage at test time)?
+We subsample the dataset at increasing sizes and plot unique rule count.
+
+
+Applying the same reduction logic to isomorphic ITS graphs is feasible, though computationally more expensive than focusing solely on the reaction center.
+To optimize the computationally intensive ITS reduction, we can leverage Weisfeiler-Lehman [\[2\]](#6.-References) pre-filtering (per **S06**). This ensures that expensive isomorphism checks are only performed on high-probability candidates
+
+
+#### Rule frequency and cluster size distribution
+
+The WL hash partitions reactions by their reaction-centre topology. The **left panel** shows the distribution of cluster sizes on a log scale — a long tail is typical (a few very common rules, many rare ones). The **right panel** shows the 20 most frequent rules. Singleton clusters represent unique reaction patterns seen only once in the dataset.
+
+
+#### Top-10 rule classes — reaction center gallery
+
+The most frequent WL hash classes represent the most common reaction mechanisms in the dataset.  
+We visualize the reaction center ITS graph for the representative of each top-10 class.
+
+
+
+While `wl_hash` effectively yields the same equivalence classes as graph isomorphism in this instance, it is important to note that the WL hash is an approximation. For absolute precision, it should be supplemented or replaced by a formal isomorphism check.
+
+
+**Q3 — ITS uniqueness**
+
+Now integrate a function named `cluster_with_wl_prefilter(df, graph_key, wl_key)` to prefilter the bucket before
 
 ---
 
-### 1.4 Clustering reaction centers by typed isomorphism
+<details> <summary><b>Solution:</b></summary>
 
-Two reaction-center graphs $G$ and $H$ are **typed isomorphic** if there exists a bijection
+```python
+import pandas as pd
+from synedu.Utils import cluster_its_graphs
 
-$$
-\varphi : V(G) \to V(H)
-$$
+def cluster_with_wl_prefilter(
+    df: pd.DataFrame,
+    graph_key: str = "RC",
+    wl_key: str = "wl_hash",
+) -> pd.DataFrame:
+    df2 = df.copy()
+    if wl_key not in df2.columns:
+        raise KeyError(f"{wl_key} not found in DataFrame")
 
-such that:
+    results = []
+    next_class = 0
+    for wl_val, idxs in df2.groupby(wl_key).groups.items():
+        bucket = df2.loc[idxs]
+        graphs = bucket[graph_key].tolist()
+        labels = cluster_its_graphs(graphs)
+        bucket = bucket.copy()
+        bucket["class"] = [lbl + next_class for lbl in labels]
+        next_class = int(bucket["class"].max()) + 1
+        results.append(bucket)
 
-$$
-a_G(v) = a_H(\varphi(v))
-\quad\text{for all } v \in V(G),
-$$
+    return pd.concat(results, ignore_index=True) if results else pd.DataFrame()
+```
+</details>
 
-and
 
-$$
-\bigl(b_R, b_P\bigr)_G(\{u,v\})
-=
-\bigl(b_R, b_P\bigr)_H(\{\varphi(u), \varphi(v)\})
-\quad\text{for all } \{u,v\} \in E(G).
-$$
 
-Chemically, this means that the two reactions share the **same local transformation
-pattern**, independent of atom numbering or molecular size.
+#### DPO rules
 
-Reaction-center clustering groups reactions by this equivalence relation.
+Each representative reaction center in `rc_h` (the H-expanded list built in §3.1)
+is now converted to a **MØD GML rule** — the formal DPO representation $L \leftarrow K \rightarrow R$.
+
+| GML block | Meaning | ITS edges included |
+|-----------|---------|-------------------|
+| `left`    | bonds **broken** in the reaction | `order = (b_r, 0)` — exist only in reactant |
+| `right`   | bonds **formed** in the reaction | `order = (0, b_p)` — exist only in product |
+| `context` | bonds **unchanged** + all atoms | `order = (b, b)` with `b > 0` |
+
+Because we use `rc_h`, every transferred hydrogen is represented as an **explicit H node**
+with a broken bond to its donor (`left`) and a formed bond to its acceptor (`right`).
+This satisfies the MØD requirement that all atoms — including hydrogens — are tracked explicitly.
+
+
+
+**Building `its_to_gml` — step by step**
+
+The conversion has three sub-tasks:
+
+| Sub-task | Input | Output |
+|----------|-------|--------|
+| ① Classify each edge | `order = (b_r, b_p)` tuple | `left` / `right` / `context` |
+| ② Label each node | `element`, `formal_charge` attrs | atom label string (e.g. `"N+"`) |
+| ③ Label each bond | scalar bond order `b` | GML bond string (`"1"`, `"2"`, `"#"`, `"3"`) |
+
+Consider the small RC below.
+Each edge carries an `order = (b_r, b_p)` tuple:
+
+| Edge | `order` | GML block | Meaning |
+|------|---------|-----------|---------|
+| C – O | `(1, 0)` | `left` | bond **broken** |
+| C – N | `(0, 1)` | `right` | bond **formed** |
+| C – C | `(1, 1)` | `context` | bond **preserved** |
+| N – H | `(0, 1)` | `right` | H **transferred** (formed on acceptor) |
+| O – H | `(1, 0)` | `left` | H **transferred** (broken on donor) |
+
+
+
+##### Step ① — helper functions
+
+Two small helpers underpin `its_to_gml`:
+
+| Helper | Input | Output | Example |
+|--------|-------|--------|---------|
+| `_bond_label(b)` | scalar float bond order | GML label string | `2.0 → "2"`, `1.5 → "#"` |
+| `_node_label(attrs)` | node attribute dict | atom label string | `{"element":"N","formal_charge":1} → "N+"` |
+
+
+
+##### Step ② — assembling `its_to_gml`
+
+With the helpers in place, the full function is a single pass over edges:
+
+```
+for each edge (u, v):
+    br, bp = order
+    if br > 0 and bp == 0  →  left  (broken)
+    if br == 0 and bp > 0  →  right (formed)
+    if br > 0 and bp > 0
+        br ≠ bp             →  left + right (order changes)
+        br == bp            →  context (preserved, optional)
+
+all nodes always go into context
+```
+
+
+
+**Q5 — Implement `its_to_gml`**
+
+Using the edge classification logic above, implement `its_to_gml(its, rule_id, include_context_edges)` that converts an ITS/RC graph to a MØD GML string.
+
+Requirements:
+- `_bond_label(order)` maps a scalar float bond order to its GML string: `1.0→"1"`, `1.5→"#"`, `2.0→"2"`, `3.0→"3"`.
+- `_node_label(attrs)` returns the element symbol with `+` or `-` suffix if `formal_charge ≠ 0`; handle both scalar and `(fc_r, fc_p)` tuple forms.
+- For each edge `(b_r, b_p)`: if `b_r ≠ b_p`, put the reactant side (`b_r > 0`) in `left` and the product side (`b_p > 0`) in `right`; if `b_r == b_p > 0` and `include_context_edges` is True, put it in `context`.
+- Always emit every node in the `context` block.
 
 ---
 
-### 1.5 Weisfeiler--Lehman hash as a fast prefilter
+<details> <summary><b>Solution:</b></summary>
 
-Exact graph isomorphism testing becomes expensive for large collections of
-reaction-center graphs.
-To accelerate clustering, we use the **Weisfeiler--Lehman (WL) graph hash**.
+```python
+import networkx as nx
+from typing import Union
 
-The WL procedure iteratively refines node labels by hashing:
 
-$$
-\text{current node label}
-\;+\;
-\text{multiset of neighboring node and edge labels}.
-$$
+def _bond_label(order: float) -> str:
+    o = round(float(order), 2)
+    return {1.0: "1", 1.5: "#", 2.0: "2", 3.0: "3"}.get(o, str(o))
 
-The final WL hash is an **isomorphism invariant**:
-isomorphic graphs always share the same hash.
-However, the invariant is **not complete**:
-non-isomorphic graphs may occasionally collide.
 
-Therefore, WL hashing is used only as a **prefilter**:
+def _node_label(attrs: dict) -> str:
+    elem = attrs.get("element", "*")
+    chg_raw = attrs.get("formal_charge", 0)
+    chg = int((chg_raw[0] if isinstance(chg_raw, tuple) else chg_raw) or 0)
+    if chg > 0: return f"{elem}+"
+    if chg < 0: return f"{elem}-"
+    return str(elem)
 
-1. group reaction-center graphs by identical WL hash;
-2. perform exact typed isomorphism checks only within each hash bucket.
 
-This strategy preserves correctness while dramatically reducing runtime.
+def its_to_gml(
+    its: nx.Graph,
+    rule_id: Union[int, str] = 0,
+    include_context_edges: bool = True,
+) -> str:
+    left_edges, right_edges, ctx_edges = [], [], []
+    for u, v, d in its.edges(data=True):
+        br, bp = d.get("order", (0.0, 0.0))
+        br, bp = float(br), float(bp)
+        if br != bp:
+            if br > 0:
+                left_edges.append((u, v, _bond_label(br)))
+            if bp > 0:
+                right_edges.append((u, v, _bond_label(bp)))
+        elif include_context_edges and br > 0:
+            ctx_edges.append((u, v, _bond_label(br)))
+
+    lines = [f'rule [', f'  ruleID "{rule_id}"', '  left [']
+    for u, v, lbl in left_edges:
+        lines.append(f'    edge [ source {u} target {v} label "{lbl}" ]')
+    lines.append('  ]')
+
+    lines.append('  context [')
+    for n in sorted(its.nodes()):
+        lines.append(f'    node [ id {n} label "{_node_label(its.nodes[n])}" ]')
+    for u, v, lbl in ctx_edges:
+        lines.append(f'    edge [ source {u} target {v} label "{lbl}" ]')
+    lines.append('  ]')
+
+    lines.append('  right [')
+    for u, v, lbl in right_edges:
+        lines.append(f'    edge [ source {u} target {v} label "{lbl}" ]')
+    lines.append('  ]')
+    lines.append(']')
+    return '\n'.join(lines)
+```
+
+Test on the demo RC:
+```python
+print(its_to_gml(_demo, rule_id="demo", include_context_edges=True))
+```
+</details>
+
+
+
+**Example GML output** (one rule, L/K/R encoded as sub-blocks):
+
+```text
+rule [
+  ruleID "0"
+  left [
+    edge [ source 5 target 19 label "1" ]
+  ]
+  context [
+    node [ id 5 label "N" ]
+    node [ id 19 label "H" ]
+    node [ id 23 label "N" ]
+  ]
+  right [
+    edge [ source 23 target 19 label "1" ]
+  ]
+]
+```
+
+**Interpretation**
+
+| Block | DPO component | Meaning |
+|-------|---------------|---------|
+| `context` (K) | preserved subgraph | atoms that exist in both reactant and product; all nodes always appear here |
+| `left` (L∖K) | deleted bonds | bonds present only in the reactant — broken during the reaction |
+| `right` (R∖K) | created bonds | bonds present only in the product — formed during the reaction |
+
+In the example above, the H node (id 19) bridges from `N` (atom 5) in the reactant to `N` (atom 23) in the product — a direct N→N proton transfer encoded as an explicit H node with one broken and one formed bond.
+
+Because `rc_h` contains H-expanded reaction centers, every transferred hydrogen already appears as an explicit node. The resulting GML rules are directly compatible with **MØD** [\[3\]](#6.-References) without further post-processing.
+
+
+
+**Q4 — Data pipeline**
+
+Implement a single high-level function that ingests a pandas DataFrame containing multiple atom-mapping candidates per reaction and produces a deduplicated library of reaction centers / DPO rules (optionally exported to GML), plus the rows that remain ambiguous.
 
 ---
 
-### 1.6 From reaction centers to DPO rules
+<details> <summary><b>Solution:</b></summary>
 
-A **double-pushout (DPO) rule** in graph rewriting is defined as a span
+```python
+from typing import List
+from synedu.Utils import rsmi_to_its, cluster_its_graphs, stratified_sample, wl_hash
 
-$$
-p
-=
-\left(
-L \xleftarrow{\;\ell\;} K \xrightarrow{\;r\;} R
-\right),
-$$
+def rule_lib_pipeline(
+        data: pd.DataFrame,
+        map_cols: List[str],
+        export_gml: bool = False):
 
-where:
+    # 1. get high-confidence aam
+    data, _ = ensemble_maps(data, map_cols)
 
-- $L$ is the **left-hand side** pattern to be matched;
-- $R$ is the **right-hand side** pattern produced by the rewrite;
-- $K$ is the **context graph** that is preserved.
+    # 2. convert to RC
+    tqdm.pandas(desc="ITS construction")
+    data["ITS"] = data["aam"].progress_apply(lambda s: rsmi_to_its(s, core=False))
 
-In the setting of atom-mapped chemical reactions:
+    tqdm.pandas(desc="Reaction center construction")
+    data["RC"] = data["aam"].progress_apply(lambda s: rsmi_to_its(s, core=True))
 
-- nodes of $K$ correspond to atoms preserved through the reaction;
-- edges of $K$ correspond to bonds whose type does not change;
-- edges present in $L$ but not in $R$ are **deleted bonds**;
-- edges present in $R$ but not in $L$ are **created bonds**.
+    # 3. compute wl_hash for prefilter
+    tqdm.pandas(desc="WL hash")
+    _wl = lambda g: wl_hash(g, node_attrs=["element", "formal_charge"], edge_attrs=["order"])
+    data["wl_hash"] = data["RC"].progress_apply(_wl)
 
-Atom-state changes (e.g. formal charge) are naturally represented as
-node attributes that may differ between $L$ and $R$,
-while $K$ retains only invariant identity information
-(e.g. element symbol).
+    # 4. clustering
+    rc_graphs = data["RC"].tolist()
+    data["class"] = cluster_its_graphs(rc_graphs,
+                                       node_attrs=["element", "formal_charge"],
+                                       edge_attrs=["order"])
+    result = data.to_dict("records")
 
-In practice, we extract rules as follows:
+    # 5. get unique reaction centers and expand H
+    rc_records = stratified_sample(result, key="class")
+    rc = [r["RC"] for r in rc_records]
+    rc_h = [h_expand_its(g) for g in rc]
 
-- $L$: reactant-side bonds induced on $C_r$;
-- $R$: product-side bonds induced on $C_r$;
-- $K$: intersection of bonds on $C_r$ whose labels are unchanged.
+    # 6. convert to GML
+    if export_gml:
+        return [its_to_gml(g, rule_id=i, include_context_edges=False)
+                for i, g in enumerate(rc_h)]
+    return rc_h
+```
+</details>
 
-This construction makes the common intuition of
-“reaction centers as rewriting rules”
-explicit in precise graph-theoretic terms.
 
 
+<a id="4-discussion"></a>
 
-## 2. Atom mapping (already provided)
+## 4. Discussion
 
-The downstream ITS / reaction-center pipeline assumes each atom has a **map id** that is consistent
-between reactant and product sides.
+- Atom-mapping quality can be significantly improved through ensemble techniques, specifically by performing isomorphism checks on generated ITS graphs.
+- While WL-based canonicalization is effective for pre-filtering and deduplication, it remains an approximation and cannot fully replace exact isomorphism checks for definitive verification.
+- Clustering reaction centers in large-scale datasets is computationally intensive; however, implementing a WL hashing pre-filter significantly accelerates the process by pruning the search space.
+- Rules can be persisted as NetworkX graph objects for deep computational tasks or exported in GML format for a lightweight, human-readable, and explainable representation.
 
-In this notebook we **do not run RXNMapper**.
-Instead, we **validate** that the loaded reactions look mapped:
-- the reaction string contains `:n` map annotations,
-- RDKit parses the molecules,
-- at least one mapped atom appears on each side.
 
+<a id="5-quiz"></a>
 
+## 5. Quiz
 
-### 2.1 Inspect a mapped reaction
+1. Why is reaction standardization needed before comparing atom-mapped reactions from different mappers?
+2. How does comparing several mapper outputs help identify high-confidence atom mappings?
+3. Why is WL hashing useful for clustering reaction centers, and why is exact isomorphism still needed?
+4. What information must a DPO rule preserve so it can be exported and reused as a reaction-rule library entry?
 
-Our dataset stores a reaction SMILES where atoms carry map ids like `:12`.  
-We will parse these map ids and build our ITS.
 
 
+## 6. References
 
-## 3. Construct the ITS graph
-
-
-
-### 3.1 Implementation idea (from mapped SMILES → ITS)
-
-We parse the mapped reaction into RDKit molecules on each side.
-
-For each atom (with map id \(m\)) we record (at least):
-
-- element symbol
-- formal charge on reactant side and product side
-
-For each bond between map ids \((u,v)\) we record:
-
-- \(b_R(u,v)\): reactant bond order (or \(\bot\))
-- \(b_P(u,v)\): product bond order (or \(\bot\))
-
-We then take the **union** of reactant and product bonds as edges of the ITS.
-
-> Chemistry convention used here:
-> aromatic bonds are treated as order \(1.5\).
-
-
-
-### 3.2 Visualize an ITS as a typed graph
-
-For readability, we draw each edge label as `(r_order → p_order)` where `None` means \(\bot\) (absent bond).
-Changed bonds are the mechanistic “action”.
-
-
-
-## 4. Extract the reaction center
-
-
-
-### 4.1 Center definition used in this notebook
-
-We define the *core* center atoms \(C_0\) as atoms incident to **changed bonds**:
-
-\[
-C_0 = \{v \mid \exists e \text{ incident to } v \text{ with } b_R(e)\neq b_P(e)\}.
-\]
-
-Optionally, we also include atoms with **formal charge changes** (reactant vs product),
-because for some chemistries the bond pattern alone does not capture the transformation.
-
-Finally, we optionally expand to radius \(r\) context and return the induced subgraph.
-
-
-
-### 4.2 Visualize the reaction center on the molecules
-
-We highlight center atoms (by map id) on both sides of the mapped reaction.
-
-
-
-## 5. Reaction center clustering via typed isomorphism
-
-
-
-### 5.1 Typed matching predicates
-
-We treat each center as a typed graph with:
-
-- node labels: \((\text{symbol}, r\_charge, p\_charge)\)
-- edge labels: \((r\_order, p\_order)\)
-
-Two centers are equivalent if there exists an isomorphism preserving these labels.
-
-> You can relax or strengthen these predicates depending on your use-case:
-> - ignore charge,
-> - treat aromatic \(1.5\) specially,
-> - include radius-1 context, etc.
-
-
-
-### 5.2 Inspect representative centers
-
-A cluster representative is the first center graph assigned to that cluster.
-
-
-
-## 6. Accelerate clustering with WL graph hashing (prefilter)
-
-
-
-### 6.1 WL hash prefilter
-
-We compute a WL hash for each center graph using label strings:
-
-- node label: `symbol | r_charge → p_charge`
-- edge label: `r_order → p_order` (with `⊥` for absent)
-
-Then we group by hash and run expensive isomorphism only within each group.
-
-> **Reminder:** WL hashing is an isomorphism-invariant heuristic, not a proof.
-> We still run exact isomorphism within each hash bucket to obtain correct clusters.
-
-
-
-### 6.2 Sanity check: WL-prefilter + exact isomorphism equals exact isomorphism alone
-
-Because WL is only a prefilter, the final clustering should be identical to direct isomorphism clustering
-(up to cluster id renaming).
-
-
-
-## 7. Convert reaction centers into DPO rules
-
-
-
-### 7.1 Practical rule extraction used here
-
-Given an ITS graph \(G_{\mathrm{ITS}}\) and a chosen context node set \(C_r\), we build:
-
-- \(L\): **reactant pattern** on \(C_r\) (keep only bonds with \(b_R\neq\bot\))
-- \(R\): **product pattern** on \(C_r\) (keep only bonds with \(b_P\neq\bot\))
-- \(K\): **preserved context** on \(C_r\) (keep only bonds with \(b_R=b_P\neq\bot\))
-
-Nodes:
-- \(L\) nodes carry `symbol` and `charge=r_charge`
-- \(R\) nodes carry `symbol` and `charge=p_charge`
-- \(K\) nodes carry `symbol` only (identity type)
-
-This yields a DPO-style span \(L \leftarrow K \rightarrow R\) that is directly interpretable as:
-“delete bonds in \(L\setminus K\), keep bonds in \(K\), create bonds in \(R\setminus K\)”.
-
-> For production systems, you may also:
-> - include stereochemistry / aromatic flags explicitly,
-> - attach atom environments,
-> - require connected centers,
-> - handle reagents vs true reactants,
-> - normalize charges, etc.
-
-
-
-### 7.2 Extract rules for all reactions and export
-
-We extract one DPO rule per reaction (for a chosen center radius), then optionally export:
-
-- all rules
-- cluster representatives (one per isomorphism class of centers)
-
-The export format is a simple JSON with nodes/edges for L,K,R.
-
-
-
-## 8. Exercises & quiz
-
-<div class="alert alert-block alert-info">
-<b>Cross-referencing.</b> Concepts used here build on:
-- <b>S01</b>: typed graphs, isomorphism, automorphisms
-- <b>S03</b>: (if you have it) reaction-side graph construction and label design choices
-</div>
-
-### Exercise 1 — Center radius as a hyperparameter
-
-Implement `radius=2` and compare:
-- cluster counts,
-- representative centers,
-- rule sizes (nodes/edges).
-
-**Chemistry intuition:** larger radii incorporate more “environment”, making rules more specific.
-
-### Exercise 2 — Relax the typing
-
-Modify the matcher to ignore charge:
-
-- node label uses only `symbol`
-- edge label still uses `(r_order, p_order)`
-
-Does the number of clusters decrease? Which chemistries merge?
-
-### Exercise 3 — WL iterations vs collisions
-
-Change `wl_iters` in `cluster_centers_wl_prefilter` and measure:
-- runtime,
-- number of WL buckets,
-- collision rate (bucket size distribution).
-
-### Quiz (conceptual)
-
-1. What would go wrong if we define \(K\) as empty for every rule?
-2. How does a bond order change (single→double) appear in the \(L,K,R\) decomposition?
-3. In practice, why is WL hashing only a prefilter and not a proof of isomorphism?
-4. If RXNMapper assigns a wrong map id, which step in the pipeline is most sensitive, and why?
-
-
-
-# References and further reading
-
-- RXNMapper: Schwaller et al., transformer-based atom mapping (see the RXNMapper repository / publication).
-- ITS graphs in reaction modeling: classic “imaginary transition state” representations in reaction informatics.
-- Double pushout (DPO) graph rewriting: Ehrig et al., algebraic graph transformation (intro texts); chemical applications in rule-based reaction systems.
-- Weisfeiler–Lehman (WL) refinement and hashing: WL test / color refinement; widely used in cheminformatics fingerprints and GNN theory.
-- RDKit documentation and book: https://www.rdkit.org/docs/
-- NetworkX documentation: https://networkx.org/documentation/stable/
-
-> For a publication-quality method section, replace these bullets with full BibTeX entries and pin exact tool versions.
+1. Phan, T.-L.; González Laffitte, M. E.; Weinbauer, K.; Merkle, D.; Andersen, J. L.; Fagerberg, R.; Gatter, T.; Stadler, P. F. *SynKit: A Graph-Based Python Framework for Rule-Based Reaction Modeling and Analysis.* *Journal of Chemical Information and Modeling* (2025). https://doi.org/10.1021/acs.jcim.5c02123
+2. Shervashidze, N.; Schweitzer, P.; van Leeuwen, E. J.; Mehlhorn, K.; Borgwardt, K. M. *Weisfeiler-Lehman graph kernels.* *Journal of Machine Learning Research* **12**, 2539-2561 (2011). https://www.jmlr.org/papers/v12/shervashidze11a.html
+3. Andersen, J. L.; Flamm, C.; Merkle, D.; Stadler, P. F. *A software package for chemically inspired graph transformation.* In *International Conference on Graph Transformation*, 73-88 (Springer, 2016). https://doi.org/10.1007/978-3-319-40530-8_5
+4. Schwaller, P. *et al.* *Extraction of organic chemistry grammar from unsupervised learning of chemical reactions (RXNMapper).* *Science Advances* **7**, eabe4166 (2021). https://doi.org/10.1126/sciadv.abe4166
+5. Nugmanov, R.; Dyubankova, N.; Gedich, A.; Wegner, J. K. *Bidirectional graphormer for reactivity understanding: neural network trained to reaction atom-to-atom mapping task.* *Journal of Chemical Information and Modeling* **62**(14), 3307-3315 (2022). https://doi.org/10.1021/acs.jcim.2c00344
+6. Chen, S.; An, S.; Babazade, R.; Jung, Y. *Precise atom-to-atom mapping for organic reactions via human-in-the-loop machine learning.* *Nature Communications* **15**, 2250 (2024).
+7. Schneider, N.; Stiefl, N.; Landrum, G. A. What's What: The (Nearly) Definitive Guide to Reaction Role Assignment. *Journal of Chemical Information and Modeling* **56**, 2336-2346 (2016). https://doi.org/10.1021/acs.jcim.6b00564
+8. Phan, T.-L.; Weinbauer, K.; González Laffitte, M. E.; Pan, Y.; Merkle, D.; Andersen, J. L.; Fagerberg, R.; Flamm, C.; Stadler, P. F. *SynTemp: Efficient Extraction of Graph-Based Reaction Rules from Large-Scale Reaction Databases.* *Journal of Chemical Information and Modeling* (2025). https://doi.org/10.1021/acs.jcim.4c01795
+9. Cordella, L. P.; Foggia, P.; Sansone, C.; Vento, M. A (Sub)Graph Isomorphism Algorithm for Matching Large Graphs. *IEEE Transactions on Pattern Analysis and Machine Intelligence* **26**, 1367-1372 (2004). https://doi.org/10.1109/TPAMI.2004.75

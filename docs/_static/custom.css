@@ -476,6 +476,5 @@ a.sphx-glr-backref-instance {
 div.nbinput.container div.input_area > div[class^="highlight"],
 div.nboutput.container div.output_area > div[class^="highlight"] {
   overflow-y: hidden;
-  overflow-x: hidden;
+  overflow-x: auto;
 }
-
