@@ -1,24 +1,14 @@
-# S03: Maximum common substructure in reaction informatics
+# S03: Maximum Common Substructure in Reaction Informatics
+
+This talktorial introduces maximum common substructure (MCS) as a practical molecular-alignment tool for reaction informatics. We compare chemistry-aware RDKit MCS with explicit graph-level reasoning, then use the same idea for reaction rebalancing [\[1\]](#6.-References), [\[2\]](#6.-References), [\[3\]](#6.-References).
+
 
 
 ## Aim of this talktorial
 
-This talktorial (**S03**) introduces **maximum common substructure (MCS)** as a practical alignment tool for reaction informatics when exact graph isomorphism is too strict.
-
-We focus on two connected ideas:
-
-1. **MCS-based molecular alignment**  
-   Using the largest shared subgraph to compare molecules that differ by edits, substitutions, or missing components.
-
-2. **Reaction rebalancing**  
-   Combining MCS alignment with rule-based reasoning to detect missing species and make reaction records more consistent.
-
-We use:
-
-- **RDKit** for chemistry-aware MCS behavior, including atom/bond comparison settings, aromaticity, and ring constraints <a href="#ref-1">[1]</a>.
-- **NetworkX** for explicit graph-level alignment logic and symmetry-aware interpretation <a href="#ref-2">[2]</a>.
-
-The goal is to connect molecular similarity with reaction reasoning: an MCS is not only a similarity score, but also a candidate correspondence that can support atom mapping, reaction-center localization, and data curation.
+1. Use **MCS-based molecular alignment** to compare molecules that differ by edits, substitutions, or missing components.
+2. Interpret where RDKit MCS and graph-based MCS agree or differ.
+3. Apply MCS reasoning to simple **reaction rebalancing** examples and connect it to SynRBL.
 
 ---
 
@@ -52,7 +42,7 @@ After completing this talktorial, you will be able to:
 
 ## 1. Maximum Common Substructure
 
-The **Maximum Common Substructure (MCS)** [3][4] problem seeks the largest subgraph
+The **Maximum Common Substructure (MCS)** [\[2\]](#6.-References), [\[4\]](#6.-References) problem seeks the largest subgraph
 shared by two molecular graphs. It serves as a core **alignment primitive** for
 molecular similarity, substructure transfer, and as a common starting point for
 **atom mapping**.
@@ -105,7 +95,7 @@ $$
 Given two labeled graphs $G_1$ and $G_2$, a *common subgraph* is a graph $C$ together with label-preserving injective morphisms $\iota_1: C \hookrightarrow G_1$ and $\iota_2: C \hookrightarrow G_2$.  
 The *maximum common subgraph* (MCS) is a common subgraph $C^*$ of maximum cardinality $|V(C^*)|$ (maximum common substructure by atoms) or maximum $|E(C^*)|$ (by bonds).
 
-**Remark.** MCS computation is NP-hard in general. RDKit uses an FMCS heuristic that may return a *locally* maximal but not globally maximal common subgraph. NetworkX-based MCS uses exact backtracking, which is exponential in the worst case but exact.
+**Remark.** MCS computation is NP-hard in general [\[4\]](#6.-References). RDKit uses an FMCS heuristic that may return a *locally* maximal but not globally maximal common subgraph. NetworkX-based MCS uses exact backtracking, which is exponential in the worst case but exact.
 
 **Definition (Normalized MCS size).**  
 Given an MCS $C^*$ of two molecules, the *normalized MCS size* (Tanimoto-like) is:
@@ -120,7 +110,7 @@ This is 1 if the molecules are isomorphic and 0 if they share no atom.
 ### 1.2. RDkit MCS
 
 In **RDKit**, the **maximum common substructure (MCS)** can be computed using
-`rdkit.Chem.rdFMCS` [5]. 
+`rdkit.Chem.rdFMCS` [\[5\]](#6.-References). 
 
 RDKit MCS is commonly used for molecular alignment, reaction analysis, and as a
 basis for atom mapping.
@@ -256,12 +246,12 @@ Most discrepancies originate from **ring systems**. RDKit MCS is *chemistry-firs
 
 ### MCS size vs Tanimoto similarity
 
-Tanimoto similarity (fingerprint-based) and MCS size (graph-based) both measure molecular overlap, but they are **not equivalent**. The scatter plot below samples molecules from the dataset and compares both metrics against ethanol. Ring-containing molecules can have high graph MCS under RDKit's chemistry-aware matcher yet low Tanimoto — or vice versa.
+Tanimoto similarity (fingerprint-based) and MCS size (graph-based) both measure molecular overlap, but they are **not equivalent** [\[4\]](#6.-References). The scatter plot below samples molecules from the dataset and compares both metrics against ethanol. Ring-containing molecules can have high graph MCS under RDKit's chemistry-aware matcher yet low Tanimoto — or vice versa.
 
 
 ## 2. Rule-based reaction rebalancing
 
-We utilize idea from *[Reaction rebalancing: a novel approach to curating reaction databases](https://link.springer.com/article/10.1186/s13321-024-00875-4)* [6]. 
+We utilize idea from *[Reaction rebalancing: a novel approach to curating reaction databases](https://link.springer.com/article/10.1186/s13321-024-00875-4)* [\[6\]](#6.-References). 
 
 ---
 
@@ -475,9 +465,9 @@ impractical at scale.
 Instead, we use **reaction alignment** to identify missing **structural motifs**
 via MCS and apply **rule-based reasoning** to complete and rebalance reactions.
 
-In this section, we directly use functionality from **SynKit** [6]
+In this section, we directly use functionality from **SynKit** [\[6\]](#6.-References)
 (`pip install synkit`) and explore an established tool for reaction rebalancing,
-**SynRBL** [7] (`pip install synrbl`).
+**SynRBL** [\[7\]](#6.-References) (`pip install synrbl`).
 
 The focus is on applying **MCS-based alignment** to detect missing species,
 infer stoichiometry, and rebalance reactions in a chemically consistent manner.
@@ -709,7 +699,7 @@ print(rsmi_balanced)
 
 
 
-Here we demonstrate the same rebalancing task using **SynRBL** [6], a dedicated
+Here we demonstrate the same rebalancing task using **SynRBL** [\[6\]](#6.-References), a dedicated
 rule-based reaction rebalancer. Starting from an imbalanced reaction SMILES,
 SynRBL automatically detects the missing fragment via MCS-based alignment and
 completes the reaction by imputing the appropriate substructure. The output
@@ -745,3 +735,15 @@ compounds?
 
 - What information can MCS provide when rebalancing reactions involving
 missing carbon fragments?
+
+
+## 6. References
+
+1. RDKit documentation. https://www.rdkit.org/docs/
+2. RDKit MCS (`rdFMCS`) documentation. https://www.rdkit.org/docs/source/rdkit.Chem.rdFMCS.html
+3. Phan, T.-L. *et al.* Reaction rebalancing: a novel approach to curating reaction databases. *Journal of Cheminformatics* **16**, 82 (2024). https://doi.org/10.1186/s13321-024-00875-4
+4. Raymond, J. W.; Willett, P. Maximum common subgraph isomorphism algorithms for the matching of chemical structures. *Journal of Computer-Aided Molecular Design* **16**, 521-533 (2002). https://doi.org/10.1023/A:1021271615909
+5. NetworkX documentation. https://networkx.org/documentation/stable/
+6. Bonchev, D.; Rouvray, D. H., eds. *Chemical Graph Theory: Introduction and Fundamentals*. Abacus Press (1991).
+7. Diestel, R. *Graph Theory*, 5th ed. Springer (2017). https://doi.org/10.1007/978-3-662-53622-3
+8. Phan, T.-L. *et al.* SynKit: A graph-based framework for rule-based reaction modeling. *Journal of Chemical Information and Modeling* (2025). https://doi.org/10.1021/acs.jcim.5c02123

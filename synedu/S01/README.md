@@ -1,21 +1,14 @@
-# S01 : From Molecules to Labeled Graphs
+# S01: From Molecules to Labeled Graphs
+
+This talktorial introduces molecular representations for SynEdu: RDKit molecules, SMILES strings, and explicit NetworkX labeled graphs. The focus is on what chemical information is preserved, what can be lost, and why representation choices matter for later graph-matching and reaction-rule tasks [\[1\]](#6.-References), [\[2\]](#6.-References), [\[3\]](#6.-References), [\[4\]](#6.-References).
+
 
 
 ## Aim of this talktorial
 
-This talktorial focuses on **molecular representation**: how molecules are encoded, canonicalized, and converted into labeled graphs suitable for downstream graph transformation workflows.
-
-1. A compact **RDKit** tutorial.
-2. The **SMILES** string representation and canonicalization.  
-3. **Graph representations** that encode molecules as labeled graphs with chemically meaningful node and edge attributes.
-
-
-This talktorial introduces these pillars with **minimal, explicit implementations** so the underlying assumptions are transparent. We combine:
-
-- **RDKit** as the chemistry reference layer (sanitization, aromaticity, valence semantics) <a href="#ref-1">[1]</a>, and  
-- **NetworkX** as a lightweight graph engine for matching, symmetry analysis, and later graph rewriting  <a href="#ref-2">[2]</a>.
-
-The goal is not raw performance but **conceptual clarity**: to expose how choices in labeling and symmetry handling affect downstream tasks such as rule extraction and application in later **SynEdu** notebooks.
+1. Build a compact **RDKit** foundation for parsing, inspecting, and canonicalizing molecules.
+2. Understand **SMILES** as a graph encoding with choices around aromaticity, hydrogens, and stereochemistry.
+3. Convert molecules into **labeled molecular graphs** and test round-trip behavior between RDKit and NetworkX.
 
 ---
 
@@ -40,7 +33,7 @@ After completing this talktorial you will be able to:
   <li><a href="#s01-graph">3. Molecular Graph representation</a></li>
   <li><a href="#s01-discussion">4. Discussion</a></li>
   <li><a href="#s01-quiz">5. Quiz</a></li>
-  <li><a href="#s01-references">6. References</a></li>
+  <li><a href="#6.-References">6. References</a></li>
 </ul>
 
 
@@ -197,7 +190,7 @@ Dashed black lines mark the Rule of Five thresholds; bars are coloured by pass/f
 
 <div style="padding: 1rem; border-left: 6px solid #4D96FF; background: #F3F8FF; border-radius: 10px;">
 
-**SMILES** stands for **Simplified Molecular Input Line Entry System**.
+**SMILES** stands for **Simplified Molecular Input Line Entry System** [\[2\]](#6.-References).
 
 It is a compact, human-readable text notation that encodes a molecular **graph**, where:
 
@@ -481,12 +474,14 @@ The cell below color-codes each SMILES token by its syntactic role — useful fo
 Each color corresponds to a token class (aromatic atom, branch, ring closure, stereo, etc.).
 
 
-SMILES strings can have many valid variants for the same molecule.
+SMILES strings can have many valid variants for the same molecule [\[5\]](#6.-References).
+
 
 
 The
 simplest and most reliable way to compare or normalise SMILES is to convert
-them to a **canonical form** in RDKit.
+them to a **canonical form** in RDKit [\[1\]](#6.-References), [\[5\]](#6.-References), [\[6\]](#6.-References).
+
 
 
 Graph canonicalization (canonical SMILES, toolkit differences) will be covered in later talktorials (**S06**).
@@ -499,7 +494,7 @@ Graph canonicalization (canonical SMILES, toolkit differences) will be covered i
 
 In computational reaction modeling, we represent molecules as **labeled graphs** so that any notion of
 “matching” respects **chemical identity**, such as element type, charge, and bond order, rather than bare
-connectivity alone.
+connectivity alone [\[4\]](#6.-References).
 
 A **labeled molecular graph** is a quadruple
 
@@ -614,7 +609,7 @@ This distinction matters for graph isomorphism and reaction rule matching in lat
 
 ### 3.3. Matrix representations
 
-A labeled molecular graph can be encoded as several **matrices**, each capturing a different structural aspect:
+A labeled molecular graph can be encoded as several **matrices**, each capturing a different structural aspect [\[4\]](#6.-References), [\[7\]](#6.-References), [\[8\]](#6.-References):
 
 | Matrix | Shape | Entry meaning |
 |---|---|---|
@@ -657,7 +652,7 @@ Key properties:
 - The **graph diameter** $\max_{i,j} D_{ij}$ is the longest shortest path — a
   compact measure of molecular "stretch"
 - Distance-based **Wiener index** $W = \tfrac{1}{2}\sum_{i,j} D_{ij}$ correlates
-  with boiling points for alkanes
+  with boiling points for alkanes [\[7\]](#6.-References)
 
 
 #### Incidence matrix
@@ -677,7 +672,7 @@ Key properties:
 #### Bond-electron matrix
 
 The **Bond-Electron (BE) matrix** $M \in \mathbb{R}^{n \times n}$ extends the
-weighted adjacency matrix by encoding electron counts on the diagonal:
+weighted adjacency matrix by encoding electron counts on the diagonal [\[8\]](#6.-References):
 
 $$
 M_{ij} = \begin{cases}
@@ -857,3 +852,15 @@ Answer briefly using what you learned about **RDKit**, **SMILES**, and **molecul
 - 10. Why is this acceptable here?
 
 ---
+
+
+## 6. References
+
+1. RDKit documentation. https://www.rdkit.org/docs/
+2. Weininger, D. SMILES, a chemical language and information system. 1. Introduction to methodology and encoding rules. *Journal of Chemical Information and Computer Sciences* **28**, 31-36 (1988). https://doi.org/10.1021/ci00057a005
+3. NetworkX documentation. https://networkx.org/documentation/stable/
+4. Bonchev, D.; Rouvray, D. H., eds. *Chemical Graph Theory: Introduction and Fundamentals*. Abacus Press (1991).
+5. Weininger, D.; Weininger, A.; Weininger, J. L. SMILES. 2. Algorithm for generation of unique SMILES notation. *Journal of Chemical Information and Computer Sciences* **29**, 97-101 (1989). https://doi.org/10.1021/ci00062a008
+6. Morgan, H. L. The generation of a unique machine description for chemical structures: a technique developed at Chemical Abstracts Service. *Journal of Chemical Documentation* **5**, 107-113 (1965). https://doi.org/10.1021/c160017a018
+7. Wiener, H. Structural determination of paraffin boiling points. *Journal of the American Chemical Society* **69**, 17-20 (1947). https://doi.org/10.1021/ja01193a005
+8. Dugundji, J.; Ugi, I. An algebraic model of constitutional chemistry as a basis for chemical computer programs. *Topics in Current Chemistry* **39**, 19-64 (1973).

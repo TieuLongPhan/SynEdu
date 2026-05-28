@@ -1,38 +1,14 @@
-# S05 : Reaction Rules as Graph Rewriting
+# S05: Reaction Rules as Graph Rewriting
+
+This talktorial introduces Double Pushout (DPO) graph rewriting as a formal model for reaction rules. A rule is represented as a span that separates deleted, preserved, and created structure, then applied to molecular graphs by matching, deleting, and gluing [\[1\]](#6.-References), [\[2\]](#6.-References).
 
 
 
 ## Aim of this talktorial
 
-This talktorial (**S05**) introduces **Double Pushout (DPO) graph rewriting** as a formal way to turn reaction rules into exact, atom-mapped graph transformations.
-
-The key idea is to represent a reaction rule as a span
-
-$$
-L \xleftarrow{\,l\,} K \xrightarrow{\,r\,} R,
-$$
-
-where $L$ is the pattern before the rewrite, $R$ is the pattern after the rewrite, and $K$ is the conserved interface that glues the transformation together.
-
-Concretely, we focus on:
-
-1. **Rules as spans**  
-   Interpreting $L$, $K$, and $R$ chemically as deleted, preserved, and added structure.
-
-2. **Injective matching and symmetry**  
-   Finding all valid matches $m: L \hookrightarrow G$ in a host molecule and understanding duplicate matches caused by automorphism.
-
-3. **Pushout complement**  
-   Deleting $L \setminus K$ from the host while checking the dangling condition.
-
-4. **Pushout construction**  
-   Gluing $R \setminus K$ onto the preserved context to obtain the rewritten product graph.
-
-5. **Atom mapping from node identity**  
-   Preserving node identities through the rewrite so atom maps arise naturally from the graph transformation.
-
-6. **Inverse application and SynKit tooling**  
-   Applying rules in reverse and comparing the hand-built DPO workflow with `SynReactor`.
+1. Represent reaction rules as spans $L \leftarrow K \rightarrow R$.
+2. Implement the DPO workflow: injective matching, pushout complement, and pushout construction.
+3. Compare the hand-built workflow with **SynKit** `SynReactor` for forward and inverse rule application.
 
 ---
 
@@ -58,6 +34,7 @@ After completing this talktorial, you will be able to:
   <li><a href="#3-synkit">3. SynKit</a></li>
   <li><a href="#4-quiz">4. Quiz</a></li>
   <li><a href="#5-discussion">5. Discussion</a></li>
+  <li><a href="#6.-References">6. References</a></li>
 </ul>
 
 
@@ -79,7 +56,7 @@ The point is to demonstrate **bond reorganisation** under a rule-based graph rew
 
 ## 1. Reaction rules
 
-A reaction rule is a **DPO span**
+A reaction rule is a **DPO span** [\[2\]](#6.-References), [\[3\]](#6.-References)
 $$
 L \xleftarrow{\;\ell\;} K \xrightarrow{\;r\;} R,
 $$
@@ -148,7 +125,7 @@ where $D = G \setminus m(L \setminus K)$ is the *pushout complement* (host minus
 
 ## 2. Double Pushout Graph Rewriting
 
-Two categorical pushouts compactly encode the familiar chemical workflow **delete → add** (remove broken bonds / atoms, then glue in the new fragment). The usual DPO diagram is:
+Two categorical pushouts compactly encode [\[2\]](#6.-References), [\[3\]](#6.-References) the familiar chemical workflow **delete → add** (remove broken bonds / atoms, then glue in the new fragment). The usual DPO diagram is:
 
 $$
 \begin{array}{ccccc}
@@ -267,6 +244,8 @@ Output
 
 
 #### Pattern match gallery — all valid matches of $L$ in $G$
+
+Pattern matching is the subgraph-isomorphism step that decides where a rule may apply [\[4\]](#6.-References).
 
 We enumerate all injective matches $m: L \hookrightarrow G$ and display each one,
 highlighting the matched subgraph in $G$. Orbit-deduplication then collapses
@@ -783,3 +762,18 @@ Two matches $m_1, m_2: L \hookrightarrow G$ that differ only by an automorphism 
 | Rule inversion | **S05** (here) | S08 (backward prediction) |
 | ITS graph as $K$-encoding | S04 | S06 (canonicalization), S07 (clustering) |
 | ΔBE ↔ span equivalence | S01 (ΔBE), S05 (span) | S07 (rule fingerprint) |
+
+
+
+## 6. References
+
+1. Phan, T.-L. *et al.* SynKit: A graph-based framework for rule-based reaction modeling. *Journal of Chemical Information and Modeling* (2025). https://doi.org/10.1021/acs.jcim.5c02123
+2. Ehrig, H.; Ehrig, K.; Prange, U.; Taentzer, G. *Fundamentals of Algebraic Graph Transformation*. Springer (2006). https://doi.org/10.1007/3-540-31188-2
+3. Ehrig, H.; Kreowski, H.-J.; Rozenberg, G. *Handbook of Graph Grammars and Computing by Graph Transformation, Volume 1: Foundations*. World Scientific (1997).
+4. NetworkX documentation. https://networkx.org/documentation/stable/
+5. RDKit documentation. https://www.rdkit.org/docs/
+6. Schwaller, P. *et al.* Molecular Transformer: A Model for Uncertainty-Calibrated Chemical Reaction Prediction. *ACS Central Science* (2019). https://doi.org/10.1021/acscentsci.9b00576
+7. Schwaller, P. *et al.* Extraction of organic chemistry grammar from unsupervised learning of chemical reactions. *Science Advances* **7**, eabe4166 (2021). https://doi.org/10.1126/sciadv.abe4166
+8. Phan, T.-L. *et al.* SynTemp: Efficient Extraction of Graph-Based Reaction Rules from Large-Scale Reaction Databases. *Journal of Chemical Information and Modeling* (2025). https://doi.org/10.1021/acs.jcim.4c01795
+9. Nugmanov, R. I. *et al.* CGRtools: Python Library for Molecule, Reaction, and Condensed Graph of Reaction Processing. *Journal of Chemical Information and Modeling* **59**, 2516-2521 (2019). https://doi.org/10.1021/acs.jcim.9b00102
+10. Andersen, J. L.; Flamm, C.; Merkle, D.; Stadler, P. F. A software package for chemically inspired graph transformation. In *International Conference on Graph Transformation*, 73-88 (Springer, 2016). https://doi.org/10.1007/978-3-319-40530-8_5

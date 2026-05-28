@@ -1,33 +1,14 @@
-# S09: Context Graph Expansion
+# S09: Context Radius Expansion
 
-This talktorial introduces **hierarchical context expansion** as a principled way to
-control the generality–specificity trade-off in reaction-center templates.
-By expanding the reaction center with progressively larger chemical neighbourhoods
-(radii *r* = 0 … 5), the template library becomes either more general (small *r*,
-high coverage) or more specific (large *r*, high precision).
-We first build the core BFS expansion by hand, then scale it with SynKit's
-`HierContext`, and evaluate multi-radius libraries on a real dataset.
+This talktorial asks how much local neighbourhood should be kept around a reaction center. We expand reaction-center templates by radius, apply the resulting rule libraries, and use recall, enrichment, and F1 to choose a practical context size [\[1\]](#6.-References), [\[2\]](#6.-References), [\[3\]](#6.-References).
+
 
 
 ## Aim of this talktorial
 
-This talktorial (**S09**) studies **context graph expansion**: how much chemical neighbourhood should be included around a reaction center when building reaction templates.
-
-A minimal reaction center is highly general and can match many substrates, but it may also be too permissive. A larger context is more specific and often more precise, but it may fail to generalize. We explore this trade-off by expanding the reaction-center context with increasing radius and evaluating how template behavior changes.
-
-Concretely, we focus on:
-
-1. **The r-hop context around a reaction center**  
-   Defining $N_r(C)$ on an ITS graph and interpreting the resulting context subgraph.
-
-2. **Manual BFS expansion**  
-   Implementing context expansion from scratch so the algorithm is transparent.
-
-3. **SynKit hierarchical context extraction**  
-   Scaling the same idea with `HierContext` for multi-radius template libraries.
-
-4. **Generality-specificity evaluation**  
-   Measuring how recall, precision, and F1 change as the radius increases.
+1. Define the **r-hop context** around a reaction center on an ITS graph.
+2. Implement transparent BFS-based context expansion and build deduplicated template libraries for several radii.
+3. Evaluate the recall-enrichment trade-off and choose a practical radius from validation evidence.
 
 ---
 
@@ -37,10 +18,10 @@ After completing this talktorial, you will be able to:
 
 - define the *r*-hop context neighbourhood $N_r(C)$ on an ITS graph,
 - explain how context controls the generality-specificity trade-off of a DPO rule,
-- implement BFS-based context expansion and verify it against SynKit's `HierContext`,
-- extract and visualize multi-radius template libraries for a rule family,
-- evaluate forward-prediction recall, precision, and F1 at each radius, and
-- choose a practical context radius for a dataset using evidence rather than guesswork.
+- implement BFS-based context expansion,
+- build deduplicated template libraries at several radii,
+- evaluate forward prediction with recall@K and enrichment@K, and
+- choose a practical context radius using evidence rather than guesswork.
 
 ---
 
@@ -49,27 +30,13 @@ After completing this talktorial, you will be able to:
 <ul class="synedu-outline">
   <li><a href="#0-setup--data">0. Setup &amp; data</a></li>
   <li><a href="#1-what-is-context">1. What is context?</a></li>
-  <ul>
-    <li><a href="#11-the-reaction-center--recap">1.1 The reaction center — recap</a></li>
-    <li><a href="#12-defining-the-r-hop-context">1.2 Defining the r-hop context</a></li>
-    <li><a href="#13-implement-expand_context-from-scratch">1.3 Implement expand_context from scratch</a></li>
-    <li><a href="#14-visualise-r--0-1-2-on-one-its">1.4 Visualise r = 0, 1, 2 on one ITS</a></li>
-    <li><a href="#15-the-context-subgraph-as-the-dpo-k-graph">1.5 The context subgraph as the DPO K-graph</a></li>
-  </ul>
-  <li><a href="#2-rule-family-deep-dive--radii-05">2. Rule family deep-dive — radii 0-5</a></li>
-  <ul>
-    <li><a href="#21-pick-the-working-family">2.1 Pick the working family</a></li>
-    <li><a href="#22-extract-multi-radius-templates-with-hiercontext">2.2 Extract multi-radius templates with HierContext</a></li>
-    <li><a href="#23-template-count-vs-radius">2.3 Template count vs. radius</a></li>
-    <li><a href="#24-visual-tour--k-graphs-at-r--0-1-2">2.4 Visual tour — K-graphs at r = 0, 1, 2</a></li>
-    <li><a href="#25-multi-radius-evaluation-loop">2.5 Multi-radius evaluation loop</a></li>
-    <li><a href="#26-trade-off-curve">2.6 Trade-off curve</a></li>
-  </ul>
-  <li><a href="#3-generalising--family-dependent-optima">3. Generalising — family-dependent optima</a></li>
-  <li><a href="#4-choosing-a-radius-in-practice">4. Choosing a radius in practice</a></li>
-  <li><a href="#5-quiz">5. Quiz</a></li>
-  <li><a href="#6-discussion">6. Discussion</a></li>
+  <li><a href="#2-template-radius-deep-dive--radii-05">2. Template radius deep-dive — radii 0-5</a></li>
+  <li><a href="#3-choosing-a-radius-in-practice">3. Choosing a radius in practice</a></li>
+  <li><a href="#4-quiz">4. Quiz</a></li>
+  <li><a href="#5-discussion">5. Discussion</a></li>
+  <li><a href="#6.-References">6. References</a></li>
 </ul>
+
 
 
 ## 0. Setup & data
@@ -94,10 +61,10 @@ We reuse the exact pipeline from S07/S08:
 This is shown quickly here; refer to S07 for a step-by-step explanation.
 
 
-**Standardise the test set**
+**Standardize the test set**
 
 We remove atom mapping from test reactions so that the predictor never sees the
-ground-truth correspondence. Standardisation also normalises ring perception and
+ground-truth correspondence. Standardization also normalizes ring perception and
 aromaticity, which is required for fair chemical comparison.
 
 
@@ -105,31 +72,38 @@ aromaticity, which is required for fair chemical comparison.
 
 The *reaction center* captures the minimum subgraph that changes in a reaction.
 **Context expansion** augments that minimal representation by pulling in the
-chemical neighbourhood around it.  Before using SynKit's ready-made tool, we
+chemical neighbourhood around it.  Here, we
 build the expansion by hand so the mechanism is fully transparent.
 
 
-### 1.1 The reaction center — recap
+### 1.1 Recap reaction center
 
-From S04: an edge (u, v) in the ITS graph belongs to the **reaction center**
-E_rc if its bond orders on the reactant and product sides differ:
+From **S04**: an edge (u, v) in the ITS graph belongs to the **reaction center**
+$E_{rc}$ if its bond orders on the reactant and product sides differ:
 
 $$E_{\text{rc}} = \{(u,v) \in E \mid b_r(u,v) \neq b_p(u,v)\}$$
 
-The **reaction-center nodes** $V_{rc}$ are all endpoints of edges in $E_{rc}$.
+The **reaction-center nodes** $V_{rc}$ are all endpoints of edges in $E_{rc}$ [\[1\]](#6.-References), [\[3\]](#6.-References).
 At radius *r* = 0, $V_{rc}$ is the starting seed for context expansion.
 
 
 ### 1.2 Defining the r-hop context
 
-**Definition.** Let C ⊆ V be the reaction-center atoms of an ITS graph G.
+**Definition.** Let  $C \subseteq V$  be the reaction-center atoms of an ITS graph G.
 The *r-hop context* is:
 
-$$N_r(C) = \{ v \in V \mid \text{dist}(v,\, C) \leq r \}$$
+$$
+N_r(C) = \left\{ v \in V \mid \operatorname{dist}(v, C) \leq r \right\},
+$$
+where
 
-where dist(v, C) = min_{c ∈ C} d_G(v, c) is the shortest-path distance in G.
+$$
+\operatorname{dist}(v, C) = \min_{c \in C} d_G(v, c)
+$$
 
-The **context subgraph** K_r is the subgraph of G induced by N_r(C).
+is the shortest-path distance in G.
+
+The **context subgraph** $K_r$ is the subgraph of G induced by $N_r(C)$.
 
 | r | What is included |
 |---|---|
@@ -138,7 +112,7 @@ The **context subgraph** K_r is the subgraph of G induced by N_r(C).
 | 2 | r=1 context + one more shell of neighbours |
 | k | All atoms within k hops of any reaction-center atom |
 
-At r = 0, K_r is the smallest possible rule (maximum generality).
+At r = 0, $K_r$ is the smallest possible rule (maximum generality).
 Each additional hop adds chemical context, increasing specificity.
 
 
@@ -161,183 +135,178 @@ the accumulated set.
 In S05 we defined a **DPO span** L ← K → R where K is the *interface*
 subgraph — the part of the rule that is not rewritten.
 
-The context subgraph K_r built above is exactly this interface graph:
+The context subgraph $K_r$ built above is exactly this interface graph:
 
-- **L** = the reactant-side view of K_r (with b_r bond orders)
-- **R** = the product-side view of K_r (with b_p bond orders)
+- **L** = the reactant-side view of $K_r$ (with $b_r$ bond orders)
+- **R** = the product-side view of $K_r$ (with $b_p$ bond orders)
 - **K** = the shared atoms and unchanged bonds
 
-A larger K_r carries more chemical context → the rule pattern-matches fewer
-(but more precisely chosen) substrates → higher precision, lower coverage.
+A larger $K_r$ carries more chemical context. The rule therefore pattern-matches fewer
+substrates and usually generates a more focused candidate list. In evaluation, this often
+appears as a trade-off: recall@K may decrease, while enrichment can improve because fewer
+irrelevant candidates need to be inspected.
 
 
-## 2. Rule family deep-dive — radii 0–5
 
-We now focus on a **single rule family** — the largest cluster — and study
-how the template library and prediction quality change as we vary *r* from 0 to 5.
+## 2. Template radius deep-dive — radii 0–5
+
+We now use the context expansion function from Section 1 to build template libraries at
+several radii. To keep the lesson simple, we study one representative rule family rather
+than comparing many families at once.
 
 
-### 2.1 Pick the working family
+
+### 2.1 Pick one rule family
 
 
 Let us look at a few representative reactions from this family to confirm
 they share the same reaction-center topology.
 
 
-### 2.2 Extract multi-radius templates with `HierContext`
+### 2.2 Build templates at each radius
 
-`HierContext` does exactly what our hand-built `expand_context` does,
-but applied to every training reaction simultaneously and with automatic
-deduplication at each radius level.
+For each training reaction in the selected family, we extract the r-hop context subgraph [\[4\]](#6.-References)
+with `expand_context(its, r)`. We then deduplicate the resulting K-graphs with a WL hash.
 
+The result is a plain list:
+
+```python
+_templates[r] = [
+    {"K": context_graph, "hash": wl_hash, "source_idx": training_index},
+    ...
+]
 ```
-HierContext(max_radius=5).fit(family_train, its_key="ITS")
-    → (demo,  templates)
-       demo        : updated training records with hierarchical cluster indices
-       templates   : list of length max_radius+1
-                     templates[r] = list of unique K-graphs at radius r
-                     each entry: {"K": nx.Graph, "class": int, ...}
-```
+
+This is intentionally simple: no extra hierarchy, just one template set per radius.
+
 
 
 ### 2.3 Template count vs. radius
 
 
-### 2.4 Visual tour — K-graphs at r = 0, 1, 2
-
 We draw one representative K-graph per radius using `visualize_its`
 (which handles ITS-style edge attributes automatically).
 
 
-### 2.5 Multi-radius evaluation loop
+### 2.4 Evaluate each radius
 
-We now apply each radius's template library to the test set and measure:
+We now apply each radius's template library to test reactions from the **same reaction-center family**. This keeps the comparison local: each radius is trying to solve the same class of chemistry, rather than being averaged across unrelated rule classes.
 
 | Metric | What it captures |
 |---|---|
-| **Coverage** (recall) | Fraction of test reactions where the ground truth appears in the candidate set |
-| **Recognition** (precision) | Fraction of *unique* generated candidates that match the ground truth |
-| **F1** | Harmonic mean of Coverage and Recognition |
+| **Recall@K** | Fraction of same-family test reactions where the standardized ground truth appears in the first K unique candidates |
+| **Enrichment@K** | Mean hit density inside the first K unique candidates; with one ground truth this is `hit / n_candidates` |
+| **F1@K** | Harmonic mean of recall@K and enrichment@K, used here as the radius trade-off score |
 
-We use the same `SynReactor` and `_compute_metrics` tools introduced in S08.
+We use `SynReactor` for generation, then standardize and deduplicate predictions before computing recall@K, enrichment@K, and F1@K. In this section, K is fixed to 50 so the radius comparison stays easy to read.
 
 
-### 2.6 Trade-off curve
+
+### 2.5 Trade-off curve
 
 The two-panel figure below is the central diagnostic of S09:
 
-- **Left panel** — Coverage vs. Recognition scatter, one point per radius.
-  Moving right and up is better; the best operating point is the point
-  closest to the top-right corner.
-- **Right panel** — Template count and wall-clock time vs. radius.
-  These capture the *cost* of higher specificity.
+- **Left panel** — Recall@K, enrichment@K, and their F1 score as radius increases.
+  This shows whether larger context is helping both recovery and focus.
+- **Right panel** — Recall@K versus enrichment@K, one point per radius.
+  Moving right means the answer appears more often; moving up means the candidate list is more focused when the answer appears.
+
+The highlighted radius maximizes `tradeoff_score`, defined here as the harmonic mean of recall@K and enrichment@K. This is not a universal objective; it is a compact visual guide for comparing radii inside one reaction-center family.
 
 
-## 3. Generalising — family-dependent optima
 
-The optimal radius found for our working family may not apply universally.
-Different rule families have different symmetry profiles, ring environments,
-and neighbour diversity, so the coverage–precision trade-off curve will differ.
+## 3. Choosing a radius in practice
 
-The code below repeats the evaluation across the **top 3 families** at radii
-r = 0, 1, 2 and assembles the results into a **heatmap** (family × radius → F1).
-Running it confirms that the best radius is family-dependent.
+The single-family curve above is useful for learning, but radius selection should be checked on more than one reaction-center class. Here we run a small validation-style exercise:
 
+1. choose three reaction-center classes that have both training and test reactions;
+2. build class-specific template libraries at **r = 0, 1, 2**;
+3. apply each class's templates to all test reactions from the same class;
+4. compare recall, enrichment, and F1 using **all generated candidates** within each class, then average across classes.
 
-## 4. Choosing a radius in practice
+This keeps the lesson simple while avoiding a common mistake: choosing a radius from one large class and assuming it behaves the same everywhere.
 
-The trade-off curves and heatmap together inform a practical decision workflow.
-The schematic below summarises the main decision points.
+For this setup experiment we set `k=None`: every unique generated candidate is inspected. This gives a clearer view of whether a radius loses the true product entirely, without mixing in a rank cutoff.
 
 
-**Practical guidelines (summary)**
+
+### 3.1 Trade-off illustration across three classes
+
+The next figure separates two questions. Because this check uses all generated candidates, the enrichment value directly reflects how diluted the answer is in the full generated set:
+
+- the left panel shows whether each radius is stable across classes;
+- the right panel shows the macro-average operating point for each radius.
+
+The highlighted macro point is the best practical default for this small check. It is a default, not a law: a production workflow would repeat the same logic on a larger validation split.
+
+
+
+**Practical guidelines**
 
 | Situation | Action |
 |---|---|
-| Need to identify core transformation types | Start at r = 0 |
-| Symmetry-induced ambiguous matches | Increase to r = 1 |
-| Retrosynthesis planning (high precision) | r = 2 or 3 |
-| Coverage drops sharply above some r | Normalise charges / tautomers upstream |
-| Latency is a hard constraint | r ≤ 2 |
-| F1 plateaus | You are in the saturation regime — larger r gives no gain |
+| r = 0 has high all-candidate recall but low enrichment | Add local context and test r = 1 |
+| r = 1 improves all-candidate F1 across most classes | Use r = 1 as the first practical default |
+| r = 2 improves only one class but hurts the macro mean | Keep r = 1 globally and override per class only when justified |
+| Recall drops sharply from r = 1 to r = 2 | The larger template is becoming too specific |
+| Runtime is too high | Cap the maximum radius or pre-filter candidate templates |
 
-**Never tune the radius on the test set.** Use a validation split for radius
-selection and reserve the test set for final reporting only.
+In practice, choose a radius from a validation set, report the all-candidate macro-average trade-off, and inspect per-class curves before treating the radius as a default.
 
 
-**Q2.** At r = 0, two reactions that differ only in a remote substituent
-(e.g. –F vs. –Cl on the meta position of an aromatic ring) are treated as
-**identical** templates because the reaction center is the same.
 
-Give a concrete example where this causes an incorrect forward prediction.
-What is the *minimum* r needed to distinguish the two reactions, assuming the
-substituent is located exactly 3 bonds from the nearest reaction-center atom?
-
-
-## 5. Quiz
+## 4. Quiz
 
 ### Q1 — Template count saturation
 
-If you increase r from 2 to 3 for a given family, do you always get *more*
-unique templates? Explain why or why not, referring to the deduplication step
-performed by `HierContext`.
-
-*Hint*: think about what happens when every training reaction in the family
-shares exactly the same 3-hop neighbourhood.
+If you increase r from 2 to 3 for a given family, do you always get *more* unique templates? Explain why or why not, referring to the deduplication step.
 
 ---
 
-### Q2 — When does r = 0 fail? (see Section 4)
+### Q2 — When does r = 0 fail?
 
-### Q3 — Ring-aware context (implementation)
+At r = 0, two reactions that differ only in a remote substituent are treated as identical templates because the reaction center is the same.
 
-Implement `ring_aware_context(its, r)`: identical to `expand_context` but,
-once any atom of a ring is included in the context, **all** atoms of that ring
-are also included (even if they are farther than r hops away).
+Give a concrete example where this causes an incorrect forward prediction. What is the minimum r needed to distinguish the two reactions if the substituent is exactly 3 bonds from the nearest reaction-center atom?
 
-```python
-def ring_aware_context(its: nx.Graph, r: int) -> nx.Graph:
-    ...
-```
+---
 
-*Hint*: use `nx.cycle_basis(its)` to enumerate rings.
-After building the r-hop context with ordinary BFS, iterate over all rings:
-if any ring member is already in the context, add the whole ring.
+### Q3 — Recall, enrichment, and F1
+
+Suppose two radii have similar recall@50, but one has much better enrichment@50 and therefore a higher F1@50. Which radius would you choose for a search workflow, and why?
 
 
-## 6. Discussion
+
+## 5. Discussion
 
 ### Key takeaways
 
-**The generality–specificity trade-off is fundamental.**
-Any pattern-matching system over structured data faces it. The graph-rewriting
-formalism makes it explicit, controllable, and measurable via standard
-information-retrieval metrics.
+**Context radius controls generality.**
+Small radii make broad templates. Larger radii add local chemical information and usually make templates more specific.
 
-**The optimal radius is family-dependent.**
-Families whose reactions share a highly symmetric neighbourhood saturate
-at r = 1.  Families involving ring-fused or stereocentre-bearing contexts
-may need r = 3 or higher.
+**Deduplication matters.**
+Many training reactions can produce the same context graph at a given radius. Deduplicating those graphs keeps the template library compact.
 
-**`HierContext` is just principled BFS at scale.**
-The hand-built `expand_context` in §1 and the SynKit `HierContext` are
-algorithmically equivalent; the latter adds deduplication and multi-level
-indexing across an entire training corpus.
+**Recall@K and enrichment@K should be read together.**
+Recall@K asks whether the correct reaction appears. Enrichment@K asks how focused the candidate list is. In this talktorial, `tradeoff_score` is the F1 score between them.
 
-**What this series does not cover** — and where to go next:
+**Evaluate within a comparable class.**
+The radius decision is easier to interpret when all test reactions share the same reaction-center family.
 
-| Extension | Notes |
-|---|---|
-| Stereocentre-aware templates | Requires encoding CIP descriptors in node attributes |
-| Tautomer normalisation | Pre-process with RDKit's MolStandardize before extracting ITS |
-| Learning-based candidate ranking | Train a graph neural network to rank candidates from large *r* |
-| End-to-end retrosynthesis | Use templates as moves in an MCTS search tree |
-| Reaction-centre definition | Replace bond-order change with charge, radical, or isotope change |
+**The simple pipeline**
 
-### The full pipeline in one sentence
-
-SMILES → ITS → reaction center → WL hash → cluster by family →
-`HierContext` per family → multi-radius template library → `SynReactor` →
-`_compute_metrics` → choose *r*.
+SMILES -> ITS -> reaction center -> r-hop context -> deduplicated templates -> `SynReactor` -> standardized recall@K, enrichment@K, and F1@K -> choose *r*.
 
 This is the conceptual endpoint of the SynEdu series.
+
+
+
+## 6. References
+
+1. Phan, T.-L. *et al.* SynKit: A Graph-Based Python Framework for Rule-Based Reaction Modeling and Analysis. *Journal of Chemical Information and Modeling* (2025). https://doi.org/10.1021/acs.jcim.5c02123
+2. Shervashidze, N.; Schweitzer, P.; van Leeuwen, E. J.; Mehlhorn, K.; Borgwardt, K. M. Weisfeiler-Lehman Graph Kernels. *Journal of Machine Learning Research* **12**, 2539-2561 (2011).
+3. Ehrig, H.; Ehrig, K.; Prange, U.; Taentzer, G. *Fundamentals of Algebraic Graph Transformation*. Springer (2006). https://doi.org/10.1007/3-540-31188-2
+4. Coley, C. W.; Green, W. H.; Jensen, K. F. RDChiral: An RDKit Wrapper for Handling Stereochemistry in Retrosynthetic Template Extraction and Application. *Journal of Chemical Information and Modeling* **59**, 2529-2537 (2019). https://doi.org/10.1021/acs.jcim.9b00286
+5. RDKit documentation. https://www.rdkit.org/docs/
+6. Daylight Theory Manual. *Reaction SMILES and SMARTS*.
+7. Schneider, N.; Stiefl, N.; Landrum, G. A. What's What: The (Nearly) Definitive Guide to Reaction Role Assignment. *Journal of Chemical Information and Modeling* **56**, 2336-2346 (2016). https://doi.org/10.1021/acs.jcim.6b00564

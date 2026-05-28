@@ -167,14 +167,35 @@ html_js_files = [
     "synedu.js",
 ]
 
+_default_sidebar = [
+    "logo-text.html",
+    "globaltoc.html",
+    "localtoc.html",
+    "relations.html",
+    "searchbox.html",
+]
+
 html_sidebars = {
-    "**": [
+    "_autosummary/*": _default_sidebar,
+    "api": _default_sidebar,
+    "citation": _default_sidebar,
+    "contact": _default_sidebar,
+    "contribute": _default_sidebar,
+    "external_dependencies": _default_sidebar,
+    "external_tutorials_collections": _default_sidebar,
+    "funding": _default_sidebar,
+    "index": _default_sidebar,
+    "installing": _default_sidebar,
+    "license": _default_sidebar,
+    "syneco_ecosystem": _default_sidebar,
+    "whats_new": _default_sidebar,
+    "talktorials/*": [
         "logo-text.html",
-        "globaltoc.html",
+        "talktorialtoc.html",
         "localtoc.html",
         "relations.html",
         "searchbox.html",
-    ]
+    ],
 }
 
 

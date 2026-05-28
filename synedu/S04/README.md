@@ -1,25 +1,14 @@
-# S04: Atom Mapping as Graph Morphism: MCS and ITS Equivalence
+# S04: Atom Mapping as Graph Morphism
+
+This talktorial connects molecular alignment to atom-to-atom mapping. We build transparent MCS-based maps, compare them with RXNMapper, and use Imaginary Transition State (ITS) graphs as a map-number-invariant representation of reaction change [\[1\]](#6.-References), [\[2\]](#6.-References).
+
 
 
 ## Aim of this talktorial
 
-This talktorial (**S04**) extends the MCS ideas from **S03** to the central reaction-informatics task of **atom-to-atom mapping**.
-
-We ask how atoms in reactants correspond to atoms in products, then use that correspondence to construct and compare **Imaginary Transition State (ITS)** graphs. The notebook introduces both transparent graph-based mapping logic and a modern neural mapper.
-
-Concretely, we focus on:
-
-1. **MCS-based atom mapping**  
-   Building atom correspondences by aligning maximum common substructures between reactants and products.
-
-2. **Attention-guided atom mapping with RXNMapper**  
-   Generating mapped reaction SMILES and inspecting attention information as a source of model interpretability.
-
-3. **ITS graph construction**  
-   Encoding a mapped reaction as an **Imaginary Transition State (ITS)** graph that stores reactant-side and product-side bond states.
-
-4. **Map comparison by graph isomorphism**  
-   Comparing atom maps through ITS isomorphism so the judgment is invariant to arbitrary atom-map numbering.
+1. Construct **MCS-based atom maps** between reactants and products.
+2. Run **RXNMapper** and inspect attention information for student-facing interpretation.
+3. Build and compare **ITS graphs** so atom-map equivalence can be checked by graph isomorphism.
 
 ---
 
@@ -45,6 +34,7 @@ After completing this talktorial, you will be able to:
   <li><a href="#3-its-equivalence">3. ITS equivalence</a></li>
   <li><a href="#4-quiz">4. Quiz</a></li>
   <li><a href="#5-discussion">5. Discussion</a></li>
+  <li><a href="#6.-References">6. References</a></li>
 </ul>
 
 
@@ -58,7 +48,7 @@ After completing this talktorial, you will be able to:
 Now we convert them into reactant and product graphs using `rsmi_to_graph`.
 
 
-We now develop `mcs_networkx` to identify the Maximum Common Substructure (MCS).
+We now develop `mcs_networkx` to identify the Maximum Common Substructure (MCS), using the graph-matching perspective introduced in S03 [\[3\]](#6.-References).
 Note that in a reaction context, **bonds may be formed or broken** between
 reactants and products. Therefore, bond attributes should **not** be used
 as matching constraints (`edge_attrs`), and the MCS is computed based on
@@ -194,7 +184,7 @@ Typical RXNMapper outputs:
 - `mapped_rxn`: reaction SMILES annotated with atom-map indices induced by \(\mu\),  
 - `confidence`: a scalar summary of alignment consistency (higher → more reliable).
 
-We adopt this attention-guided strategy following the Molecular Transformer framework <a href="#ref-4">[4]</a> and RXNMapper <a href="#ref-5">[5]</a>.
+We adopt this attention-guided strategy following the Molecular Transformer framework [\[4\]](#6.-References) and RXNMapper [\[2\]](#6.-References).
 
 
 
@@ -205,7 +195,7 @@ The atom map is selected from an attention matrix whose rows are product atom to
 
 
 ## 2. Imaginary Transition State
-The **Imaginary Transition State (ITS)** <a href="#ref-5">[5]</a> (or Condensed Graph of the Reaction <a href="#ref-6">[6]</a>) is a compact, chemistry-oriented way to represent *what changes* in a reaction by **superimposing reactants and products via an atom-atom map**.
+The **Imaginary Transition State (ITS)** [\[2\]](#6.-References) (or Condensed Graph of the Reaction [\[5\]](#6.-References)) is a compact, chemistry-oriented way to represent *what changes* in a reaction by **superimposing reactants and products via an atom-atom map**.
 
 Think of the ITS as a single graph whose **nodes are atom-map labels** (one node per mapped atom) and whose **edges record the bond before and after the reaction**. Reading the ITS tells you, at a glance, which bonds are preserved, broken or formed.
 
@@ -372,7 +362,7 @@ Now try with 3 reactions below
 Even for experienced chemists, it is non-trivial to determine whether three atom mappings are equivalent.
 
 
-While atom-map equivalence is hard to judge directly, the corresponding ITS graphs are equivalent if and only if they are isomorphic, a concept we already encountered in **S02**.
+While atom-map equivalence is hard to judge directly, the corresponding ITS graphs are equivalent if and only if they are isomorphic, a concept we already encountered in **S02** [\[6\]](#6.-References).
 
 
 **MCS vs RXNMapper — ITS isomorphism comparison**
@@ -457,3 +447,16 @@ data.head()
 - **RXNMapper** offers a strong, practical solution by leveraging learned attention patterns and providing confidence estimates.
 - **ITS graphs** compactly encode bond changes, abstracting away atom-map labeling details.
 - **ITS isomorphism** provides a clean, map-number-invariant criterion for comparing atom mappings across methods.
+
+
+## 6. References
+
+1. Phan, T.-L. *et al.* SynKit: A graph-based framework for rule-based reaction modeling. *Journal of Chemical Information and Modeling* (2025). https://doi.org/10.1021/acs.jcim.5c02123
+2. Schwaller, P. *et al.* Extraction of organic chemistry grammar from unsupervised learning of chemical reactions. *Science Advances* **7**, eabe4166 (2021). https://doi.org/10.1126/sciadv.abe4166
+3. Dugundji, J.; Ugi, I. An algebraic model of constitutional chemistry as a basis for chemical computer programs. *Topics in Current Chemistry* **39**, 19-64 (1973).
+4. Schwaller, P. *et al.* Molecular Transformer: A Model for Uncertainty-Calibrated Chemical Reaction Prediction. *ACS Central Science* (2019). https://doi.org/10.1021/acscentsci.9b00576
+5. Phan, T.-L. *et al.* SynTemp: Efficient Extraction of Graph-Based Reaction Rules from Large-Scale Reaction Databases. *Journal of Chemical Information and Modeling* (2025). https://doi.org/10.1021/acs.jcim.4c01795
+6. Bonchev, D.; Rouvray, D. H., eds. *Chemical Graph Theory: Introduction and Fundamentals*. Abacus Press (1991).
+7. RDKit documentation. https://www.rdkit.org/docs/
+8. NetworkX documentation. https://networkx.org/documentation/stable/
+9. Nugmanov, R. I. *et al.* CGRtools: Python Library for Molecule, Reaction, and Condensed Graph of Reaction Processing. *Journal of Chemical Information and Modeling* **59**, 2516-2521 (2019). https://doi.org/10.1021/acs.jcim.9b00102

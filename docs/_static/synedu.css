@@ -527,21 +527,21 @@ div.highlight{
   border-spacing: 0 !important;
   background: var(--syn-paper);
   box-shadow: 0 8px 22px rgba(15,23,42,0.055);
+  margin: 1.05rem 0 1.35rem;
 }
 .md-typeset table:not(.highlighttable) th{
-  background: #edf3f7 !important;
+  background: #f0f5f8 !important;
   color: #28303d !important;
-  font-size: 0.76rem;
-  letter-spacing: 0.045em;
-  text-transform: uppercase;
+  font-size: 0.82rem;
+  letter-spacing: 0.015em;
   font-weight: 800;
 }
 .md-typeset table:not(.highlighttable) td,
 .md-typeset table:not(.highlighttable) th{
   border-color: rgba(40,48,61,0.10) !important;
-  padding: 0.72rem 0.82rem;
-  font-size: 0.90rem;
-  line-height: 1.48;
+  padding: 0.78rem 0.88rem;
+  font-size: 0.94rem;
+  line-height: 1.55;
 }
 .md-typeset table:not(.highlighttable) tbody tr:nth-child(even){
   background: rgba(248,250,252,0.72);
@@ -549,18 +549,58 @@ div.highlight{
 .md-typeset table:not(.highlighttable) tbody tr:hover{
   background: rgba(1,228,156,0.045);
 }
-.md-typeset li[id^="ref-"]{
-  scroll-margin-top: 5.5rem;
+body[data-synedu-theme="dark"] .md-typeset table:not(.highlighttable){
+  border-color: rgba(220,230,242,0.14);
+  box-shadow: 0 8px 22px rgba(0,0,0,0.22);
 }
-.md-typeset a[href^="#ref-"]{
+body[data-synedu-theme="dark"] .md-typeset table:not(.highlighttable) th{
+  background: #1c2736 !important;
+  color: #e8eef5 !important;
+}
+body[data-synedu-theme="dark"] .md-typeset table:not(.highlighttable) tbody tr:nth-child(even){
+  background: rgba(255,255,255,0.025);
+}
+body[data-synedu-theme="dark"] .md-typeset table:not(.highlighttable) tbody tr:hover{
+  background: rgba(1,228,156,0.075);
+}
+.md-typeset [id="6.-References"],
+.md-typeset [id="6-references"]{
+  scroll-margin-top: 5.8rem;
+}
+.md-typeset section[id="6.-References"],
+.md-typeset section[id="6-references"]{
+  margin-top: 2.2rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid rgba(40,48,61,0.14);
+}
+.md-typeset section[id="6.-References"] ol,
+.md-typeset section[id="6-references"] ol{
+  padding-left: 1.55rem;
+}
+.md-typeset section[id="6.-References"] li,
+.md-typeset section[id="6-references"] li{
+  padding-left: 0.18rem;
+  margin: 0.42rem 0;
+  font-size: 0.93rem;
+  line-height: 1.62;
+}
+.md-typeset a[href="#6.-References"],
+.md-typeset a[href="#6-references"]{
   color: #006f62 !important;
-  font-weight: 750;
+  font-weight: 760;
   text-decoration: none !important;
-  border-bottom: 1px solid rgba(0,111,98,0.28);
+  border-bottom: 1px solid rgba(0,111,98,0.24);
+  white-space: nowrap;
 }
-.md-typeset a[href^="#ref-"]:hover{
+.md-typeset a[href="#6.-References"]:hover,
+.md-typeset a[href="#6-references"]:hover{
   color: var(--syn-navy) !important;
   border-bottom-color: rgba(40,48,61,0.45);
+}
+body[data-synedu-theme="dark"] .md-typeset a[href="#6.-References"],
+body[data-synedu-theme="dark"] .md-typeset a[href="#6-references"]{
+  color: var(--syn-teal) !important;
+  border-bottom-color: rgba(1,228,156,0.34);
 }
 .md-typeset table.synedu-funding-logos{
   margin: 1.2rem 0 1.35rem;
@@ -620,6 +660,19 @@ div.highlight{
 .nbinput svg{
   max-width: 100%;
   height: auto;
+}
+.nboutput .output_png,
+.nboutput .output_svg{
+  padding: 0.35rem 0;
+}
+.nboutput .output_png img,
+.nboutput .output_svg svg{
+  display: block;
+  margin: 0.25rem auto;
+}
+.nboutput .output_html table{
+  margin-top: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 @media (max-width: 700px){
   html,
@@ -1422,9 +1475,66 @@ body[data-synedu-theme="dark"] .md-sidebar--primary .md-nav__title--site{
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
+.synedu-talktorial-nav{
+  margin: 0.35rem 0 0.6rem;
+}
+.synedu-talktorial-nav__title{
+  display: block;
+  padding: 0.35rem 0.9rem 0.45rem;
+  color: var(--syn-muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.synedu-talktorial-nav__link{
+  display: block;
+  align-items: baseline;
+}
+.synedu-talktorial-nav__link.is-active{
+  background: rgba(22,179,168,0.07);
+  border-left-color: var(--syn-teal);
+  color: var(--syn-teal-2) !important;
+}
+.synedu-talktorial-nav__code{
+  color: var(--syn-slate);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.synedu-talktorial-nav__code::after{
+  content: ": ";
+}
+.synedu-talktorial-nav__text{
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.synedu-talktorial-nav__link.is-active .synedu-talktorial-nav__code,
+.synedu-talktorial-nav__link:hover .synedu-talktorial-nav__code{
+  color: var(--syn-teal-2);
+}
 .md-sidebar--secondary .md-nav__title,
 .md-sidebar--secondary .md-nav__title[for="__toc"]{
   display: none;
+}
+
+@media only screen and (min-width: 60em){
+  .md-sidebar[data-md-state="lock"]{
+    top: 5.2rem;
+    max-height: calc(100vh - 5.8rem);
+  }
+  .md-sidebar[data-md-state="lock"] .md-sidebar__scrollwrap{
+    max-height: calc(100vh - 5.8rem);
+    overflow-y: auto;
+  }
+}
+
+@media only screen and (max-width: 76.24em){
+  .md-sidebar--primary{
+    top: 0 !important;
+    height: 100% !important;
+  }
 }
 
 @media (max-width: 1180px){

@@ -1,25 +1,14 @@
-# S06 : Canonicalizing Atom-Mapped Reactions and Rules.
+# S06: Canonicalizing Atom-Mapped Reactions and Rules
+
+This talktorial explains why atom-map numbers must be canonicalized before reactions and extracted rules can be compared reproducibly. We use partition refinement, WL-style coloring, and exact isomorphism ideas to collapse equivalent maps [\[1\]](#6.-References), [\[2\]](#6.-References), [\[3\]](#6.-References).
+
 
 
 ## Aim of this talktorial
 
-This talktorial (**S06**) explains why atom-mapped reactions and extracted rules need **canonicalization** before they can be compared, counted, or stored in a reproducible library.
-
-Atom-map numbers are identifiers, not chemistry. The same reaction can be mapped with different but equivalent numbers because of atom ordering, molecular symmetry, or mapper-specific conventions. Without canonicalization, duplicate reactions and duplicate rules can look artificially different.
-
-Concretely, we focus on:
-
-1. **Partition and refinement**  
-   Using graph partitions and Weisfeiler-Lehman-style refinement to distinguish atoms by local structural context.
-
-2. **Individualization and exact methods**  
-   Resolving ambiguous symmetric atoms when refinement alone is insufficient.
-
-3. **Atom-map canonicalization**  
-   Reindexing mapped reactions deterministically while preserving the underlying chemistry.
-
-4. **Rule-level deduplication**  
-   Measuring how canonicalization changes the number of unique reaction centers and rules.
+1. Use **partition and refinement** to distinguish atoms by local structural context.
+2. Resolve ambiguous symmetric atoms with **individualization and exact methods**.
+3. Canonicalize atom-mapped reaction SMILES and quantify the effect on rule deduplication.
 
 ---
 
@@ -45,7 +34,7 @@ After completing this talktorial, you will be able to:
   <li><a href="#3-atom-mapped-canonicalization">3. Atom-Mapped Canonicalization</a></li>
   <li><a href="#4-quiz">4. Quiz</a></li>
   <li><a href="#5-discussion">5. Discussion</a></li>
-  <li><a href="#6-references">6. References</a></li>
+  <li><a href="#6.-References">6. References</a></li>
 </ul>
 
 
@@ -74,7 +63,7 @@ $$
 |N(v) \cap C_j| = d_{ij} \quad \text{for all } v \in C_i
 $$
 
-**Definition (WL Color Refinement).**  
+**Definition (WL Color Refinement).** [\[1\]](#6.-References), [\[4\]](#6.-References)  
 Starting from the initial partition $\mathcal{P}^{(0)}$ induced by node labels $\mathbf{a}$, *Weisfeiler–Lehman (WL) refinement* iterates:
 
 $$
@@ -318,6 +307,8 @@ fully asymmetric ones (alanine) need none at all.
 
 ## 3. Atom-Mapped Canonicalization
 
+Canonical atom-map numbering follows the same motivation as canonical molecular descriptions: equivalent structures should receive deterministic identifiers before comparison [\[3\]](#6.-References), [\[5\]](#6.-References).
+
 Now we combine all of them
 
 
@@ -383,18 +374,9 @@ Different atom-mapping methods (RXNMapper, Graphormer, Local Mapper) may assign 
 
 ## 6. References
 
-1. <a id="ref-1"></a> Weisfeiler, B.; Lehman, A.  
-   *A reduction of a graph to a canonical form and an algebra arising during this reduction.*  
-   (1968).  *(The classic WL refinement report.)*
-
-2. <a id="ref-2"></a> McKay, B. D.; Piperno, A.  
-   *Practical Graph Isomorphism, II.*  
-   *Journal of Symbolic Computation* **60**, 94–112 (2014).  *(Nauty/Traces family; IR + pruning.)*
-
-3. <a id="ref-3"></a> Morgan, H. L.  
-   *The generation of a unique machine description for chemical structures—A technique developed at Chemical Abstracts Service.*  
-   *Journal of Chemical Documentation* **5**(2), 107–113 (1965).  *(Early canonicalization ideas in chem-informatics.)*
-
-4. <a id="ref-4"></a> Phan, T.-L.; González Laffitte, M. E.; Weinbauer, K.; Merkle, D.; Andersen, J. L.; Fagerberg, R.; Gatter, T.; Stadler, P. F.  
-   *SynKit: A Graph-Based Python Framework for Rule-Based Reaction Modeling and Analysis.*  
-   *Journal of Chemical Information and Modeling* (2025).
+1. Weisfeiler, B.; Lehman, A. *A reduction of a graph to a canonical form and an algebra arising during this reduction.* (1968).
+2. McKay, B. D.; Piperno, A. Practical Graph Isomorphism, II. *Journal of Symbolic Computation* **60**, 94-112 (2014).
+3. Morgan, H. L. The generation of a unique machine description for chemical structures. *Journal of Chemical Documentation* **5**(2), 107-113 (1965).
+4. Shervashidze, N.; Schweitzer, P.; van Leeuwen, E. J.; Mehlhorn, K.; Borgwardt, K. M. Weisfeiler-Lehman graph kernels. *Journal of Machine Learning Research* **12**, 2539-2561 (2011). https://www.jmlr.org/papers/v12/shervashidze11a.html
+5. Phan, T.-L. *et al.* SynKit: A Graph-Based Python Framework for Rule-Based Reaction Modeling and Analysis. *Journal of Chemical Information and Modeling* (2025). https://doi.org/10.1021/acs.jcim.5c02123
+6. Bonchev, D.; Rouvray, D. H., eds. *Chemical Graph Theory: Introduction and Fundamentals*. Abacus Press (1991).

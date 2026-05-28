@@ -461,7 +461,11 @@ def draw_rxn_graph(  # noqa: C901
     matplotlib.figure.Figure
     """
     from .conversion import mol_to_graph
-    from .vis import draw_molecular_graph
+    from .vis import (
+        _avg_edge_length,
+        _layout_from_graph_mol,
+        draw_molecular_graph,
+    )
 
     rxn = rdChemReactions.ReactionFromSmarts(rsmi, useSmiles=True)
     if rxn is None:
@@ -498,6 +502,42 @@ def draw_rxn_graph(  # noqa: C901
 
     # ── build gridspec column layout ─────────────────────────────────────
     n_r, n_p = len(r_graphs), len(p_graphs)
+    all_graphs = r_graphs + p_graphs
+
+    def _graph_panel_width(G) -> float:
+        """Estimate a molecule panel width from its RDKit 2D layout footprint."""
+        if G.number_of_nodes() == 0:
+            return 1.0
+        nodelist = sorted(int(n) for n in G.nodes())
+        pos = _layout_from_graph_mol(G, nodelist)
+        if not pos:
+            return 1.0
+        avg_len = _avg_edge_length(pos, G)
+        xs = [p[0] for p in pos.values()]
+        ys = [p[1] for p in pos.values()]
+        x_span = max(xs) - min(xs)
+        y_span = max(ys) - min(ys)
+        pad = max(avg_len * 0.55, 0.35)
+        # Keep single atoms and tiny fragments visible, but let large elongated
+        # molecules claim enough horizontal room to avoid being compressed.
+        return max(0.9, x_span + 2 * pad, (y_span + 2 * pad) * 0.72)
+
+    panel_widths = [_graph_panel_width(G) for G in all_graphs]
+    r_widths = panel_widths[:n_r]
+    p_widths = panel_widths[n_r:]
+
+    max_nodes = max((G.number_of_nodes() for G in all_graphs), default=1)
+    effective_node_size = (
+        node_size
+        if node_size is not None
+        else max(120, min(420, 4000 // max(max_nodes, 1)))
+    )
+    effective_bond_lw = (
+        bond_lw if bond_lw is not None else max(1.1, min(2.2, 18 / max_nodes))
+    )
+    effective_element_fontsize = max(6, min(10, 90 // max(max_nodes, 1)))
+    effective_index_fontsize = effective_element_fontsize + 1
+
     all_widths: List[float] = []
     r_ax_cols: List[int] = []
     p_ax_cols: List[int] = []
@@ -505,30 +545,31 @@ def draw_rxn_graph(  # noqa: C901
     col = 0
     for i in range(n_r):
         if i > 0:
-            all_widths.append(0.15)
+            all_widths.append(0.28)
             col += 1
-        all_widths.append(1.0)
+        all_widths.append(r_widths[i])
         r_ax_cols.append(col)
         col += 1
 
-    all_widths.append(0.4)
+    all_widths.append(0.65)
     arrow_col = col
     col += 1
 
     for i in range(n_p):
         if i > 0:
-            all_widths.append(0.15)
+            all_widths.append(0.28)
             col += 1
-        all_widths.append(1.0)
+        all_widths.append(p_widths[i])
         p_ax_cols.append(col)
         col += 1
 
     # ── auto figsize ─────────────────────────────────────────────────────
     if figsize is None:
-        all_g = r_graphs + p_graphs
-        max_atoms = max((G.number_of_nodes() for G in all_g), default=1)
-        panel_w = max(3.0, min(5.5, 1.8 + 0.18 * max_atoms))
-        figsize = ((n_r + n_p) * panel_w + 1.5, panel_w)
+        # Convert RDKit coordinate units to inches with caps that keep notebook
+        # figures readable without turning large reactions into panoramas.
+        fig_w = max(8.0, min(22.0, 1.05 * sum(all_widths)))
+        fig_h = max(3.0, min(6.0, 2.2 + 0.045 * max_nodes))
+        figsize = (fig_w, fig_h)
 
     fig, axes = plt.subplots(
         1,
@@ -553,12 +594,14 @@ def draw_rxn_graph(  # noqa: C901
             label_mode=label_mode,
             show_indices=show_indices,
             aromatic_style=aromatic_style,
-            node_size=node_size,
-            bond_lw=bond_lw,
+            node_size=effective_node_size,
+            bond_lw=effective_bond_lw,
             highlight_nodes=r_hl_nodes[i] or None,
             highlight_edges=set(r_hl_edges[i].keys()) or None,
             highlight_color=broken_color,
             edge_colors=r_hl_edges[i] or None,
+            element_fontsize=effective_element_fontsize,
+            index_fontsize=effective_index_fontsize,
         )
 
     # ── reaction arrow ───────────────────────────────────────────────────
@@ -613,12 +656,14 @@ def draw_rxn_graph(  # noqa: C901
             label_mode=label_mode,
             show_indices=show_indices,
             aromatic_style=aromatic_style,
-            node_size=node_size,
-            bond_lw=bond_lw,
+            node_size=effective_node_size,
+            bond_lw=effective_bond_lw,
             highlight_nodes=p_hl_nodes[i] or None,
             highlight_edges=set(p_hl_edges[i].keys()) or None,
             highlight_color=formed_color,
             edge_colors=p_hl_edges[i] or None,
+            element_fontsize=effective_element_fontsize,
+            index_fontsize=effective_index_fontsize,
         )
 
     # ── legend ───────────────────────────────────────────────────────────

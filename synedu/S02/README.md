@@ -1,22 +1,14 @@
-# S02: Graph morphism in reaction informatics
+# S02: Graph Morphisms in Reaction Informatics
+
+This talktorial studies graph morphisms as the matching language behind molecular equivalence, symmetry, substructure search, and later reaction-rule application. RDKit provides chemistry-native matching, while NetworkX keeps the graph morphism explicit and inspectable [\[1\]](#6.-References), [\[2\]](#6.-References).
+
 
 
 ## Aim of this talktorial
 
-In **S01**, we built the foundation for SynEdu: molecules as **labeled graphs** whose atoms and bonds carry chemically meaningful attributes.
-
-This talktorial (**S02**) introduces the graph-matching operations that appear throughout reaction modeling and rule-based chemistry:
-
-1. **Graph isomorphism** for exact equivalence under atom renumbering.
-2. **Graph automorphism** for internal molecular symmetry.
-3. **Subgraph isomorphism** for finding whether a pattern occurs inside a larger host molecule.
-
-We keep the implementation explicit by comparing two complementary tool layers:
-
-- **RDKit** for chemistry-aware substructure search, sanitization, aromaticity, and valence semantics <a href="#ref-1">[1]</a>.
-- **NetworkX** for transparent, attribute-based graph morphisms and symmetry-aware deduplication <a href="#ref-2">[2]</a>.
-
-The goal is to make matching behavior visible: students should see how label choices, symmetry, and chemical perception affect the mappings that later become atom maps, reaction centers, and DPO rule matches.
+1. Define and compute **graph isomorphism** for exact equivalence under atom renumbering.
+2. Use **graph automorphism** to understand molecular symmetry and duplicate-looking matches.
+3. Compare **subgraph isomorphism** in NetworkX with chemistry-aware RDKit substructure matching.
 
 ---
 
@@ -46,7 +38,7 @@ After completing this talktorial, you will be able to:
   <li><a href="#3-subgraph-isomorphism">3. Subgraph isomorphism</a></li>
   <li><a href="#4-discussion">4. Discussion</a></li>
   <li><a href="#5-quiz">5. Quiz</a></li>
-  <li><a href="#6-references">6. References</a></li>
+  <li><a href="#6.-References">6. References</a></li>
 </ul>
 
 
@@ -57,7 +49,7 @@ After completing this talktorial, you will be able to:
 
 To make “same molecule” precise, we model molecules as labeled graphs and compare them via
 **label-preserving maps**. This section introduces **labeled graph morphisms** and the induced notion of
-**graph isomorphism** <a href="#ref-3">[3]</a><a href="#ref-4">[4]</a>.
+**graph isomorphism** [\[3\]](#6.-References), [\[4\]](#6.-References).
 
 <figure style="text-align: center;">
   <img src="../../docs/_static/images/SO2/morphism.svg"
@@ -185,7 +177,7 @@ assert not iso_and_count(graphs["aniline_a"], graphs["aniline_b"], enhanced_node
 
 **Observation.** In the benzene example you enumerated **12 mappings** - these are the automorphisms of the benzene heavy-atom graph (the dihedral group \(D_6\), where \(|D_6| = 12\)).
 
-**Definition.** An automorphism <a href="#ref-3">[3]</a><a href="#ref-4">[4]</a> is a graph isomorphism from the graph to itself:
+**Definition.** An automorphism [\[3\]](#6.-References), [\[4\]](#6.-References) is a graph isomorphism from the graph to itself:
 
 $$
 f : G \longrightarrow G.
@@ -234,7 +226,7 @@ enumerate_automorphisms(graph)
 ### 3.2 Orbit
 
 The **orbit** of an atom \(v\) is the set of atoms it can be mapped to by
-molecular symmetries <a href="#ref-3">[3]</a><a href="#ref-4">[4]</a>:
+molecular symmetries [\[3\]](#6.-References), [\[4\]](#6.-References):
 $$
 \mathrm{Orbit}(v)=\{\psi(v)\mid \psi\in\mathrm{Aut}(G)\}.
 $$
@@ -302,7 +294,7 @@ $$
 \quad \text{If yes, what are the embeddings?}
 $$
 
-Formally, a **subgraph isomorphism** <a href="#ref-3">[3]</a><a href="#ref-4">[4]</a> is an **injective, label-preserving graph morphism**
+Formally, a **subgraph isomorphism** [\[3\]](#6.-References), [\[4\]](#6.-References) is an **injective, label-preserving graph morphism**
 
 $$
 f : V(P) \hookrightarrow V(G)
@@ -322,7 +314,7 @@ without collisions (injective), while respecting chemical identity (types).
 
 ### 3.1. NetworkX subgraph match
 
-NetworkX exposes this via:
+NetworkX exposes this via the VF2-style matcher implemented in `networkx.algorithms.isomorphism` [\[2\]](#6.-References), [\[5\]](#6.-References):
 
 - `GraphMatcher.subgraph_isomorphisms_iter()` - enumerates all injective embeddings
   that satisfy `node_match` and `edge_match`.
@@ -474,7 +466,7 @@ df["is_subgraph_ethanol"] = df["graph"].apply(has_ethanol_subgraph)
 ### 3.3. RDKit subgraph search
 
 
-RDKit performs pattern-in-host queries via **substructure matching**:
+RDKit performs pattern-in-host queries via **substructure matching**, a chemistry-specific form of subgraph isomorphism [\[1\]](#6.-References), [\[6\]](#6.-References):
 
 ```python
 host_mol.GetSubstructMatches(pattern_mol)
@@ -647,3 +639,13 @@ Subgraph matching algorithms often return many **equivalent morphisms**.
   can be used to **deduplicate** equivalent matches.
 - Why does this strategy work even when the mappings differ by a permutation
   of pattern nodes?
+
+
+## 6. References
+
+1. RDKit documentation. https://www.rdkit.org/docs/
+2. NetworkX documentation. https://networkx.org/documentation/stable/
+3. Bonchev, D.; Rouvray, D. H., eds. *Chemical Graph Theory: Introduction and Fundamentals*. Abacus Press (1991).
+4. Diestel, R. *Graph Theory*, 5th ed. Springer (2017). https://doi.org/10.1007/978-3-662-53622-3
+5. Cordella, L. P.; Foggia, P.; Sansone, C.; Vento, M. A (Sub)Graph Isomorphism Algorithm for Matching Large Graphs. *IEEE Transactions on Pattern Analysis and Machine Intelligence* **26**, 1367-1372 (2004). https://doi.org/10.1109/TPAMI.2004.75
+6. Ullmann, J. R. An Algorithm for Subgraph Isomorphism. *Journal of the ACM* **23**, 31-42 (1976). https://doi.org/10.1145/321921.321925
