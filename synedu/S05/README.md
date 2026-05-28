@@ -32,8 +32,8 @@ After completing this talktorial, you will be able to:
   <li><a href="#1-reaction-rules">1. Reaction rules</a></li>
   <li><a href="#2-double-pushout-graph-rewriting">2. Double Pushout Graph Rewriting</a></li>
   <li><a href="#3-synkit">3. SynKit</a></li>
-  <li><a href="#4-quiz">4. Quiz</a></li>
-  <li><a href="#5-discussion">5. Discussion</a></li>
+  <li><a href="#4-discussion">4. Discussion</a></li>
+  <li><a href="#5-quiz">5. Quiz</a></li>
   <li><a href="#6.-References">6. References</a></li>
 </ul>
 
@@ -645,67 +645,9 @@ The same DPO span $L \xleftarrow{l} K \xrightarrow{r} R$ works in both direction
 Swapping $L$ and $R$ is all it takes.
 
 
-## 4. Quiz
+<a id="4-discussion"></a>
 
-Answer the following questions using **formal DPO graph-rewriting terminology**.
-
----
-
-### 1. The Dangling Condition
-
-A match $m: L \hookrightarrow G$ *violates the dangling condition* when an edge $e \in E(G)$ is incident to a to-be-deleted node $m(v)$, $v \in V(L) \setminus V(K)$, but $e \notin m(E(L))$.
-
-- **a)** Give a chemical example where the dangling condition is violated. What happens to the substrate graph if we ignore it?
-- **b)** Describe two strategies for handling dangling edges. Which does SynReactor use, and why?
-
----
-
-### 2. DPO Uniqueness
-
-Given a valid match $m: L \hookrightarrow G$, is the pushout complement $D$ always unique up to isomorphism?
-
-- State the precise mathematical condition guaranteeing uniqueness.
-- Can two *different* valid matches $m_1 \neq m_2$ yield isomorphic products $H_1 \cong H_2$? Give a chemical example involving a symmetric substrate.
-
----
-
-### 3. Inverse Rules and Retrosynthesis
-
-The *inverse* of a DPO rule $p: L \xleftarrow{\,l\,} K \xrightarrow{\,r\,} R$ is $p^{-1}: R \xleftarrow{\,r\,} K \xrightarrow{\,l\,} L$.
-
-- **a)** Implement `invert_rule(L, K, R) -> (R, K, L)` in one line.
-- **b)** Show that applying the Diels–Alder rule in inverse mode corresponds to the retrosynthetic disconnection of the cyclohexene ring.
-- **c)** Does the dangling condition still apply to $p^{-1}$? Is there an additional condition?
-
-<details>
-<summary><b>Hint</b></summary>
-
-The inverse rule deletes the bonds $R \setminus K$ and creates bonds $L \setminus K$.  
-The dangling condition for $p^{-1}$ is checked in $G$ (the product) the same way as for $p$.
-</details>
-
----
-
-### 4. Rule Composition
-
-Two rules $p_1: L_1 \leftarrow K_1 \rightarrow R_1$ and $p_2: L_2 \leftarrow K_2 \rightarrow R_2$ can be composed when there exists an injective morphism $R_1 \hookrightarrow L_2$ that is compatible with the $K$-embedding.
-
-- **a)** When is the composed rule well-defined (no orphan nodes)?
-- **b)** Describe chemically a "Diels–Alder then oxidation" composed rule. What would $K_{12}$ preserve?
-
----
-
-### 5. Orbit-Aware Deduplication (connection to S02)
-
-The Diels–Alder pattern $L$ contains the diene fragment $C=C{-}C=C$.
-
-- **a)** Is $|\mathrm{Aut}(L)| > 1$? If so, identify the non-trivial automorphism.
-- **b)** If there are $n$ total injective matches $m: L \hookrightarrow G$ and $|\mathrm{Aut}(L)| = k$, what is the maximum number of orbit-distinct products?
-- **c)** Modify the pipeline so that orbit-equivalent matches are detected and collapsed before rule application.
-
-
-
-## 5. Discussion
+## 4. Discussion
 
 ### Key Takeaways
 
@@ -762,6 +704,19 @@ Two matches $m_1, m_2: L \hookrightarrow G$ that differ only by an automorphism 
 | Rule inversion | **S05** (here) | S08 (backward prediction) |
 | ITS graph as $K$-encoding | S04 | S06 (canonicalization), S07 (clustering) |
 | ΔBE ↔ span equivalence | S01 (ΔBE), S05 (span) | S07 (rule fingerprint) |
+
+
+
+<a id="5-quiz"></a>
+
+## 5. Quiz
+
+Answer using **DPO graph-rewriting terminology**.
+
+1. What is the dangling condition? Give one chemical example where ignoring it would create an invalid graph.
+2. In a DPO rule span $L \leftarrow K \rightarrow R$, what is deleted, what is preserved, and what is created?
+3. Why are inverse DPO rules useful for retrosynthesis, and what changes when the forward rule is inverted?
+4. How can automorphisms of the left-hand pattern create duplicate-looking matches, and why should these be deduplicated before prediction?
 
 
 

@@ -32,8 +32,8 @@ After completing this talktorial, you will be able to:
   <li><a href="#1-partition-refinement-and-approximation">1. Partition, Refinement, and Approximation</a></li>
   <li><a href="#2-individualization-refinement-and-exact-methods">2. Individualization, Refinement, and Exact Methods</a></li>
   <li><a href="#3-atom-mapped-canonicalization">3. Atom-Mapped Canonicalization</a></li>
-  <li><a href="#4-quiz">4. Quiz</a></li>
-  <li><a href="#5-discussion">5. Discussion</a></li>
+  <li><a href="#4-discussion">4. Discussion</a></li>
+  <li><a href="#5-quiz">5. Quiz</a></li>
   <li><a href="#6.-References">6. References</a></li>
 </ul>
 
@@ -328,30 +328,9 @@ The raw SMILES differ in atom-map numbers; after `canon_aam` both collapse to th
 Different atom-mapping methods (RXNMapper, Graphormer, Local Mapper) may assign different atom-map numbers to the same reaction. After canonicalization, equivalent maps collapse to the **same canonical SMILES**. The table below checks whether all three methods produce identical canonical forms for one example reaction. Green = agreement; red = mismatch.
 
 
-## 4. Quiz
+<a id="4-discussion"></a>
 
-1. **WL sensitivity to labels**  
-   In `wl1_partition_nx`, change `node_attrs` / `edge_attrs` and observe how the stable partition changes.
-   - What happens if you drop `edge_attrs=("order",)`?
-   - What happens if you add `"degree"` into `node_attrs`?
-
-2. **A maximally symmetric molecule**  
-   Build a mapped benzene graph and run labeled WL:
-   - Why does WL stop before a discrete partition?
-   - Which step in IR is needed to fully canonicalize?
-
-3. **Reaction-level canonicalization**  
-   Use `canon_aam` on:
-   - the toy example (already provided), and
-   - a real mapped reaction from `data` (if available).  
-   Confirm that **permuting atom-map ids** yields the **same canonical reaction**.
-
-4. **Challenge**  
-   Extend `canon_aam` to canonicalize/sort **agents** too (if they are mapped).
-
-
-
-## 5. Discussion
+## 4. Discussion
 
 
 ### What you should take away
@@ -369,6 +348,17 @@ Different atom-mapping methods (RXNMapper, Graphormer, Local Mapper) may assign 
   - strong initial labels (chemistry-aware),
   - WL refinement,
   - IR with pruning and orbit-based symmetry breaking (Nauty/Bliss-style ideas).
+
+
+
+<a id="5-quiz"></a>
+
+## 5. Quiz
+
+1. In `wl1_partition_nx`, what happens to the stable partition if you remove bond-order information from `edge_attrs`?
+2. Why does WL refinement stop before a discrete partition for highly symmetric molecules such as benzene?
+3. What additional role does individualization-refinement play when WL leaves unresolved symmetry?
+4. Why must atom-map canonicalization be reaction-level rather than molecule-by-molecule?
 
 
 

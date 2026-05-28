@@ -591,54 +591,17 @@ comparison
   - NetworkX: full control over attributes and morphism semantics; you manage deduplication and interpretation.
 
 
+<a id="5-quiz"></a>
+
 ## 5. Quiz
 
-Answer the following questions using **both chemical intuition** and **formal
-graph-theoretic language**. When appropriate, describe your answer in terms of
-**graph morphisms**, **automorphism groups**, and **equivalence classes**.
+Answer using both **chemical intuition** and **graph-theoretic language**.
 
----
+1. What additional requirement turns a label-preserving graph morphism into a graph isomorphism, and how does this relate to saying that two molecules have the same structure?
+2. What is an automorphism of a molecular graph, and why do symmetric molecules such as benzene produce multiple equivalent matches?
+3. How can host-atom index sets be used to deduplicate equivalent subgraph matches returned by a matcher?
+4. Why can RDKit substructure matching and a strict NetworkX labeled-graph matcher return different answers for the same molecule pair?
 
-### 1. Isomorphism  
-What **additional requirement** must a graph morphism
-$$
-f : G \to H
-$$
-satisfy in order to be an **isomorphism**?
-
-- How does bijectivity relate to the statement  
-  *“two molecules have the same structure”*?
-- What chemical information (atom types, bond orders) must be preserved?
-
----
-
-### 2. Automorphisms and symmetry  
-What is an **automorphism** of a molecular graph?
-
-- Formally, how is an automorphism defined as a map
-  $$
-  \varphi : G \to G \, ?
-  $$
-- Why do highly symmetric molecules (e.g. benzene) have a **large**
-  automorphism group
-  $$
-  \mathrm{Aut}(G) \, ?
-  $$
-- Explain why the existence of non-trivial automorphisms leads to
-  **multiple equivalent subgraph matches** during pattern matching.
-
----
-
-### 3. Deduplicating subgraph matches  
-Subgraph matching algorithms often return many **equivalent morphisms**.
-
-- Explain how representing a match by the **set of host atom indices**
-  $$
-  \{\, m(v) \mid v \in V(P) \,\}
-  $$
-  can be used to **deduplicate** equivalent matches.
-- Why does this strategy work even when the mappings differ by a permutation
-  of pattern nodes?
 
 
 ## 6. References

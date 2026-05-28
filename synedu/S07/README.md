@@ -33,8 +33,8 @@ After completing this talktorial, you will be able to:
   <li><a href="#1-reaction-preprocessing">1. Reaction preprocessing</a></li>
   <li><a href="#2-ensemble-atom-to-atom-mapping-agreement">2. Ensemble atom-to-atom mapping agreement</a></li>
   <li><a href="#3-rule-library-construction">3. Rule library construction</a></li>
-  <li><a href="#4-quiz">4. Quiz</a></li>
-  <li><a href="#5-discussion">5. Discussion</a></li>
+  <li><a href="#4-discussion">4. Discussion</a></li>
+  <li><a href="#5-quiz">5. Quiz</a></li>
   <li><a href="#6.-References">6. References</a></li>
 </ul>
 
@@ -617,20 +617,25 @@ def rule_lib_pipeline(
 
 
 
-## 4. Quiz
+<a id="4-discussion"></a>
 
-- What challenges arise when expanding to explicit hydrogens for MØD applications?
-- How is a transformation rule structured to accommodate incomplete reactions?
-- By what mechanism can a rule be modified to encapsulate chemical context, such as specific functional groups?
-
-
-
-## 5. Discussion
+## 4. Discussion
 
 - Atom-mapping quality can be significantly improved through ensemble techniques, specifically by performing isomorphism checks on generated ITS graphs.
 - While WL-based canonicalization is effective for pre-filtering and deduplication, it remains an approximation and cannot fully replace exact isomorphism checks for definitive verification.
 - Clustering reaction centers in large-scale datasets is computationally intensive; however, implementing a WL hashing pre-filter significantly accelerates the process by pruning the search space.
 - Rules can be persisted as NetworkX graph objects for deep computational tasks or exported in GML format for a lightweight, human-readable, and explainable representation.
+
+
+<a id="5-quiz"></a>
+
+## 5. Quiz
+
+1. Why is reaction standardization needed before comparing atom-mapped reactions from different mappers?
+2. How does comparing several mapper outputs help identify high-confidence atom mappings?
+3. Why is WL hashing useful for clustering reaction centers, and why is exact isomorphism still needed?
+4. What information must a DPO rule preserve so it can be exported and reused as a reaction-rule library entry?
+
 
 
 ## 6. References

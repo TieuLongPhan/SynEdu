@@ -32,8 +32,8 @@ After completing this talktorial, you will be able to:
   <li><a href="#1-atom-mapping">1. Atom mapping</a></li>
   <li><a href="#2-imaginary-transition-state">2. Imaginary Transition State</a></li>
   <li><a href="#3-its-equivalence">3. ITS equivalence</a></li>
-  <li><a href="#4-quiz">4. Quiz</a></li>
-  <li><a href="#5-discussion">5. Discussion</a></li>
+  <li><a href="#4-discussion">4. Discussion</a></li>
+  <li><a href="#5-quiz">5. Quiz</a></li>
   <li><a href="#6.-References">6. References</a></li>
 </ul>
 
@@ -423,30 +423,25 @@ data.head()
 
 
 
-## 4. Quiz
+<a id="4-discussion"></a>
 
-1. **MCS limitations**  
-   Why can maximum common substructure (MCS) fail for reactions with multiple components or high symmetry?
-
-2. **Attention vs structure**  
-   What key information does RXNMapper use that is *not* explicitly enforced by graph-based MCS?
-
-3. **ITS intuition**  
-   In one sentence, explain what an ITS graph represents chemically.
-
-4. **Atom-map ambiguity**  
-   Why can two atom-mapped SMILES look different but still describe the same reaction?
-
-5. **Canonical comparison**  
-   How does ITS isomorphism remove dependence on atom-map numbers?
-
-
-## 5. Discussion
+## 4. Discussion
 
 - **MCS** is a principled alignment baseline, but struggles with multi-component reactions, molecular symmetry, and unbalanced equations.
 - **RXNMapper** offers a strong, practical solution by leveraging learned attention patterns and providing confidence estimates.
 - **ITS graphs** compactly encode bond changes, abstracting away atom-map labeling details.
 - **ITS isomorphism** provides a clean, map-number-invariant criterion for comparing atom mappings across methods.
+
+
+<a id="5-quiz"></a>
+
+## 5. Quiz
+
+1. Why can maximum common substructure mapping fail for reactions with multiple components, symmetry, or large structural rearrangements?
+2. What information does RXNMapper use that is not explicitly enforced by a graph-only MCS alignment?
+3. In one or two sentences, explain what an ITS graph represents chemically.
+4. Why can two atom-mapped reaction SMILES look different but still describe equivalent chemistry, and how does ITS isomorphism help compare them?
+
 
 
 ## 6. References

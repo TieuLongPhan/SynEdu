@@ -722,19 +722,15 @@ robustly recover missing species without manual intervention.
   practical reaction rebalancing.
 
 
+<a id="5-quiz"></a>
+
 ## 5. Quiz
 
-- Why is MCS considered a heuristic rather than an exact method for
-reaction alignment?
+1. Why is MCS useful for molecular alignment, and why can MCS be non-unique or heuristic in practical chemistry toolkits?
+2. Which missing species are easiest to impute in incomplete reaction records, and what chemical information makes them easier?
+3. Why does library-based imputation scale poorly for carbon-containing missing fragments?
+4. What information can MCS provide when rebalancing reactions with missing carbon fragments, and where can it still fail?
 
--  Which types of missing species are most commonly found in incomplete
-reaction databases, and why are they easier to impute?
-
-- Why does library-based imputation scale poorly for carbon-containing
-compounds?
-
-- What information can MCS provide when rebalancing reactions involving
-missing carbon fragments?
 
 
 ## 6. References

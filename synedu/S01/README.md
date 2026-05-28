@@ -32,7 +32,7 @@ After completing this talktorial you will be able to:
   <li><a href="#s01-smiles">2. SMILES</a></li>
   <li><a href="#s01-graph">3. Molecular Graph representation</a></li>
   <li><a href="#s01-discussion">4. Discussion</a></li>
-  <li><a href="#s01-quiz">5. Quiz</a></li>
+  <li><a href="#5-quiz">5. Quiz</a></li>
   <li><a href="#6.-References">6. References</a></li>
 </ul>
 
@@ -819,39 +819,17 @@ df.loc[~df["ok"], ["name", "smiles"]]
   equivalence and reproducibility.
 
 
-<a id="s01-quiz"></a>
+<a id="5-quiz"></a>
 
 ## 5. Quiz
 
 Answer briefly using what you learned about **RDKit**, **SMILES**, and **molecular graphs**.
 
----
+1. What does RDKit molecule sanitization check, and why is it useful before graph conversion?
+2. Why can one molecule have multiple valid SMILES strings, and what problem does canonical SMILES solve?
+3. In a molecular graph, what do nodes and edges represent? Name two atom labels and one bond label that matter for matching.
+4. When converting RDKit molecules to NetworkX graphs, what information is preserved, what may be simplified, and why is that acceptable for the later SynEdu tasks?
 
-### RDKit
-- 1. What is molecule sanitization?
-- 2. Why is it needed?
-
----
-
-### SMILES
-- 3. Can one molecule have multiple SMILES?
-- 4. What is canonical SMILES and why is it useful?
-
----
-
-### Molecular graphs
-- 5. What do nodes represent?
-- 6. What do edges represent?
-- 7. Name two atom properties and one bond property used as labels.
-
----
-
-### Conversion and information loss
-- 8. What information is preserved when converting RDKit → NetworkX?
-- 9. What information may be lost?
-- 10. Why is this acceptable here?
-
----
 
 
 ## 6. References

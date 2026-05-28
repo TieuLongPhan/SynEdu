@@ -32,8 +32,8 @@ After completing this talktorial, you will be able to:
   <li><a href="#1-what-is-context">1. What is context?</a></li>
   <li><a href="#2-template-radius-deep-dive--radii-05">2. Template radius deep-dive — radii 0-5</a></li>
   <li><a href="#3-choosing-a-radius-in-practice">3. Choosing a radius in practice</a></li>
-  <li><a href="#4-quiz">4. Quiz</a></li>
-  <li><a href="#5-discussion">5. Discussion</a></li>
+  <li><a href="#4-discussion">4. Discussion</a></li>
+  <li><a href="#5-quiz">5. Quiz</a></li>
   <li><a href="#6.-References">6. References</a></li>
 </ul>
 
@@ -255,29 +255,9 @@ In practice, choose a radius from a validation set, report the all-candidate mac
 
 
 
-## 4. Quiz
+<a id="4-discussion"></a>
 
-### Q1 — Template count saturation
-
-If you increase r from 2 to 3 for a given family, do you always get *more* unique templates? Explain why or why not, referring to the deduplication step.
-
----
-
-### Q2 — When does r = 0 fail?
-
-At r = 0, two reactions that differ only in a remote substituent are treated as identical templates because the reaction center is the same.
-
-Give a concrete example where this causes an incorrect forward prediction. What is the minimum r needed to distinguish the two reactions if the substituent is exactly 3 bonds from the nearest reaction-center atom?
-
----
-
-### Q3 — Recall, enrichment, and F1
-
-Suppose two radii have similar recall@50, but one has much better enrichment@50 and therefore a higher F1@50. Which radius would you choose for a search workflow, and why?
-
-
-
-## 5. Discussion
+## 4. Discussion
 
 ### Key takeaways
 
@@ -298,6 +278,17 @@ The radius decision is easier to interpret when all test reactions share the sam
 SMILES -> ITS -> reaction center -> r-hop context -> deduplicated templates -> `SynReactor` -> standardized recall@K, enrichment@K, and F1@K -> choose *r*.
 
 This is the conceptual endpoint of the SynEdu series.
+
+
+
+<a id="5-quiz"></a>
+
+## 5. Quiz
+
+1. If you increase radius *r* from 2 to 3 for one reaction family, do you always get more unique templates? Explain the role of deduplication.
+2. At *r* = 0, why can two reactions with the same reaction center but different remote substituents collapse to the same template?
+3. When two radii have similar recall but different enrichment, which radius is more useful for a focused search workflow and why?
+4. Why should the radius trade-off be evaluated within comparable reaction-center families rather than across unrelated classes?
 
 
 

@@ -575,49 +575,16 @@ reaction, and explain why a prediction succeeds or fails.
 
 
 
+<a id="5-quiz"></a>
+
 ## 5. Quiz
 
-Answer the following questions using both **chemical intuition** and **graph-based
-reasoning**.
+Answer using both **chemical intuition** and **graph-based reasoning**.
 
----
-
-a. Why can the number of unique predictions decrease after standardization?
-
-Explain how two raw reaction strings can describe the same standardized transformation.
-
----
-
-b. Why is it useful to report both recall and enrichment?
-
-What can happen when recall improves but enrichment decreases?
-
----
-
-c. Why is backward prediction usually more ambiguous than forward prediction?
-
-Discuss the role of **multiple valid disconnections**, selectivity, leaving groups, and
-reaction conditions.
-
----
-
-d. Why does deduplication matter before computing enrichment?
-
-What would go wrong if repeated candidates were counted separately?
-
----
-
-e. In a template-based system, what does a recovered hit actually demonstrate?
-
-Does it show exact memorization of a training reaction, recovery of a reaction class, or
-successful application of a generalized local transformation? Explain.
-
----
-
-f. Suppose two template libraries have the same recall, but one has clearly better enrichment.
-
-What does this imply about the **focus** of the generated search space? Why can
-enrichment be important even when recall is unchanged?
+1. Why can the number of unique predictions decrease after reaction standardization?
+2. Why is it useful to report both recall and enrichment when evaluating generated candidates?
+3. Why is backward prediction usually more ambiguous than forward prediction?
+4. If two template libraries have the same recall but different enrichment, what does that imply about the focus of the generated search space?
 
 
 
