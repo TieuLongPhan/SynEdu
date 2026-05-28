@@ -27,15 +27,13 @@ After completing this talktorial, you will be able to:
 
 ## Outline
 
-<ul class="synedu-outline">
-  <li><a href="#0-setup--data">0. Setup &amp; Data</a></li>
-  <li><a href="#1-atom-mapping">1. Atom mapping</a></li>
-  <li><a href="#2-imaginary-transition-state">2. Imaginary Transition State</a></li>
-  <li><a href="#3-its-equivalence">3. ITS equivalence</a></li>
-  <li><a href="#4-discussion">4. Discussion</a></li>
-  <li><a href="#5-quiz">5. Quiz</a></li>
-  <li><a href="#6.-References">6. References</a></li>
-</ul>
+- [0. Setup & Data](#0.-Setup-&-Data)
+- [1. Atom mapping](#1.-Atom-mapping)
+- [2. Imaginary Transition State](#2.-Imaginary-Transition-State)
+- [3. ITS equivalence](#3.-ITS-equivalence)
+- [4. Discussion](#4.-Discussion)
+- [5. Quiz](#5.-Quiz)
+- [6. References](#6.-References)
 
 
 ## 0. Setup & Data

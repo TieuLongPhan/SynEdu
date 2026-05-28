@@ -27,15 +27,13 @@ After completing this talktorial, you will be able to:
 
 ## Outline
 
-<ul class="synedu-outline">
-  <li><a href="#0-setup--data">0. Setup &amp; data</a></li>
-  <li><a href="#1-forward-prediction">1. Forward prediction</a></li>
-  <li><a href="#2-evaluation">2. Evaluation</a></li>
-  <li><a href="#3-backward-prediction">3. Backward prediction</a></li>
-  <li><a href="#4-discussion">4. Discussion</a></li>
-  <li><a href="#5-quiz">5. Quiz</a></li>
-  <li><a href="#6.-References">6. References</a></li>
-</ul>
+- [0. Setup & data](#0.-Setup-&-data)
+- [1. Forward prediction](#1.-Forward-prediction)
+- [2. Evaluation](#2.-Evaluation)
+- [3. Backward prediction](#3.-Backward-prediction)
+- [4. Discussion](#4.-Discussion)
+- [5. Quiz](#5.-Quiz)
+- [6. References](#6.-References)
 
 
 

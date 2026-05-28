@@ -27,14 +27,13 @@ After completing this talktorial, you will be able to:
 
 ## Outline
 
-<ul class="synedu-outline">
-  <li><a href="#0-setup--data">0. Setup &amp; Data</a></li>
-  <li><a href="#1-maximum-common-substructure">1. Maximum Common Substructure</a></li>
-  <li><a href="#2-rule-based-reaction-rebalancing">2. Rule-based reaction rebalancing</a></li>
-  <li><a href="#3-mcs-based-reaction-rebalancing">3. MCS-based reaction rebalancing</a></li>
-  <li><a href="#4-discussion">4. Discussion</a></li>
-  <li><a href="#5-quiz">5. Quiz</a></li>
-</ul>
+- [0. Setup & Data](#0.-Setup-&-Data)
+- [1. Maximum Common Substructure](#1.-Maximum-Common-Substructure)
+- [2. Rule-based reaction rebalancing](#2.-Rule-based-reaction-rebalancing)
+- [3. MCS-based reaction rebalancing](#3.-MCS-based-reaction-rebalancing)
+- [4. Discussion](#4.-Discussion)
+- [5. Quiz](#5.-Quiz)
+- [6. References](#6.-References)
 
 
 ## 0. Setup & Data

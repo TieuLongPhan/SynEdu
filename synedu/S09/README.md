@@ -27,15 +27,13 @@ After completing this talktorial, you will be able to:
 
 ## Outline
 
-<ul class="synedu-outline">
-  <li><a href="#0-setup--data">0. Setup &amp; data</a></li>
-  <li><a href="#1-what-is-context">1. What is context?</a></li>
-  <li><a href="#2-template-radius-deep-dive--radii-05">2. Template radius deep-dive — radii 0-5</a></li>
-  <li><a href="#3-choosing-a-radius-in-practice">3. Choosing a radius in practice</a></li>
-  <li><a href="#4-discussion">4. Discussion</a></li>
-  <li><a href="#5-quiz">5. Quiz</a></li>
-  <li><a href="#6.-References">6. References</a></li>
-</ul>
+- [0. Setup & data](#0.-Setup-&-data)
+- [1. What is context?](#1.-What-is-context?)
+- [2. Template radius deep-dive — radii 0–5](#2.-Template-radius-deep-dive-—-radii-0–5)
+- [3. Choosing a radius in practice](#3.-Choosing-a-radius-in-practice)
+- [4. Discussion](#4.-Discussion)
+- [5. Quiz](#5.-Quiz)
+- [6. References](#6.-References)
 
 
 

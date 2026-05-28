@@ -1,6 +1,6 @@
 # S01: From Molecules to Labeled Graphs
 
-This talktorial introduces molecular representations for SynEdu: RDKit molecules, SMILES strings, and explicit NetworkX labeled graphs. The focus is on what chemical information is preserved, what can be lost, and why representation choices matter for later graph-matching and reaction-rule tasks [\[1\]](#6.-References), [\[2\]](#6.-References), [\[3\]](#6.-References), [\[4\]](#6.-References).
+This talktorial introduces molecular representations for SynEdu: RDKit [\[1\]](#6.-References) molecules, SMILES strings [\[2\]](#6.-References), and explicit NetworkX labeled graphs. The focus is on what chemical information is preserved, what can be lost, and why representation choices matter for later graph-matching and reaction-rule tasks, [\[3\]](#6.-References), [\[4\]](#6.-References).
 
 
 
@@ -26,15 +26,13 @@ After completing this talktorial you will be able to:
 
 ## Outline
 
-<ul class="synedu-outline">
-  <li><a href="#0-setup--data">0. Setup &amp; data</a></li>
-  <li><a href="#s01-rdkit">1. Introduction to RDKit</a></li>
-  <li><a href="#s01-smiles">2. SMILES</a></li>
-  <li><a href="#s01-graph">3. Molecular Graph representation</a></li>
-  <li><a href="#s01-discussion">4. Discussion</a></li>
-  <li><a href="#5-quiz">5. Quiz</a></li>
-  <li><a href="#6.-References">6. References</a></li>
-</ul>
+- [0. Setup & data](#0.-Setup-&-data)
+- [1. Introduction to RDKit](#1.-Introduction-to-RDKit)
+- [2. SMILES](#2.-SMILES)
+- [3. Molecular Graph representation](#3.-Molecular-Graph-representation)
+- [4. Discussion](#4.-Discussion)
+- [5. Quiz](#5.-Quiz)
+- [6. References](#6.-References)
 
 
 <a id="0-setup--data"></a>

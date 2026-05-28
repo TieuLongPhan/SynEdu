@@ -28,15 +28,13 @@ After completing this talktorial, you will be able to:
 
 ## Outline
 
-<ul class="synedu-outline">
-  <li><a href="#0-setup--data">0. Setup &amp; Data</a></li>
-  <li><a href="#1-reaction-preprocessing">1. Reaction preprocessing</a></li>
-  <li><a href="#2-ensemble-atom-to-atom-mapping-agreement">2. Ensemble atom-to-atom mapping agreement</a></li>
-  <li><a href="#3-rule-library-construction">3. Rule library construction</a></li>
-  <li><a href="#4-discussion">4. Discussion</a></li>
-  <li><a href="#5-quiz">5. Quiz</a></li>
-  <li><a href="#6.-References">6. References</a></li>
-</ul>
+- [0. Setup & data](#0.-Setup-&-data)
+- [1. Reaction preprocessing](#1.-Reaction-preprocessing)
+- [2. Ensemble atom-to-atom mapping agreement](#2.-Ensemble-atom-to-atom-mapping-agreement)
+- [3. Rule library construction](#3.-Rule-library-construction)
+- [4. Discussion](#4.-Discussion)
+- [5. Quiz](#5.-Quiz)
+- [6. References](#6.-References)
 
 
 <p>

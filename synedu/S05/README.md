@@ -27,15 +27,13 @@ After completing this talktorial, you will be able to:
 
 ## Outline
 
-<ul class="synedu-outline">
-  <li><a href="#0-setup--data">0. Setup &amp; Data</a></li>
-  <li><a href="#1-reaction-rules">1. Reaction rules</a></li>
-  <li><a href="#2-double-pushout-graph-rewriting">2. Double Pushout Graph Rewriting</a></li>
-  <li><a href="#3-synkit">3. SynKit</a></li>
-  <li><a href="#4-discussion">4. Discussion</a></li>
-  <li><a href="#5-quiz">5. Quiz</a></li>
-  <li><a href="#6.-References">6. References</a></li>
-</ul>
+- [0. Setup & Data](#0.-Setup-&-Data)
+- [1. Reaction rules](#1.-Reaction-rules)
+- [2. Double Pushout Graph Rewriting](#2.-Double-Pushout-Graph-Rewriting)
+- [3. SynKit](#3.-SynKit)
+- [4. Discussion](#4.-Discussion)
+- [5. Quiz](#5.-Quiz)
+- [6. References](#6.-References)
 
 
 ## 0. Setup & Data
