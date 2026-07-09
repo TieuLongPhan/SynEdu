@@ -51,6 +51,7 @@ dependencies = [
   "sphinx-copybutton>=0.5.2",
   "sphinx-gallery>=0.21.0",
   "myst-parser>=5.0.0",
+  "jupytext>=1.19.4",
 ]
 
 
