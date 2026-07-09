@@ -7,6 +7,7 @@ Dev-friendly: works without installing a console-script by using:
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import shutil
 import subprocess
@@ -29,7 +30,7 @@ def _find_packaged_talktorial_dirs() -> list[Path]:
             continue
         if not patt.match(p.name):
             continue
-        if list(p.glob("*.ipynb")):
+        if (p / "notebook.py").exists():
             dirs.append(p)
 
     return sorted(dirs)
@@ -62,10 +63,7 @@ def main(argv: list[str] | None = None) -> None:
     )
     p_list.set_defaults(func=_list)
 
-    p_test = subparsers.add_parser(
-        "test",
-        help="Execute talktorial notebooks (nbval-lax)",
-    )
+    p_test = subparsers.add_parser("test", help="Execute talktorial notebooks")
     p_test.add_argument(
         "workspace",
         type=str,
@@ -121,4 +119,14 @@ def _test(args) -> None:
         print("No SynEdu workspace found. Run `synedu start <workspace>` first.")
         sys.exit(0)
 
-    subprocess.run(["pytest", "--nbval-lax", str(dst_root)], check=False)
+    command = [
+        sys.executable,
+        "-m",
+        "pytest",
+        "-m",
+        "slow",
+        "-v",
+        str(Path(__file__).parents[1] / "tests" / "test_notebooks.py"),
+    ]
+    env = {**os.environ, "SYNEDU_NOTEBOOK_ROOT": str(dst_root)}
+    subprocess.run(command, check=False, env=env)

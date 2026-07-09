@@ -7,23 +7,24 @@ We enforce a lightweight structural contract:
 
 from __future__ import annotations
 
-import json
 import re
 from pathlib import Path
 
+import jupytext
+
 
 def _iter_notebooks(repo_root: Path):
-    """Yield notebook paths under synedu/Sxx/*.ipynb."""
+    """Yield notebook source paths under synedu/Sxx/."""
     synedu_pkg = repo_root / "synedu"
     for d in synedu_pkg.iterdir():
         if d.is_dir() and re.match(r"^S\d{2}.*$", d.name):
-            for nb in d.glob("*.ipynb"):
+            for nb in d.glob("notebook.py"):
                 yield nb
 
 
 def _read_notebook_markdown(nb_path: Path) -> str:
     """Concatenate all markdown cells of a notebook into one string."""
-    nb = json.loads(nb_path.read_text(encoding="utf-8"))
+    nb = jupytext.read(nb_path, fmt="py:percent")
     parts = []
     for cell in nb.get("cells", []):
         if cell.get("cell_type") == "markdown":
@@ -42,7 +43,7 @@ def test_notebooks_have_quiz_and_discussion():
     """All notebooks should include Quiz and Discussion headers."""
     repo_root = Path(__file__).parents[1]
     notebooks = list(_iter_notebooks(repo_root))
-    assert notebooks, "No SynEdu notebooks found under synedu/Sxx/*.ipynb"
+    assert notebooks, "No SynEdu notebook sources found under synedu/Sxx/notebook.py"
 
     failures = []
     for nb in notebooks:

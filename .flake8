@@ -14,6 +14,7 @@ exclude =
     .venv,
     build,
     dist,
+    synedu/S*/notebook.py,
 per-file-ignores =
     tests/*: D101,D102,D103
     synedu/__init__.py: F401

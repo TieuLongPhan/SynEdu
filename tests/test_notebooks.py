@@ -22,7 +22,7 @@ import os
 import re
 from pathlib import Path
 
-import nbformat
+import jupytext
 import pytest
 from nbconvert.preprocessors import CellExecutionError, ExecutePreprocessor
 
@@ -31,6 +31,7 @@ from nbconvert.preprocessors import CellExecutionError, ExecutePreprocessor
 os.environ.setdefault("MPLBACKEND", "Agg")
 
 REPO_ROOT = Path(__file__).parents[1]
+NOTEBOOK_ROOT = Path(os.environ.get("SYNEDU_NOTEBOOK_ROOT", REPO_ROOT / "synedu"))
 
 # Optional filter: comma-separated notebook ids, e.g. "S01" or "S01,S04"
 _NB_FILTER = os.environ.get("SYNEDU_NB", "")
@@ -38,9 +39,9 @@ _KERNEL_TIMEOUT = int(os.environ.get("SYNEDU_TIMEOUT", "600"))  # seconds per no
 
 
 def _collect_notebooks() -> list[Path]:
-    """Collect notebook.ipynb paths under synedu/S*/, sorted by id."""
+    """Collect notebook source paths under synedu/S*/, sorted by id."""
     notebooks = sorted(
-        (REPO_ROOT / "synedu").glob("S*/notebook.ipynb"),
+        NOTEBOOK_ROOT.glob("S*/notebook.py"),
         key=lambda p: p.parent.name,
     )
     if _NB_FILTER:
@@ -55,8 +56,7 @@ def _collect_notebooks() -> list[Path]:
 
 def _is_wip(nb_path: Path) -> bool:
     """Return True if the notebook markdown contains a work-in-progress marker."""
-    with nb_path.open(encoding="utf-8") as f:
-        nb = nbformat.read(f, as_version=4)
+    nb = _read_notebook(nb_path)
     md = "\n".join(
         "".join(cell.get("source", []))
         for cell in nb.cells
@@ -73,7 +73,7 @@ NOTEBOOKS = _collect_notebooks()
 # ---------------------------------------------------------------------------
 
 
-def _cell_preview(nb: nbformat.NotebookNode, error_traceback: str) -> str:
+def _cell_preview(nb, error_traceback: str) -> str:
     """Find the cell whose output contains the error and return its source."""
     for i, cell in enumerate(nb.cells):
         for output in cell.get("outputs", []):
@@ -83,6 +83,11 @@ def _cell_preview(nb: nbformat.NotebookNode, error_traceback: str) -> str:
                 src = "".join(cell["source"])[:400]
                 return f"[Cell {i + 1}] {src}"
     return "(cell not identified)"
+
+
+def _read_notebook(path: Path):
+    """Read a Jupytext source notebook."""
+    return jupytext.read(path, fmt="py:percent")
 
 
 # ---------------------------------------------------------------------------
@@ -97,8 +102,7 @@ def test_notebook_executes(notebook: Path) -> None:
     if _is_wip(notebook):
         pytest.skip(f"{notebook.parent.name} is marked as work-in-progress")
 
-    with notebook.open(encoding="utf-8") as f:
-        nb = nbformat.read(f, as_version=4)
+    nb = _read_notebook(notebook)
 
     ep = ExecutePreprocessor(
         kernel_name="python3",

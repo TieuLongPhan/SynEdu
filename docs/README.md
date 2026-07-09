@@ -1,24 +1,15 @@
 # Building SynEdu Documentation
 
-The docs for this project are built with [Sphinx](http://www.sphinx-doc.org/en/master/).
-The current site uses the `sphinx_material` theme, `nbsphinx`, `myst_parser`,
-and the project-specific UI assets in `_static/synedu.css` and
-`_static/synedu.js`.
-
+SynEdu now uses Jupyter Book 2 / MyST for the active documentation build.
 
 ```bash
-python -m pip install -e ".[docs]"
+uv sync
+uv run python scripts/prepare_jupyter_book.py
+uv run jupyter book build --execute --html
 ```
 
+The committed notebook sources live in `synedu/Sxx/notebook.py` as Jupytext
+percent-format files. The preparation script creates ignored `.ipynb` build
+inputs under `docs/talktorials/Sxx/`.
 
-Once installed, use the `Makefile` in this directory to compile static HTML pages:
-
-```bash
-make html
-```
-
-The compiled docs will be in `_build/html` and can be viewed by opening
-`_build/html/index.html`.
-
-Reusable UI components should live in `_static/synedu.css`. Keep vendor
-compatibility and one-off temporary rules in `_static/custom.css`.
+Legacy Sphinx files are not part of the active Jupyter Book 2 build.

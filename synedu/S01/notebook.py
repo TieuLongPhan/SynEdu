@@ -677,7 +677,7 @@ plt.show()
 # The cell below color-codes each SMILES token by its syntactic role — useful for parsing unfamiliar strings.
 # Each color corresponds to a token class (aromatic atom, branch, ring closure, stereo, etc.).
 
-# %% nbsphinx="hidden" slideshow={"slide_type": "slide"}
+# %% slideshow={"slide_type": "slide"}
 
 import re
 import html

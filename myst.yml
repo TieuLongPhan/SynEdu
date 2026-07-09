@@ -1,0 +1,69 @@
+# See docs at: https://mystmd.org/guide/frontmatter
+version: 1
+
+project:
+  id: ebabe672-7a28-4f98-aceb-970048931d14
+  title: SynEdu
+  description: Reproducible, graph-based chemical education via executable talktorials
+  authors:
+    - Tieu Long Phan
+  github: https://github.com/TieuLongPhan/SynEdu
+  static_files:
+    - docs/downloads
+  exclude:
+    - _build/**
+    - docs/_build/**
+    - docs/downloads/**
+    - .DS_Store
+    - Thumbs.db
+    - "**/.ipynb_checkpoints"
+    - todo_migrate/**
+  toc:
+    - file: docs/index.md
+    - file: docs/whats_new.md
+    - file: docs/installing.md
+    - file: docs/talktorials/index.md
+      children:
+        - file: docs/talktorials/all_talktorials.md
+        - title: S01 - From Molecules to Labeled Graphs
+          file: docs/talktorials/S01/notebook.ipynb
+        - title: S02 - Graph Morphism in Reaction Informatics
+          file: docs/talktorials/S02/notebook.ipynb
+        - title: S03 - Maximum Common Substructure in Reaction Informatics
+          file: docs/talktorials/S03/notebook.ipynb
+        - title: "S04 - Atom Mapping as Graph Morphism: MCS, RXNMapper, and ITS Equivalence"
+          file: docs/talktorials/S04/notebook.ipynb
+        - title: "S05 - Reaction Rules as Graph Rewriting (DPO) - Chemistry-First, ITS-Native"
+          file: docs/talktorials/S05/notebook.ipynb
+        - title: "S06 - From Atom-Mapped Reactions to DPO Rules: ITS, Reaction Centers, and Fast Clustering"
+          file: docs/talktorials/S06/notebook.ipynb
+        - title: "S07 - Canonicalizing Atom-Mapped Reactions and Rules: Equivalence, Symmetry, Determinism"
+          file: docs/talktorials/S07/notebook.ipynb
+        - title: "S08 - One-Step Rule Application (Forward & Backward): DPO Rules as Reaction Engines"
+          file: docs/talktorials/S08/notebook.ipynb
+        - title: "S09 - Metrics for Rule Application: Coverage, Recall, Branching, and Cost"
+          file: docs/talktorials/S09/notebook.ipynb
+    - file: docs/api.md
+    - file: docs/syneco_ecosystem.md
+    - file: docs/external_dependencies.md
+    - file: docs/external_tutorials_collections.md
+    - file: docs/contribute.md
+    - file: docs/contact.md
+    - file: docs/funding.md
+    - file: docs/citation.md
+    - file: docs/license.md
+
+site:
+  template: book-theme
+  options:
+    folders: true
+    style: docs/_static/synedu.css
+    favicon: docs/_static/synedu_logo_square_icon_transparent.png
+    logo: docs/_static/synedu_logo_square_icon_transparent.png
+    logo_alt: SynEdu
+    logo_text: SynEdu
+  actions:
+    - title: Repository
+      url: https://github.com/TieuLongPhan/SynEdu
+    - title: Issues
+      url: https://github.com/TieuLongPhan/SynEdu/issues

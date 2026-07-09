@@ -6,9 +6,7 @@ reaction-informatics workflow. Small focused changes are easiest to review.
 ## Development Setup
 
 ```bash
-conda env create -f environment.yml
-conda activate synedu
-pip install -e ".[dev]"
+uv sync
 ```
 
 ## Checks
@@ -16,16 +14,23 @@ pip install -e ".[dev]"
 Run the fast checks before opening a pull request:
 
 ```bash
-black --check synedu tests
-flake8 synedu tests
-pytest -m "not slow" -v tests/
+uv run black --check synedu/*.py synedu/Utils tests scripts
+uv run flake8 synedu tests scripts
+uv run pytest -m "not slow" -v tests/
 ```
 
 Run notebook execution tests for changed lessons:
 
 ```bash
-SYNEDU_NB=S01 pytest -m slow -v tests/test_notebooks.py
-SYNEDU_NB=S01,S04 pytest -m slow -v tests/test_notebooks.py
+SYNEDU_NB=S01 uv run pytest -m slow -v tests/test_notebooks.py
+SYNEDU_NB=S01,S04 uv run pytest -m slow -v tests/test_notebooks.py
+```
+
+Build the Jupyter Book 2 documentation:
+
+```bash
+uv run python scripts/prepare_jupyter_book.py
+uv run jupyter book build --execute --html
 ```
 
 Use `SYNEDU_TIMEOUT=900` when a notebook needs a longer per-notebook timeout.
@@ -33,18 +38,10 @@ Use `SYNEDU_TIMEOUT=900` when a notebook needs a longer per-notebook timeout.
 ## Notebook Guidelines
 
 - Keep each notebook runnable from a fresh kernel, top to bottom.
+- Keep committed notebooks as Jupytext percent-format `.py` files.
+- Do not commit generated `.ipynb` files or executed notebook outputs.
 - Prefer deterministic examples and call `seed_everything` when randomness is used.
 - Keep paths relative to the lesson directory.
 - Move reusable logic into `synedu.Utils` instead of copying code between lessons.
 - Use vector or PDF figures for manuscript-facing diagrams.
 - State dataset origin, filtering, split seed, and expected runtime for benchmark cells.
-- Keep teaching outputs small enough that diffs remain reviewable.
-
-## Paper-Readiness Checklist
-
-- Add or update validation evidence in `docs/paper/validation_matrix.md`.
-- Add data provenance, license, record counts, and checksums in
-  `docs/paper/data_availability.md`.
-- Keep citation metadata synchronized between `CITATION.cff` and
-  `docs/citation.md`.
-- For new figures, include editable source and the rendered PDF/SVG artifact.

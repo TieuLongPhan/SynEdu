@@ -65,6 +65,7 @@ def run_jlab_string(workspace: Path) -> str:
     return (
         "\nTo start working with SynEdu in JupyterLab run:\n\n"
         f"    jupyter lab {workspace}\n\n"
+        "The talktorial sources are Jupytext percent-format .py notebooks.\n\n"
         "Enjoy!"
     )
 
@@ -79,7 +80,7 @@ def talktorial_list_string(talktorials_dir: Path) -> str:
 
     lines = ["\nSynEdu talktorials available in your workspace:\n"]
     for folder in sorted(p for p in talktorials_dir.iterdir() if p.is_dir()):
-        if list(folder.glob("*.ipynb")):
+        if (folder / "notebook.py").exists():
             lines.append(f"  - {folder.name}")
 
     return "\n".join(lines)

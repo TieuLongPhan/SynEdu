@@ -41,8 +41,8 @@ def test_start_workspace(tmp_path: Path):
     assert not err
 
     dst_root = tmp_path / TALKTORIAL_FOLDER_NAME
-    notebooks = list(dst_root.glob("**/*.ipynb"))
-    assert notebooks, "No notebooks were copied into the workspace."
+    notebooks = list(dst_root.glob("**/notebook.py"))
+    assert notebooks, "No notebook sources were copied into the workspace."
 
 
 def test_start_invalid_workspace(tmp_path: Path):
