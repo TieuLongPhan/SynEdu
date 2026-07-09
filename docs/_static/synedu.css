@@ -1,12 +1,103 @@
+/* ==========================================================================
+   SynEdu custom styling for the MyST book theme.
+
+   The theme toggles dark mode with a `.dark` class on <html>. Every custom
+   color below is defined for both light and dark so nothing becomes
+   invisible when the reader flips the theme.
+   ========================================================================== */
+
 :root {
-  --synedu-accent: #0f766e;
-  --synedu-accent-dark: #115e59;
+  --synedu-accent: #0f766e;        /* teal brand accent */
+  --synedu-accent-strong: #0b5c55;
   --synedu-border: #d8dee8;
   --synedu-muted: #536173;
+
+  --se-th-bg: #f1f5f9;
+  --se-callout-bg: #f3f8ff;
+  --se-callout-fg: #0f172a;
+  --se-callout-accent: #4d96ff;
+  --se-card-fg: #0f172a;
 }
 
+html.dark {
+  --synedu-accent: #2dd4bf;        /* brighter teal for dark backgrounds */
+  --synedu-accent-strong: #5eead4;
+  --synedu-border: #33404f;
+  --synedu-muted: #9aa7b6;
+
+  --se-th-bg: #1c2430;
+  --se-callout-bg: #17212e;
+  --se-callout-fg: #dbe4f0;
+  --se-callout-accent: #4d96ff;
+  --se-card-fg: #e6ecf5;
+}
+
+/* -------------------------------------------------------------------------
+   Brand header — restore the signature dark-navy top bar in both themes.
+   The book theme colours the nav controls stone-700 (light) / white (dark);
+   on a navy bar we force them all to the light treatment.
+   ------------------------------------------------------------------------- */
+
+.myst-top-nav {
+  background: #0e1b2a !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.25) !important;
+}
+
+.myst-top-nav .myst-home-link,
+.myst-top-nav .myst-home-link span {
+  color: #ffffff !important;
+}
+
+.myst-top-nav .myst-search-bar {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #cbd5e1 !important;
+}
+.myst-top-nav .myst-search-bar svg,
+.myst-top-nav .myst-search-text-placeholder {
+  color: #cbd5e1 !important;
+}
+.myst-top-nav kbd {
+  background: rgba(255, 255, 255, 0.14) !important;
+  border-color: rgba(255, 255, 255, 0.22) !important;
+  color: #e2e8f0 !important;
+}
+
+.myst-top-nav a[href*="github"],
+.myst-top-nav .myst-theme-button,
+.myst-top-nav .myst-top-nav-menu-button {
+  color: #e2e8f0 !important;
+  border-color: rgba(255, 255, 255, 0.45) !important;
+}
+.myst-top-nav a[href*="github"]:hover,
+.myst-top-nav .myst-theme-button:hover,
+.myst-top-nav .myst-top-nav-menu-button:hover {
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+}
+
+/* -------------------------------------------------------------------------
+   Executed-cell outputs: keep pandas DataFrame tables readable in dark mode
+   ------------------------------------------------------------------------- */
+
+html.dark table.dataframe {
+  color: var(--se-callout-fg);
+}
+html.dark table.dataframe th {
+  background: var(--se-th-bg);
+  color: var(--se-callout-fg);
+}
+html.dark table.dataframe td {
+  border-color: var(--synedu-border);
+}
+
+/* -------------------------------------------------------------------------
+   Base element tweaks
+   ------------------------------------------------------------------------- */
+
 a {
-  color: var(--synedu-accent-dark);
+  color: var(--synedu-accent-strong);
 }
 
 table {
@@ -14,7 +105,7 @@ table {
 }
 
 th {
-  background: #f5f8fb;
+  background: var(--se-th-bg);
 }
 
 td,
@@ -40,6 +131,206 @@ img {
 .cell_input pre {
   overflow-x: auto;
 }
+
+/* -------------------------------------------------------------------------
+   Callout box  (.se-callout, .se-callout--muted)
+   Replaces hardcoded light-only <div style="background:#F3F8FF ...">
+   ------------------------------------------------------------------------- */
+
+.se-callout {
+  padding: 1rem 1.15rem;
+  margin: 1rem 0;
+  border-radius: 10px;
+  border-left: 6px solid var(--se-callout-accent);
+  background: var(--se-callout-bg);
+  color: var(--se-callout-fg);
+}
+
+.se-callout > :first-child {
+  margin-top: 0;
+}
+.se-callout > :last-child {
+  margin-bottom: 0;
+}
+
+.se-callout--muted {
+  --se-callout-accent: #94a3b8;
+  --se-callout-bg: #f5f6f8;
+  --se-callout-fg: #1f2937;
+}
+html.dark .se-callout--muted {
+  --se-callout-accent: #64748b;
+  --se-callout-bg: #1b1f26;
+  --se-callout-fg: #d6dbe2;
+}
+
+/* -------------------------------------------------------------------------
+   Concept card grid  (.se-cardgrid + .se-card + color modifier)
+   ------------------------------------------------------------------------- */
+
+.se-cardgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.85rem;
+  margin: 1rem 0 0.5rem;
+  align-items: stretch;
+}
+
+.se-card {
+  padding: 1rem 1.05rem;
+  line-height: 1.45;
+  border-radius: 8px;
+  border: 2px solid var(--se-card-bd);
+  border-left: 8px solid var(--se-card-bd);
+  background: var(--se-card-bg);
+  color: var(--se-card-fg);
+}
+
+/* Force headings/bold inside the card to the card's own foreground colour so
+   the theme's dark-mode text override cannot make the title invisible. */
+.se-card b,
+.se-card strong,
+.se-card .se-card__title {
+  color: var(--se-card-fg);
+}
+
+.se-card__title {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.se-card__code {
+  display: block;
+  margin: 0.35rem 0 0.6rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.se-card p {
+  margin: 0;
+}
+
+.se-card--blue   { --se-card-bd: #2563eb; --se-card-bg: #dbeafe; }
+.se-card--teal   { --se-card-bd: #0f766e; --se-card-bg: #ccfbf1; }
+.se-card--amber  { --se-card-bd: #b45309; --se-card-bg: #fed7aa; }
+.se-card--violet { --se-card-bd: #7c3aed; --se-card-bg: #ede9fe; }
+
+html.dark .se-card--blue   { --se-card-bd: #3b82f6; --se-card-bg: #16233b; }
+html.dark .se-card--teal   { --se-card-bd: #2dd4bf; --se-card-bg: #0c2b2a; }
+html.dark .se-card--amber  { --se-card-bd: #f59e0b; --se-card-bg: #33230f; }
+html.dark .se-card--violet { --se-card-bd: #a78bfa; --se-card-bg: #241b3d; }
+
+/* -------------------------------------------------------------------------
+   Token legend colour-coding  (.se-tok--*)
+   Each token type keeps its light + dark colour so labels stay readable.
+   ------------------------------------------------------------------------- */
+
+.se-tok {
+  font-weight: 700;
+}
+.se-tok--aliphatic { color: #4d4d4d; }
+.se-tok--aromatic  { color: #1f77b4; }
+.se-tok--double    { color: #d62728; }
+.se-tok--triple    { color: #8c564b; }
+.se-tok--branch    { color: #d9730d; }
+.se-tok--ring      { color: #d150ab; }
+.se-tok--stereo    { color: #7e51c0; }
+.se-tok--bracket   { color: #2ca02c; }
+
+html.dark .se-tok--aliphatic { color: #c8ccd2; }
+html.dark .se-tok--aromatic  { color: #6bb1e0; }
+html.dark .se-tok--double    { color: #ff7b7b; }
+html.dark .se-tok--triple    { color: #c99a8f; }
+html.dark .se-tok--branch    { color: #ffb066; }
+html.dark .se-tok--ring      { color: #f0a6d8; }
+html.dark .se-tok--stereo    { color: #c3a6e0; }
+html.dark .se-tok--bracket   { color: #67c767; }
+
+/* -------------------------------------------------------------------------
+   Inline figure with hover + caption  (.hover-figure / .figure-caption)
+   ------------------------------------------------------------------------- */
+
+.hover-figure {
+  display: inline-block;
+  max-width: 100%;
+  margin: 0.75rem auto;
+  padding: 0.75rem 0.75rem 0;
+  border: 1px solid var(--synedu-border);
+  border-radius: 8px;
+  background: var(--se-callout-bg);
+  overflow: hidden;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.hover-figure:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12);
+  border-color: var(--synedu-accent);
+}
+html.dark .hover-figure:hover {
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
+}
+
+.hover-figure img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+}
+
+.figure-caption {
+  margin-top: 0.5rem;
+  padding: 0.5rem 0 0.6rem;
+  border-top: 1px solid var(--synedu-border);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--synedu-muted);
+}
+
+/* -------------------------------------------------------------------------
+   Figures  (<figure class="se-figure">)
+   ------------------------------------------------------------------------- */
+
+.se-figure {
+  text-align: center;
+  margin: 1.25rem 0;
+}
+.se-figure--left {
+  text-align: left;
+}
+.se-figure img {
+  width: 100%;
+  max-width: 900px;
+  height: auto;
+}
+.se-figure figcaption {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--synedu-muted);
+}
+
+/* -------------------------------------------------------------------------
+   Collapsible solution box  (<details class="synedu-solution">)
+   ------------------------------------------------------------------------- */
+
+.synedu-solution {
+  margin: 1rem 0;
+  border: 1px solid var(--synedu-border);
+  border-radius: 8px;
+  padding: 0.4rem 0.9rem;
+  background: var(--se-callout-bg);
+}
+
+.synedu-solution > summary {
+  cursor: pointer;
+  color: var(--synedu-accent-strong);
+  padding: 0.35rem 0;
+}
+
+/* -------------------------------------------------------------------------
+   Talktorial catalog cards (used on the talktorials index, if present)
+   ------------------------------------------------------------------------- */
 
 .synedu-cardgrid {
   display: grid;
@@ -83,3 +374,8 @@ img {
   padding: 0.12rem 0.5rem;
   font-size: 0.78rem;
 }
+
+/* Category accents for catalog cards */
+.synedu-card--fund { border-left: 4px solid rgba(22, 179, 168, 0.75); }
+.synedu-card--lib  { border-left: 4px solid rgba(255, 177, 66, 0.75); }
+.synedu-card--app  { border-left: 4px solid rgba(255, 107, 107, 0.65); }

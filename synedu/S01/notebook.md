@@ -162,7 +162,7 @@ In medicinal chemistry, it is important to prioritize the most promising molecul
 
 ## Lipinski’s Rule of Five
 
-<div style="border:1px solid #d0d7de; padding:1rem; border-radius:6px;">
+<div class="se-callout se-callout--muted">
 
 **Lipinski’s Rule of Five** defines a set of empirical physicochemical criteria commonly used to assess whether a small molecule is likely to exhibit acceptable oral drug-like properties.
 
@@ -204,7 +204,7 @@ In medicinal chemistry, it is important to prioritize the most promising molecul
 
 <br>
 
-<div style="border-left:3px solid #666; padding:0.75rem 1rem;">
+<div class="se-callout se-callout--muted">
 
 <strong>Interpretation:</strong> Molecules satisfying these criteria are more likely to possess physicochemical properties compatible with oral absorption. However, the rule should be considered a prioritization heuristic rather than an absolute filter. Deviations may occur for specific chemical classes, including natural products, macrocycles, peptides, and compounds relying on active transport mechanisms.
 
@@ -212,11 +212,10 @@ In medicinal chemistry, it is important to prioritize the most promising molecul
 
 <br>
 
-<div class="hover-figure caption-hover" style="max-width:800px; width:100%; margin:0 auto;">
+<div class="hover-figure caption-hover">
   <img
     src="../../docs/_static/images/talks/RO5.svg"
     alt="Visualization of Lipinski’s Rule of Five"
-    style="width:100%; height:auto;"
   >
   <div class="figure-caption">
     Figure: Visualization of Lipinski’s Rule of Five, summarizing four physicochemical thresholds associated with oral drug-likeness.
@@ -389,7 +388,7 @@ plt.show()
 ```
 ## 2. SMILES
 
-<div style="padding: 1rem; border-left: 6px solid #4D96FF; background: #F3F8FF; border-radius: 10px;">
+<div class="se-callout">
 
 **SMILES** stands for **Simplified Molecular Input Line Entry System** [\[2\]](#id-6-references).
 
@@ -415,40 +414,11 @@ It is a compact, human-readable text notation that encodes a molecular **graph**
 
 SMILES encodes molecular structure using a small set of compact symbols.
 
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.85rem; align-items: stretch; margin: 1rem 0 0.5rem;">
-
-<div style="padding: 1rem 1.05rem; min-height: 8.2rem; line-height: 1.45; border: 2px solid #2563EB; border-left: 8px solid #1D4ED8; border-radius: 8px; background: #DBEAFE; color: #0F172A; box-shadow: none;">
-<b>Atoms</b>
-
-<code>C</code>, <code>N</code>, <code>O</code>, <code>Cl</code>
-
-<p>Atoms are written using element symbols.</p>
-</div>
-
-<div style="padding: 1rem 1.05rem; min-height: 8.2rem; line-height: 1.45; border: 2px solid #0F766E; border-left: 8px solid #0F766E; border-radius: 8px; background: #CCFBF1; color: #0F172A; box-shadow: none;">
-<b>Bonds</b>
-
-<code>CC</code>, <code>C=C</code>, <code>C#N</code>
-
-<p>Single bonds are usually implicit.</p>
-</div>
-
-<div style="padding: 1rem 1.05rem; min-height: 8.2rem; line-height: 1.45; border: 2px solid #B45309; border-left: 8px solid #B45309; border-radius: 8px; background: #FED7AA; color: #0F172A; box-shadow: none;">
-<b>Branches</b>
-
-<code>CC(O)C</code>
-
-<p>Parentheses create side chains.</p>
-</div>
-
-<div style="padding: 1rem 1.05rem; min-height: 8.2rem; line-height: 1.45; border: 2px solid #7C3AED; border-left: 8px solid #6D28D9; border-radius: 8px; background: #EDE9FE; color: #0F172A; box-shadow: none;">
-<b>Rings</b>
-
-<code>C1CCCCC1</code>
-
-<p>Matching digits close rings.</p>
-</div>
-
+<div class="se-cardgrid">
+<div class="se-card se-card--blue"><span class="se-card__title">Atoms</span><code class="se-card__code">C</code>, <code>N</code>, <code>O</code>, <code>Cl</code><p>Atoms are written using element symbols.</p></div>
+<div class="se-card se-card--teal"><span class="se-card__title">Bonds</span><code class="se-card__code">CC</code>, <code>C=C</code>, <code>C#N</code><p>Single bonds are usually implicit.</p></div>
+<div class="se-card se-card--amber"><span class="se-card__title">Branches</span><code class="se-card__code">CC(O)C</code><p>Parentheses create side chains.</p></div>
+<div class="se-card se-card--violet"><span class="se-card__title">Rings</span><code class="se-card__code">C1CCCCC1</code><p>Matching digits close rings.</p></div>
 </div>
 
 <br>
@@ -457,16 +427,16 @@ SMILES encodes molecular structure using a small set of compact symbols.
 
 | Token type | Example | Meaning |
 |---|---|---|
-| <span style="color:#4D4D4D;"><b>Aliphatic atom</b></span> | `C`, `N`, `O`, `Cl` | Standard non-aromatic atoms |
-| <span style="color:#1F77B4;"><b>Aromatic atom</b></span> | `c`, `n`, `o` | Aromatic atoms, usually lowercase |
-| <span style="color:#D62728;"><b>Double bond</b></span> | `=` | Explicit double bond |
-| <span style="color:#8C564B;"><b>Triple bond</b></span> | `#` | Explicit triple bond |
-| <span style="color:#FF7F0E;"><b>Branch</b></span> | `(...)` | Side chain |
-| <span style="color:#E377C2;"><b>Ring closure</b></span> | `1`, `2`, `%10` | Connects two atoms to form a ring |
-| <span style="color:#9467BD;"><b>Stereochemistry</b></span> | `@`, `@@`, `/`, `\` | Chirality or double-bond geometry |
-| <span style="color:#2CA02C;"><b>Bracketed atom</b></span> | `[NH4+]`, `[13C]`, `[O-]` | Explicit hydrogens, isotopes, charges, or uncommon valence |
+| <span class="se-tok se-tok--aliphatic">Aliphatic atom</span> | `C`, `N`, `O`, `Cl` | Standard non-aromatic atoms |
+| <span class="se-tok se-tok--aromatic">Aromatic atom</span> | `c`, `n`, `o` | Aromatic atoms, usually lowercase |
+| <span class="se-tok se-tok--double">Double bond</span> | `=` | Explicit double bond |
+| <span class="se-tok se-tok--triple">Triple bond</span> | `#` | Explicit triple bond |
+| <span class="se-tok se-tok--branch">Branch</span> | `(...)` | Side chain |
+| <span class="se-tok se-tok--ring">Ring closure</span> | `1`, `2`, `%10` | Connects two atoms to form a ring |
+| <span class="se-tok se-tok--stereo">Stereochemistry</span> | `@`, `@@`, `/`, `\` | Chirality or double-bond geometry |
+| <span class="se-tok se-tok--bracket">Bracketed atom</span> | `[NH4+]`, `[13C]`, `[O-]` | Explicit hydrogens, isotopes, charges, or uncommon valence |
 
-<div style="padding: 1rem; border-left: 5px solid #999; background: #F7F7F7; border-radius: 8px;">
+<div class="se-callout se-callout--muted">
 
 **Key rule:**  
 SMILES is not just a string. It is a compact way to encode a molecular graph.
@@ -656,7 +626,7 @@ C[Se]C            # dimethyl selenide
 
 ### 2.9. Summary
 
-<div style="padding: 1rem; border-left: 6px solid #4D96FF; background: #F3F8FF; border-radius: 10px;">
+<div class="se-callout">
 
 SMILES is compact because it relies on a small set of rules:
 

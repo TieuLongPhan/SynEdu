@@ -59,10 +59,9 @@ After completing this talktorial, you will be able to:
   of graph-based reaction rule extraction.
 </p>
 
-<figure style="text-align: left;">
+<figure class="se-figure se-figure--left">
   <img src="../../docs/_static/S07/flow_chart.svg"
-       alt="S07 workflow for consensus-driven reaction rule extraction"
-       style="width: 100%; max-width: 900px;">
+       alt="S07 workflow for consensus-driven reaction rule extraction">
   <figcaption>
     <b>Figure 1.</b> Overview of the S07 workflow for extracting graph-based reaction
     rules from atom-to-atom mapped reactions. Reactions are first standardized and

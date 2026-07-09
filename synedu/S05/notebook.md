@@ -149,10 +149,9 @@ where $D = G \setminus m(L \setminus K)$ is the *pushout complement* (host minus
 
 +++
 
-<figure style="text-align: center;">
+<figure class="se-figure">
   <img src="../../docs/_static/S05/diels_alder_dpo.svg"
-       alt="DPO span anatomy — Diels–Alder"
-       style="width: 100%; max-width: 900px;">
+       alt="DPO span anatomy — Diels–Alder">
   <figcaption>
     <b>Figure 1.</b> DPO span for the Diels&#x2013;Alder reaction: rule span
     <i>L</i> &larr;<sup><i>l</i></sup> <i>K</i> &rarr;<sup><i>r</i></sup> <i>R</i> (top)

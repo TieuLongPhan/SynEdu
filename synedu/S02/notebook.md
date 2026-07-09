@@ -82,10 +82,9 @@ To make “same molecule” precise, we model molecules as labeled graphs and co
 **label-preserving maps**. This section introduces **labeled graph morphisms** and the induced notion of
 **graph isomorphism** [\[3\]](#id-6-references), [\[4\]](#id-6-references).
 
-<figure style="text-align: center;">
+<figure class="se-figure">
   <img src="../../docs/_static/images/SO2/morphism.svg"
-       alt="Graph morphism examples"
-       style="width: 1000%; max-width: 1000px;">
+       alt="Graph morphism examples">
   <figcaption>
     <b>Figure 1.</b> Examples of graph morphism-related mappings: morphism,
     subgraph isomorphism, induced subgraph isomorphism, isomorphism,
