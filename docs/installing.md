@@ -18,12 +18,11 @@ The build uses Jupyter Book 2 / MyST. Generated `.ipynb` files are created from
 the committed Jupytext sources before the site build and are ignored by git.
 
 ```bash
-uv run python scripts/prepare_jupyter_book.py
-uv run jupyter book build --execute --html
+make build
 ```
 
-The current build executes notebooks during the JB2 build, but explicit MyST
-execution caching is not configured yet in `myst.yml`.
+Use `make build-fast` when you only need to check page structure and do not
+want to execute notebooks.
 
 ## Run A Notebook Locally
 
@@ -32,7 +31,7 @@ You do not need a full documentation build to run a talktorial. Because
 source notebooks directly:
 
 ```bash
-uv run jupyter lab synedu/S01/notebook.py
+make lab LESSON=S01
 ```
 
 If a local JupyterLab setup does not recognize the `.py` file as a notebook,
@@ -49,7 +48,7 @@ For normal use from a source checkout:
 
 ```bash
 uv sync
-uv run jupyter lab synedu/S01/notebook.py
+make lab LESSON=S01
 ```
 
 For package use after installation, the `synedu` CLI can prepare a workspace:

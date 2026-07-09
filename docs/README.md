@@ -4,8 +4,7 @@ SynEdu now uses Jupyter Book 2 / MyST for the active documentation build.
 
 ```bash
 uv sync
-uv run python scripts/prepare_jupyter_book.py
-uv run jupyter book build --execute --html
+make build
 ```
 
 The committed notebook sources live in `synedu/Sxx/notebook.py` as Jupytext

@@ -26,7 +26,7 @@ uv sync
 You do not need a full documentation build to work through a lesson:
 
 ```bash
-uv run jupyter lab synedu/S01/notebook.py
+make lab LESSON=S01
 ```
 
 If your JupyterLab setup does not open the Jupytext file as a notebook, convert
@@ -40,15 +40,14 @@ uv run jupyter lab /tmp/S01.ipynb
 ## Build Documentation
 
 ```bash
-uv run python scripts/prepare_jupyter_book.py
-uv run jupyter book build --execute --html
+make build
 ```
 
 ## Checks
 
 ```bash
-uv run pytest -m "not slow" -v tests/
-SYNEDU_NB=S01 uv run pytest -m slow -v tests/test_notebooks.py
+make check
+make test-notebooks
 ```
 
 ## Talktorials
