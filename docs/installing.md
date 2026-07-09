@@ -26,20 +26,25 @@ want to execute notebooks.
 
 ## Run A Notebook Locally
 
-You do not need a full documentation build to run a talktorial. Because
-`jupytext` is installed by `uv sync`, JupyterLab can open the percent-format
-source notebooks directly:
+You do not need a full documentation build to run a talktorial. The default
+local workflow converts one Jupytext source file to an ignored `.ipynb` file and
+opens that generated notebook:
 
 ```bash
 make lab LESSON=S01
 ```
 
-If a local JupyterLab setup does not recognize the `.py` file as a notebook,
-convert just that lesson to a temporary notebook:
+To only create the local notebook file:
 
 ```bash
-uv run jupytext --to ipynb synedu/S01/notebook.py --output /tmp/S01.ipynb
-uv run jupyter lab /tmp/S01.ipynb
+make notebook LESSON=S01
+```
+
+If your JupyterLab setup recognizes Jupytext percent files directly, you can
+open the source file instead:
+
+```bash
+uv run jupyter lab synedu/S01/notebook.py
 ```
 
 ## User Setup

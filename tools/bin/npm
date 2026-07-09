@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+set -eu
+
+if [ "${1:-}" = "--version" ] || [ "${1:-}" = "-v" ]; then
+  if [ -n "${NPM_REAL_BIN:-}" ] && [ -x "${NPM_REAL_BIN}" ]; then
+    exec "${NPM_REAL_BIN}" --version
+  fi
+  printf '%s\n' "${NPM_VERSION_FALLBACK:-11.11.0}"
+  exit 0
+fi
+
+if [ -n "${NPM_REAL_BIN:-}" ] && [ -x "${NPM_REAL_BIN}" ]; then
+  exec "${NPM_REAL_BIN}" "$@"
+fi
+
+printf '%s\n' "npm shim: NPM_REAL_BIN is not set or not executable" >&2
+exit 127

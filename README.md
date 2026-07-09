@@ -29,12 +29,17 @@ You do not need a full documentation build to work through a lesson:
 make lab LESSON=S01
 ```
 
-If your JupyterLab setup does not open the Jupytext file as a notebook, convert
-one lesson locally:
+This converts the Jupytext source to an ignored local notebook in `.notebooks/`
+and opens that file in JupyterLab. To only create the notebook file, use:
 
 ```bash
-uv run jupytext --to ipynb synedu/S01/notebook.py --output /tmp/S01.ipynb
-uv run jupyter lab /tmp/S01.ipynb
+make notebook LESSON=S01
+```
+
+To open the source file directly instead, use:
+
+```bash
+uv run jupyter lab synedu/S01/notebook.py
 ```
 
 ## Build Documentation
