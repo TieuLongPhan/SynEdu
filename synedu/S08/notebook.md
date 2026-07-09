@@ -15,7 +15,7 @@ kernelspec:
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S08.ipynb) [![Download Notebook](https://img.shields.io/badge/download-.ipynb-blue)](https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S08.ipynb) [![Run Locally](https://img.shields.io/badge/run-locally-lightgrey)](../../docs/installing.md)
 
-This talktorial introduces a graph-based, template-driven workflow for single-step reaction prediction and single-step retrosynthesis [\[1\]](#id-6-references), [\[2\]](#id-6-references). Reaction-center templates are extracted from mapped reactions, applied to unseen substrates, and evaluated after reaction standardization [\[3\]](#id-6-references), [\[4\]](#id-6-references), [\[5\]](#id-6-references).
+This talktorial introduces a graph-based, template-driven workflow for single-step reaction prediction and single-step retrosynthesis [@segler2018planning; @coley2019robotic]. Reaction-center templates are extracted from mapped reactions, applied to unseen substrates, and evaluated after reaction standardization [@coley2019rdchiral; @schwaller2021extraction; @daylight_manual].
 
 +++
 
@@ -69,7 +69,7 @@ extraction functions as a form of **knowledge compression**.
 >
 > A mapped reaction contains two kinds of information at once:
 > 1. the **overall chemical transformation**, and
-> 2. the **atom correspondence** between reactants and products [\[10\]](#id-6-references).
+> 2. the **atom correspondence** between reactants and products [@schneider2016whats].
 >
 > The second piece is what allows us to localize the changed region and extract a
 > reaction-center rule.
@@ -110,7 +110,7 @@ silence_logging()
 
 **Split the dataset**
 
-We first divide the reactions into a **training split** and a **test split** [\[6\]](#id-6-references). The
+We first divide the reactions into a **training split** and a **test split** [@coley2018machine]. The
 training portion is used to build the **template library**, while the test portion is
 reserved for evaluating whether those templates can reproduce unseen reactions.
 
@@ -134,9 +134,9 @@ train.head()
 
 **Extract a compact template library**
 
-Each training reaction is converted into a **reaction-center graph** [\[7\]](#id-6-references), that is, a local
+Each training reaction is converted into a **reaction-center graph** [@phan2025synkit], that is, a local
 representation of the atoms and bonds involved in the transformation. We then compute a
-**Weisfeiler–Lehman (WL) hash** [\[9\]](#id-6-references) to group equivalent or near-equivalent local patterns and
+**Weisfeiler–Lehman (WL) hash** [@shervashidze2011weisfeiler] to group equivalent or near-equivalent local patterns and
 keep one representative template per class.
 
 This serves two purposes:
@@ -650,7 +650,7 @@ first: did the template system recover the correct reaction transformation?
 +++
 
 **Definition (Template-Based One-Step Prediction).**  
-Given a template library $\mathcal{T} = \{p_1, \ldots, p_m\}$ of Double Pushout (DPO) graph transformation rules [\[11\]](#id-6-references) and a query molecule $q$, the *one-step forward prediction* generates the candidate set:
+Given a template library $\mathcal{T} = \{p_1, \ldots, p_m\}$ of Double Pushout (DPO) graph transformation rules [@ehrig2006fundamentals] and a query molecule $q$, the *one-step forward prediction* generates the candidate set:
 
 $$
 \hat{\mathcal{P}}(q) = \bigcup_{p_i \in \mathcal{T}} \{H \mid q \Rightarrow_{p_i} H \text{ via some valid match}\}
@@ -1004,7 +1004,7 @@ In **backward prediction**, we reverse the perspective: instead of mapping react
 products, we start from the **product side** and enumerate plausible precursor reactions
 by applying the same template library in **inverted mode**.
 
-This is closely related to **single-step retrosynthesis** [\[1\]](#id-6-references), [\[2\]](#id-6-references), but it is usually more
+This is closely related to **single-step retrosynthesis** [@segler2018planning; @coley2019robotic], but it is usually more
 ambiguous than forward prediction. A single product can often be disconnected in multiple
 valid ways, and the backward direction is strongly influenced by selectivity, leaving
 groups, protecting-group strategy, reagent availability, and reaction conditions. As a
@@ -1377,14 +1377,5 @@ Answer using both **chemical intuition** and **graph-based reasoning**.
 
 ## 6. References
 
-1. Segler, M. H. S.; Preuss, M.; Waller, M. P. Planning Chemical Syntheses with Deep Neural Networks and Symbolic AI. *Nature* **555**, 604-610 (2018).
-2. Coley, C. W. *et al.* A Robotic Platform for Flow Synthesis of Organic Compounds Informed by AI Planning. *Science* **365**, eaax1566 (2019).
-3. Coley, C. W.; Green, W. H.; Jensen, K. F. RDChiral: An RDKit Wrapper for Handling Stereochemistry in Retrosynthetic Template Extraction and Application. *Journal of Chemical Information and Modeling* **59**(6), 2529-2537 (2019).
-4. Schwaller, P. *et al.* Extraction of organic chemistry grammar from unsupervised learning of chemical reactions. *Science Advances* **7**, eabe4166 (2021). https://doi.org/10.1126/sciadv.abe4166
-5. Daylight Theory Manual. *Reaction SMILES and SMARTS*.
-6. Coley, C. W.; Green, W. H.; Jensen, K. F. Machine Learning in Computer-Aided Synthesis Planning. *Accounts of Chemical Research* **51**(5), 1281-1289 (2018).
-7. Phan, T.-L. *et al.* SynKit: A graph-based framework for rule-based reaction modeling. *Journal of Chemical Information and Modeling* (2025). https://doi.org/10.1021/acs.jcim.5c02123
-8. RDKit documentation. https://www.rdkit.org/docs/
-9. Shervashidze, N.; Schweitzer, P.; van Leeuwen, E. J.; Mehlhorn, K.; Borgwardt, K. M. Weisfeiler-Lehman Graph Kernels. *Journal of Machine Learning Research* **12**, 2539-2561 (2011).
-10. Schneider, N.; Stiefl, N.; Landrum, G. A. What's What: The (Nearly) Definitive Guide to Reaction Role Assignment. *Journal of Chemical Information and Modeling* **56**(12), 2336-2346 (2016).
-11. Ehrig, H.; Ehrig, K.; Prange, U.; Taentzer, G. *Fundamentals of Algebraic Graph Transformation*. Monographs in Theoretical Computer Science, Springer (2006). https://doi.org/10.1007/3-540-31188-2
+```{bibliography}
+```

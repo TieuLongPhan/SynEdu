@@ -15,7 +15,7 @@ kernelspec:
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S01.ipynb) [![Download Notebook](https://img.shields.io/badge/download-.ipynb-blue)](https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S01.ipynb) [![Run Locally](https://img.shields.io/badge/run-locally-lightgrey)](../../docs/installing.md)
 
-This talktorial introduces molecular representations for SynEdu: RDKit [\[1\]](#id-6-references) molecules, SMILES strings [\[2\]](#id-6-references), and explicit NetworkX labeled graphs. The focus is on what chemical information is preserved, what can be lost, and why representation choices matter for later graph-matching and reaction-rule tasks, [\[3\]](#id-6-references), [\[4\]](#id-6-references).
+This talktorial introduces molecular representations for SynEdu: RDKit [@rdkit_docs] molecules, SMILES strings [@weininger1988smiles], and explicit NetworkX labeled graphs. The focus is on what chemical information is preserved, what can be lost, and why representation choices matter for later graph-matching and reaction-rule tasks, [@networkx_docs; @bonchev1991chemical].
 
 +++
 
@@ -164,7 +164,7 @@ logp = MolLogP(osimertinib)
 
 +++
 
-In medicinal chemistry, it is important to prioritize the most promising molecules in order to reduce experimental and computational costs. One of the simplest and most widely used heuristics for early-stage compound selection is [Lipinski’s Rule of Five](https://en.wikipedia.org/wiki/Lipinski%27s_rule_of_five) [\[10\]](#id-6-references), which describes four physicochemical criteria associated with favorable oral bioavailability.
+In medicinal chemistry, it is important to prioritize the most promising molecules in order to reduce experimental and computational costs. One of the simplest and most widely used heuristics for early-stage compound selection is [Lipinski’s Rule of Five](https://en.wikipedia.org/wiki/Lipinski%27s_rule_of_five) [@lipinski1997experimental], which describes four physicochemical criteria associated with favorable oral bioavailability.
 
 ## Lipinski’s Rule of Five
 
@@ -402,7 +402,7 @@ plt.show()
 
 <div class="se-callout">
 
-**SMILES** stands for **Simplified Molecular Input Line Entry System** [\[2\]](#id-6-references).
+**SMILES** stands for **Simplified Molecular Input Line Entry System** [@weininger1988smiles].
 
 It is a compact, human-readable text notation that encodes a molecular **graph**, where:
 
@@ -917,7 +917,7 @@ for name, smi in examples:
     display(HTML(annotate_smiles_html(smi, title=name)))
 ```
 
-SMILES strings can have many valid variants for the same molecule [\[5\]](#id-6-references).
+SMILES strings can have many valid variants for the same molecule [@weininger1989smiles2].
 
 ```{code-cell}
 ---
@@ -936,7 +936,7 @@ Draw.MolsToGridImage([m1, m2], molsPerRow=2, subImgSize=(600, 200))
 
 The
 simplest and most reliable way to compare or normalise SMILES is to convert
-them to a **canonical form** in RDKit [\[1\]](#id-6-references), [\[5\]](#id-6-references), [\[6\]](#id-6-references).
+them to a **canonical form** in RDKit [@rdkit_docs; @weininger1989smiles2; @morgan1965generation].
 
 ```{code-cell}
 can1 = Chem.CanonSmiles(s1)
@@ -959,7 +959,7 @@ Graph canonicalization (canonical SMILES, toolkit differences) will be covered i
 
 In computational reaction modeling, we represent molecules as **labeled graphs** so that any notion of
 “matching” respects **chemical identity**, such as element type, charge, and bond order, rather than bare
-connectivity alone [\[4\]](#id-6-references).
+connectivity alone [@bonchev1991chemical].
 
 A **labeled molecular graph** is a quadruple
 
@@ -1339,7 +1339,7 @@ print(
 
 ### 3.3. Matrix representations
 
-A labeled molecular graph can be encoded as several **matrices**, each capturing a different structural aspect [\[4\]](#id-6-references), [\[7\]](#id-6-references), [\[8\]](#id-6-references):
+A labeled molecular graph can be encoded as several **matrices**, each capturing a different structural aspect [@bonchev1991chemical; @wiener1947structural; @dugundji1973algebraic]:
 
 | Matrix | Shape | Entry meaning |
 |---|---|---|
@@ -1469,7 +1469,7 @@ Key properties:
 - The **graph diameter** $\max_{i,j} D_{ij}$ is the longest shortest path — a
   compact measure of molecular "stretch"
 - Distance-based **Wiener index** $W = \tfrac{1}{2}\sum_{i,j} D_{ij}$ correlates
-  with boiling points for alkanes [\[7\]](#id-6-references)
+  with boiling points for alkanes [@wiener1947structural]
 
 ```{code-cell}
 ---
@@ -1523,7 +1523,7 @@ Key properties:
 - $B B^\top = \mathrm{Deg} + A_{\mathrm{bin}}$, where $\mathrm{Deg}$ is the diagonal degree matrix and $A_{\mathrm{bin}}$ is
   the binary adjacency matrix — a fundamental identity in algebraic graph theory
 - Incidence matrices appear in spectral graph theory and in the cycle-space
-  formulation of Kirchhoff's current laws [\[9\]](#id-6-references)
+  formulation of Kirchhoff's current laws [@biggs1993algebraic]
 
 ```{code-cell}
 import numpy as np
@@ -1581,7 +1581,7 @@ print(
 #### Bond-electron matrix
 
 The **Bond-Electron (BE) matrix** $M \in \mathbb{R}^{n \times n}$ extends the
-weighted adjacency matrix by encoding electron counts on the diagonal [\[8\]](#id-6-references):
+weighted adjacency matrix by encoding electron counts on the diagonal [@dugundji1973algebraic]:
 
 $$
 M_{ij} = \begin{cases}
@@ -1599,7 +1599,7 @@ implicit hydrogen count.
 - In the **Kekulé** form, all bond orders are integers, and the diagonal is a
   well-defined electron count.
 
-For this reason, reaction-informatics tools always work with the **Kekulé BE matrix** [\[8\]](#id-6-references).
+For this reason, reaction-informatics tools always work with the **Kekulé BE matrix** [@dugundji1973algebraic].
 The reaction-level version — the **ΔBE matrix** — is developed in **S04**.
 
 ```{code-cell}
@@ -1874,13 +1874,5 @@ Answer briefly using what you learned about **RDKit**, **SMILES**, and **molecul
 
 ## 6. References
 
-1. RDKit documentation. https://www.rdkit.org/docs/
-2. Weininger, D. SMILES, a chemical language and information system. 1. Introduction to methodology and encoding rules. *Journal of Chemical Information and Computer Sciences* **28**, 31-36 (1988). https://doi.org/10.1021/ci00057a005
-3. NetworkX documentation. https://networkx.org/documentation/stable/
-4. Bonchev, D.; Rouvray, D. H., eds. *Chemical Graph Theory: Introduction and Fundamentals*. Abacus Press (1991).
-5. Weininger, D.; Weininger, A.; Weininger, J. L. SMILES. 2. Algorithm for generation of unique SMILES notation. *Journal of Chemical Information and Computer Sciences* **29**, 97-101 (1989). https://doi.org/10.1021/ci00062a008
-6. Morgan, H. L. The generation of a unique machine description for chemical structures: a technique developed at Chemical Abstracts Service. *Journal of Chemical Documentation* **5**, 107-113 (1965). https://doi.org/10.1021/c160017a018
-7. Wiener, H. Structural determination of paraffin boiling points. *Journal of the American Chemical Society* **69**, 17-20 (1947). https://doi.org/10.1021/ja01193a005
-8. Dugundji, J.; Ugi, I. An algebraic model of constitutional chemistry as a basis for chemical computer programs. *Topics in Current Chemistry* **39**, 19-64 (1973).
-9. Biggs, N. *Algebraic Graph Theory*, 2nd ed. Cambridge University Press (1993).
-10. Lipinski, C. A.; Lombardo, F.; Dominy, B. W.; Feeney, P. J. Experimental and computational approaches to estimate solubility and permeability in drug discovery and development settings. *Advanced Drug Delivery Reviews* **23**, 3-25 (1997). https://doi.org/10.1016/S0169-409X(96)00423-1
+```{bibliography}
+```

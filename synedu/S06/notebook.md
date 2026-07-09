@@ -15,7 +15,7 @@ kernelspec:
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S06.ipynb) [![Download Notebook](https://img.shields.io/badge/download-.ipynb-blue)](https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S06.ipynb) [![Run Locally](https://img.shields.io/badge/run-locally-lightgrey)](../../docs/installing.md)
 
-This talktorial explains why atom-map numbers must be canonicalized before reactions and extracted rules can be compared reproducibly. We use partition refinement, WL-style coloring, and exact isomorphism ideas to collapse equivalent maps [\[1\]](#id-6-references), [\[2\]](#id-6-references), [\[3\]](#id-6-references).
+This talktorial explains why atom-map numbers must be canonicalized before reactions and extracted rules can be compared reproducibly. We use partition refinement, WL-style coloring, and exact isomorphism ideas to collapse equivalent maps [@weisfeiler1968reduction; @mckay2014practical; @morgan1965generation].
 
 +++
 
@@ -93,7 +93,7 @@ $$
 |N(v) \cap C_j| = d_{ij} \quad \text{for all } v \in C_i
 $$
 
-**Definition (WL Color Refinement).** [\[1\]](#id-6-references), [\[4\]](#id-6-references)  
+**Definition (WL Color Refinement).** [@weisfeiler1968reduction; @shervashidze2011weisfeiler]  
 Starting from the initial partition $\mathcal{P}^{(0)}$ induced by node labels $\mathbf{a}$, *Weisfeiler–Lehman (WL) refinement* iterates:
 
 $$
@@ -102,7 +102,7 @@ $$
 
 by splitting each cell $C \in \mathcal{P}^{(t)}$ whenever two vertices in $C$ have different *neighborhood signatures* — i.e., different multisets of $(\text{cell label, edge label})$ pairs among their neighbors. Refinement terminates at the *stable partition* $\mathcal{P}^* = \mathcal{P}^{(t^*)}$ where no further splitting occurs.
 
-**Theorem (WL Soundness).** [\[1\]](#id-6-references), [\[4\]](#id-6-references) If $G_1 \cong G_2$ (as labeled graphs), then WL refinement produces the same stable partition histogram. The converse fails in general: two non-isomorphic graphs can yield identical WL histograms.
+**Theorem (WL Soundness).** [@weisfeiler1968reduction; @shervashidze2011weisfeiler] If $G_1 \cong G_2$ (as labeled graphs), then WL refinement produces the same stable partition histogram. The converse fails in general: two non-isomorphic graphs can yield identical WL histograms.
 
 ```{code-cell}
 from synedu.Utils import print_graph_attributes
@@ -891,7 +891,7 @@ print_graph_attributes(wl_canon)
 
 - **Individualization**: for $v\in C$ write $I_v(\Pi)$ for the partition obtained by replacing $C$ with $\{v\}$ and $C\setminus\{v\}$.
 - The **IR search tree** has nodes (partitions) and children of a node $\Pi$ given by $R(I_v(\Pi))$ for chosen $v$ in a non-singleton cell.
-- During IR, nauty [\[2\]](#id-6-references) discovers automorphisms $\sigma\in\operatorname{Aut}(G)$ and stores a generating set $\mathcal{G}$. If a discovered $\sigma$ maps a search node to an already visited node, nauty **prunes** that branch.
+- During IR, nauty [@mckay2014practical] discovers automorphisms $\sigma\in\operatorname{Aut}(G)$ and stores a generating set $\mathcal{G}$. If a discovered $\sigma$ maps a search node to an already visited node, nauty **prunes** that branch.
 
 ```{code-cell}
 from typing import List
@@ -1424,7 +1424,7 @@ for name, n_ir_, n_amb_, n_tot in _results:
 
 ## 3. Atom-Mapped Canonicalization
 
-Canonical atom-map numbering follows the same motivation as canonical molecular descriptions: equivalent structures should receive deterministic identifiers before comparison [\[3\]](#id-6-references), [\[5\]](#id-6-references).
+Canonical atom-map numbering follows the same motivation as canonical molecular descriptions: equivalent structures should receive deterministic identifiers before comparison [@morgan1965generation; @phan2025synkit].
 
 Now we combine all of them
 
@@ -1789,7 +1789,7 @@ display(
 - In production pipelines, you typically combine:
   - strong initial labels (chemistry-aware),
   - WL refinement,
-  - IR with pruning and orbit-based symmetry breaking, as in nauty/Traces [\[2\]](#id-6-references) and bliss [\[7\]](#id-6-references).
+  - IR with pruning and orbit-based symmetry breaking, as in nauty/Traces [@mckay2014practical] and bliss [@junttila2007engineering].
 
 +++
 
@@ -1841,10 +1841,5 @@ if not data.empty:
 
 ## 6. References
 
-1. Weisfeiler, B.; Lehman, A. *A reduction of a graph to a canonical form and an algebra arising during this reduction.* (1968).
-2. McKay, B. D.; Piperno, A. Practical Graph Isomorphism, II. *Journal of Symbolic Computation* **60**, 94-112 (2014).
-3. Morgan, H. L. The generation of a unique machine description for chemical structures. *Journal of Chemical Documentation* **5**(2), 107-113 (1965).
-4. Shervashidze, N.; Schweitzer, P.; van Leeuwen, E. J.; Mehlhorn, K.; Borgwardt, K. M. Weisfeiler-Lehman graph kernels. *Journal of Machine Learning Research* **12**, 2539-2561 (2011). https://www.jmlr.org/papers/v12/shervashidze11a.html
-5. Phan, T.-L. *et al.* SynKit: A Graph-Based Python Framework for Rule-Based Reaction Modeling and Analysis. *Journal of Chemical Information and Modeling* (2025). https://doi.org/10.1021/acs.jcim.5c02123
-6. Bonchev, D.; Rouvray, D. H., eds. *Chemical Graph Theory: Introduction and Fundamentals*. Abacus Press (1991).
-7. Junttila, T.; Kaski, P. Engineering an Efficient Canonical Labeling Tool for Large and Sparse Graphs. *Proceedings of the Ninth Workshop on Algorithm Engineering and Experiments (ALENEX)*, SIAM, 135-149 (2007).
+```{bibliography}
+```

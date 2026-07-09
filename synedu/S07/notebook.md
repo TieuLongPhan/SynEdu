@@ -15,7 +15,7 @@ kernelspec:
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S07.ipynb) [![Download Notebook](https://img.shields.io/badge/download-.ipynb-blue)](https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S07.ipynb) [![Run Locally](https://img.shields.io/badge/run-locally-lightgrey)](../../docs/installing.md)
 
-This talktorial builds the bridge from atom-mapped reaction records to a reusable DPO reaction-rule library. It combines standardization, ensemble mapping, ITS construction, WL prefiltering, graph isomorphism, and optional MØD export [\[1\]](#id-6-references), [\[2\]](#id-6-references), [\[3\]](#id-6-references).
+This talktorial builds the bridge from atom-mapped reaction records to a reusable DPO reaction-rule library. It combines standardization, ensemble mapping, ITS construction, WL prefiltering, graph isomorphism, and optional MØD export [@phan2025synkit; @shervashidze2011weisfeiler; @andersen2016software].
 
 +++
 
@@ -79,7 +79,7 @@ After completing this talktorial, you will be able to:
 
 +++
 
-This notebook uses **SynKit** [\[1\]](#id-6-references). to accelerate development: fast access to molecular graphs, rule application (DPO/ITS), pattern matching, and utilities for building reaction-centric workflows.
+This notebook uses **SynKit** [@phan2025synkit]. to accelerate development: fast access to molecular graphs, rule application (DPO/ITS), pattern matching, and utilities for building reaction-centric workflows.
 
 we can easily install synkit via pypi:
 ```bash
@@ -106,13 +106,13 @@ display(data.head())
 print(data.shape)
 ```
 
-The dataset incorporates three distinct atom mapping methodologies: `rxn_mapper` [\[4\]](#id-6-references), `graphormer` mapper [\[5\]](#id-6-references), and `local_mapper` [\[6\]](#id-6-references).
+The dataset incorporates three distinct atom mapping methodologies: `rxn_mapper` [@schwaller2021extraction], `graphormer` mapper [@nugmanov2022bidirectional], and `local_mapper` [@chen2024precise].
 
 +++
 
 ## 1. Reaction preprocessing
 
-1. Validate & standardize SMILES using `Standardize` [\[7\]](#id-6-references) (drop invalid/unparsable).
+1. Validate & standardize SMILES using `Standardize` [@schneider2016whats] (drop invalid/unparsable).
 
 2. Canonicalize atom-map numbers with `CanonRSMI` (from **S06**) for identical mappings.
 
@@ -149,7 +149,7 @@ data['local_canon'] = data['local_mapper'].progress_apply(std_canon)
 
 ## 2. Ensemble atom-to-atom mapping agreement
 
-Compare the canonicalized mapper outputs by exact string equality; rows where all canonical maps match are high-confidence AAM assignments [\[8\]](#id-6-references).
+Compare the canonicalized mapper outputs by exact string equality; rows where all canonical maps match are high-confidence AAM assignments [@phan2025syntemp].
 
 +++
 
@@ -172,7 +172,7 @@ $$
 h_{\mathrm{WL}}(\Gamma_{\mathrm{RC}}) = \mathrm{encode}\!\left(\mathcal{P}^*(\Gamma_{\mathrm{RC}})\right)
 $$
 
-Reactions with identical WL hashes are *candidate isomorphs*; exact isomorphism (graph matching) [\[9\]](#id-6-references) is then used to confirm.
+Reactions with identical WL hashes are *candidate isomorphs*; exact isomorphism (graph matching) [@cordella2004subgraph] is then used to confirm.
 
 ```{code-cell}
 import pandas as pd
@@ -227,7 +227,7 @@ print("Equivalent maps:", len(out))
 print("Non equivalent maps:", len(rest))
 ```
 
-Weisfeiler-Lehman [\[2\]](#id-6-references) based canonicalization is fast but not exact. Use WL/canonical strings as a cheap filter, then run exact ITS isomorphism on rows where canonical strings disagree or ambiguity remains.
+Weisfeiler-Lehman [@shervashidze2011weisfeiler] based canonicalization is fast but not exact. Use WL/canonical strings as a cheap filter, then run exact ITS isomorphism on rows where canonical strings disagree or ambiguity remains.
 
 In **SynKit**, we expose `AAMValidator` to compare directly atom-to-atom map by converting to ITS and checking isomorphism
 
@@ -433,7 +433,7 @@ plt.show()
 
 #### Graph Clustering
 
-Now we have a set of reaction centers, but some of them can be isomorphic [\[9\]](#id-6-references), so we develop a simple pairwise grouping algorithm
+Now we have a set of reaction centers, but some of them can be isomorphic [@cordella2004subgraph], so we develop a simple pairwise grouping algorithm
 
 With a set $S=\{\Gamma_1,\Gamma_2,\dots,\Gamma_n\},\qquad n\ge 2$, we want a partition $T$ of $S$ into isomorphism classes.
 
@@ -932,7 +932,7 @@ print(f'At full dataset ({_sizes[-1]} rxns): {_unique_rules[-1]} unique rules')
 ```
 
 Applying the same reduction logic to isomorphic ITS graphs is feasible, though computationally more expensive than focusing solely on the reaction center.
-To optimize the computationally intensive ITS reduction, we can leverage Weisfeiler-Lehman [\[2\]](#id-6-references) pre-filtering (per **S06**). This ensures that expensive isomorphism checks are only performed on high-probability candidates
+To optimize the computationally intensive ITS reduction, we can leverage Weisfeiler-Lehman [@shervashidze2011weisfeiler] pre-filtering (per **S06**). This ensures that expensive isomorphism checks are only performed on high-probability candidates
 
 +++
 
@@ -1533,7 +1533,7 @@ rule [
 
 In the example above, the H node (id 19) bridges from `N` (atom 5) in the reactant to `N` (atom 23) in the product — a direct N→N proton transfer encoded as an explicit H node with one broken and one formed bond.
 
-Because `rc_h` contains H-expanded reaction centers, every transferred hydrogen already appears as an explicit node. The resulting GML rules are directly compatible with **MØD** [\[3\]](#id-6-references) without further post-processing.
+Because `rc_h` contains H-expanded reaction centers, every transferred hydrogen already appears as an explicit node. The resulting GML rules are directly compatible with **MØD** [@andersen2016software] without further post-processing.
 
 ```{code-cell}
 # Print a GML rule with H transfer (if one exists), else print the first rule
@@ -1597,7 +1597,7 @@ def rule_lib_pipeline(
 
 ## 4. Discussion
 
-- Atom-mapping quality can be significantly improved through ensemble techniques, specifically by performing isomorphism checks on generated ITS graphs [\[8\]](#id-6-references).
+- Atom-mapping quality can be significantly improved through ensemble techniques, specifically by performing isomorphism checks on generated ITS graphs [@phan2025syntemp].
 - While WL-based canonicalization is effective for pre-filtering and deduplication, it remains an approximation and cannot fully replace exact isomorphism checks for definitive verification.
 - Clustering reaction centers in large-scale datasets is computationally intensive; however, implementing a WL hashing pre-filter significantly accelerates the process by pruning the search space.
 - Rules can be persisted as NetworkX graph objects for deep computational tasks or exported in GML format for a lightweight, human-readable, and explainable representation.
@@ -1615,12 +1615,5 @@ def rule_lib_pipeline(
 
 ## 6. References
 
-1. Phan, T.-L.; González Laffitte, M. E.; Weinbauer, K.; Merkle, D.; Andersen, J. L.; Fagerberg, R.; Gatter, T.; Stadler, P. F. *SynKit: A Graph-Based Python Framework for Rule-Based Reaction Modeling and Analysis.* *Journal of Chemical Information and Modeling* (2025). https://doi.org/10.1021/acs.jcim.5c02123
-2. Shervashidze, N.; Schweitzer, P.; van Leeuwen, E. J.; Mehlhorn, K.; Borgwardt, K. M. *Weisfeiler-Lehman graph kernels.* *Journal of Machine Learning Research* **12**, 2539-2561 (2011). https://www.jmlr.org/papers/v12/shervashidze11a.html
-3. Andersen, J. L.; Flamm, C.; Merkle, D.; Stadler, P. F. *A software package for chemically inspired graph transformation.* In *International Conference on Graph Transformation*, 73-88 (Springer, 2016). https://doi.org/10.1007/978-3-319-40530-8_5
-4. Schwaller, P. *et al.* *Extraction of organic chemistry grammar from unsupervised learning of chemical reactions (RXNMapper).* *Science Advances* **7**, eabe4166 (2021). https://doi.org/10.1126/sciadv.abe4166
-5. Nugmanov, R.; Dyubankova, N.; Gedich, A.; Wegner, J. K. *Bidirectional graphormer for reactivity understanding: neural network trained to reaction atom-to-atom mapping task.* *Journal of Chemical Information and Modeling* **62**(14), 3307-3315 (2022). https://doi.org/10.1021/acs.jcim.2c00344
-6. Chen, S.; An, S.; Babazade, R.; Jung, Y. *Precise atom-to-atom mapping for organic reactions via human-in-the-loop machine learning.* *Nature Communications* **15**, 2250 (2024).
-7. Schneider, N.; Stiefl, N.; Landrum, G. A. What's What: The (Nearly) Definitive Guide to Reaction Role Assignment. *Journal of Chemical Information and Modeling* **56**, 2336-2346 (2016). https://doi.org/10.1021/acs.jcim.6b00564
-8. Phan, T.-L.; Weinbauer, K.; González Laffitte, M. E.; Pan, Y.; Merkle, D.; Andersen, J. L.; Fagerberg, R.; Flamm, C.; Stadler, P. F. *SynTemp: Efficient Extraction of Graph-Based Reaction Rules from Large-Scale Reaction Databases.* *Journal of Chemical Information and Modeling* (2025). https://doi.org/10.1021/acs.jcim.4c01795
-9. Cordella, L. P.; Foggia, P.; Sansone, C.; Vento, M. A (Sub)Graph Isomorphism Algorithm for Matching Large Graphs. *IEEE Transactions on Pattern Analysis and Machine Intelligence* **26**, 1367-1372 (2004). https://doi.org/10.1109/TPAMI.2004.75
+```{bibliography}
+```

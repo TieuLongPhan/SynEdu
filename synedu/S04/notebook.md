@@ -15,7 +15,7 @@ kernelspec:
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S04.ipynb) [![Download Notebook](https://img.shields.io/badge/download-.ipynb-blue)](https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S04.ipynb) [![Run Locally](https://img.shields.io/badge/run-locally-lightgrey)](../../docs/installing.md)
 
-This talktorial connects molecular alignment to atom-to-atom mapping. We build transparent MCS-based maps, compare them with RXNMapper, and use Imaginary Transition State (ITS) graphs as a map-number-invariant representation of reaction change [\[1\]](#id-6-references), [\[2\]](#id-6-references), [\[11\]](#id-6-references).
+This talktorial connects molecular alignment to atom-to-atom mapping. We build transparent MCS-based maps, compare them with RXNMapper, and use Imaginary Transition State (ITS) graphs as a map-number-invariant representation of reaction change [@phan2025synkit; @schwaller2021extraction; @fujita1986description].
 
 +++
 
@@ -111,7 +111,7 @@ draw_molecular_graph(r, show_indices=True, ax=ax[0])
 draw_molecular_graph(p, show_indices=True, ax=ax[1])
 ```
 
-We now develop `mcs_networkx` to identify the Maximum Common Substructure (MCS), using the graph-matching perspective introduced in S03 and the classic MCS matching algorithms for chemical structures [\[10\]](#id-6-references).
+We now develop `mcs_networkx` to identify the Maximum Common Substructure (MCS), using the graph-matching perspective introduced in S03 and the classic MCS matching algorithms for chemical structures [@raymond2002maximum].
 Note that in a reaction context, **bonds may be formed or broken** between
 reactants and products. Therefore, bond attributes should **not** be used
 as matching constraints (`edge_attrs`), and the MCS is computed based on
@@ -510,7 +510,7 @@ Typical RXNMapper outputs:
 - `mapped_rxn`: reaction SMILES annotated with atom-map indices induced by \(\mu\),  
 - `confidence`: a scalar summary of alignment consistency (higher → more reliable).
 
-We adopt this attention-guided strategy following the Molecular Transformer framework [\[4\]](#id-6-references) and RXNMapper [\[2\]](#id-6-references).
+We adopt this attention-guided strategy following the Molecular Transformer framework [@schwaller2019molecular] and RXNMapper [@schwaller2021extraction].
 
 ```{code-cell}
 from typing import Any, Dict, Optional, Tuple
@@ -703,7 +703,7 @@ print(_mapped_rxn)
 ```
 
 ## 2. Imaginary Transition State
-The **Imaginary Transition State (ITS)** [\[11\]](#id-6-references) (or Condensed Graph of the Reaction [\[9\]](#id-6-references)) is a compact, chemistry-oriented way to represent *what changes* in a reaction by **superimposing reactants and products via an atom-atom map**.
+The **Imaginary Transition State (ITS)** [@fujita1986description] (or Condensed Graph of the Reaction [@nugmanov2019cgrtools]) is a compact, chemistry-oriented way to represent *what changes* in a reaction by **superimposing reactants and products via an atom-atom map**.
 
 Think of the ITS as a single graph whose **nodes are atom-map labels** (one node per mapped atom) and whose **edges record the bond before and after the reaction**. Reading the ITS tells you, at a glance, which bonds are preserved, broken or formed.
 
@@ -775,7 +775,7 @@ $$
 These are the bonds that are **broken** ($b_r > 0, b_p = 0$), **formed** ($b_r = 0, b_p > 0$), or **changed** ($b_r \neq b_p$, both $> 0$).
 
 **Definition (ΔBE Entry).**  
-Following the Dugundji–Ugi bond-electron matrix formalism [\[3\]](#id-6-references), for each atom pair $(i, j)$ with $i \neq j$: $\Delta\mathrm{BE}_{ij} = b_p(i,j) - b_r(i,j)$.  
+Following the Dugundji–Ugi bond-electron matrix formalism [@dugundji1973algebraic], for each atom pair $(i, j)$ with $i \neq j$: $\Delta\mathrm{BE}_{ij} = b_p(i,j) - b_r(i,j)$.  
 Positive values indicate bond formation; negative values indicate bond breaking.  
 The diagonal entries represent changes in free-electron count (valence electrons not in bonds).
 
@@ -1068,7 +1068,7 @@ def rsmi_to_its(rsmi, core=False):
 
 The left panel shows the full ITS: **red edges** are broken bonds, **green edges** are formed bonds, **black edges** are preserved. The right panel isolates the **reaction center** — the subgraph where $b_r \ne b_p$.
 
-The off-diagonal ΔBE entries encode the same information numerically: $\Delta\mathrm{BE}_{ij} = b^P_{ij} - b^R_{ij}$ for $i \neq j$ [\[3\]](#id-6-references). Red cells indicate bond cleavage; blue cells indicate bond formation. The pattern of signed changes is characteristic of the reaction type, though it is not in general a unique fingerprint (different reactions can share the same bond-change pattern).
+The off-diagonal ΔBE entries encode the same information numerically: $\Delta\mathrm{BE}_{ij} = b^P_{ij} - b^R_{ij}$ for $i \neq j$ [@dugundji1973algebraic]. Red cells indicate bond cleavage; blue cells indicate bond formation. The pattern of signed changes is characteristic of the reaction type, though it is not in general a unique fingerprint (different reactions can share the same bond-change pattern).
 
 ```{code-cell}
 ---
@@ -1157,7 +1157,7 @@ plt.show()
 ### 2.3. ΔBE matrix heatmap
 
 The off-diagonal entries of the Bond–Electron (BE) matrix introduced in **S01**
-[\[3\]](#id-6-references) are the pairwise bond orders; their reactant/product
+[@dugundji1973algebraic] are the pairwise bond orders; their reactant/product
 difference $\Delta\mathrm{BE} = \mathrm{BE}_P - \mathrm{BE}_R$ restricted to
 $i \neq j$ is exactly the off-diagonal information already stored in the ITS
 edge labels $(b_r, b_p)$:
@@ -1334,7 +1334,7 @@ plt.tight_layout()
 plt.show()
 ```
 
-While atom-map equivalence is hard to judge directly, the corresponding ITS graphs are equivalent if and only if they are isomorphic, a concept we already encountered in **S02** [\[6\]](#id-6-references).
+While atom-map equivalence is hard to judge directly, the corresponding ITS graphs are equivalent if and only if they are isomorphic, a concept we already encountered in **S02** [@bonchev1991chemical].
 
 ```{code-cell}
 import networkx as nx
@@ -1518,14 +1518,5 @@ data.head()
 
 ## 6. References
 
-1. Phan, T.-L. *et al.* SynKit: A graph-based framework for rule-based reaction modeling. *Journal of Chemical Information and Modeling* (2025). https://doi.org/10.1021/acs.jcim.5c02123
-2. Schwaller, P. *et al.* Extraction of organic chemistry grammar from unsupervised learning of chemical reactions. *Science Advances* **7**, eabe4166 (2021). https://doi.org/10.1126/sciadv.abe4166
-3. Dugundji, J.; Ugi, I. An algebraic model of constitutional chemistry as a basis for chemical computer programs. *Topics in Current Chemistry* **39**, 19-64 (1973).
-4. Schwaller, P. *et al.* Molecular Transformer: A Model for Uncertainty-Calibrated Chemical Reaction Prediction. *ACS Central Science* (2019). https://doi.org/10.1021/acscentsci.9b00576
-5. Phan, T.-L. *et al.* SynTemp: Efficient Extraction of Graph-Based Reaction Rules from Large-Scale Reaction Databases. *Journal of Chemical Information and Modeling* (2025). https://doi.org/10.1021/acs.jcim.4c01795
-6. Bonchev, D.; Rouvray, D. H., eds. *Chemical Graph Theory: Introduction and Fundamentals*. Abacus Press (1991).
-7. RDKit documentation. https://www.rdkit.org/docs/
-8. NetworkX documentation. https://networkx.org/documentation/stable/
-9. Nugmanov, R. I. *et al.* CGRtools: Python Library for Molecule, Reaction, and Condensed Graph of Reaction Processing. *Journal of Chemical Information and Modeling* **59**, 2516-2521 (2019). https://doi.org/10.1021/acs.jcim.9b00102
-10. Raymond, J. W.; Willett, P. Maximum common subgraph isomorphism algorithms for the matching of chemical structures. *Journal of Computer-Aided Molecular Design* **16**, 521-533 (2002). https://doi.org/10.1023/A:1021271615909
-11. Fujita, S. Description of organic reactions based on imaginary transition structures. 1. Introduction of new concepts. *Journal of Chemical Information and Computer Sciences* **26**, 205-212 (1986). https://doi.org/10.1021/ci00052a009
+```{bibliography}
+```

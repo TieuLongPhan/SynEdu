@@ -15,7 +15,7 @@ kernelspec:
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S02.ipynb) [![Download Notebook](https://img.shields.io/badge/download-.ipynb-blue)](https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S02.ipynb) [![Run Locally](https://img.shields.io/badge/run-locally-lightgrey)](../../docs/installing.md)
 
-This talktorial studies graph homomorphisms as the matching language behind molecular equivalence, symmetry, substructure search, and later reaction-rule application. RDKit provides chemistry-native matching, while NetworkX keeps the graph homomorphism explicit and inspectable [\[1\]](#id-6-references), [\[2\]](#id-6-references).
+This talktorial studies graph homomorphisms as the matching language behind molecular equivalence, symmetry, substructure search, and later reaction-rule application. RDKit provides chemistry-native matching, while NetworkX keeps the graph homomorphism explicit and inspectable [@rdkit_docs; @networkx_docs].
 
 +++
 
@@ -80,7 +80,7 @@ display(df.head())
 
 To make “same molecule” precise, we model molecules as labeled graphs and compare them via
 **label-preserving maps**. This section introduces **labeled graph homomorphisms** and the induced notion of
-**graph isomorphism** [\[3\]](#id-6-references), [\[4\]](#id-6-references).
+**graph isomorphism** [@bonchev1991chemical; @diestel2017graph].
 
 <figure class="se-figure">
   <img src="../../docs/_static/images/SO2/morphism.svg"
@@ -242,7 +242,7 @@ assert not iso_and_count(graphs["aniline_a"], graphs["aniline_b"], enhanced_node
 
 **Observation.** In the benzene example you enumerated **12 mappings** - these are the automorphisms of the benzene heavy-atom graph (the dihedral group \(D_6\), where \(|D_6| = 12\)).
 
-**Definition.** An automorphism [\[3\]](#id-6-references), [\[4\]](#id-6-references) is a graph isomorphism from the graph to itself:
+**Definition.** An automorphism [@bonchev1991chemical; @diestel2017graph] is a graph isomorphism from the graph to itself:
 
 $$
 f : G \longrightarrow G.
@@ -370,7 +370,7 @@ enumerate_automorphisms(graph)
 ### 2.2 Orbit
 
 The **orbit** of an atom \(v\) is the set of atoms it can be mapped to by
-molecular symmetries [\[3\]](#id-6-references), [\[4\]](#id-6-references):
+molecular symmetries [@bonchev1991chemical; @diestel2017graph]:
 $$
 \mathrm{Orbit}(v)=\{\psi(v)\mid \psi\in\mathrm{Aut}(G)\}.
 $$
@@ -701,7 +701,7 @@ $$
 \quad \text{If yes, what are the embeddings?}
 $$
 
-Formally, a **subgraph isomorphism** [\[3\]](#id-6-references), [\[4\]](#id-6-references) is an **injective, label-preserving graph homomorphism**
+Formally, a **subgraph isomorphism** [@bonchev1991chemical; @diestel2017graph] is an **injective, label-preserving graph homomorphism**
 
 $$
 f : V(P) \hookrightarrow V(G)
@@ -722,7 +722,7 @@ without collisions (injective), while respecting chemical identity (types).
 
 ### 3.1. NetworkX subgraph match
 
-NetworkX exposes this via the VF2-style matcher implemented in `networkx.algorithms.isomorphism` [\[2\]](#id-6-references), [\[5\]](#id-6-references):
+NetworkX exposes this via the VF2-style matcher implemented in `networkx.algorithms.isomorphism` [@networkx_docs; @cordella2004subgraph]:
 
 - `GraphMatcher.subgraph_isomorphisms_iter()` - enumerates all injective embeddings
   that satisfy `node_match` and `edge_match`.
@@ -1350,7 +1350,7 @@ df["is_subgraph_ethanol"] = df["graph"].apply(has_ethanol_subgraph)
 ### 3.3. RDKit subgraph search
 
 
-RDKit performs pattern-in-host queries via **substructure matching**, a chemistry-specific form of subgraph isomorphism [\[1\]](#id-6-references), [\[6\]](#id-6-references):
+RDKit performs pattern-in-host queries via **substructure matching**, a chemistry-specific form of subgraph isomorphism [@rdkit_docs; @ullmann1976algorithm]:
 
 ```python
 host_mol.GetSubstructMatches(pattern_mol)
@@ -1631,9 +1631,5 @@ Answer using both **chemical intuition** and **graph-theoretic language**.
 
 ## 6. References
 
-1. RDKit documentation. https://www.rdkit.org/docs/
-2. NetworkX documentation. https://networkx.org/documentation/stable/
-3. Bonchev, D.; Rouvray, D. H., eds. *Chemical Graph Theory: Introduction and Fundamentals*. Abacus Press (1991).
-4. Diestel, R. *Graph Theory*, 5th ed. Springer (2017). https://doi.org/10.1007/978-3-662-53622-3
-5. Cordella, L. P.; Foggia, P.; Sansone, C.; Vento, M. A (Sub)Graph Isomorphism Algorithm for Matching Large Graphs. *IEEE Transactions on Pattern Analysis and Machine Intelligence* **26**, 1367-1372 (2004). https://doi.org/10.1109/TPAMI.2004.75
-6. Ullmann, J. R. An Algorithm for Subgraph Isomorphism. *Journal of the ACM* **23**, 31-42 (1976). https://doi.org/10.1145/321921.321925
+```{bibliography}
+```

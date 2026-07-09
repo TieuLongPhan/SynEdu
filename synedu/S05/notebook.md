@@ -15,7 +15,7 @@ kernelspec:
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S05.ipynb) [![Download Notebook](https://img.shields.io/badge/download-.ipynb-blue)](https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S05.ipynb) [![Run Locally](https://img.shields.io/badge/run-locally-lightgrey)](../../docs/installing.md)
 
-This talktorial introduces Double Pushout (DPO) graph rewriting as a formal model for reaction rules. A rule is represented as a span that separates deleted, preserved, and created structure, then applied to molecular graphs by matching, deleting, and gluing [\[1\]](#id-6-references), [\[2\]](#id-6-references).
+This talktorial introduces Double Pushout (DPO) graph rewriting as a formal model for reaction rules. A rule is represented as a span that separates deleted, preserved, and created structure, then applied to molecular graphs by matching, deleting, and gluing [@phan2025synkit; @ehrig2006fundamentals].
 
 +++
 
@@ -95,7 +95,7 @@ print("Reactant SMILES (canonical-ish):", Chem.MolToSmiles(react))
 
 ## 1. Reaction rules
 
-A reaction rule is a **DPO span** [\[2\]](#id-6-references), [\[3\]](#id-6-references)
+A reaction rule is a **DPO span** [@ehrig2006fundamentals; @ehrig1997handbook]
 $$
 L \xleftarrow{\;\ell\;} K \xrightarrow{\;r\;} R,
 $$
@@ -240,7 +240,7 @@ print_graph_attributes(K)
 
 ## 2. Double Pushout Graph Rewriting
 
-Two categorical pushouts compactly encode [\[2\]](#id-6-references), [\[3\]](#id-6-references) the familiar chemical workflow **delete → add** (remove broken bonds / atoms, then glue in the new fragment). The usual DPO diagram is:
+Two categorical pushouts compactly encode [@ehrig2006fundamentals; @ehrig1997handbook] the familiar chemical workflow **delete → add** (remove broken bonds / atoms, then glue in the new fragment). The usual DPO diagram is:
 
 $$
 \begin{array}{ccccc}
@@ -338,7 +338,7 @@ into the host graph $G$ and thereby identifying the reaction center.
 
 Below, `node_match`/`edge_match` encode label compatibility and are passed to
 NetworkX's `GraphMatcher`, which implements the VF2 algorithm for (sub)graph
-isomorphism and monomorphism enumeration [\[11\]](#id-6-references).
+isomorphism and monomorphism enumeration [@cordella2004subgraph].
 `_automorphisms` recovers $\mathrm{Aut}(H)$ as the set of label-preserving
 isomorphisms $H \to H$.
 
@@ -521,7 +521,7 @@ matches
 
 #### Pattern match gallery — all valid matches of $L$ in $G$
 
-Pattern matching is the subgraph-isomorphism step that decides where a rule may apply [\[4\]](#id-6-references).
+Pattern matching is the subgraph-isomorphism step that decides where a rule may apply [@networkx_docs].
 
 We enumerate all injective matches $m: L \hookrightarrow G$ and display each one,
 highlighting the matched subgraph in $G$. Orbit-deduplication then collapses
@@ -1516,7 +1516,7 @@ Two matches $m_1, m_2: L \hookrightarrow G$ that differ only by an automorphism 
 
 #### Practical limitations
 
-- **NP-completeness**: Pattern matching (subgraph isomorphism) is NP-complete in general [\[12\]](#id-6-references), but sparse molecular graphs keep it tractable in practice.
+- **NP-completeness**: Pattern matching (subgraph isomorphism) is NP-complete in general [@garey1979computers], but sparse molecular graphs keep it tractable in practice.
 - **Selectivity**: A rule with a small $K$ (minimal context) fires many times; one with a large $K$ fires rarely. The trade-off between specificity and coverage is studied quantitatively in **S09**.
 - **Rule composition**: Chaining two DPO rules into a single multi-step pathway requires careful handling of intermediate graphs. This is an active research direction beyond the current series.
 
@@ -1547,15 +1547,5 @@ Answer using **DPO graph-rewriting terminology**.
 
 ## 6. References
 
-1. Phan, T.-L. *et al.* SynKit: A graph-based framework for rule-based reaction modeling. *Journal of Chemical Information and Modeling* (2025). https://doi.org/10.1021/acs.jcim.5c02123
-2. Ehrig, H.; Ehrig, K.; Prange, U.; Taentzer, G. *Fundamentals of Algebraic Graph Transformation*. Springer (2006). https://doi.org/10.1007/3-540-31188-2
-3. Ehrig, H.; Kreowski, H.-J.; Rozenberg, G. *Handbook of Graph Grammars and Computing by Graph Transformation, Volume 1: Foundations*. World Scientific (1997).
-4. NetworkX documentation. https://networkx.org/documentation/stable/
-5. RDKit documentation. https://www.rdkit.org/docs/
-6. Schwaller, P. *et al.* Molecular Transformer: A Model for Uncertainty-Calibrated Chemical Reaction Prediction. *ACS Central Science* (2019). https://doi.org/10.1021/acscentsci.9b00576
-7. Schwaller, P. *et al.* Extraction of organic chemistry grammar from unsupervised learning of chemical reactions. *Science Advances* **7**, eabe4166 (2021). https://doi.org/10.1126/sciadv.abe4166
-8. Phan, T.-L. *et al.* SynTemp: Efficient Extraction of Graph-Based Reaction Rules from Large-Scale Reaction Databases. *Journal of Chemical Information and Modeling* (2025). https://doi.org/10.1021/acs.jcim.4c01795
-9. Nugmanov, R. I. *et al.* CGRtools: Python Library for Molecule, Reaction, and Condensed Graph of Reaction Processing. *Journal of Chemical Information and Modeling* **59**, 2516-2521 (2019). https://doi.org/10.1021/acs.jcim.9b00102
-10. Andersen, J. L.; Flamm, C.; Merkle, D.; Stadler, P. F. A software package for chemically inspired graph transformation. In *International Conference on Graph Transformation*, 73-88 (Springer, 2016). https://doi.org/10.1007/978-3-319-40530-8_5
-11. Cordella, L. P.; Foggia, P.; Sansone, C.; Vento, M. A (sub)graph isomorphism algorithm for matching large graphs. *IEEE Transactions on Pattern Analysis and Machine Intelligence* **26**, 1367-1372 (2004). https://doi.org/10.1109/TPAMI.2004.75
-12. Garey, M. R.; Johnson, D. S. *Computers and Intractability: A Guide to the Theory of NP-Completeness*. W. H. Freeman (1979).
+```{bibliography}
+```

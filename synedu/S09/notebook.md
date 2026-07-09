@@ -15,7 +15,7 @@ kernelspec:
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S09.ipynb) [![Download Notebook](https://img.shields.io/badge/download-.ipynb-blue)](https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S09.ipynb) [![Run Locally](https://img.shields.io/badge/run-locally-lightgrey)](../../docs/installing.md)
 
-This talktorial asks how much local neighbourhood should be kept around a reaction center. We expand reaction-center templates by radius, apply the resulting rule libraries, and use recall, enrichment, and F1 to choose a practical context size [\[1\]](#id-6-references), [\[2\]](#id-6-references), [\[3\]](#id-6-references).
+This talktorial asks how much local neighbourhood should be kept around a reaction center. We expand reaction-center templates by radius, apply the resulting rule libraries, and use recall, enrichment, and F1 to choose a practical context size [@phan2025synkit; @shervashidze2011weisfeiler; @ehrig2006fundamentals].
 
 +++
 
@@ -100,7 +100,7 @@ We reuse the exact pipeline from S07/S08:
 
 1. Convert each training reaction to its full ITS graph and to its
    reaction-center (RC) graph.
-2. Compute a Weisfeiler-Lehman (WL) hash of each RC for fast grouping [\[2\]](#id-6-references).
+2. Compute a Weisfeiler-Lehman (WL) hash of each RC for fast grouping [@shervashidze2011weisfeiler].
 3. Cluster with `GraphCluster` to identify rule families.
 
 This is shown quickly here; refer to S07 for a step-by-step explanation.
@@ -165,7 +165,7 @@ $E_{rc}$ if its bond orders on the reactant and product sides differ:
 
 $$E_{\text{rc}} = \{(u,v) \in E \mid b_r(u,v) \neq b_p(u,v)\}$$
 
-The **reaction-center nodes** $V_{rc}$ are all endpoints of edges in $E_{rc}$ [\[1\]](#id-6-references), [\[3\]](#id-6-references).
+The **reaction-center nodes** $V_{rc}$ are all endpoints of edges in $E_{rc}$ [@phan2025synkit; @ehrig2006fundamentals].
 At radius *r* = 0, $V_{rc}$ is the starting seed for context expansion.
 
 ```{code-cell}
@@ -282,7 +282,7 @@ print("Each +1 radius adds one shell of chemical neighbours.")
 
 ### 1.5 The context subgraph as local DPO rule support
 
-In S05 we defined a **DPO span** L ← K → R [\[3\]](#id-6-references) where K is the *interface*
+In S05 we defined a **DPO span** L ← K → R [@ehrig2006fundamentals] where K is the *interface*
 subgraph — the part of the rule that is not rewritten.
 
 The context subgraph $K_r$ built above supplies the local atoms and ITS edge labels from which the DPO span is read:
@@ -381,7 +381,7 @@ for i, v in enumerate(_samples):
 
 ### 2.2 Build templates at each radius
 
-For each training reaction in the selected family, we extract the r-hop context subgraph [\[4\]](#id-6-references)
+For each training reaction in the selected family, we extract the r-hop context subgraph [@coley2019rdchiral]
 with `expand_context(its, r)`. We then deduplicate the resulting K-graphs with a WL hash.
 
 The result is a plain list:
@@ -1090,10 +1090,5 @@ This is the conceptual endpoint of the SynEdu series.
 
 ## 6. References
 
-1. Phan, T.-L. *et al.* SynKit: A Graph-Based Python Framework for Rule-Based Reaction Modeling and Analysis. *Journal of Chemical Information and Modeling* (2025). https://doi.org/10.1021/acs.jcim.5c02123
-2. Shervashidze, N.; Schweitzer, P.; van Leeuwen, E. J.; Mehlhorn, K.; Borgwardt, K. M. Weisfeiler-Lehman Graph Kernels. *Journal of Machine Learning Research* **12**, 2539-2561 (2011).
-3. Ehrig, H.; Ehrig, K.; Prange, U.; Taentzer, G. *Fundamentals of Algebraic Graph Transformation*. Springer (2006). https://doi.org/10.1007/3-540-31188-2
-4. Coley, C. W.; Green, W. H.; Jensen, K. F. RDChiral: An RDKit Wrapper for Handling Stereochemistry in Retrosynthetic Template Extraction and Application. *Journal of Chemical Information and Modeling* **59**, 2529-2537 (2019). https://doi.org/10.1021/acs.jcim.9b00286
-5. RDKit documentation. https://www.rdkit.org/docs/
-6. Daylight Theory Manual. *Reaction SMILES and SMARTS*.
-7. Schneider, N.; Stiefl, N.; Landrum, G. A. What's What: The (Nearly) Definitive Guide to Reaction Role Assignment. *Journal of Chemical Information and Modeling* **56**, 2336-2346 (2016). https://doi.org/10.1021/acs.jcim.6b00564
+```{bibliography}
+```

@@ -8,6 +8,8 @@ project:
   authors:
     - Tieu Long Phan
   github: https://github.com/TieuLongPhan/SynEdu
+  bibliography:
+    - references.bib
   static_files:
     - docs/downloads
   exclude:
@@ -27,11 +29,11 @@ project:
         - file: docs/talktorials/all_talktorials.md
         - title: S01 - From Molecules to Labeled Graphs
           file: synedu/S01/notebook.md
-        - title: S02 - Graph Morphism in Reaction Informatics
+        - title: S02 - Graph Homomorphism in Reaction Informatics
           file: synedu/S02/notebook.md
         - title: S03 - Maximum Common Substructure in Reaction Informatics
           file: synedu/S03/notebook.md
-        - title: "S04 - Atom Mapping as Graph Morphism: MCS, RXNMapper, and ITS Equivalence"
+        - title: "S04 - Atom Mapping as Graph Isomorphism: MCS, RXNMapper, and ITS Equivalence"
           file: synedu/S04/notebook.md
         - title: "S05 - Reaction Rules as Graph Rewriting (DPO) - Chemistry-First, ITS-Native"
           file: synedu/S05/notebook.md
