@@ -34,9 +34,9 @@ representation to graph rewriting rules and one-step reaction prediction.
 
 ## Learning Path
 
-- [Fundamentals](talktorials/S01/notebook.ipynb): S01-S03 introduce molecular graphs, graph morphisms, symmetry, substructure search, and MCS.
-- [Rule library construction](talktorials/S04/notebook.ipynb): S04-S07 cover atom mapping, ITS graphs, DPO rewriting, canonicalization, and rule library construction.
-- [Rule application](talktorials/S08/notebook.ipynb): S08-S09 apply reaction rules for prediction, retrosynthesis, evaluation, and context expansion.
+- [Fundamentals](talktorials/S01/notebook): S01-S03 introduce molecular graphs, graph morphisms, symmetry, substructure search, and MCS.
+- [Rule library construction](talktorials/S04/notebook): S04-S07 cover atom mapping, ITS graphs, DPO rewriting, canonicalization, and rule library construction.
+- [Rule application](talktorials/S08/notebook): S08-S09 apply reaction rules for prediction, retrosynthesis, evaluation, and context expansion.
 
 ## Project Details
 

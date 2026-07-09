@@ -22,8 +22,8 @@ uv run python scripts/prepare_jupyter_book.py
 uv run jupyter book build --execute --html
 ```
 
-Execution outputs are cached under the MyST build directory and reused until a
-notebook's computational content changes.
+The current build executes notebooks during the JB2 build, but explicit MyST
+execution caching is not configured yet in `myst.yml`.
 
 ## Run A Notebook Locally
 

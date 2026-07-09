@@ -13,9 +13,9 @@ tasks.
 
 | Route | Start here | Use this route when you want to |
 |---|---|---|
-| Fundamentals | [S01](S01/notebook.ipynb) to [S03](S03/notebook.ipynb) | Learn molecular graphs, graph morphisms, symmetry, substructure search, and maximum common substructure. |
-| Rule library construction | [S04](S04/notebook.ipynb) to [S07](S07/notebook.ipynb) | Move from atom-mapped reactions to ITS graphs, DPO rules, canonicalization, and reusable rule libraries. |
-| Rule application | [S08](S08/notebook.ipynb) to [S09](S09/notebook.ipynb) | Apply rules for one-step prediction, evaluate generated products, and tune rule specificity with context expansion. |
+| Fundamentals | [S01](S01/notebook) to [S03](S03/notebook) | Learn molecular graphs, graph morphisms, symmetry, substructure search, and maximum common substructure. |
+| Rule library construction | [S04](S04/notebook) to [S07](S07/notebook) | Move from atom-mapped reactions to ITS graphs, DPO rules, canonicalization, and reusable rule libraries. |
+| Rule application | [S08](S08/notebook) to [S09](S09/notebook) | Apply rules for one-step prediction, evaluate generated products, and tune rule specificity with context expansion. |
 
 ## Reading Order
 
