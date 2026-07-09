@@ -64,6 +64,14 @@ html.dark {
   color: #e2e8f0 !important;
 }
 
+/* Top-bar navigation shortcuts (site.nav) */
+.myst-top-nav nav a[href^="/"]:not(.myst-home-link) {
+  color: #cbd5e1 !important;
+}
+.myst-top-nav nav a[href^="/"]:not(.myst-home-link):hover {
+  color: #ffffff !important;
+}
+
 .myst-top-nav a[href*="github"],
 .myst-top-nav .myst-theme-button,
 .myst-top-nav .myst-top-nav-menu-button {
@@ -75,6 +83,14 @@ html.dark {
 .myst-top-nav .myst-top-nav-menu-button:hover {
   background: rgba(255, 255, 255, 0.12) !important;
   color: #ffffff !important;
+}
+
+/* Offset anchor scrolling for the sticky top nav, so a clicked heading lands
+   below the header instead of underneath it (and the right-hand contents
+   highlight lines up with the heading rather than the one above/below). */
+main :is(h1, h2, h3, h4, h5, h6),
+main [id] {
+  scroll-margin-top: 5rem;
 }
 
 /* -------------------------------------------------------------------------
@@ -90,6 +106,19 @@ html.dark table.dataframe th {
 }
 html.dark table.dataframe td {
   border-color: var(--synedu-border);
+}
+
+/* -------------------------------------------------------------------------
+   Hide MyST's auto-generated bibliography.
+
+   Every talktorial ships a hand-written "## 6. References" list. MyST also
+   turns the bare doi.org links in that list into citations and appends its
+   own APA-style reference section, so the page would show references twice.
+   We keep the curated manual list and suppress the auto one.
+   ------------------------------------------------------------------------- */
+
+section.myst-bibliography {
+  display: none;
 }
 
 /* -------------------------------------------------------------------------
