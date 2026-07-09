@@ -11,11 +11,11 @@ kernelspec:
   name: python3
 ---
 
-# S02: Graph Morphisms in Reaction Informatics
+# S02: Graph Homomorphisms in Reaction Informatics
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S02.ipynb) [![Download Notebook](https://img.shields.io/badge/download-.ipynb-blue)](https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S02.ipynb) [![Run Locally](https://img.shields.io/badge/run-locally-lightgrey)](../../docs/installing.md)
 
-This talktorial studies graph morphisms as the matching language behind molecular equivalence, symmetry, substructure search, and later reaction-rule application. RDKit provides chemistry-native matching, while NetworkX keeps the graph morphism explicit and inspectable [\[1\]](#id-6-references), [\[2\]](#id-6-references).
+This talktorial studies graph homomorphisms as the matching language behind molecular equivalence, symmetry, substructure search, and later reaction-rule application. RDKit provides chemistry-native matching, while NetworkX keeps the graph homomorphism explicit and inspectable [\[1\]](#id-6-references), [\[2\]](#id-6-references).
 
 +++
 
@@ -31,7 +31,7 @@ This talktorial studies graph morphisms as the matching language behind molecula
 
 After completing this talktorial, you will be able to:
 
-- Formulate **labeled subgraph matching** as an **injective labeled graph morphism**
+- Formulate **labeled subgraph matching** as an **injective labeled graph homomorphism**
   $$
   \varphi : V(P) \hookrightarrow V(H),
   $$
@@ -79,14 +79,14 @@ display(df.head())
 ## 1. Graph isomorphism
 
 To make “same molecule” precise, we model molecules as labeled graphs and compare them via
-**label-preserving maps**. This section introduces **labeled graph morphisms** and the induced notion of
+**label-preserving maps**. This section introduces **labeled graph homomorphisms** and the induced notion of
 **graph isomorphism** [\[3\]](#id-6-references), [\[4\]](#id-6-references).
 
 <figure class="se-figure">
   <img src="../../docs/_static/images/SO2/morphism.svg"
-       alt="Graph morphism examples">
+       alt="Graph homomorphism examples">
   <figcaption>
-    <b>Figure 1.</b> Examples of graph morphism-related mappings: morphism,
+    <b>Figure 1.</b> Examples of graph homomorphism-related mappings: homomorphism,
     subgraph isomorphism, induced subgraph isomorphism, isomorphism,
     automorphism, and maximum common substructure.
   </figcaption>
@@ -94,12 +94,12 @@ To make “same molecule” precise, we model molecules as labeled graphs and co
 
 ---
 
-### 1.1 Graph morphisms
+### 1.1 Graph homomorphisms
 
 Let $G,H \in \mathcal{G}$ be labeled molecular graphs with atom/bond labeling functions
 $(a_G,b_G)$ and $(a_H,b_H)$.
 
-A **(labeled) graph morphism** from $G$ to $H$ is a map
+A **(labeled) graph homomorphism** from $G$ to $H$ is a map
 
 $$
 \varphi : V(G) \to V(H)
@@ -132,7 +132,7 @@ $$
 G \cong H,
 $$
 
-if there exists a **bijective** morphism
+if there exists a **bijective** homomorphism
 
 $$
 \varphi : V(G) \to V(H)
@@ -284,6 +284,9 @@ where $P_\sigma[i,j] = 1$ iff $\sigma(v_i) = v_j$.
 For benzene the full group has order $|\mathrm{Aut}(G)| = 12$ (dihedral group $D_6$).
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 import matplotlib.pyplot as plt
 import numpy as np
 from rdkit import Chem
@@ -421,8 +424,6 @@ def compute_orbits_from_automorphisms(
         List of vertex orbits (sets of nodes), deterministically ordered.
     :rtype: list[set]
     """
-    ...
-
     if automorphisms is None:
         automorphisms = enumerate_automorphisms(G)
 
@@ -475,6 +476,9 @@ Nodes are coloured by orbit index - atoms of the same colour are **symmetry-equi
 Breaking symmetry (a methyl group, a chiral centre) splits large orbits into smaller ones.
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import networkx as nx
@@ -697,7 +701,7 @@ $$
 \quad \text{If yes, what are the embeddings?}
 $$
 
-Formally, a **subgraph isomorphism** [\[3\]](#id-6-references), [\[4\]](#id-6-references) is an **injective, label-preserving graph morphism**
+Formally, a **subgraph isomorphism** [\[3\]](#id-6-references), [\[4\]](#id-6-references) is an **injective, label-preserving graph homomorphism**
 
 $$
 f : V(P) \hookrightarrow V(G)
@@ -782,6 +786,9 @@ print("Raw subgraph isomorphisms (pattern -> host):", len(matches))
 ```
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 import matplotlib.pyplot as plt
 
 fig, axes = plt.subplots(1, 2, figsize=(10, 4))
@@ -985,6 +992,9 @@ for key, group in groups_mod_host.items():
 ```
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 # Deduplicate to get the chemically distinct placements (2 benzene rings in naphthalene)
 host_autos_ = enumerate_automorphisms(host_G)
 host_orbits_ = compute_orbits_from_automorphisms(host_G, host_autos_)
@@ -1023,9 +1033,12 @@ plt.show()
 **Deduplication - before / after**
 
 Raw match counts grow with molecular symmetry; deduplication by host-image collapses them to the number of **chemically distinct placements**.
-The reduction factor equals $|\mathrm{Aut}(P)| \times$ (host symmetry multiplicity).
+For this host-image deduplication (which groups mappings by image but does not fold host automorphisms together), the reduction factor per placement equals $|\mathrm{Aut}(P)|$, the automorphism-group order of the pattern - each placement is reached by exactly that many pattern relabelings. Collapsing symmetry-equivalent *placements* as well (e.g. the two equivalent rings in naphthalene) requires the additional host-orbit step shown below, which multiplies the reduction by the host symmetry multiplicity.
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -1471,7 +1484,7 @@ Our NetworkX matcher uses the explicit graph labels from S01 and requires atom `
 
 So the interpretation is:
 
-- **NetworkX strict** = graph morphism with our chosen labels.
+- **NetworkX strict** = graph homomorphism (injective, i.e. subgraph isomorphism) with our chosen labels.
 - **RDKit uniquify** = toolkit substructure semantics for the query molecule.
 - **Deduplication** = post-processing; it cannot recover embeddings rejected by the matcher.
 
@@ -1601,7 +1614,7 @@ comparison
 - **MCS** is a chemistry-aware alignment primitive, but it is heuristic and sometimes non-unique; always log settings and timeouts.
 - **RDKit vs NetworkX**:
   - RDKit: SMARTS matching, built-in `uniquify`.
-  - NetworkX: full control over attributes and morphism semantics; you manage deduplication and interpretation.
+  - NetworkX: full control over attributes and homomorphism semantics; you manage deduplication and interpretation.
 
 +++
 
@@ -1609,7 +1622,7 @@ comparison
 
 Answer using both **chemical intuition** and **graph-theoretic language**.
 
-1. What additional requirement turns a label-preserving graph morphism into a graph isomorphism, and how does this relate to saying that two molecules have the same structure?
+1. What additional requirement turns a label-preserving graph homomorphism into a graph isomorphism, and how does this relate to saying that two molecules have the same structure?
 2. What is an automorphism of a molecular graph, and why do symmetric molecules such as benzene produce multiple equivalent matches?
 3. How can host-atom index sets be used to deduplicate equivalent subgraph matches returned by a matcher?
 4. Why can RDKit substructure matching and a strict NetworkX labeled-graph matcher return different answers for the same molecule pair?

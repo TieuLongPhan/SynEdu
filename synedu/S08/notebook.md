@@ -69,7 +69,7 @@ extraction functions as a form of **knowledge compression**.
 >
 > A mapped reaction contains two kinds of information at once:
 > 1. the **overall chemical transformation**, and
-> 2. the **atom correspondence** between reactants and products.
+> 2. the **atom correspondence** between reactants and products [\[10\]](#id-6-references).
 >
 > The second piece is what allows us to localize the changed region and extract a
 > reaction-center rule.
@@ -136,7 +136,7 @@ train.head()
 
 Each training reaction is converted into a **reaction-center graph** [\[7\]](#id-6-references), that is, a local
 representation of the atoms and bonds involved in the transformation. We then compute a
-**Weisfeiler–Lehman (WL) hash** to group equivalent or near-equivalent local patterns and
+**Weisfeiler–Lehman (WL) hash** [\[9\]](#id-6-references) to group equivalent or near-equivalent local patterns and
 keep one representative template per class.
 
 This serves two purposes:
@@ -420,11 +420,15 @@ print(
 
 ### Template match count distribution
 
-For each test reaction, we count how many template applications fired
-(the **branching factor**). Reactions with zero matches are **coverage failures**;
+For each test reaction, we count the number of raw candidate reactions generated across
+all templates (a proxy for the **branching factor**, formally defined below as the number
+of distinct candidates). Reactions with zero matches are **coverage failures**;
 reactions with many matches face **disambiguation** pressure.
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 import matplotlib.pyplot as plt
 import numpy as np
 from synkit.Chem.Reaction.standardize import Standardize
@@ -646,7 +650,7 @@ first: did the template system recover the correct reaction transformation?
 +++
 
 **Definition (Template-Based One-Step Prediction).**  
-Given a template library $\mathcal{T} = \{p_1, \ldots, p_m\}$ of DPO rules and a query molecule $q$, the *one-step forward prediction* generates the candidate set:
+Given a template library $\mathcal{T} = \{p_1, \ldots, p_m\}$ of Double Pushout (DPO) graph transformation rules [\[11\]](#id-6-references) and a query molecule $q$, the *one-step forward prediction* generates the candidate set:
 
 $$
 \hat{\mathcal{P}}(q) = \bigcup_{p_i \in \mathcal{T}} \{H \mid q \Rightarrow_{p_i} H \text{ via some valid match}\}
@@ -839,6 +843,9 @@ len(fw_list)
 For one example substrate, the template library generates a set of candidate reactions. The ground-truth reaction is highlighted with a green check mark. Comparing candidates to the ground truth directly shows whether the correct chemistry appears in the top predictions and which template was responsible.
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 from synedu.Utils.rxn_vis import visualize_reaction
 from IPython.display import HTML, display
 import html
@@ -1090,6 +1097,9 @@ print(
 For the same example entry, the inverted template library generates candidate **precursors**. Each candidate is a plausible retrosynthetic disconnection; the ground-truth reaction appears among the candidates when the correct bond-breaking template fires.
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 from synedu.Utils.rxn_vis import visualize_reaction
 from IPython.display import HTML, display
 import html
@@ -1263,6 +1273,9 @@ recovered at least once; enrichment shows how concentrated that hit was within t
 candidate set.
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 import matplotlib.pyplot as plt
 import pandas as pd
 
@@ -1374,3 +1387,4 @@ Answer using both **chemical intuition** and **graph-based reasoning**.
 8. RDKit documentation. https://www.rdkit.org/docs/
 9. Shervashidze, N.; Schweitzer, P.; van Leeuwen, E. J.; Mehlhorn, K.; Borgwardt, K. M. Weisfeiler-Lehman Graph Kernels. *Journal of Machine Learning Research* **12**, 2539-2561 (2011).
 10. Schneider, N.; Stiefl, N.; Landrum, G. A. What's What: The (Nearly) Definitive Guide to Reaction Role Assignment. *Journal of Chemical Information and Modeling* **56**(12), 2336-2346 (2016).
+11. Ehrig, H.; Ehrig, K.; Prange, U.; Taentzer, G. *Fundamentals of Algebraic Graph Transformation*. Monographs in Theoretical Computer Science, Springer (2006). https://doi.org/10.1007/3-540-31188-2

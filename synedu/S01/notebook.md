@@ -83,6 +83,9 @@ osimertinib  # you can see the figure of osimertinib
 Use `IPythonConsole` to render RDKit atom indices on molecular structures.
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 from rdkit.Chem.Draw import IPythonConsole
 from typing import Tuple
 
@@ -118,6 +121,9 @@ RDKit’s `Draw.MolsToGridImage` allows you to display a list of molecules
 as a grid for rapid visual inspection and comparison.
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 from rdkit.Chem import Draw
 
 some_smiles = df['smiles'][:12].to_list()
@@ -158,7 +164,7 @@ logp = MolLogP(osimertinib)
 
 +++
 
-In medicinal chemistry, it is important to prioritize the most promising molecules in order to reduce experimental and computational costs. One of the simplest and most widely used heuristics for early-stage compound selection is [Lipinski’s Rule of Five](https://en.wikipedia.org/wiki/Lipinski%27s_rule_of_five), which describes four physicochemical criteria associated with favorable oral bioavailability.
+In medicinal chemistry, it is important to prioritize the most promising molecules in order to reduce experimental and computational costs. One of the simplest and most widely used heuristics for early-stage compound selection is [Lipinski’s Rule of Five](https://en.wikipedia.org/wiki/Lipinski%27s_rule_of_five) [\[10\]](#id-6-references), which describes four physicochemical criteria associated with favorable oral bioavailability.
 
 ## Lipinski’s Rule of Five
 
@@ -306,6 +312,9 @@ The four Lipinski properties computed across the full 1,000-molecule dataset.
 Dashed black lines mark the Rule of Five thresholds; bars are coloured by pass/fail status.
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 from rdkit.Chem import Descriptors
 from rdkit.Chem.Crippen import MolLogP
 from rdkit.Chem.Lipinski import NumHDonors, NumHAcceptors
@@ -369,6 +378,9 @@ print(f"Lipinski pass: {pass_n} / {len(df_vis)}  ({pass_n/len(df_vis):.1%})")
 ```
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 fig, ax = plt.subplots(figsize=(7, 5))
 
 for passes, grp in df_vis.groupby("Lipinski"):
@@ -655,6 +667,7 @@ Each color corresponds to a token class (aromatic atom, branch, ring closure, st
 ---
 slideshow:
   slide_type: slide
+tags: [hide-input]
 ---
 
 import re
@@ -907,6 +920,9 @@ for name, smi in examples:
 SMILES strings can have many valid variants for the same molecule [\[5\]](#id-6-references).
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 from rdkit.Chem import Draw
 
 s1 = "CC(=O)Oc1ccccc1C(=O)O"
@@ -1026,7 +1042,7 @@ $$
 
 where $V$ is the set of **heavy atoms** (nodes), $E \subseteq \{\{u,v\}\mid u,v\in V,\ u\neq v\}$ is the set of **covalent bonds** (undirected edges), $\mathbf{a}: V \to \mathcal{A}$ assigns each atom a tuple of **node attributes** (element symbol, formal charge, aromaticity, hydrogen count, atom-map number), and $\mathbf{b}: E \to \mathcal{B}$ assigns each bond a tuple of **edge attributes** (bond order, aromaticity).
 
-A *labeled graph morphism* $\varphi: G_1 \to G_2$ is a pair of maps $\varphi_V: V_1 \to V_2$, $\varphi_E: E_1 \to E_2$ that (i) preserves adjacency: $\varphi_E(\{u,v\}) = \{\varphi_V(u), \varphi_V(v)\}$, and (ii) preserves labels: $\mathbf{a}_2(\varphi_V(v)) = \mathbf{a}_1(v)$ and $\mathbf{b}_2(\varphi_E(e)) = \mathbf{b}_1(e)$ for all $v \in V_1$, $e \in E_1$.
+A *labeled graph homomorphism* $\varphi: G_1 \to G_2$ is a pair of maps $\varphi_V: V_1 \to V_2$, $\varphi_E: E_1 \to E_2$ that (i) preserves adjacency: $\varphi_E(\{u,v\}) = \{\varphi_V(u), \varphi_V(v)\}$, and (ii) preserves labels: $\mathbf{a}_2(\varphi_V(v)) = \mathbf{a}_1(v)$ and $\mathbf{b}_2(\varphi_E(e)) = \mathbf{b}_1(e)$ for all $v \in V_1$, $e \in E_1$.
 
 **Remark.** The attribute schema used throughout SynEdu is  
 `a(v) = (element, formal_charge, aromatic, hcount, atom_map)` and `b(e) = (order, aromatic)`.  
@@ -1258,6 +1274,9 @@ The same molecule (benzene) written in two SMILES notations produces **different
 This distinction matters for graph isomorphism and reaction rule matching in later notebooks.
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 from rdkit.Chem import Draw
 
 kekule_smi = "C1=CC=CC=C1"  # Kekulé benzene
@@ -1351,6 +1370,9 @@ Key properties shared by all variants:
 - Diagonal entries of the degree matrix $\mathrm{Deg}$ give the heavy-atom degree of each atom
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 import numpy as np
 
 # Aromatic form: ring bonds have order 1.5
@@ -1450,6 +1472,9 @@ Key properties:
   with boiling points for alkanes [\[7\]](#id-6-references)
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 import numpy as np
 
 mol_dist = Chem.MolFromSmiles(Chem.CanonSmiles("c1ccccc1O"))  # phenol
@@ -1498,7 +1523,7 @@ Key properties:
 - $B B^\top = \mathrm{Deg} + A_{\mathrm{bin}}$, where $\mathrm{Deg}$ is the diagonal degree matrix and $A_{\mathrm{bin}}$ is
   the binary adjacency matrix — a fundamental identity in algebraic graph theory
 - Incidence matrices appear in spectral graph theory and in the cycle-space
-  formulation of Kirchhoff's current laws
+  formulation of Kirchhoff's current laws [\[9\]](#id-6-references)
 
 ```{code-cell}
 import numpy as np
@@ -1574,7 +1599,7 @@ implicit hydrogen count.
 - In the **Kekulé** form, all bond orders are integers, and the diagonal is a
   well-defined electron count.
 
-For this reason, reaction-informatics tools always work with the **Kekulé BE matrix**.
+For this reason, reaction-informatics tools always work with the **Kekulé BE matrix** [\[8\]](#id-6-references).
 The reaction-level version — the **ΔBE matrix** — is developed in **S04**.
 
 ```{code-cell}
@@ -1814,9 +1839,13 @@ df.loc[~df["ok"], ["name", "smiles"]]
 
 ## 4. Discussion
 
-- A **labeled graph morphism** provides a precise abstraction for
-  structure- and attribute-preserving mappings, making the notion of
-  “sameness” explicit and inspectable.
+- A **labeled graph homomorphism** provides a precise abstraction for
+  structure- and attribute-preserving mappings between labeled graphs. A
+  homomorphism need not be injective or surjective, so it does not by itself
+  capture “sameness.” That stronger notion is a **graph isomorphism** — a
+  bijective, structure- and label-preserving map whose inverse is also
+  structure- and label-preserving — which underlies graph matching and is
+  revisited in later SynEdu talktorials.
 
 - Our **labeled molecular graph** adopts a deliberately minimal attribute
   schema (`element`, `formal_charge`, `aromatic`, `hcount`, `atom_map`,
@@ -1853,3 +1882,5 @@ Answer briefly using what you learned about **RDKit**, **SMILES**, and **molecul
 6. Morgan, H. L. The generation of a unique machine description for chemical structures: a technique developed at Chemical Abstracts Service. *Journal of Chemical Documentation* **5**, 107-113 (1965). https://doi.org/10.1021/c160017a018
 7. Wiener, H. Structural determination of paraffin boiling points. *Journal of the American Chemical Society* **69**, 17-20 (1947). https://doi.org/10.1021/ja01193a005
 8. Dugundji, J.; Ugi, I. An algebraic model of constitutional chemistry as a basis for chemical computer programs. *Topics in Current Chemistry* **39**, 19-64 (1973).
+9. Biggs, N. *Algebraic Graph Theory*, 2nd ed. Cambridge University Press (1993).
+10. Lipinski, C. A.; Lombardo, F.; Dominy, B. W.; Feeney, P. J. Experimental and computational approaches to estimate solubility and permeability in drug discovery and development settings. *Advanced Drug Delivery Reviews* **23**, 3-25 (1997). https://doi.org/10.1016/S0169-409X(96)00423-1

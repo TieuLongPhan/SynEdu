@@ -101,7 +101,7 @@ DATA_DIR = Path("data")
 DATA_PATH = DATA_DIR / "data_aam.json.gz"
 data = pd.DataFrame(
     load_database(DATA_PATH)[:100]
-)  # 2000 reactions for manageable runtime
+)  # 100 reactions for manageable runtime
 display(data.head())
 print(data.shape)
 ```
@@ -172,7 +172,7 @@ $$
 h_{\mathrm{WL}}(\Gamma_{\mathrm{RC}}) = \mathrm{encode}\!\left(\mathcal{P}^*(\Gamma_{\mathrm{RC}})\right)
 $$
 
-Reactions with identical WL hashes are *candidate isomorphs*; exact isomorphism (graph matching) is then used to confirm.
+Reactions with identical WL hashes are *candidate isomorphs*; exact isomorphism (graph matching) [\[9\]](#id-6-references) is then used to confirm.
 
 ```{code-cell}
 import pandas as pd
@@ -293,6 +293,9 @@ df_aam.shape
 Three mappers (RXNMapper, Graphormer, Local Mapper) each produce an atom map for each reaction. The ensemble step classifies reactions by how many mappers agree. High-confidence reactions (all three agree) form the primary training signal; disagreements are resolved by WL-based isomorphism checking or discarded.
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 import matplotlib.pyplot as plt
 
 print(f"df_aam shape: {df_aam.shape}")
@@ -430,7 +433,7 @@ plt.show()
 
 #### Graph Clustering
 
-Now we have 8,962 reaction centers, but some of them can be isomorphic [\[9\]](#id-6-references), we can develop a simple pairwise grouping algorithm
+Now we have a set of reaction centers, but some of them can be isomorphic [\[9\]](#id-6-references), so we develop a simple pairwise grouping algorithm
 
 With a set $S=\{\Gamma_1,\Gamma_2,\dots,\Gamma_n\},\qquad n\ge 2$, we want a partition $T$ of $S$ into isomorphism classes.
 
@@ -877,6 +880,9 @@ df_aam['wl_hash'].value_counts()
 ```
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -942,6 +948,9 @@ The most frequent WL hash classes represent the most common reaction mechanisms 
 We visualize the reaction center ITS graph for the representative of each top-10 class.
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 import matplotlib.pyplot as plt
 from synedu.Utils.its_vis import visualize_its
 
@@ -1093,6 +1102,9 @@ plt.show()
 ```
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -1585,7 +1597,7 @@ def rule_lib_pipeline(
 
 ## 4. Discussion
 
-- Atom-mapping quality can be significantly improved through ensemble techniques, specifically by performing isomorphism checks on generated ITS graphs.
+- Atom-mapping quality can be significantly improved through ensemble techniques, specifically by performing isomorphism checks on generated ITS graphs [\[8\]](#id-6-references).
 - While WL-based canonicalization is effective for pre-filtering and deduplication, it remains an approximation and cannot fully replace exact isomorphism checks for definitive verification.
 - Clustering reaction centers in large-scale datasets is computationally intensive; however, implementing a WL hashing pre-filter significantly accelerates the process by pruning the search space.
 - Rules can be persisted as NetworkX graph objects for deep computational tasks or exported in GML format for a lightweight, human-readable, and explainable representation.

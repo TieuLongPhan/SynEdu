@@ -121,7 +121,7 @@ Now we will use a classic *pericyclic* transformation:
 +++
 
 **Definition (DPO Reaction Rule / Span).**  
-A *DPO reaction rule* is a pair of injective graph morphisms
+A *DPO reaction rule* is a pair of injective graph homomorphisms
 
 $$
 p:\quad L \xleftarrow{\;l\;} K \xrightarrow{\;r\;} R
@@ -134,7 +134,7 @@ where $L$, $K$, $R$ are labeled graphs (with node attributes $\mathbf{a}$ and ed
 - $R \setminus r(K)$ — atoms and bonds **produced** (created) in the right-hand side  
 
 **Definition (Pattern Match).**  
-A *match* of rule $p$ in a host graph $G$ is an injective graph morphism $m: L \hookrightarrow G$ that is *label-preserving*. A match is *valid* if it satisfies the **dangling condition**: no edge $e \in E(G)$ is incident to a deleted node $m(v)$, $v \in V(L) \setminus V(K)$, without also being in $m(E(L))$.
+A *match* of rule $p$ in a host graph $G$ is an injective graph homomorphism $m: L \hookrightarrow G$ that is *label-preserving*. A match is *valid* if it satisfies the **dangling condition**: no edge $e \in E(G)$ is incident to a deleted node $m(v)$, $v \in V(L) \setminus V(K)$, without also being in $m(E(L))$.
 
 **Definition (DPO Rewriting Step).**  
 Given a valid match $m: L \hookrightarrow G$, the *DPO rewriting step* $G \Rightarrow_p H$ produces the result graph $H$ by the double pushout construction:
@@ -336,6 +336,12 @@ $$
 that is, a labeled subgraph monomorphism embedding the reaction pattern $L$
 into the host graph $G$ and thereby identifying the reaction center.
 
+Below, `node_match`/`edge_match` encode label compatibility and are passed to
+NetworkX's `GraphMatcher`, which implements the VF2 algorithm for (sub)graph
+isomorphism and monomorphism enumeration [\[11\]](#id-6-references).
+`_automorphisms` recovers $\mathrm{Aut}(H)$ as the set of label-preserving
+isomorphisms $H \to H$.
+
 ```{code-cell}
 from typing import Any, Callable, Dict, List
 
@@ -522,6 +528,9 @@ highlighting the matched subgraph in $G$. Orbit-deduplication then collapses
 symmetry-equivalent matches.
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from synedu.Utils.vis import draw_molecular_graph, _layout_from_graph_mol
@@ -917,6 +926,9 @@ $D$ is obtained by removing the atoms/bonds in $L \setminus K$ from $G$.
 The highlighted region in $G$ shows which nodes/edges are matched and will be deleted.
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 import matplotlib.pyplot as plt
 from synedu.Utils.vis import draw_molecular_graph
 
@@ -1049,6 +1061,9 @@ DPO rewriting proceeds in two stages:
 Each panel below corresponds to one stage for match 1 of the Diels-Alder rule.
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 from synedu.Utils.vis import draw_molecular_graph
 import matplotlib.pyplot as plt
 
@@ -1277,6 +1292,9 @@ rsmi1, rsmi2 = dpo_rule_apply(input, rule, True)
 ```
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 from synedu.Utils.rxn_vis import visualize_reaction
 from IPython.display import SVG
 
@@ -1290,7 +1308,7 @@ svg2 = visualize_reaction(
     rsmi2,
     svg=True,
     highlight_changes=True,
-    legend="solucandidatetion 2",
+    legend="candidate 2",
 )
 display(SVG(svg1))
 display(SVG(svg2))
@@ -1408,6 +1426,9 @@ The same DPO span $L \xleftarrow{l} K \xrightarrow{r} R$ works in both direction
 Swapping $L$ and $R$ is all it takes.
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 import matplotlib.pyplot as plt
 from synedu.Utils.vis import draw_molecular_graph
 from synedu.Utils.conversion import smiles_to_graph, graph_to_smi
@@ -1495,7 +1516,7 @@ Two matches $m_1, m_2: L \hookrightarrow G$ that differ only by an automorphism 
 
 #### Practical limitations
 
-- **NP-completeness**: Pattern matching (subgraph isomorphism) is NP-complete in general, but sparse molecular graphs keep it tractable in practice.
+- **NP-completeness**: Pattern matching (subgraph isomorphism) is NP-complete in general [\[12\]](#id-6-references), but sparse molecular graphs keep it tractable in practice.
 - **Selectivity**: A rule with a small $K$ (minimal context) fires many times; one with a large $K$ fires rarely. The trade-off between specificity and coverage is studied quantitatively in **S09**.
 - **Rule composition**: Chaining two DPO rules into a single multi-step pathway requires careful handling of intermediate graphs. This is an active research direction beyond the current series.
 
@@ -1536,3 +1557,5 @@ Answer using **DPO graph-rewriting terminology**.
 8. Phan, T.-L. *et al.* SynTemp: Efficient Extraction of Graph-Based Reaction Rules from Large-Scale Reaction Databases. *Journal of Chemical Information and Modeling* (2025). https://doi.org/10.1021/acs.jcim.4c01795
 9. Nugmanov, R. I. *et al.* CGRtools: Python Library for Molecule, Reaction, and Condensed Graph of Reaction Processing. *Journal of Chemical Information and Modeling* **59**, 2516-2521 (2019). https://doi.org/10.1021/acs.jcim.9b00102
 10. Andersen, J. L.; Flamm, C.; Merkle, D.; Stadler, P. F. A software package for chemically inspired graph transformation. In *International Conference on Graph Transformation*, 73-88 (Springer, 2016). https://doi.org/10.1007/978-3-319-40530-8_5
+11. Cordella, L. P.; Foggia, P.; Sansone, C.; Vento, M. A (sub)graph isomorphism algorithm for matching large graphs. *IEEE Transactions on Pattern Analysis and Machine Intelligence* **26**, 1367-1372 (2004). https://doi.org/10.1109/TPAMI.2004.75
+12. Garey, M. R.; Johnson, D. S. *Computers and Intractability: A Guide to the Theory of NP-Completeness*. W. H. Freeman (1979).

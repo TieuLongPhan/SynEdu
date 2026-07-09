@@ -102,7 +102,7 @@ $$
 
 by splitting each cell $C \in \mathcal{P}^{(t)}$ whenever two vertices in $C$ have different *neighborhood signatures* — i.e., different multisets of $(\text{cell label, edge label})$ pairs among their neighbors. Refinement terminates at the *stable partition* $\mathcal{P}^* = \mathcal{P}^{(t^*)}$ where no further splitting occurs.
 
-**Theorem (WL Soundness).** If $G_1 \cong G_2$ (as labeled graphs), then WL refinement produces the same stable partition histogram. The converse fails in general: two non-isomorphic graphs can yield identical WL histograms.
+**Theorem (WL Soundness).** [\[1\]](#id-6-references), [\[4\]](#id-6-references) If $G_1 \cong G_2$ (as labeled graphs), then WL refinement produces the same stable partition histogram. The converse fails in general: two non-isomorphic graphs can yield identical WL histograms.
 
 ```{code-cell}
 from synedu.Utils import print_graph_attributes
@@ -203,13 +203,13 @@ Partition = List[List[Node]]
 def initial_partition_from_nodes(nodes: Dict[Node, Attr]) -> Partition:
     """
     Initial partition using only (element, aromatic, degree_from_neighbors_list).
-    degree_from_neighbors_list = len(attr['neighbors'])
+    degree_from_neighbors_list = len(attr['neighbors_ids'])
     """
     buckets: DefaultDict[Tuple[Any, ...], List[Node]] = defaultdict(list)
 
     for v in sorted(nodes):
         a = nodes[v]
-        deg = len(a.get("neighbors", []))
+        deg = len(a.get("neighbors_ids", []))
         key = (a.get("element"), bool(a.get("aromatic")), deg)
         buckets[key].append(v)
 
@@ -447,6 +447,9 @@ Using t=1 colors, neighbors of `{4,5,6}` differ → split:
 Each column shows the partition class (colour) assigned to each node at one WL iteration. Nodes with the same colour are in the same equivalence class at that step. As refinement proceeds, symmetric atoms split into finer classes until the partition is **stable** (no cell changes between two consecutive columns). Atoms that remain in the same class throughout are **WL-indistinguishable**.
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 import copy
 import numpy as np
 import matplotlib.pyplot as plt
@@ -516,6 +519,9 @@ plt.show()
 Each panel shows the graph after one refinement step. Nodes with the same colour share the same partition class (WL-indistinguishable at that iteration). Iteration 0 is the initial partition by element type; the partition stabilises once no cell splits further.
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 import copy
 import matplotlib.pyplot as plt
 from synedu.Utils.vis import draw_molecular_graph, _layout_from_graph_mol
@@ -612,6 +618,9 @@ Less symmetric molecules keep splitting cells for more iterations.
 
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 import matplotlib.pyplot as plt
 import copy
 from synedu.Utils import smiles_to_graph
@@ -677,7 +686,7 @@ Partition = List[List[Node]]
 
 def wl1_partition_nx(
     G: nx.Graph,
-    node_attrs: Sequence[str] = ("element", "aromatic", "charge", "hcount"),
+    node_attrs: Sequence[str] = ("element", "aromatic", "formal_charge", "hcount"),
     edge_attrs: Sequence[str] = ("order",),
     max_iter: int = 50,
 ) -> Tuple[Partition, Dict[Node, int]]:
@@ -745,7 +754,12 @@ produces a canonical index that is strictly stronger than plain WL
 canonicalization, while remaining inexpensive.
 
 This approach is **not a full automorphism solver**, but a WL-seeded,
-locally exact approximation that is well sui
+locally exact approximation that is well suited to small, mildly symmetric
+molecular graphs, where only a few small cells remain ambiguous after WL
+refinement. Because it enumerates every permutation within each ambiguous
+cell, its cost grows factorially with cell size, so it does not scale to
+highly symmetric graphs with large orbits (Section 2 covers the
+individualization-refinement approach used for those cases).
 
 ```{code-cell}
 def adjacency_signature(G, order):
@@ -770,7 +784,7 @@ def adjacency_signature(G, order):
         (
             G.nodes[v]["element"],
             G.nodes[v]["aromatic"],
-            G.nodes[v].get("charge", 0),
+            G.nodes[v].get("formal_charge", 0),
             G.nodes[v].get("hcount", 0),
         )
         for v in order
@@ -877,7 +891,7 @@ print_graph_attributes(wl_canon)
 
 - **Individualization**: for $v\in C$ write $I_v(\Pi)$ for the partition obtained by replacing $C$ with $\{v\}$ and $C\setminus\{v\}$.
 - The **IR search tree** has nodes (partitions) and children of a node $\Pi$ given by $R(I_v(\Pi))$ for chosen $v$ in a non-singleton cell.
-- During IR Nauty discovers automorphisms $\sigma\in\operatorname{Aut}(G)$ and stores a generating set $\mathcal{G}$. If a discovered $\sigma$ maps a search node to an already visited node, Nauty **prunes** that branch.
+- During IR, nauty [\[2\]](#id-6-references) discovers automorphisms $\sigma\in\operatorname{Aut}(G)$ and stores a generating set $\mathcal{G}$. If a discovered $\sigma$ maps a search node to an already visited node, nauty **prunes** that branch.
 
 ```{code-cell}
 from typing import List
@@ -1009,10 +1023,15 @@ print(ir_order)
 
 When the stable WL partition $\mathcal{P}^*$ is not fully discrete, we use
 *individualization*: pick one ambiguous vertex, fix its color, then refine again.
-This creates a binary tree of partition states; the canonical ordering
+This creates a search tree of partition states — branching once per element of
+the chosen non-singleton cell, so the branching factor equals that cell's size,
+not necessarily two — and the canonical ordering
 is the leaf with the lexicographically smallest certificate.
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.gridspec as gridspec
@@ -1332,6 +1351,9 @@ Highly symmetric molecules (benzene) need the deepest tree;
 fully asymmetric ones (alanine) need none at all.
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 import matplotlib.pyplot as plt
 from synedu.Utils import smiles_to_graph
 
@@ -1407,6 +1429,9 @@ Canonical atom-map numbering follows the same motivation as canonical molecular 
 Now we combine all of them
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.patches import FancyBboxPatch
@@ -1480,7 +1505,7 @@ plt.show()
 ```
 
 ```{code-cell}
-def canonicalization(graph: nx.graph):
+def canonicalization(graph: nx.Graph):
     nodes, adj, _ = parse_graph_from_nx(graph)
     P0 = initial_partition_from_nodes(nodes)
     refine = refine_to_stable(P0, adj, verbose=False)
@@ -1577,6 +1602,9 @@ Canonical atom-map numbering collapses this redundancy and reduces the
 apparent rule vocabulary.
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 import matplotlib.pyplot as plt
 
 # Pool all three mappers for the SAME reactions.
@@ -1657,6 +1685,9 @@ plt.show()
 The raw SMILES differ in atom-map numbers; after `canon_aam` both collapse to the same string, enabling exact deduplication.
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 from synedu.Utils.rxn_vis import draw_rxn_graph
 from IPython.display import HTML, display
 import matplotlib.pyplot as plt
@@ -1705,6 +1736,9 @@ display(
 Different atom-mapping methods (RXNMapper, Graphormer, Local Mapper) may assign different atom-map numbers to the same reaction. After canonicalization, equivalent maps collapse to the **same canonical SMILES**. The table below checks whether all three methods produce identical canonical forms for one example reaction. Green = agreement; red = mismatch.
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 import pandas as pd
 
 _methods = ["rxn_mapper", "graphormer", "local_mapper"]
@@ -1755,7 +1789,7 @@ display(
 - In production pipelines, you typically combine:
   - strong initial labels (chemistry-aware),
   - WL refinement,
-  - IR with pruning and orbit-based symmetry breaking (Nauty/Bliss-style ideas).
+  - IR with pruning and orbit-based symmetry breaking, as in nauty/Traces [\[2\]](#id-6-references) and bliss [\[7\]](#id-6-references).
 
 +++
 
@@ -1813,3 +1847,4 @@ if not data.empty:
 4. Shervashidze, N.; Schweitzer, P.; van Leeuwen, E. J.; Mehlhorn, K.; Borgwardt, K. M. Weisfeiler-Lehman graph kernels. *Journal of Machine Learning Research* **12**, 2539-2561 (2011). https://www.jmlr.org/papers/v12/shervashidze11a.html
 5. Phan, T.-L. *et al.* SynKit: A Graph-Based Python Framework for Rule-Based Reaction Modeling and Analysis. *Journal of Chemical Information and Modeling* (2025). https://doi.org/10.1021/acs.jcim.5c02123
 6. Bonchev, D.; Rouvray, D. H., eds. *Chemical Graph Theory: Introduction and Fundamentals*. Abacus Press (1991).
+7. Junttila, T.; Kaski, P. Engineering an Efficient Canonical Labeling Tool for Large and Sparse Graphs. *Proceedings of the Ninth Workshop on Algorithm Engineering and Experiments (ALENEX)*, SIAM, 135-149 (2007).

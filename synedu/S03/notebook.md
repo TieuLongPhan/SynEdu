@@ -89,7 +89,7 @@ $$
 G = \bigl( V_G, E_G, a_G, b_G \bigr), \qquad
 H = \bigl( V_H, E_H, a_H, b_H \bigr)
 $$
-be **labeled molecular graphs**, where
+be **labeled molecular graphs** [\[7\]](#id-6-references), where
 $$
 a(\cdot) \text{ denotes atom labels}, \qquad
 b(\cdot) \text{ denotes bond labels}.
@@ -100,7 +100,7 @@ $$
 S = (V_S, E_S, a_S, b_S)
 $$
 is a **common subgraph** of \(G\) and \(H\) if there exist **injective graph
-morphisms**
+homomorphisms**
 $$
 f : S \hookrightarrow G, \qquad
 g : S \hookrightarrow H,
@@ -120,13 +120,13 @@ $$
 **Practical notes.**
 - MCSs are generally **not unique**.
 - Imposing chemical constraints (atom and bond types, aromaticity, ring
-  membership, chirality) restricts the admissible morphisms and can change the
+  membership, chirality) restricts the admissible homomorphisms and can change the
   resulting MCS.
 
 +++
 
 **Definition (Maximum Common Substructure / MCS).**  
-Given two labeled graphs $G_1$ and $G_2$, a *common subgraph* is a graph $C$ together with label-preserving injective morphisms $\iota_1: C \hookrightarrow G_1$ and $\iota_2: C \hookrightarrow G_2$.  
+Given two labeled graphs $G_1$ and $G_2$, a *common subgraph* is a graph $C$ together with label-preserving injective homomorphisms $\iota_1: C \hookrightarrow G_1$ and $\iota_2: C \hookrightarrow G_2$.  
 The *maximum common subgraph* (MCS) is a common subgraph $C^*$ of maximum cardinality $|V(C^*)|$ (maximum common substructure by atoms) or maximum $|E(C^*)|$ (by bonds).
 
 **Remark.** MCS computation is NP-hard in general [\[4\]](#id-6-references). RDKit uses an FMCS heuristic that may return a *locally* maximal but not globally maximal common subgraph. NetworkX-based MCS uses exact backtracking, which is exponential in the worst case but exact.
@@ -145,7 +145,7 @@ This is 1 if the molecules are isomorphic and 0 if they share no atom.
 ### 1.2. RDkit MCS
 
 In **RDKit**, the **maximum common substructure (MCS)** can be computed using
-`rdkit.Chem.rdFMCS` [\[5\]](#id-6-references). 
+`rdkit.Chem.rdFMCS` [\[2\]](#id-6-references). 
 
 RDKit MCS is commonly used for molecular alignment, reaction analysis, and as a
 basis for atom mapping.
@@ -414,6 +414,7 @@ plt.show()
 Each row shows a molecule pair. The **highlighted (orange) atoms and bonds** form the maximum common substructure. Larger MCS → more shared scaffold; smaller MCS → structurally divergent molecules despite similar element composition.
 
 ```{code-cell}
+:tags: [hide-input]
 from rdkit import Chem
 from rdkit.Chem import rdFMCS
 import matplotlib.pyplot as plt
@@ -482,7 +483,7 @@ molecule in the table using the **NetworkX-based MCS implementation**, and
 record the size of the resulting common subgraph.
 
 This exercise emphasizes a **strict graph-theoretic view** of MCS, in contrast
-to the chemistry-aware RDKit approach in Q4.
+to the chemistry-aware RDKit approach in Q1.
 
 ---
 
@@ -855,7 +856,7 @@ if not _pts.empty:
 
 ## 2. Rule-based reaction rebalancing
 
-This section follows the idea of *[Reaction rebalancing: a novel approach to curating reaction databases](https://link.springer.com/article/10.1186/s13321-024-00875-4)* [\[6\]](#id-6-references).
+This section follows the idea of *[Reaction rebalancing: a novel approach to curating reaction databases](https://link.springer.com/article/10.1186/s13321-024-00875-4)* [\[3\]](#id-6-references).
 
 ---
 
@@ -1376,6 +1377,7 @@ if rsmi_balanced:
 Imbalanced reactions are missing one or more species. The gallery below shows each reaction before and after library-based imputation — atoms and bonds are unchanged; only the missing auxiliary species (water, HCl) are appended to the correct side.
 
 ```{code-cell}
+:tags: [hide-input]
 from collections import Counter
 from synedu.Utils.rxn_vis import draw_rxn_graph
 import matplotlib.pyplot as plt
@@ -1444,9 +1446,9 @@ impractical at scale.
 Instead, we use **reaction alignment** to identify missing **structural motifs**
 via MCS and apply **rule-based reasoning** to complete and rebalance reactions.
 
-In this section, we directly use functionality from **SynKit** [\[6\]](#id-6-references)
+In this section, we directly use functionality from **SynKit** [\[8\]](#id-6-references)
 (`pip install synkit`) and explore an established tool for reaction rebalancing,
-**SynRBL** [\[7\]](#id-6-references) (`pip install synrbl`).
+**SynRBL** [\[3\]](#id-6-references) (`pip install synrbl`).
 
 The focus is on applying **MCS-based alignment** to detect missing species,
 infer stoichiometry, and rebalance reactions in a chemically consistent manner.
@@ -1533,7 +1535,7 @@ draw_molecular_graph(sub)
 **Q5 — Detect valence violations in a molecular subgraph**
 
 Given a **molecular graph** represented as a **NetworkX graph**, detect atoms
-whose **total valence violates basic chemical constraints**, using only
+whose **total valence violates basic chemical constraints** [\[6\]](#id-6-references), using only
 **local graph information** (node and edge attributes).
 
 This exercise emphasizes a **purely graph-theoretic definition of valence**,
@@ -1763,6 +1765,7 @@ from synedu.Utils.reaction  import rsmi_to_graph, graph_to_rsmi
 Later notebooks import from these modules directly instead of relying on SynKit.
 
 ```{code-cell}
+:tags: [hide-input]
 import matplotlib.pyplot as plt
 
 new_sub = add_wildcard(sub, indices=list(sub.nodes()))
@@ -1993,7 +1996,7 @@ print(rsmi_balanced)
 
 +++
 
-Here we demonstrate the same rebalancing task using **SynRBL** [\[6\]](#id-6-references), a dedicated
+Here we demonstrate the same rebalancing task using **SynRBL** [\[3\]](#id-6-references), a dedicated
 rule-based reaction rebalancer. Starting from an imbalanced reaction SMILES,
 SynRBL automatically detects the missing fragment via MCS-based alignment and
 completes the reaction by imputing the appropriate substructure. The output

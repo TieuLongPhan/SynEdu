@@ -11,11 +11,11 @@ kernelspec:
   name: python3
 ---
 
-# S04: Atom Mapping as Graph Morphism
+# S04: Atom Mapping as Graph Isomorphism
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S04.ipynb) [![Download Notebook](https://img.shields.io/badge/download-.ipynb-blue)](https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S04.ipynb) [![Run Locally](https://img.shields.io/badge/run-locally-lightgrey)](../../docs/installing.md)
 
-This talktorial connects molecular alignment to atom-to-atom mapping. We build transparent MCS-based maps, compare them with RXNMapper, and use Imaginary Transition State (ITS) graphs as a map-number-invariant representation of reaction change [\[1\]](#id-6-references), [\[2\]](#id-6-references).
+This talktorial connects molecular alignment to atom-to-atom mapping. We build transparent MCS-based maps, compare them with RXNMapper, and use Imaginary Transition State (ITS) graphs as a map-number-invariant representation of reaction change [\[1\]](#id-6-references), [\[2\]](#id-6-references), [\[11\]](#id-6-references).
 
 +++
 
@@ -111,7 +111,7 @@ draw_molecular_graph(r, show_indices=True, ax=ax[0])
 draw_molecular_graph(p, show_indices=True, ax=ax[1])
 ```
 
-We now develop `mcs_networkx` to identify the Maximum Common Substructure (MCS), using the graph-matching perspective introduced in S03 [\[3\]](#id-6-references).
+We now develop `mcs_networkx` to identify the Maximum Common Substructure (MCS), using the graph-matching perspective introduced in S03 and the classic MCS matching algorithms for chemical structures [\[10\]](#id-6-references).
 Note that in a reaction context, **bonds may be formed or broken** between
 reactants and products. Therefore, bond attributes should **not** be used
 as matching constraints (`edge_attrs`), and the MCS is computed based on
@@ -343,6 +343,9 @@ fig = draw_rxn_graph(aam, title="Oxidation", title_fontsize=24, show_indices=Tru
 After MCS alignment, matched atom pairs share the same colour across the reactant and product graphs. Atoms that could not be matched (spectators or unmapped atoms) appear grey. Comparing the two panels reveals which atoms participate in the reaction center.
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from synedu.Utils.vis import draw_molecular_graph
@@ -542,9 +545,12 @@ else:
 
 #### RXNMapper attention alignment heatmap
 
-The atom map is selected from an attention matrix whose rows are product atom tokens and whose columns are reactant atom tokens. Bright cells indicate product atoms that strongly attend to a reactant atom. The final atom map is the high-weight assignment through this matrix, so visualising it helps connect the Transformer output to the atom-map numbers we use later.
+RXNMapper's raw output matrix is indexed product-by-reactant, i.e. the transpose $A^\top$ of the reactant-by-product matrix $A$ defined above: rows are product atom tokens and columns are reactant atom tokens. Bright cells indicate product atoms that strongly attend to a reactant atom. The final atom map is the high-weight assignment through this matrix, so visualising it helps connect the Transformer output to the atom-map numbers we use later.
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
@@ -697,7 +703,7 @@ print(_mapped_rxn)
 ```
 
 ## 2. Imaginary Transition State
-The **Imaginary Transition State (ITS)** [\[2\]](#id-6-references) (or Condensed Graph of the Reaction [\[5\]](#id-6-references)) is a compact, chemistry-oriented way to represent *what changes* in a reaction by **superimposing reactants and products via an atom-atom map**.
+The **Imaginary Transition State (ITS)** [\[11\]](#id-6-references) (or Condensed Graph of the Reaction [\[9\]](#id-6-references)) is a compact, chemistry-oriented way to represent *what changes* in a reaction by **superimposing reactants and products via an atom-atom map**.
 
 Think of the ITS as a single graph whose **nodes are atom-map labels** (one node per mapped atom) and whose **edges record the bond before and after the reaction**. Reading the ITS tells you, at a glance, which bonds are preserved, broken or formed.
 
@@ -733,10 +739,10 @@ Given a balanced reaction and an atom map $\alpha$ (a bijection between reactant
 
 How to read the ITS (chemical rules of thumb)
 
-- An edge labelled (1,1) — bond preserved (single → single).  
+- An edge labelled (1,1) or (1.5,1.5) — bond **preserved** (single → single, or aromatic → aromatic).  
 - (1,0) — bond **broken** (present in reactants, absent in products).  
 - (0,1) — bond **formed** (new bond in products).  
-- (2,1) or (1.5,1.5) — bond order **changed** (double→single, or aromatic preserved).  
+- (2,1) — bond order **changed** (e.g. double → single).  
 - Nodes keep atom identity via labels (element, charge, hybridization if desired) so you can tell *which atom* changed connectivity.
 
 ---
@@ -769,7 +775,7 @@ $$
 These are the bonds that are **broken** ($b_r > 0, b_p = 0$), **formed** ($b_r = 0, b_p > 0$), or **changed** ($b_r \neq b_p$, both $> 0$).
 
 **Definition (ΔBE Entry).**  
-For each atom pair $(i, j)$ with $i \neq j$: $\Delta\mathrm{BE}_{ij} = b_p(i,j) - b_r(i,j)$.  
+Following the Dugundji–Ugi bond-electron matrix formalism [\[3\]](#id-6-references), for each atom pair $(i, j)$ with $i \neq j$: $\Delta\mathrm{BE}_{ij} = b_p(i,j) - b_r(i,j)$.  
 Positive values indicate bond formation; negative values indicate bond breaking.  
 The diagonal entries represent changes in free-electron count (valence electrons not in bonds).
 
@@ -934,6 +940,9 @@ We color edges by change type:
 | $b_r \neq b_p$, both $> 0$ | **Changed** (e.g. single→double) | orange |
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 import matplotlib.pyplot as plt
 from synedu.Utils.its_vis import its_coordinate_layout, visualize_its
 
@@ -1059,9 +1068,12 @@ def rsmi_to_its(rsmi, core=False):
 
 The left panel shows the full ITS: **red edges** are broken bonds, **green edges** are formed bonds, **black edges** are preserved. The right panel isolates the **reaction center** — the subgraph where $b_r \ne b_p$.
 
-The ΔBE matrix encodes the same information numerically: $\Delta\mathrm{BE}_{ij} = b^P_{ij} - b^R_{ij}$. Red cells indicate bond cleavage; blue cells indicate bond formation. The pattern of signed changes uniquely fingerprints the reaction type.
+The off-diagonal ΔBE entries encode the same information numerically: $\Delta\mathrm{BE}_{ij} = b^P_{ij} - b^R_{ij}$ for $i \neq j$ [\[3\]](#id-6-references). Red cells indicate bond cleavage; blue cells indicate bond formation. The pattern of signed changes is characteristic of the reaction type, though it is not in general a unique fingerprint (different reactions can share the same bond-change pattern).
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -1144,35 +1156,30 @@ plt.show()
 
 ### 2.3. ΔBE matrix heatmap
 
-The Bond–Electron (BE) matrix introduced in **S01** can be computed for both the reactant
-and product graphs. Their difference $\Delta\mathrm{BE} = \mathrm{BE}_P - \mathrm{BE}_R$
-captures exactly the same information as the ITS edge labels:
+The off-diagonal entries of the Bond–Electron (BE) matrix introduced in **S01**
+[\[3\]](#id-6-references) are the pairwise bond orders; their reactant/product
+difference $\Delta\mathrm{BE} = \mathrm{BE}_P - \mathrm{BE}_R$ restricted to
+$i \neq j$ is exactly the off-diagonal information already stored in the ITS
+edge labels $(b_r, b_p)$:
 
 - **Positive** off-diagonal: bond formed
 - **Negative** off-diagonal: bond broken
 - **Zero**: atom-pair unchanged
 
+Note that the ITS edge labels do not track the BE matrix's **diagonal**
+(free/non-bonding electron count per atom), so the heatmap below only
+reconstructs the bond-order part of $\Delta\mathrm{BE}$, not the full electron
+reorganisation.
+
 ```{code-cell}
+---
+tags: [hide-input]
+---
 import numpy as np
 import matplotlib.pyplot as plt
 import networkx as nx
 
-
-def build_be_matrix(G):
-    nodes = sorted(G.nodes())
-    idx = {n: i for i, n in enumerate(nodes)}
-    n = len(nodes)
-    BE = np.zeros((n, n))
-    for u, v, d in G.edges(data=True):
-        o = float(d.get('order', 1.0))
-        if isinstance(d.get('order'), (tuple, list)):
-            o = float(d['order'][0])  # use reactant order for ITS
-        BE[idx[u], idx[v]] = o
-        BE[idx[v], idx[u]] = o
-    return BE, nodes
-
-
-# Compute ΔBE from the ITS edge labels
+# Compute ΔBE (off-diagonal bond-order part) from the ITS edge labels
 _nodes_its = sorted(its.nodes())
 _idx = {n: i for i, n in enumerate(_nodes_its)}
 _n = len(_nodes_its)
@@ -1256,6 +1263,9 @@ m3 = "[CH3:1][CH2:2][O:3][C:4](=[O:5])[CH2:6][C:7](=[O:8])[O:9][CH2:10][CH3:11].
 ```
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 svg1 = visualize_reaction(
     m1,
     svg=True,
@@ -1282,6 +1292,9 @@ display(SVG(svg3))
 Even for experienced chemists, it is non-trivial to determine whether three atom mappings are equivalent.
 
 ```{code-cell}
+---
+tags: [hide-input]
+---
 import matplotlib.pyplot as plt
 
 its1 = rsmi_to_its(m1)
@@ -1514,3 +1527,5 @@ data.head()
 7. RDKit documentation. https://www.rdkit.org/docs/
 8. NetworkX documentation. https://networkx.org/documentation/stable/
 9. Nugmanov, R. I. *et al.* CGRtools: Python Library for Molecule, Reaction, and Condensed Graph of Reaction Processing. *Journal of Chemical Information and Modeling* **59**, 2516-2521 (2019). https://doi.org/10.1021/acs.jcim.9b00102
+10. Raymond, J. W.; Willett, P. Maximum common subgraph isomorphism algorithms for the matching of chemical structures. *Journal of Computer-Aided Molecular Design* **16**, 521-533 (2002). https://doi.org/10.1023/A:1021271615909
+11. Fujita, S. Description of organic reactions based on imaginary transition structures. 1. Introduction of new concepts. *Journal of Chemical Information and Computer Sciences* **26**, 205-212 (1986). https://doi.org/10.1021/ci00052a009
