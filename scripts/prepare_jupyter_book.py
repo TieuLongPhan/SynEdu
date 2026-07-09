@@ -5,10 +5,19 @@ notebooks are a native, executable MyST Markdown format), so no ipynb
 generation is needed for the site build. This script only produces the
 docs/downloads/*.ipynb files that back the "Download notebook" / "Open in
 Colab" links on each talktorial page.
+
+The exported notebooks are made **self-contained** so "Open in Colab" works in
+a fresh runtime with no local checkout:
+
+* a setup cell ``pip install``s SynEdu (so ``synedu.Utils`` is importable) and
+  downloads the lesson's ``data/`` files from GitHub, and
+* figure ``<img>`` sources (written relative to the repo root in the sources)
+  are rewritten to absolute ``raw.githubusercontent.com`` URLs so images load.
 """
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 import jupytext
@@ -17,30 +26,74 @@ import nbformat
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DOCS_DOWNLOADS = REPO_ROOT / "docs" / "downloads"
 SYNEDU_ROOT = REPO_ROOT / "synedu"
-SYNEDU_GIT_URL = "https://github.com/TieuLongPhan/SynEdu.git"
 
-SETUP_CELL_SOURCE = (
-    "# Run this once in Colab (or any fresh environment) to install SynEdu\n"
-    "# and its dependencies. Not needed if you already ran `uv sync` locally.\n"
-    f"%pip install -q 'synedu @ git+{SYNEDU_GIT_URL}@main'"
-)
+# Colab can only open a notebook that lives on a concrete GitHub branch, so the
+# published downloads must pull their code, data, and figures from the same
+# branch the docs/downloads/*.ipynb files are committed to. Change both of these
+# together if the canonical branch ever changes.
+GITHUB_SLUG = "TieuLongPhan/SynEdu"
+BRANCH = "main"
+RAW_BASE = f"https://raw.githubusercontent.com/{GITHUB_SLUG}/{BRANCH}"
+
+# Sources reference figures relative to the repo root (../../docs/_static/...).
+# Rewrite those to absolute raw URLs so they render in Colab, where the relative
+# path does not exist.
+_STATIC_REL_RE = re.compile(r"(?:\.\./)+docs/_static/")
+_STATIC_ABS = f"{RAW_BASE}/docs/_static/"
 
 
-def _with_setup_cell(notebook: nbformat.NotebookNode) -> nbformat.NotebookNode:
-    """Insert a pip-install cell after the title so download/Colab copies are standalone."""
-    setup_cell = nbformat.v4.new_code_cell(source=SETUP_CELL_SOURCE)
-    notebook.cells.insert(1, setup_cell)
+def _setup_cell_source(lesson: str, data_files: list[str]) -> str:
+    """Build the per-lesson Colab setup cell (install + data download)."""
+    lines = [
+        "# Colab / fresh-environment setup.",
+        "# Skip this cell if you cloned the repo and ran `uv sync` locally.",
+        f"%pip install -q 'synedu @ git+https://github.com/{GITHUB_SLUG}.git@{BRANCH}'",
+    ]
+    if data_files:
+        listing = ", ".join(repr(f"data/{name}") for name in data_files)
+        lines += [
+            "",
+            "# Fetch this lesson's data files so the notebook is self-contained.",
+            "import os, urllib.request",
+            f'_base = "{RAW_BASE}/synedu/{lesson}"',
+            f"for _f in [{listing}]:",
+            "    os.makedirs(os.path.dirname(_f), exist_ok=True)",
+            "    if not os.path.exists(_f):",
+            "        urllib.request.urlretrieve(f'{_base}/{_f}', _f)",
+        ]
+    return "\n".join(lines)
+
+
+def _rewrite_static_urls(notebook: nbformat.NotebookNode) -> nbformat.NotebookNode:
+    """Point relative figure sources at absolute raw URLs for Colab."""
+    for cell in notebook.cells:
+        if cell.get("cell_type") == "markdown":
+            cell["source"] = _STATIC_REL_RE.sub(_STATIC_ABS, cell.get("source", ""))
     return notebook
 
 
+def _lesson_data_files(lesson_dir: Path) -> list[str]:
+    """Return the sorted data file names shipped with a lesson (may be empty)."""
+    data_dir = lesson_dir / "data"
+    if not data_dir.is_dir():
+        return []
+    return sorted(p.name for p in data_dir.iterdir() if p.is_file())
+
+
 def main() -> None:
-    """Regenerate docs/downloads/*.ipynb from committed notebook.md sources."""
+    """Regenerate self-contained docs/downloads/*.ipynb from notebook.md sources."""
     DOCS_DOWNLOADS.mkdir(parents=True, exist_ok=True)
 
     for source in sorted(SYNEDU_ROOT.glob("S[0-9][0-9]/notebook.md")):
         lesson = source.parent.name
         notebook = jupytext.read(source, fmt="md:myst")
-        notebook = _with_setup_cell(notebook)
+        notebook = _rewrite_static_urls(notebook)
+
+        setup = nbformat.v4.new_code_cell(
+            source=_setup_cell_source(lesson, _lesson_data_files(source.parent))
+        )
+        notebook.cells.insert(1, setup)
+
         nbformat.write(notebook, DOCS_DOWNLOADS / f"{lesson}.ipynb")
 
 

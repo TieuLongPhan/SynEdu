@@ -544,6 +544,7 @@ Most discrepancies originate from **ring systems**. RDKit MCS is *chemistry-firs
 Tanimoto similarity (fingerprint-based) and MCS size (graph-based) both measure molecular overlap, but they are **not equivalent** [\[4\]](#id-6-references). The scatter plot below samples molecules from the dataset and compares both metrics against ethanol. Ring-containing molecules can have high graph MCS under RDKit's chemistry-aware matcher yet low Tanimoto — or vice versa.
 
 ```{code-cell}
+:tags: [hide-input]
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -939,6 +940,7 @@ In SMILES, this corresponds to appending the auxiliary species
 The five-stage pipeline below converts an imbalanced reaction SMILES into a balanced one. Library-based imputation handles small inorganic species; MCS-based imputation handles missing carbon fragments.
 
 ```{code-cell}
+:tags: [hide-input]
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyBboxPatch
 
