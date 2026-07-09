@@ -220,9 +220,23 @@ _build/
 .DS_Store
 Thumbs.db
 
-#
-.gitignore
 dev/*
 
 Agent/*
+
+# LaTeX build artifacts.
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.out
+*.run.xml
+*.synctex.gz
+
+# Ignore ad-hoc TeX scratch sources by default. Explicit manuscript/template
+# figure sources are unignored below.
 *.tex
+!synedu/S00/figure/pipeline.tex
+!docs/paper/figures/*.tex

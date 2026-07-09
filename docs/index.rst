@@ -108,6 +108,10 @@ Contributing
 
    whats_new
    api
+   paper/index
+   installing
+   citation
+   contribute
 
 .. toctree::
    :maxdepth: 1

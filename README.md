@@ -6,11 +6,30 @@ The notebooks are designed as a connected learning path from graph-based molecul
 
 📖 Full documentation: [synedu.readthedocs.io](https://synedu.readthedocs.io/en/latest/)
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20315655.svg)](https://doi.org/10.5281/zenodo.20315655)
+
 ---
 
 ![SynEdu overview](https://raw.githubusercontent.com/TieuLongPhan/SynEdu/main/synedu/synedu.png)
 
 ---
+
+## Paper & Reproducibility
+
+SynEdu is being prepared as an executable resource for graph-based reaction cheminformatics. The paper-facing material is kept with the documentation so reviewers can inspect the scientific claim, data assets, validation targets, and reproduction commands without opening every notebook first.
+
+- [Manuscript draft](docs/paper/manuscript.md) — article skeleton with contribution, methods, results, limitations, and declarations.
+- [Validation matrix](docs/paper/validation_matrix.md) — module-by-module evidence expected for a Journal of Cheminformatics style submission.
+- [Data availability](docs/paper/data_availability.md) — dataset inventory, record counts, checksums, and provenance gaps to close before submission.
+- [Pipeline figure](docs/paper/figures/synedu_pipeline.pdf) — LaTeX/TikZ overview of the S01-S09 workflow.
+- [Citation metadata](CITATION.cff) — machine-readable citation information for GitHub, Zenodo, and reference managers.
+
+Recommended checks:
+
+```bash
+pytest -m "not slow" -v tests/
+SYNEDU_NB=S01 pytest -m slow -v tests/test_notebooks.py
+```
 
 ## Talktorials
 
@@ -29,12 +48,14 @@ The notebooks are designed as a connected learning path from graph-based molecul
 ## Quickstart
 
 ```bash
-conda env create -f env/environment.yml
+conda env create -f environment.yml
 conda activate synedu
 jupyter lab
 ```
 
 Open the notebooks in order from **S01** to **S09**.
+
+For contribution conventions, notebook hygiene, and manuscript-readiness checks, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Contributors
 

@@ -250,7 +250,7 @@ Tanimoto similarity (fingerprint-based) and MCS size (graph-based) both measure 
 
 ## 2. Rule-based reaction rebalancing
 
-We utilize idea from *[Reaction rebalancing: a novel approach to curating reaction databases](https://link.springer.com/article/10.1186/s13321-024-00875-4)* [\[6\]](#6.-References). 
+This section follows the idea of *[Reaction rebalancing: a novel approach to curating reaction databases](https://link.springer.com/article/10.1186/s13321-024-00875-4)* [\[6\]](#6.-References).
 
 ---
 
@@ -296,9 +296,17 @@ The reaction is balanced iff $\Delta=\mathbf{0}$.
 
 Let $\mathcal{L}=\{A_k\}$ be a library of auxiliary species
 (e.g. $\mathrm{H_2O}$) with formulas $\phi(A_k)$.
+For a one-sided deficit, define the non-negative target vector
+$$
+\delta =
+\begin{cases}
+\Delta, & \text{if atoms are missing from the product side},\\
+-\Delta, & \text{if atoms are missing from the reactant side}.
+\end{cases}
+$$
 We seek coefficients $c_k\in\mathbb{N}$ such that
 $$
-\Delta = \sum_k c_k\,\phi(A_k).
+\delta = \sum_k c_k\,\phi(A_k).
 $$
 
 ---
@@ -310,10 +318,11 @@ $c_k A_k$ to the deficient side:
 $$
 r' =
 \begin{cases}
-\mathcal{R}\cup\{c_kA_k\} \rightarrow \mathcal{P}, & \Delta>0,\\
-\mathcal{R}\rightarrow \mathcal{P}\cup\{c_kA_k\}, & \Delta<0.
+\mathcal{R}\rightarrow \mathcal{P}\cup\{c_kA_k\}, & \Delta\succeq\mathbf{0},\\
+\mathcal{R}\cup\{c_kA_k\} \rightarrow \mathcal{P}, & -\Delta\succeq\mathbf{0}.
 \end{cases}
 $$
+Here $\succeq\mathbf{0}$ denotes componentwise non-negativity over elements.
 
 In SMILES, this corresponds to appending the auxiliary species
 (e.g. `O` for $\mathrm{H_2O}$).
@@ -521,7 +530,7 @@ independent of RDKit sanitization, atom typing, or implicit chemistry rules.
    \;+\;
    \sum_{(i,j)\in E} b_{ij},
    $$
-   where $h_i$ is the hydrogen count and $b_ij$ is the bond order of the
+   where $h_i$ is the hydrogen count and $b_{ij}$ is the bond order of the
    bond between atoms $i$ and $j$.
 
 3. **Check against valence constraints**  
@@ -682,7 +691,7 @@ def impute_smi_mcs(
 
 
 
-# imput missing smiles
+# impute missing SMILES
 mcs_rsmi  = impute_smi_mcs(rsmi, status, missing_smi=missing_smi)
 
 # re-checking

@@ -10,6 +10,9 @@ you need to pin the exact `v0.1.0` archive.
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20315655.svg)](https://doi.org/10.5281/zenodo.20315655)
 
+The repository also includes a machine-readable `CITATION.cff` file for GitHub,
+Zenodo, and citation managers that understand the Citation File Format.
+
 ## Recommended DOI
 
 ```{note}

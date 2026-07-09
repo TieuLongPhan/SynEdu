@@ -75,7 +75,7 @@ Now we will use a classic *pericyclic* transformation:
 
 - **Diene**: butadiene (SMILES: `C=CC=C`)
 - **Dienophile**: ethene (SMILES: `C=C`)
-- **Product**: cyclohexen(SMILES: `C1C=CCCC1`)
+- **Product**: cyclohexene (SMILES: `C1C=CCCC1`)
 
 
 **Definition (DPO Reaction Rule / Span).**  
@@ -100,7 +100,7 @@ Given a valid match $m: L \hookrightarrow G$, the *DPO rewriting step* $G \Right
 $$
 L \xleftarrow{l} K \xrightarrow{r} R
 \quad\Big\Updownarrow\quad
-G \xleftarrow{m} D \xrightarrow{} H
+G \xleftarrow{g} D \xrightarrow{h} H
 $$
 
 where $D = G \setminus m(L \setminus K)$ is the *pushout complement* (host minus deleted items) and $H$ is obtained by gluing $R$ to $D$ along $K$.
@@ -157,16 +157,14 @@ The mapping $m:L\hookrightarrow G$ must be **injective** (no two distinct nodes 
 2. *Dangling condition (no half-bonds)*
 If a node of $G$ is removed, we must not leave an edge with only one endpoint. Formally:
 
-$$ 
-   \forall\ \{x,y\}\in E(G):\qquad \big(x\in S\big)\Longrightarrow\big(y\in S\big).
-   $$
+Let $S=m(V(L)\setminus V(K))$ be the deleted nodes and
+$E_{\mathrm{del}}=m(E(L)\setminus E(K))$ be the deleted edges. Formally:
+$$
+\forall\ \{x,y\}\in E(G):\qquad
+(x\in S \lor y\in S)\Longrightarrow \{x,y\}\in E_{\mathrm{del}}.
+$$
 
-   or, symmetrically,
-   $$
-   E(G)\cap\bigl(S\times (V(G)\setminus S)\bigr)=\varnothing.
-   $$
-
-Equivalently: every edge adjacent to a deleted node must also be deleted (i.e., both endpoints are deleted), otherwise you would create a dangling (half) bond.
+Equivalently: no host edge outside $E_{\mathrm{del}}$ may be incident to a deleted node, otherwise you would create a dangling (half) bond.
 
 3. *Chemical sanity after rewrite*
 After forming $H$ check chemical invariants you care about (valence bounds, formal charge consistency, stereochemistry handling, etc.). These are *domain-specific* checks not enforced by the abstract DPO construction.
@@ -265,7 +263,7 @@ if it exists.
 **Deletion**
 $$
 V_{\text{del}} = m\!\left(V(L)\setminus V(K)\right), \qquad
-E_{\text{del}} = \{\, e=\{u,v\}\in E(G)\mid u\in V_{\text{del}} \ \text{or}\ v\in V_{\text{del}} \,\}.
+E_{\text{del}} = m\!\left(E(L)\setminus E(K)\right).
 $$
 $$
 D = \bigl(V(G)\setminus V_{\text{del}},\; E(G)\setminus E_{\text{del}}\bigr),
@@ -275,7 +273,7 @@ with all attributes and node IDs inherited from \(G\).
 **Dangling condition**
 $$
 \forall\, \{u,v\}\in E(G):\quad
-u\in V_{\text{del}} \Rightarrow v\in V_{\text{del}}.
+(u\in V_{\text{del}} \lor v\in V_{\text{del}}) \Rightarrow \{u,v\}\in E_{\text{del}}.
 $$
 
 **Interface map**
@@ -456,7 +454,9 @@ Now we have $D$ and $m'$ (or $m_K$); with interface $K$ and right pattern $R$, w
 
 
 $$
-  V(H)=V(D)\;\cup\;\bigl(V(R)\setminus V(K)\bigr)\ /\ \{\,x\sim m'(x)\ (x\in K)\,\},
+  V(H)=V(D)\;\cup_{V(K)}\;V(R)
+  =
+  \bigl(V(D)\sqcup V(R)\bigr)\ /\ \{\,r(x)\sim m'(x)\mid x\in V(K)\,\},
   $$
   $$
   E(H)=E(D)\;\cup\;m''\bigl(E(R)\bigr),
@@ -663,7 +663,7 @@ A reaction rule as a span $L \xleftarrow{\,l\,} K \xrightarrow{\,r\,} R$ cleanly
 | $K$ | preserved context | atoms present in both reactant and product |
 | $R \setminus K$ | created items | bonds formed, atoms added |
 
-This is *exactly* the non-zero off-diagonal entries of the ΔBE matrix introduced in **S01**.
+For bond changes, this corresponds to the non-zero off-diagonal entries of the ΔBE matrix introduced in **S04**.
 
 ---
 
@@ -701,7 +701,7 @@ Two matches $m_1, m_2: L \hookrightarrow G$ that differ only by an automorphism 
 | Orbit-aware match dedup | S02 | S07 (WL clustering), S08 (candidate dedup) |
 | Rule inversion | **S05** (here) | S08 (backward prediction) |
 | ITS graph as $K$-encoding | S04 | S06 (canonicalization), S07 (clustering) |
-| ΔBE ↔ span equivalence | S01 (ΔBE), S05 (span) | S07 (rule fingerprint) |
+| ΔBE ↔ span equivalence | S04 (ΔBE), S05 (span) | S07 (rule fingerprint) |
 
 
 

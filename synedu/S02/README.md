@@ -124,7 +124,7 @@ $$
 \Phi_E : E(G)\times E(H)\to\{\text{true},\text{false}\},
 $$
 
-Throughout this talktorials, we use a *strict-but-minimal* label model:
+Throughout this talktorial, we use a *strict-but-minimal* label model:
 
 - atom: `element`, `formal_charge`, `aromatic`,
 - bond: `order`.
@@ -134,12 +134,12 @@ This keeps the equivalence relation explicit and reproducible; later notebooks r
 
 **Q1 - Isomorphism**
 
-Implement `node_match` that requires matching `symbol` **and** either `hcount` or `formal_charge` (or both). Replace the existing `node_match` with your function and re-run the demo so that:
+Implement `node_match` that requires matching `element` **and** either `hcount` or `formal_charge` (or both). Replace the existing `node_match` with your function and re-run the demo so that:
 
 - `benzene` still matches, and  
 - `aniline` (`c1ccccc1N`) **does not** match `anilinium` (`c1ccccc1[NH3+]`).
 
-> Hint: `mol_to_graph(..., include_implicit_h=True)` stores H as `hcount`. Use `n.get("hcount",0)` or `n.get("formal_charge",0)`.
+> Hint: `mol_to_graph(...)` stores implicit hydrogens as `hcount`. Use `n.get("element")`, `n.get("hcount",0)`, and `n.get("formal_charge",0)`.
 
 <details class="synedu-solution">
 <summary><strong>Solution</strong></summary>
@@ -171,7 +171,7 @@ assert not iso_and_count(graphs["aniline_a"], graphs["aniline_b"], enhanced_node
 
 ## 2. Graph automorphisms
 
-### 2.1. Automorphsim
+### 2.1. Automorphism
 
 **Observation.** In the benzene example you enumerated **12 mappings** - these are the automorphisms of the benzene heavy-atom graph (the dihedral group \(D_6\), where \(|D_6| = 12\)).
 
@@ -184,7 +184,7 @@ $$
 The automorphism group is
 
 $$
-\mathrm{Aut}(G) \subseteq \mathrm{Iso}(G, G).
+\mathrm{Aut}(G) = \mathrm{Iso}(G, G).
 $$
 
 
@@ -221,7 +221,7 @@ enumerate_automorphisms(graph)
 
 
 
-### 3.2 Orbit
+### 2.2 Orbit
 
 The **orbit** of an atom \(v\) is the set of atoms it can be mapped to by
 molecular symmetries [\[3\]](#6.-References), [\[4\]](#6.-References):
@@ -328,10 +328,13 @@ For matching **benzene** \(P\) inside **naphthalene** \(G\), the algorithm repor
 
 - **Host symmetry**: automorphisms of \(G\) create multiple placements.
 - **Pattern symmetry**: automorphisms of \(P\) create equivalent labelings.
-- **Combined effect**:
+- **Embedding count**:
 $$
-\#\text{matches} \;\sim\; |\mathrm{Aut}(G)| \cdot |\mathrm{Aut}(P)|
+\#\text{matches}
+= \sum_{\text{placements } I \subseteq V(G)} |\mathrm{Iso}(P, G[I])|
 $$
+
+Raw matches therefore grow with both symmetry-equivalent host placements and relabelings of symmetric pattern atoms.
 
 
 ### 3.2. Deduplication of subgraph embeddings

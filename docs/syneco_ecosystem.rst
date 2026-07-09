@@ -65,6 +65,13 @@ a workflow becomes useful beyond the notebook setting.
        </div>
        <p class="synedu-card__desc">Curated reaction datasets, benchmark tasks, standardized splits, and reproducible evaluation workflows.</p>
      </a>
+     <a class="synedu-card synedu-card--app" href="https://synepd.bioinf.uni-leipzig.de/" target="_blank" rel="noopener">
+       <div class="synedu-card__top">
+         <span class="synedu-card__code">SynEPD</span>
+         <span class="synedu-badge"><svg><use href="#ico-book"/></svg>web</span>
+       </div>
+       <p class="synedu-card__desc">Hierarchical electron-pushing database and interactive explorer for reaction mechanisms.</p>
+     </a>
    </div>
 
 Learning relationship
@@ -79,5 +86,5 @@ step-by-step code written for learning, then point to the corresponding ecosyste
 package when the same idea is needed in a scalable or reproducible setting. For
 example, reaction preprocessing concepts can lead naturally to ``SynRBL``,
 chemical graph and rule manipulation to ``SynKit`` or ``SynTemp``, reaction
-categorization to ``SynCat``, and benchmark construction or dataset evaluation
-to ``SynRXN``.
+categorization to ``SynCat``, benchmark construction or dataset evaluation
+to ``SynRXN``, and electron-pushing mechanism exploration to ``SynEPD``.

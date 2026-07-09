@@ -350,8 +350,13 @@ focused on the recovered reaction transformation.
 **Definition (Recall@K).**  
 Let $q^*$ be the ground-truth reaction for query $q$. *Recall at $K$* is:
 
+Define the standardized top-$K$ candidate set
 $$
-\mathrm{Recall@}K(q) = \mathbf{1}\!\left[S(q^*) \in S(\hat{\mathcal{P}}_K(q))\right]
+\mathcal{S}_K(q)=\{S(c)\mid c\in\hat{\mathcal{P}}_K(q)\}.
+$$
+
+$$
+\mathrm{Recall@}K(q) = \mathbf{1}\!\left[S(q^*) \in \mathcal{S}_K(q)\right]
 $$
 
 where $\hat{\mathcal{P}}_K(q)$ is the top-$K$ candidates ranked by, e.g., template frequency. The *dataset Recall@K* is the mean over all test queries.
@@ -362,11 +367,11 @@ candidates a student or algorithm must inspect. We therefore also compute:
 
 $$
 \mathrm{Enrichment@}K(q)
-= \frac{\#\text{ standardized ground-truth hits in }\hat{\mathcal{P}}_K(q)}
-       {\#\text{ unique standardized candidates in }\hat{\mathcal{P}}_K(q)}.
+= \frac{\left|\{s\in\mathcal{S}_K(q)\mid s=S(q^*)\}\right|}
+       {\left|\mathcal{S}_K(q)\right|}.
 $$
 
-With one ground-truth reaction, this is either $0$ or approximately $1/n$ for a prefix
+If $\mathcal{S}_K(q)$ is empty, the score is defined as $0$. With one ground-truth reaction, this is either $0$ or $1/n$ for a prefix
 containing $n$ unique standardized candidates. Higher enrichment means the correct answer
 is found in a more focused candidate set.
 

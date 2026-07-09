@@ -1,18 +1,24 @@
-# Compiling opencadd's Documentation
+# Building SynEdu Documentation
 
 The docs for this project are built with [Sphinx](http://www.sphinx-doc.org/en/master/).
-To compile the docs, first ensure that Sphinx and the ReadTheDocs theme are installed.
+The current site uses the `sphinx_material` theme, `nbsphinx`, `myst_parser`,
+and the project-specific UI assets in `_static/synedu.css` and
+`_static/synedu.js`.
 
 
 ```bash
-conda install sphinx sphinx_rtd_theme
+python -m pip install -e ".[docs]"
 ```
 
 
-Once installed, you can use the `Makefile` in this directory to compile static HTML pages by
+Once installed, use the `Makefile` in this directory to compile static HTML pages:
+
 ```bash
 make html
 ```
 
-The compiled docs will be in the `_build` directory and can be viewed by opening `index.html` (which may itself
-be inside a directory called `html/` depending on what version of Sphinx is installed).
+The compiled docs will be in `_build/html` and can be viewed by opening
+`_build/html/index.html`.
+
+Reusable UI components should live in `_static/synedu.css`. Keep vendor
+compatibility and one-off temporary rules in `_static/custom.css`.

@@ -63,7 +63,7 @@ After completing this talktorial, you will be able to:
 
 
 
-This notebook uses **SynKit** [\[1\]](#6.-References). to accelerate development: fast access to molecular graphs, rule application (DPO/ITS), pattern matching, and utilities for building reaction-centric workflows.
+This notebook uses **SynKit** [\[1\]](#6.-References) to accelerate development: fast access to molecular graphs, rule application (DPO/ITS), pattern matching, and utilities for building reaction-centric workflows.
 
 we can easily install synkit via pypi:
 ```bash
@@ -83,7 +83,7 @@ The dataset incorporates three distinct atom mapping methodologies: `rxn_mapper`
 
 ## 2. Ensemble atom-to-atom mapping agreement
 
-Compare the canonicalized mapper outputs by exact string equality, rows where all canonical maps match are high-confidence aam assignments [\[8\]](#6.-References).
+Compare the canonicalized mapper outputs by exact string equality; rows where all canonical maps match are high-confidence AAM assignments [\[8\]](#6.-References).
 
 
 **Definition (Canonical Reaction SMILES).**  
@@ -109,7 +109,7 @@ Reactions with identical WL hashes are *candidate isomorphs*; exact isomorphism 
 
 
 
- Weisfeiler-Lehman [\[2\]](#6.-References) based canonicalization is fast but not exact. Use WL to filter and only run an exact isomorphism check on mappings that WL says are different (or on any ambiguous cases).
+Weisfeiler-Lehman [\[2\]](#6.-References) based canonicalization is fast but not exact. Use WL/canonical strings as a cheap filter, then run exact ITS isomorphism on rows where canonical strings disagree or ambiguity remains.
 
 In **SynKit**, we expose `AAMValidator` to compare directly atom-to-atom map by converting to ITS and checking isomorphism
 
@@ -261,7 +261,7 @@ Alternatively, we can leverage Synkit’s utility functions
 
 Implicit hydrogens are stored as a `hcount = (h_r, h_p)` tuple on each ITS node.
 When `h_r ≠ h_p` a hydrogen atom is *transferred* between molecules.
-Graph Modelling Language format require **explicit H nodes** so the rule engine can track every atom.
+Graph Modelling Language format requires **explicit H nodes** so the rule engine can track every atom.
 
 **`h_expand_its` — four-step pipeline**
 
@@ -314,7 +314,7 @@ This gives **two distinct pairings**:
 
 
 
-### 3.3. Rule selectrion
+### 3.3. Rule selection
 
 
 #### Rule library size vs dataset size

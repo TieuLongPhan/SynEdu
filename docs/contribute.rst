@@ -7,6 +7,9 @@ SynEdu welcomes contributions that improve clarity, reproducibility, and the
 learning experience. The most useful changes are usually small, well-scoped,
 and easy to review.
 
+The repository root also contains ``CONTRIBUTING.md`` with the short-form
+developer workflow, notebook execution commands, and paper-readiness checklist.
+
 Contribution areas
 ------------------
 

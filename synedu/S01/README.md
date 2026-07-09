@@ -212,9 +212,9 @@ It is a compact, human-readable text notation that encodes a molecular **graph**
 
 SMILES encodes molecular structure using a small set of compact symbols.
 
-<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 1rem;">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.85rem; align-items: stretch; margin: 1rem 0 0.5rem;">
 
-<div style="padding: 1rem; border: 1px solid #DDD; border-radius: 10px; background: #FAFAFA;">
+<div style="padding: 1rem 1.05rem; min-height: 8.2rem; line-height: 1.45; border: 2px solid #2563EB; border-left: 8px solid #1D4ED8; border-radius: 8px; background: #DBEAFE; color: #0F172A; box-shadow: none;">
 <b>Atoms</b>
 
 <code>C</code>, <code>N</code>, <code>O</code>, <code>Cl</code>
@@ -222,7 +222,7 @@ SMILES encodes molecular structure using a small set of compact symbols.
 <p>Atoms are written using element symbols.</p>
 </div>
 
-<div style="padding: 1rem; border: 1px solid #DDD; border-radius: 10px; background: #FAFAFA;">
+<div style="padding: 1rem 1.05rem; min-height: 8.2rem; line-height: 1.45; border: 2px solid #0F766E; border-left: 8px solid #0F766E; border-radius: 8px; background: #CCFBF1; color: #0F172A; box-shadow: none;">
 <b>Bonds</b>
 
 <code>CC</code>, <code>C=C</code>, <code>C#N</code>
@@ -230,7 +230,7 @@ SMILES encodes molecular structure using a small set of compact symbols.
 <p>Single bonds are usually implicit.</p>
 </div>
 
-<div style="padding: 1rem; border: 1px solid #DDD; border-radius: 10px; background: #FAFAFA;">
+<div style="padding: 1rem 1.05rem; min-height: 8.2rem; line-height: 1.45; border: 2px solid #B45309; border-left: 8px solid #B45309; border-radius: 8px; background: #FED7AA; color: #0F172A; box-shadow: none;">
 <b>Branches</b>
 
 <code>CC(O)C</code>
@@ -238,7 +238,7 @@ SMILES encodes molecular structure using a small set of compact symbols.
 <p>Parentheses create side chains.</p>
 </div>
 
-<div style="padding: 1rem; border: 1px solid #DDD; border-radius: 10px; background: #FAFAFA;">
+<div style="padding: 1rem 1.05rem; min-height: 8.2rem; line-height: 1.45; border: 2px solid #7C3AED; border-left: 8px solid #6D28D9; border-radius: 8px; background: #EDE9FE; color: #0F172A; box-shadow: none;">
 <b>Rings</b>
 
 <code>C1CCCCC1</code>
@@ -573,12 +573,12 @@ $$
 G = (V,\, E,\, \mathbf{a},\, \mathbf{b})
 $$
 
-where $V$ is the set of **heavy atoms** (nodes), $E \subseteq V \times V$ is the set of **covalent bonds** (edges), $\mathbf{a}: V \to \mathcal{A}$ assigns each atom a tuple of **node attributes** (element symbol, formal charge, aromaticity, hydrogen count), and $\mathbf{b}: E \to \mathcal{B}$ assigns each bond a tuple of **edge attributes** (bond order, aromaticity).
+where $V$ is the set of **heavy atoms** (nodes), $E \subseteq \{\{u,v\}\mid u,v\in V,\ u\neq v\}$ is the set of **covalent bonds** (undirected edges), $\mathbf{a}: V \to \mathcal{A}$ assigns each atom a tuple of **node attributes** (element symbol, formal charge, aromaticity, hydrogen count, atom-map number), and $\mathbf{b}: E \to \mathcal{B}$ assigns each bond a tuple of **edge attributes** (bond order, aromaticity).
 
 A *labeled graph morphism* $\varphi: G_1 \to G_2$ is a pair of maps $\varphi_V: V_1 \to V_2$, $\varphi_E: E_1 \to E_2$ that (i) preserves adjacency: $\varphi_E(\{u,v\}) = \{\varphi_V(u), \varphi_V(v)\}$, and (ii) preserves labels: $\mathbf{a}_2(\varphi_V(v)) = \mathbf{a}_1(v)$ and $\mathbf{b}_2(\varphi_E(e)) = \mathbf{b}_1(e)$ for all $v \in V_1$, $e \in E_1$.
 
 **Remark.** The attribute schema used throughout SynEdu is  
-`a(v) = (element, formal_charge, aromatic, hcount)` and `b(e) = (order, aromatic)`.  
+`a(v) = (element, formal_charge, aromatic, hcount, atom_map)` and `b(e) = (order, aromatic)`.
 Hydrogen atoms are stored implicitly in `hcount` to keep graphs small.
 
 
@@ -634,7 +634,7 @@ Three variants are informative:
 Key properties shared by all variants:
 - **Symmetric**: $A_{ij} = A_{ji}$ (undirected bonds)
 - **Zero diagonal**: no self-loops ($A_{ii} = 0$)
-- Diagonal entries of $A + D$ give the degree (valence) of each atom, where $D$ is the degree matrix
+- Diagonal entries of the degree matrix $\mathrm{Deg}$ give the heavy-atom degree of each atom
 
 
 #### Distance matrix
@@ -661,7 +661,7 @@ $B_{ij} = 1$ if atom $i$ participates in bond $j$, and 0 otherwise.
 Key properties:
 - Each **column** has exactly two 1s (every bond connects exactly two atoms)
 - Each **row sum** equals the heavy-atom degree (valence) of that atom
-- $B B^\top = \Delta + A$, where $\Delta$ is the diagonal degree matrix and $A$ is
+- $B B^\top = \mathrm{Deg} + A_{\mathrm{bin}}$, where $\mathrm{Deg}$ is the diagonal degree matrix and $A_{\mathrm{bin}}$ is
   the binary adjacency matrix — a fundamental identity in algebraic graph theory
 - Incidence matrices appear in spectral graph theory and in the cycle-space
   formulation of Kirchhoff's current laws
@@ -806,7 +806,8 @@ df.loc[~df["ok"], ["name", "smiles"]]
   “sameness” explicit and inspectable.
 
 - Our **labeled molecular graph** adopts a deliberately minimal attribute
-  schema (`symbol`, `formal_charge`, `aromatic`, `order`). This strikes a
+  schema (`element`, `formal_charge`, `aromatic`, `hcount`, `atom_map`,
+  `order`). This strikes a
   balance between chemical faithfulness and algorithmic tractability:
   too few labels induce spurious symmetries, while too many hinder matching
   and reuse.

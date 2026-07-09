@@ -46,8 +46,19 @@ After completing S00, you can:
 
 ### Pipeline overview
 
-<!-- Optional: describe the end-to-end workflow of this talktorial as a
-     linear sequence of steps. Delete this cell if not needed. -->
+<!-- Optional: edit figure/pipeline.tex to match your talktorial workflow,
+     then compile it with `latexmk -pdf pipeline.tex`. Delete this cell if
+     no static pipeline figure is needed. -->
+
+<figure style="text-align:center; margin: 1.5rem 0;">
+  <object data="figure/pipeline.pdf" type="application/pdf" width="100%" height="360">
+    <a href="figure/pipeline.pdf">Open the S00 pipeline overview PDF</a>
+  </object>
+  <figcaption style="font-size:0.88em; color:#555; margin-top:0.4rem;">
+    <b>Figure&nbsp;1.</b> S00 pipeline overview. Edit <code>figure/pipeline.tex</code>
+    and recompile it to update this PDF figure.
+  </figcaption>
+</figure>
 
 
 <a id="0-setup--data"></a>
@@ -121,15 +132,15 @@ def your_function(arg):
 
 ### 1.2 [Sub-section with figure]
 
-<!-- Use this pattern when you have a static figure (SVG/PDF compiled from TikZ
-     or generated externally). Store the SVG in docs/_static/S00/.
+<!-- Use this pattern when you have a static figure compiled from TikZ/LaTeX
+     or generated externally. Store editable sources and PDFs in figure/.
      Delete this cell if no static figure is needed. -->
 
 
 <figure style="text-align:center; margin: 1.5rem 0;">
-  <img src="../../docs/_static/S00/your_figure.svg"
-       style="width:100%; max-width:860px;"
-       alt="[Alt text describing the figure]">
+  <object data="figure/your_figure.pdf" type="application/pdf" width="100%" height="360">
+    <a href="figure/your_figure.pdf">Open the figure PDF</a>
+  </object>
   <figcaption style="font-size:0.88em; color:#555; margin-top:0.4rem;">
     <b>Figure&nbsp;1.</b> [Caption: what the figure shows and why it matters.
     Use HTML entities for math: &rarr; for &rarr;, &larr; for &larr;, <i>K</i> for italics.]

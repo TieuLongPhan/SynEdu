@@ -128,16 +128,16 @@ the accumulated set.
 ### 1.4 Visualise r = 0, 1, 2 on one ITS
 
 
-### 1.5 The context subgraph as the DPO K-graph
+### 1.5 The context subgraph as local DPO rule support
 
 In S05 we defined a **DPO span** L ← K → R where K is the *interface*
 subgraph — the part of the rule that is not rewritten.
 
-The context subgraph $K_r$ built above is exactly this interface graph:
+The context subgraph $K_r$ built above supplies the local atoms and ITS edge labels from which the DPO span is read:
 
 - **L** = the reactant-side view of $K_r$ (with $b_r$ bond orders)
 - **R** = the product-side view of $K_r$ (with $b_p$ bond orders)
-- **K** = the shared atoms and unchanged bonds
+- **K** = the shared atom interface; unchanged bonds are preserved in $K$, while broken, formed, or order-changed bonds appear in $L$ and/or $R$ according to their side-specific labels
 
 A larger $K_r$ carries more chemical context. The rule therefore pattern-matches fewer
 substrates and usually generates a more focused candidate list. In evaluation, this often

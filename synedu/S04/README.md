@@ -50,7 +50,7 @@ We now develop `mcs_networkx` to identify the Maximum Common Substructure (MCS),
 Note that in a reaction context, **bonds may be formed or broken** between
 reactants and products. Therefore, bond attributes should **not** be used
 as matching constraints (`edge_attrs`), and the MCS is computed based on
-atom-level corr
+atom-level correspondence rather than bond-order equality.
 
 
 
@@ -240,13 +240,13 @@ How to read the ITS (chemical rules of thumb)
 
 
 **Definition (ITS Graph).**  
-Given a reaction with atom mapping $\mu: V_R \to V_P$ (a bijection between reactant and product atoms), the *Imaginary Transition State graph* (ITS) is the labeled graph
+Given a fully atom-mapped reaction with atom mapping $\mu: V_R \to V_P$ (a bijection between reactant and product atoms), the *Imaginary Transition State graph* (ITS) is the labeled graph
 
 $$
 \Gamma = (V,\, E,\, \mathbf{a},\, \mathbf{b}_{\text{ITS}})
 $$
 
-where $V = V_R = V_P$ (shared atom set via $\mu$), $E = E_R \cup E_P$ (union of reactant and product bonds), and the ITS edge attribute is:
+where $V$ is the mapped atom set obtained by identifying each $v \in V_R$ with $\mu(v) \in V_P$, $E = E_R \cup E_P$ after this identification, and the ITS edge attribute is:
 
 $$
 \mathbf{b}_{\text{ITS}}(e) = (b_r(e),\, b_p(e))
@@ -265,7 +265,7 @@ $$
 These are the bonds that are **broken** ($b_r > 0, b_p = 0$), **formed** ($b_r = 0, b_p > 0$), or **changed** ($b_r \neq b_p$, both $> 0$).
 
 **Definition (ΔBE Entry).**  
-For each atom pair $(i, j)$ with $i \neq j$: $\Delta\mathrm{BE}[i,j] = b_p(i,j) - b_r(i,j)$.  
+For each atom pair $(i, j)$ with $i \neq j$: $\Delta\mathrm{BE}_{ij} = b_p(i,j) - b_r(i,j)$.
 Positive values indicate bond formation; negative values indicate bond breaking.  
 The diagonal entries represent changes in free-electron count (valence electrons not in bonds).
 
@@ -292,7 +292,7 @@ We color edges by change type:
 
 **Q3 — Reaction center**
 
-Now develop function `get_reaction_center` to extract reacton center
+Now develop function `get_reaction_center` to extract the reaction center
 
 ---
 
@@ -338,7 +338,7 @@ Now we combine to 1 function `rsmi_to_its`
 
 The left panel shows the full ITS: **red edges** are broken bonds, **green edges** are formed bonds, **black edges** are preserved. The right panel isolates the **reaction center** — the subgraph where $b_r \ne b_p$.
 
-The ΔBE matrix encodes the same information numerically: $\Delta BE_{ij} = b^P_{ij} - b^R_{ij}$. Red cells indicate bond cleavage; blue cells indicate bond formation. The pattern of signed changes uniquely fingerprints the reaction type.
+The ΔBE matrix encodes the same information numerically: $\Delta\mathrm{BE}_{ij} = b^P_{ij} - b^R_{ij}$. Red cells indicate bond cleavage; blue cells indicate bond formation. The pattern of signed changes uniquely fingerprints the reaction type.
 
 
 ### 2.3. ΔBE matrix heatmap

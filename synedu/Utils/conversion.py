@@ -25,6 +25,7 @@ def mol_to_graph(
     """
     G: nx.Graph = nx.Graph()
     local: Dict[int, Any] = {}
+    seen_aam: Dict[int, int] = {}
 
     # Existing atom-map numbers, used to avoid collisions with fallback IDs
     used_aam = {
@@ -53,6 +54,12 @@ def mol_to_graph(
             node_id = atom_idx + 1
             node_am = atom_idx + 1
         elif am > 0:
+            if am in seen_aam:
+                raise ValueError(
+                    "Duplicate atom-map number "
+                    f"{am} on atoms {seen_aam[am]} and {atom_idx}"
+                )
+            seen_aam[am] = atom_idx
             node_id = am
             node_am = am
         else:

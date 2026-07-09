@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import os
 import sys
-from datetime import datetime
 from unittest.mock import MagicMock
 
 # ---------------------------------------------------------------------------
@@ -51,7 +50,7 @@ except Exception:  # pragma: no cover
 
 project = "SynEdu"
 author = "Tieu Long Phan"
-copyright = f"{datetime.now().year}, {author}"
+copyright = "2026, SynEco Team"
 
 if synedu is not None and hasattr(synedu, "__version__"):
     version = synedu.__version__.split("+")[0]

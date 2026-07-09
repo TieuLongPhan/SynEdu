@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 import math
 
 import matplotlib.pyplot as plt
@@ -51,12 +51,27 @@ def _ensure_2d(mol: Chem.Mol) -> None:
         AllChem.Compute2DCoords(mol)
 
 
-def _avg_edge_length(pos: Dict, G: nx.Graph) -> float:
+def _stable_nodelist(G: nx.Graph) -> List[Any]:
+    """Return a deterministic node order without requiring comparable node IDs."""
+    try:
+        return sorted(G.nodes())
+    except TypeError:
+        return sorted(G.nodes(), key=repr)
+
+
+def _edge_key(u: Any, v: Any) -> Tuple[Any, Any]:
+    """Return a stable undirected edge key without requiring comparable node IDs."""
+    try:
+        return (u, v) if u <= v else (v, u)
+    except TypeError:
+        return tuple(sorted((u, v), key=repr))
+
+
+def _avg_edge_length(pos: Dict[Any, Tuple[float, float]], G: nx.Graph) -> float:
     if G.number_of_edges() == 0:
         return 1.0
     lengths = [
-        math.hypot(pos[int(v)][0] - pos[int(u)][0], pos[int(v)][1] - pos[int(u)][1])
-        for u, v in G.edges()
+        math.hypot(pos[v][0] - pos[u][0], pos[v][1] - pos[u][1]) for u, v in G.edges()
     ]
     return sum(lengths) / len(lengths)
 
@@ -71,7 +86,7 @@ def _perp_offset(p1, p2, offset):
 
 def _index_offset_vec(n, G, pos, *, base):
     x, y = pos[n]
-    nbrs = [int(m) for m in G.neighbors(n)]
+    nbrs = list(G.neighbors(n))
     if not nbrs:
         return 0.0, base
     cx = sum(pos[m][0] for m in nbrs) / len(nbrs)
@@ -122,20 +137,16 @@ def _draw_aromatic_circles(ax, G, pos, scale):
     for cyc in nx.cycle_basis(G):
         if len(cyc) < 5:
             continue
-        if not all(bool(G.nodes[int(n)].get("aromatic", False)) for n in cyc):
+        if not all(bool(G.nodes[n].get("aromatic", False)) for n in cyc):
             continue
         ok = all(
-            bool(
-                G.edges[int(cyc[i]), int(cyc[(i + 1) % len(cyc)])].get(
-                    "aromatic", False
-                )
-            )
+            bool(G.edges[cyc[i], cyc[(i + 1) % len(cyc)]].get("aromatic", False))
             for i in range(len(cyc))
         )
         if not ok:
             continue
-        xs = [pos[int(n)][0] for n in cyc]
-        ys = [pos[int(n)][1] for n in cyc]
+        xs = [pos[n][0] for n in cyc]
+        ys = [pos[n][1] for n in cyc]
         cx, cy = sum(xs) / len(xs), sum(ys) / len(ys)
         rs = [math.hypot(x - cx, y - cy) for x, y in zip(xs, ys)]
         r = (sum(rs) / len(rs)) * scale
@@ -146,7 +157,7 @@ def _draw_aromatic_circles(ax, G, pos, scale):
         )
 
 
-def _set_padded_limits(ax, pos: Dict[int, Tuple[float, float]], avg_len: float) -> None:
+def _set_padded_limits(ax, pos: Dict[Any, Tuple[float, float]], avg_len: float) -> None:
     """Pad plot limits so node markers and index labels are not clipped."""
     if not pos:
         return
@@ -162,14 +173,14 @@ def _set_padded_limits(ax, pos: Dict[int, Tuple[float, float]], avg_len: float) 
 
 
 def _ordered_graph_for_layout(
-    G: nx.Graph, nodelist: List[int]
-) -> Tuple[nx.Graph, Dict[int, int]]:
+    G: nx.Graph, nodelist: List[Any]
+) -> Tuple[nx.Graph, Dict[Any, int]]:
     """Create an insertion-ordered graph and mapping node id -> RDKit atom idx."""
     ordered = nx.Graph()
     for node in nodelist:
         ordered.add_node(node, **G.nodes[node])
     for u, v, data in G.edges(data=True):
-        ordered.add_edge(int(u), int(v), **data)
+        ordered.add_edge(u, v, **data)
     return ordered, {node: idx for idx, node in enumerate(nodelist)}
 
 
@@ -182,8 +193,8 @@ def _graph_to_layout_mol(G: nx.Graph) -> Chem.Mol:
 
 def _layout_from_graph_mol(
     G: nx.Graph,
-    nodelist: List[int],
-) -> Dict[int, Tuple[float, float]]:
+    nodelist: List[Any],
+) -> Dict[Any, Tuple[float, float]]:
     """
     Compute RDKit 2D coordinates for graph nodes.
 
@@ -203,8 +214,7 @@ def _layout_from_graph_mol(
         return pos
     except Exception:
         return {
-            int(k): (float(v[0]), float(v[1]))
-            for k, v in nx.kamada_kawai_layout(G).items()
+            k: (float(v[0]), float(v[1])) for k, v in nx.kamada_kawai_layout(G).items()
         }
 
 
@@ -224,14 +234,14 @@ def draw_molecular_graph(  # noqa: C901
     bond_lw: Optional[float] = None,
     figsize: Tuple[float, float] = (6, 5),
     # --- highlighting ---
-    highlight_nodes: Optional[Set[int]] = None,
-    highlight_edges: Optional[Set[Tuple[int, int]]] = None,
+    highlight_nodes: Optional[Set[Any]] = None,
+    highlight_edges: Optional[Set[Tuple[Any, Any]]] = None,
     highlight_color: str = "#FF7F0E",
     highlight_alpha: float = 0.85,
     # --- custom node colors (overrides element palette) ---
-    custom_node_colors: Optional[Dict[int, str]] = None,
+    custom_node_colors: Optional[Dict[Any, str]] = None,
     # --- per-edge color overrides (overrides default black bond line) ---
-    edge_colors: Optional[Dict[Tuple[int, int], str]] = None,
+    edge_colors: Optional[Dict[Tuple[Any, Any], str]] = None,
     # --- typography ---
     element_fontsize: Optional[int] = None,
     index_fontsize: Optional[int] = None,
@@ -244,10 +254,16 @@ def draw_molecular_graph(  # noqa: C901
     aromatic_style = aromatic_style.lower()
     label_mode = label_mode.lower()
 
-    hl_edges_norm: Set[Tuple[int, int]] = set()
+    hl_edges_norm: Set[Tuple[Any, Any]] = set()
     if highlight_edges:
         for u, v in highlight_edges:
-            hl_edges_norm.add((min(int(u), int(v)), max(int(u), int(v))))
+            hl_edges_norm.add(_edge_key(u, v))
+
+    edge_colors_norm = {}
+    if edge_colors:
+        edge_colors_norm = {
+            _edge_key(u, v): color for (u, v), color in edge_colors.items()
+        }
 
     # ── figure / axis setup ──────────────────────────────────────────────
     created_fig = False
@@ -266,7 +282,7 @@ def draw_molecular_graph(  # noqa: C901
     ax_g.set_facecolor("white")
 
     # ── stable node order ────────────────────────────────────────────────
-    nodelist = sorted(int(n) for n in G.nodes())
+    nodelist = _stable_nodelist(G)
     n_nodes = len(nodelist)
 
     # ── auto-scale sizes ─────────────────────────────────────────────────
@@ -321,7 +337,7 @@ def draw_molecular_graph(  # noqa: C901
 
     # ── draw highlight glow (under nodes) ────────────────────────────────
     if highlight_nodes:
-        hl = [int(n) for n in highlight_nodes if int(n) in G]
+        hl = [n for n in highlight_nodes if n in G]
         if hl:
             nc = nx.draw_networkx_nodes(
                 G,
@@ -338,7 +354,6 @@ def draw_molecular_graph(  # noqa: C901
 
     # ── draw edges ───────────────────────────────────────────────────────
     for u, v, data in G.edges(data=True):
-        u, v = int(u), int(v)
         p1, p2 = pos[u], pos[v]
         aromatic = bool(data.get("aromatic", False))
         try:
@@ -347,7 +362,7 @@ def draw_molecular_graph(  # noqa: C901
             order = 1
 
         # highlight glow under edge
-        if hl_edges_norm and (min(u, v), max(u, v)) in hl_edges_norm:
+        if hl_edges_norm and _edge_key(u, v) in hl_edges_norm:
             ax_g.plot(
                 [p1[0], p2[0]],
                 [p1[1], p2[1]],
@@ -368,10 +383,8 @@ def draw_molecular_graph(  # noqa: C901
             )
 
         _bond_color = "#2a2a2a"
-        if edge_colors:
-            _ekey = (min(u, v), max(u, v))
-            if _ekey in edge_colors:
-                _bond_color = edge_colors[_ekey]
+        if edge_colors_norm:
+            _bond_color = edge_colors_norm.get(_edge_key(u, v), _bond_color)
 
         _draw_bond_lines(
             ax_g,
@@ -417,7 +430,7 @@ def draw_molecular_graph(  # noqa: C901
 
     # highlight ring (on top of node)
     if highlight_nodes:
-        hl = [int(n) for n in highlight_nodes if int(n) in G]
+        hl = [n for n in highlight_nodes if n in G]
         if hl:
             nc = nx.draw_networkx_nodes(
                 G,

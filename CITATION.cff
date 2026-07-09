@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+message: "If you use SynEdu in academic work, please cite the archived release."
+title: "SynEdu: Executable Talktorials for Graph-Based Reaction Informatics"
+type: software
+authors:
+  - family-names: Phan
+    given-names: Tieu Long
+  - family-names: Boehm
+    given-names: Lukas
+repository-code: "https://github.com/TieuLongPhan/SynEdu"
+url: "https://synedu.readthedocs.io/en/latest/"
+doi: "10.5281/zenodo.20315655"
+version: "0.1.0"
+license: MIT
+keywords:
+  - cheminformatics
+  - reaction informatics
+  - molecular graphs
+  - graph rewriting
+  - atom mapping
+  - reproducible notebooks
+preferred-citation:
+  type: software
+  title: "SynEdu: Executable Talktorials for Graph-Based Reaction Informatics"
+  authors:
+    - family-names: Phan
+      given-names: Tieu Long
+    - family-names: Boehm
+      given-names: Lukas
+  doi: "10.5281/zenodo.20315655"
+  version: "0.1.0"
+  url: "https://github.com/TieuLongPhan/SynEdu"
