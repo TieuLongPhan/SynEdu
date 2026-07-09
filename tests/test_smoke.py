@@ -18,13 +18,13 @@ def _iter_notebooks(repo_root: Path):
     synedu_pkg = repo_root / "synedu"
     for d in synedu_pkg.iterdir():
         if d.is_dir() and re.match(r"^S\d{2}.*$", d.name):
-            for nb in d.glob("notebook.py"):
+            for nb in d.glob("notebook.md"):
                 yield nb
 
 
 def _read_notebook_markdown(nb_path: Path) -> str:
     """Concatenate all markdown cells of a notebook into one string."""
-    nb = jupytext.read(nb_path, fmt="py:percent")
+    nb = jupytext.read(nb_path, fmt="md:myst")
     parts = []
     for cell in nb.get("cells", []):
         if cell.get("cell_type") == "markdown":
@@ -43,7 +43,7 @@ def test_notebooks_have_quiz_and_discussion():
     """All notebooks should include Quiz and Discussion headers."""
     repo_root = Path(__file__).parents[1]
     notebooks = list(_iter_notebooks(repo_root))
-    assert notebooks, "No SynEdu notebook sources found under synedu/Sxx/notebook.py"
+    assert notebooks, "No SynEdu notebook sources found under synedu/Sxx/notebook.md"
 
     failures = []
     for nb in notebooks:

@@ -26,23 +26,23 @@ project:
       children:
         - file: docs/talktorials/all_talktorials.md
         - title: S01 - From Molecules to Labeled Graphs
-          file: docs/talktorials/S01/notebook.ipynb
+          file: synedu/S01/notebook.md
         - title: S02 - Graph Morphism in Reaction Informatics
-          file: docs/talktorials/S02/notebook.ipynb
+          file: synedu/S02/notebook.md
         - title: S03 - Maximum Common Substructure in Reaction Informatics
-          file: docs/talktorials/S03/notebook.ipynb
+          file: synedu/S03/notebook.md
         - title: "S04 - Atom Mapping as Graph Morphism: MCS, RXNMapper, and ITS Equivalence"
-          file: docs/talktorials/S04/notebook.ipynb
+          file: synedu/S04/notebook.md
         - title: "S05 - Reaction Rules as Graph Rewriting (DPO) - Chemistry-First, ITS-Native"
-          file: docs/talktorials/S05/notebook.ipynb
+          file: synedu/S05/notebook.md
         - title: "S06 - From Atom-Mapped Reactions to DPO Rules: ITS, Reaction Centers, and Fast Clustering"
-          file: docs/talktorials/S06/notebook.ipynb
+          file: synedu/S06/notebook.md
         - title: "S07 - Canonicalizing Atom-Mapped Reactions and Rules: Equivalence, Symmetry, Determinism"
-          file: docs/talktorials/S07/notebook.ipynb
+          file: synedu/S07/notebook.md
         - title: "S08 - One-Step Rule Application (Forward & Backward): DPO Rules as Reaction Engines"
-          file: docs/talktorials/S08/notebook.ipynb
+          file: synedu/S08/notebook.md
         - title: "S09 - Metrics for Rule Application: Coverage, Recall, Branching, and Cost"
-          file: docs/talktorials/S09/notebook.ipynb
+          file: synedu/S09/notebook.md
     - file: docs/api.md
     - file: docs/syneco_ecosystem.md
     - file: docs/external_dependencies.md

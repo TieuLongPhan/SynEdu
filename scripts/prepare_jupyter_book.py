@@ -1,118 +1,47 @@
-"""Prepare generated Jupyter Book 2 inputs from SynEdu Jupytext sources."""
+"""Export downloadable/Colab .ipynb artifacts from SynEdu Jupytext MyST sources.
+
+The documentation site itself renders synedu/S0X/notebook.md directly (MyST
+notebooks are a native, executable MyST Markdown format), so no ipynb
+generation is needed for the site build. This script only produces the
+docs/downloads/*.ipynb files that back the "Download notebook" / "Open in
+Colab" links on each talktorial page.
+"""
 
 from __future__ import annotations
 
-import os
-import re
-import shutil
-from urllib.parse import unquote
 from pathlib import Path
 
 import jupytext
 import nbformat
 
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
-DOCS_TALKTORIALS = REPO_ROOT / "docs" / "talktorials"
 DOCS_DOWNLOADS = REPO_ROOT / "docs" / "downloads"
 SYNEDU_ROOT = REPO_ROOT / "synedu"
+SYNEDU_GIT_URL = "https://github.com/TieuLongPhan/SynEdu.git"
 
-
-HTML_ANCHOR_RE = re.compile(
-    r'(?m)^\s*<a\s+id=["\'][^"\']+["\']\s*>\s*</a>\s*\n?'
+SETUP_CELL_SOURCE = (
+    "# Run this once in Colab (or any fresh environment) to install SynEdu\n"
+    "# and its dependencies. Not needed if you already ran `uv sync` locally.\n"
+    f"%pip install -q 'synedu @ git+{SYNEDU_GIT_URL}@main'"
 )
-INTERNAL_LINK_RE = re.compile(r"\]\(#([^)]+)\)")
 
 
-def myst_anchor(anchor: str) -> str:
-    """Convert legacy notebook heading anchors to MyST-style heading slugs."""
-    anchor = unquote(anchor).strip()
-    anchor = anchor.replace(".", "")
-    anchor = anchor.replace(",", "")
-    anchor = anchor.replace("?", "")
-    anchor = anchor.replace(":", "")
-    anchor = anchor.replace("&", "")
-    anchor = anchor.lower()
-    anchor = re.sub(r"\s+", "-", anchor)
-    return anchor
-
-
-def sanitize_markdown(source: str) -> str:
-    """Rewrite legacy notebook Markdown for MyST/Jupyter Book rendering."""
-    source = HTML_ANCHOR_RE.sub("", source)
-    source = source.replace("../../docs/_static/", "../../_static/")
-    source = INTERNAL_LINK_RE.sub(
-        lambda match: f"](#{myst_anchor(match.group(1))})", source
-    )
-    return source
-
-
-def strip_outputs(notebook: nbformat.NotebookNode) -> nbformat.NotebookNode:
-    """Remove outputs so generated notebooks stay reproducible build inputs."""
-    for cell in notebook.cells:
-        if cell.get("cell_type") == "code":
-            cell["outputs"] = []
-            cell["execution_count"] = None
+def _with_setup_cell(notebook: nbformat.NotebookNode) -> nbformat.NotebookNode:
+    """Insert a pip-install cell after the title so download/Colab copies are standalone."""
+    setup_cell = nbformat.v4.new_code_cell(source=SETUP_CELL_SOURCE)
+    notebook.cells.insert(1, setup_cell)
     return notebook
-
-
-def sanitize_notebook(notebook: nbformat.NotebookNode) -> nbformat.NotebookNode:
-    """Apply markdown compatibility rewrites to generated notebooks."""
-    for cell in notebook.cells:
-        if cell.get("cell_type") == "markdown":
-            cell["source"] = sanitize_markdown(cell.get("source", ""))
-    return notebook
-
-
-def clean_generated_outputs() -> None:
-    """Remove stale generated notebook artifacts before rebuilding them."""
-    if DOCS_DOWNLOADS.exists():
-        for path in DOCS_DOWNLOADS.glob("*.ipynb"):
-            path.unlink()
-    if DOCS_TALKTORIALS.exists():
-        for path in DOCS_TALKTORIALS.glob("S[0-9][0-9]"):
-            if path.is_dir():
-                shutil.rmtree(path)
-
-
-def ensure_asset_link(target_dir: Path, source_dir: Path, name: str) -> None:
-    """Expose lesson-local data and figures beside generated notebooks."""
-    source = source_dir / name
-    target = target_dir / name
-    if not source.exists() or target.exists():
-        return
-    try:
-        target.symlink_to(os.path.relpath(source, target_dir), target_is_directory=True)
-    except OSError:
-        shutil.copytree(source, target)
 
 
 def main() -> None:
-    """Generate ignored ipynb files and asset links for the JB2 build."""
-    DOCS_TALKTORIALS.mkdir(parents=True, exist_ok=True)
+    """Regenerate docs/downloads/*.ipynb from committed notebook.md sources."""
     DOCS_DOWNLOADS.mkdir(parents=True, exist_ok=True)
-    clean_generated_outputs()
 
-    for source in sorted(SYNEDU_ROOT.glob("S[0-9][0-9]/notebook.py")):
+    for source in sorted(SYNEDU_ROOT.glob("S[0-9][0-9]/notebook.md")):
         lesson = source.parent.name
-        target_dir = DOCS_TALKTORIALS / lesson
-        target_dir.mkdir(parents=True, exist_ok=True)
-
-        notebook = jupytext.read(source, fmt="py:percent")
-        notebook = sanitize_notebook(notebook)
-        notebook = strip_outputs(notebook)
-        nbformat.write(notebook, target_dir / "notebook.ipynb")
+        notebook = jupytext.read(source, fmt="md:myst")
+        notebook = _with_setup_cell(notebook)
         nbformat.write(notebook, DOCS_DOWNLOADS / f"{lesson}.ipynb")
-
-        source_link = target_dir / "notebook.py"
-        if not source_link.exists():
-            try:
-                source_link.symlink_to(os.path.relpath(source, target_dir))
-            except OSError:
-                shutil.copy2(source, source_link)
-
-        ensure_asset_link(target_dir, source.parent, "data")
-        ensure_asset_link(target_dir, source.parent, "figure")
 
 
 if __name__ == "__main__":

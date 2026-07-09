@@ -30,7 +30,7 @@ def _find_packaged_talktorial_dirs() -> list[Path]:
             continue
         if not patt.match(p.name):
             continue
-        if (p / "notebook.py").exists():
+        if (p / "notebook.md").exists():
             dirs.append(p)
 
     return sorted(dirs)

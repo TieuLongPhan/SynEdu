@@ -1,8 +1,12 @@
 # Installation
 
-SynEdu is designed to run locally from start to finish. The developer workflow
-uses `uv` and keeps the committed notebooks as Jupytext percent-format `.py`
-files.
+SynEdu is designed to run locally from start to finish. Each talktorial's
+source of truth is a MyST Markdown notebook (`synedu/S0X/notebook.md`), which
+Jupyter Book 2 / MyST renders and executes directly — no separate `.ipynb`
+generation step is needed to build the site.
+
+Every talktorial page has three ways in: **Open in Colab**, **download the
+notebook**, or run it locally as described below.
 
 ## Developer Setup
 
@@ -14,21 +18,25 @@ uv sync
 
 ## Build The Documentation
 
-The build uses Jupyter Book 2 / MyST. Generated `.ipynb` files are created from
-the committed Jupytext sources before the site build and are ignored by git.
-
 ```bash
 make build
 ```
 
 Use `make build-fast` when you only need to check page structure and do not
-want to execute notebooks.
+want to execute notebooks. MyST caches execution results under `_build/execute`
+and only re-runs a talktorial whose code actually changed, so repeated builds
+stay cheap.
+
+The only generated artifacts are `docs/downloads/*.ipynb` — plain `.ipynb`
+exports of each `notebook.md`, committed to git so Colab and direct-download
+links resolve on GitHub. Regenerate them with `make prepare` after editing a
+talktorial; CI also refreshes them automatically on every push to `main`.
 
 ## Run A Notebook Locally
 
 You do not need a full documentation build to run a talktorial. The default
-local workflow converts one Jupytext source file to an ignored `.ipynb` file and
-opens that generated notebook:
+local workflow converts one MyST Markdown source file to an ignored `.ipynb`
+file and opens that generated notebook:
 
 ```bash
 make lab LESSON=S01
@@ -40,11 +48,11 @@ To only create the local notebook file:
 make notebook LESSON=S01
 ```
 
-If your JupyterLab setup recognizes Jupytext percent files directly, you can
-open the source file instead:
+If your JupyterLab setup has `jupytext>=1.16` installed, you can open the
+source file directly instead:
 
 ```bash
-uv run jupyter lab synedu/S01/notebook.py
+uv run jupyter lab synedu/S01/notebook.md
 ```
 
 ## User Setup

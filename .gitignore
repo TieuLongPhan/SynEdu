@@ -212,16 +212,17 @@ synedu/S10/out/uspto50k_mapped_N50016.json.gz
 # -----------------------------
 docs/_build/
 docs/.jupyter_cache/
-docs/_build/
-docs/downloads/
-docs/talktorials/S*/notebook.ipynb
-docs/talktorials/S[0-9][0-9]/
 docs/_autosummary/
 docs/**/.ipynb_checkpoints/
 .notebooks/
 .jupyter-state/
 docs/**/*.ipynb_checkpoints/
 _build/
+
+# docs/downloads/*.ipynb are committed (Colab / download links point at them);
+# un-ignore them from the generic `downloads/` packaging rule above.
+!docs/downloads/
+!docs/downloads/*.ipynb
 
 # OS junk
 .DS_Store

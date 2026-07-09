@@ -9,9 +9,11 @@ through executable Python notebooks. It connects chemical representation,
 graph-theoretic abstractions, and rule-based reaction modeling in a
 reproducible workflow.
 
-The committed notebook sources are Jupytext percent-format `.py` files under
-`synedu/Sxx/notebook.py`. Jupyter Book 2 build notebooks are generated from
-those sources and are not committed.
+The committed notebook sources are Jupytext MyST Markdown `.md` files under
+`synedu/Sxx/notebook.md`. Jupyter Book 2 / MyST renders and executes these
+sources directly for the site — the only generated artifacts are
+`docs/downloads/*.ipynb`, plain notebook exports used by each talktorial's
+"Open in Colab" / "Download notebook" links.
 
 ## Setup
 
@@ -39,7 +41,7 @@ make notebook LESSON=S01
 To open the source file directly instead, use:
 
 ```bash
-uv run jupyter lab synedu/S01/notebook.py
+uv run jupyter lab synedu/S01/notebook.md
 ```
 
 ## Build Documentation

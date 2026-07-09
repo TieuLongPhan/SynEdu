@@ -67,9 +67,13 @@ jobs:
   docs:
     name: Build docs
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
@@ -83,8 +87,22 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
-      - name: Prepare generated notebooks
+      - name: Cache MyST execution cache
+        uses: actions/cache@v4
+        with:
+          path: _build/execute
+          key: myst-execute-${{ hashFiles('synedu/S*/notebook.md') }}
+          restore-keys: myst-execute-
+
+      - name: Export download/Colab notebooks
         run: uv run python scripts/prepare_jupyter_book.py
 
       - name: Build Jupyter Book
         run: uv run jupyter book build --execute --html --execute-parallel 1
+
+      - name: Commit refreshed download notebooks
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: refresh docs/downloads notebooks"
+          file_pattern: docs/downloads/*.ipynb

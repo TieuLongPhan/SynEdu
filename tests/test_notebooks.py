@@ -41,7 +41,7 @@ _KERNEL_TIMEOUT = int(os.environ.get("SYNEDU_TIMEOUT", "600"))  # seconds per no
 def _collect_notebooks() -> list[Path]:
     """Collect notebook source paths under synedu/S*/, sorted by id."""
     notebooks = sorted(
-        NOTEBOOK_ROOT.glob("S*/notebook.py"),
+        NOTEBOOK_ROOT.glob("S*/notebook.md"),
         key=lambda p: p.parent.name,
     )
     if _NB_FILTER:
@@ -87,7 +87,7 @@ def _cell_preview(nb, error_traceback: str) -> str:
 
 def _read_notebook(path: Path):
     """Read a Jupytext source notebook."""
-    return jupytext.read(path, fmt="py:percent")
+    return jupytext.read(path, fmt="md:myst")
 
 
 # ---------------------------------------------------------------------------

@@ -1,59 +1,60 @@
-# ---
-# jupyter:
-#   jupytext:
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.19.4
-#   kernelspec:
-#     display_name: synedu
-#     language: python
-#     name: python3
-# ---
+---
+jupytext:
+  text_representation:
+    extension: .md
+    format_name: myst
+    format_version: 0.13
+    jupytext_version: 1.19.4
+kernelspec:
+  display_name: synedu
+  language: python
+  name: python3
+---
 
-# %% [markdown]
-# # S04: Atom Mapping as Graph Morphism
-#
-# This talktorial connects molecular alignment to atom-to-atom mapping. We build transparent MCS-based maps, compare them with RXNMapper, and use Imaginary Transition State (ITS) graphs as a map-number-invariant representation of reaction change [\[1\]](#6.-References), [\[2\]](#6.-References).
-#
+# S04: Atom Mapping as Graph Morphism
 
-# %% [markdown]
-# ## Aim of this talktorial
-#
-# 1. Construct **MCS-based atom maps** between reactants and products.
-# 2. Run **RXNMapper** and inspect attention information for student-facing interpretation.
-# 3. Build and compare **ITS graphs** so atom-map equivalence can be checked by graph isomorphism.
-#
-# ---
-#
-# ## Learning outcomes
-#
-# After completing this talktorial, you will be able to:
-#
-# - construct a simple **MCS-based atom map** in code,
-# - run **RXNMapper** and parse mapped reaction SMILES,
-# - extract and visualize mapper attention for student-facing interpretation,
-# - build an **ITS graph** from a mapped reaction,
-# - separate the reactant and product views of an ITS graph for visualization, and
-# - decide whether two atom maps are equivalent by checking **ITS graph isomorphism**.
-#
-# ---
-#
-# ## Outline
-#
-# - [0. Setup & Data](#0.-Setup-&-Data)
-# - [1. Atom mapping](#1.-Atom-mapping)
-# - [2. Imaginary Transition State](#2.-Imaginary-Transition-State)
-# - [3. ITS equivalence](#3.-ITS-equivalence)
-# - [4. Discussion](#4.-Discussion)
-# - [5. Quiz](#5.-Quiz)
-# - [6. References](#6.-References)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S04.ipynb) [![Download Notebook](https://img.shields.io/badge/download-.ipynb-blue)](https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S04.ipynb) [![Run Locally](https://img.shields.io/badge/run-locally-lightgrey)](../../docs/installing.md)
 
-# %% [markdown]
-# ## 0. Setup & Data
+This talktorial connects molecular alignment to atom-to-atom mapping. We build transparent MCS-based maps, compare them with RXNMapper, and use Imaginary Transition State (ITS) graphs as a map-number-invariant representation of reaction change [\[1\]](#id-6-references), [\[2\]](#id-6-references).
 
-# %%
++++
+
+## Aim of this talktorial
+
+1. Construct **MCS-based atom maps** between reactants and products.
+2. Run **RXNMapper** and inspect attention information for student-facing interpretation.
+3. Build and compare **ITS graphs** so atom-map equivalence can be checked by graph isomorphism.
+
+---
+
+## Learning outcomes
+
+After completing this talktorial, you will be able to:
+
+- construct a simple **MCS-based atom map** in code,
+- run **RXNMapper** and parse mapped reaction SMILES,
+- extract and visualize mapper attention for student-facing interpretation,
+- build an **ITS graph** from a mapped reaction,
+- separate the reactant and product views of an ITS graph for visualization, and
+- decide whether two atom maps are equivalent by checking **ITS graph isomorphism**.
+
+---
+
+## Outline
+
+- [0. Setup & Data](#id-0-setup-data)
+- [1. Atom mapping](#id-1-atom-mapping)
+- [2. Imaginary Transition State](#id-2-imaginary-transition-state)
+- [3. ITS equivalence](#id-3-its-equivalence)
+- [4. Discussion](#id-4-discussion)
+- [5. Quiz](#id-5-quiz)
+- [6. References](#id-6-references)
+
++++
+
+## 0. Setup & Data
+
+```{code-cell}
 import rdkit
 import pandas as pd
 import networkx as nx
@@ -74,12 +75,12 @@ except Exception:
     print("rxnmapper: NOT available -> will skip RXNMapper cells")
 
 data = pd.read_csv('./data/reaction_maps.csv')
+```
 
-# %% [markdown]
-# ## 1. Atom mapping
-# ### 1.1. Alignment method
+## 1. Atom mapping
+### 1.1. Alignment method
 
-# %%
+```{code-cell}
 from synedu.Utils.rxn_vis import visualize_reaction
 from IPython.display import SVG
 
@@ -93,11 +94,11 @@ fig = draw_rxn_graph(
     rsmi,
     title="Oxidation",
 )
+```
 
-# %% [markdown]
-# Now we convert them into reactant and product graphs using `rsmi_to_graph`.
+Now we convert them into reactant and product graphs using `rsmi_to_graph`.
 
-# %%
+```{code-cell}
 import matplotlib.pyplot as plt
 from synedu.Utils.reaction import rsmi_to_graph
 from synedu.Utils.vis import draw_molecular_graph
@@ -108,16 +109,15 @@ r, p = rsmi_to_graph(rsmi, drop_non_aam=False, use_index_as_atom_map=False)
 fig, ax = plt.subplots(1, 2, figsize=(10, 4))
 draw_molecular_graph(r, show_indices=True, ax=ax[0])
 draw_molecular_graph(p, show_indices=True, ax=ax[1])
+```
 
-# %% [markdown]
-# We now develop `mcs_networkx` to identify the Maximum Common Substructure (MCS), using the graph-matching perspective introduced in S03 [\[3\]](#6.-References).
-# Note that in a reaction context, **bonds may be formed or broken** between
-# reactants and products. Therefore, bond attributes should **not** be used
-# as matching constraints (`edge_attrs`), and the MCS is computed based on
-# atom-level correspondence rather than bond-order equality.
-#
+We now develop `mcs_networkx` to identify the Maximum Common Substructure (MCS), using the graph-matching perspective introduced in S03 [\[3\]](#id-6-references).
+Note that in a reaction context, **bonds may be formed or broken** between
+reactants and products. Therefore, bond attributes should **not** be used
+as matching constraints (`edge_attrs`), and the MCS is computed based on
+atom-level correspondence rather than bond-order equality.
 
-# %%
+```{code-cell}
 import networkx as nx
 from itertools import combinations
 from networkx.algorithms.isomorphism import GraphMatcher, generic_node_match
@@ -238,9 +238,9 @@ def _prune_by_node_sets(maps):
             seen.add(key)
             out.append(m)
     return out
+```
 
-
-# %%
+```{code-cell}
 maps = mcs_networkx(
     r,
     p,
@@ -250,61 +250,31 @@ maps = mcs_networkx(
     prune_symmetry=True,
 )
 maps
+```
 
-# %% [markdown]
-# Now we can just add `atom_maps` to node attribute
+Now we can just add `atom_maps` to node attribute
 
-# %%
+```{code-cell}
 for rid, pid in maps[0].items():
     r.nodes[rid]["atom_map"] = rid
     p.nodes[pid]["atom_map"] = rid
+```
 
+**Q1 — Assign atom maps from reactant–product alignment**
 
-# %% [markdown]
-# **Q1 — Assign atom maps from reactant–product alignment**
-#
-# You are given a node mapping from a **reactant graph** `r` to a
-# **product graph** `p`, obtained from an MCS-based alignment.
-# Your task is to assign **atom-map numbers** to the corresponding atoms
-# on both sides of the reaction.
-#
-# The convention is that each matched atom pair shares the **same
-# `atom_map` label**, which is taken from the reactant node index.
-#
-# ---
-#
-# <details> <summary><b>Solution:</b></summary>
-#
-# ```python
-# def assign_atom_map_r_to_p(r, p, mapping):
-#     """
-#     Assign atom_map attributes on both reactant and product graphs
-#     using an r -> p node mapping.
-#
-#     Parameters
-#     ----------
-#     r : nx.Graph
-#         Reactant graph
-#     p : nx.Graph
-#         Product graph
-#     mapping : dict[int, int]
-#         Mapping r_index -> p_index
-#     """
-#     for r_idx, p_idx in mapping.items():
-#         if r_idx not in r:
-#             raise KeyError(f"Node {r_idx} not found in reactant graph")
-#         if p_idx not in p:
-#             raise KeyError(f"Node {p_idx} not found in product graph")
-#
-#         # assign the same atom-map label to matched atoms
-#         r.nodes[r_idx]["atom_map"] = r_idx
-#         p.nodes[p_idx]["atom_map"] = r_idx
-#
-# ```
-#
-# </details>
+You are given a node mapping from a **reactant graph** `r` to a
+**product graph** `p`, obtained from an MCS-based alignment.
+Your task is to assign **atom-map numbers** to the corresponding atoms
+on both sides of the reaction.
 
-# %%
+The convention is that each matched atom pair shares the **same
+`atom_map` label**, which is taken from the reactant node index.
+
+---
+
+<details> <summary><b>Solution:</b></summary>
+
+```python
 def assign_atom_map_r_to_p(r, p, mapping):
     """
     Assign atom_map attributes on both reactant and product graphs
@@ -329,21 +299,50 @@ def assign_atom_map_r_to_p(r, p, mapping):
         r.nodes[r_idx]["atom_map"] = r_idx
         p.nodes[p_idx]["atom_map"] = r_idx
 
+```
 
-# %%
+</details>
+
+```{code-cell}
+def assign_atom_map_r_to_p(r, p, mapping):
+    """
+    Assign atom_map attributes on both reactant and product graphs
+    using an r -> p node mapping.
+
+    Parameters
+    ----------
+    r : nx.Graph
+        Reactant graph
+    p : nx.Graph
+        Product graph
+    mapping : dict[int, int]
+        Mapping r_index -> p_index
+    """
+    for r_idx, p_idx in mapping.items():
+        if r_idx not in r:
+            raise KeyError(f"Node {r_idx} not found in reactant graph")
+        if p_idx not in p:
+            raise KeyError(f"Node {p_idx} not found in product graph")
+
+        # assign the same atom-map label to matched atoms
+        r.nodes[r_idx]["atom_map"] = r_idx
+        p.nodes[p_idx]["atom_map"] = r_idx
+```
+
+```{code-cell}
 # Now we convert back to rsmi
 from synedu.Utils.reaction import graph_to_rsmi
 
 aam = graph_to_rsmi(r, p)
 
 fig = draw_rxn_graph(aam, title="Oxidation", title_fontsize=24, show_indices=True)
+```
 
-# %% [markdown]
-# #### Atom mapping colour coding
-#
-# After MCS alignment, matched atom pairs share the same colour across the reactant and product graphs. Atoms that could not be matched (spectators or unmapped atoms) appear grey. Comparing the two panels reveals which atoms participate in the reaction center.
+#### Atom mapping colour coding
 
-# %%
+After MCS alignment, matched atom pairs share the same colour across the reactant and product graphs. Atoms that could not be matched (spectators or unmapped atoms) appear grey. Comparing the two panels reveals which atoms participate in the reaction center.
+
+```{code-cell}
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from synedu.Utils.vis import draw_molecular_graph
@@ -410,12 +409,11 @@ fig.legend(
 )
 plt.tight_layout(rect=[0, 0.12, 1, 1])
 plt.show()
+```
 
+Now we combine into 1 function
 
-# %% [markdown]
-# Now we combine into 1 function
-
-# %%
+```{code-cell}
 def mcs_aam(rsmi, node_attrs=('element',)):
     r, p = rsmi_to_graph(rsmi, drop_non_aam=False, use_index_as_atom_map=False)
 
@@ -433,86 +431,85 @@ def mcs_aam(rsmi, node_attrs=('element',)):
         aam = graph_to_rsmi(r, p)
         aams.append(aam)
     return aams
+```
 
+**Q2 — Atom mapping via MCS: full vs partial**
 
-# %% [markdown]
-# **Q2 — Atom mapping via MCS: full vs partial**
-#
-# Consider the following reaction SMILES:
-#
-# ```text
-# CCCl.[OH-]>>CCO.[Cl-]
-# c1ccccc1.ClCl>>c1ccccc1Cl.Cl
-# CCO>>C=C
-# ```
-# For each reaction, can we recover a full atom map using MCS-based alignment, or only a partial atom map?
-# Explain why.
-#
-# ---
-#
-# <details> <summary><b>Solution:</b></summary>
-#
-# ```python
-# aams = []
-# rsmis = ['CCCl.[OH-]>>CCO.[Cl-]', 'c1ccccc1.ClCl>>c1ccccc1Cl.Cl', 'CCO>>C=C']
-# for rsmi in rsmis:
-#     aam = mcs_aam(rsmi)
-#     print(aam)
-#     aams.append(aam)
-#     
-# ```
-#
-# Output
-#
-# ```text
-# ['C([CH3:1])[Cl:3].[OH-:4]>>C([CH3:1])[OH:4].[Cl-:3]']
-# ['Cl[Cl:7].[cH:1]1[cH:2][cH:3][cH:4][cH:5][cH:6]1>>Cl[c:6]1[cH:1][cH:2][cH:3][cH:4][cH:5]1.[ClH:7]', '[Cl:7][Cl:8].[cH:1]1[cH:2][cH:3][cH:4][cH:5][cH:6]1>>Cl[c:6]1[cH:1][cH:2][cH:3][cH:4][cH:5]1.[ClH:8]']
-# ['O[CH2:2][CH3:1]>>[CH2:1]=[CH2:2]']
-# ```
-#
-# All three reactions yield **partial atom maps only**.
-#
-# This is because:
-# - **Connectivity changes** (bond breaking/forming) prevent full graph isomorphism.
-# - **Stoichiometric imbalance** (missing species) leaves some atoms unmappable.
-#
-# </details>
+Consider the following reaction SMILES:
 
-# %% [markdown]
-# ### 1.2. Attention-guided atom mapping
-#
-# **RXNMapper** extracts atom correspondences from **Transformer attention** learned on reaction SMILES with a masked-language objective (BERT family). It is **unsupervised** and does not require gold atom maps.
-#
-# Write a reaction as a token sequence $x=(x_1,\dots,x_T)$ with reactant and product atom tokens. During pretraining the model minimizes the masked-token objective:
-#
-# $$
-# \min_\theta \; \mathbb{E}\!\left[-\log p_\theta\big(x_{\mathcal{M}}\mid x_{\setminus\mathcal{M}}\big)\right].
-# $$
-#
-# At inference we extract an attention alignment matrix between reactant and product atom tokens:
-#
-# $$
-# A \in \mathbb{R}_{\ge 0}^{m\times n},\qquad
-# A_{ij} := \mathrm{Attn}(r_i \to p_j),
-# $$
-#
-# (typically from a chosen head/layer and optionally sharpened). Atom mapping is then posed as a maximum-weight assignment over admissible matchings $\Pi$:
-#
-# $$
-# \mu = \arg\max_{\mu\in\Pi}\sum_{i=1}^{m} A_{i,\mu(i)},
-# $$
-#
-# where $\Pi$ enforces lightweight chemical constraints (element consistency, optional charge checks). Because the assignment is driven by attention, **bond-order preservation is not enforced**, so RXNMapper tolerates bond formation/cleavage and order changes.
-#
-# Typical RXNMapper outputs:
-#
-# - `mapped_rxn`: reaction SMILES annotated with atom-map indices induced by \(\mu\),  
-# - `confidence`: a scalar summary of alignment consistency (higher → more reliable).
-#
-# We adopt this attention-guided strategy following the Molecular Transformer framework [\[4\]](#6.-References) and RXNMapper [\[2\]](#6.-References).
-#
+```text
+CCCl.[OH-]>>CCO.[Cl-]
+c1ccccc1.ClCl>>c1ccccc1Cl.Cl
+CCO>>C=C
+```
+For each reaction, can we recover a full atom map using MCS-based alignment, or only a partial atom map?
+Explain why.
 
-# %%
+---
+
+<details> <summary><b>Solution:</b></summary>
+
+```python
+aams = []
+rsmis = ['CCCl.[OH-]>>CCO.[Cl-]', 'c1ccccc1.ClCl>>c1ccccc1Cl.Cl', 'CCO>>C=C']
+for rsmi in rsmis:
+    aam = mcs_aam(rsmi)
+    print(aam)
+    aams.append(aam)
+    
+```
+
+Output
+
+```text
+['C([CH3:1])[Cl:3].[OH-:4]>>C([CH3:1])[OH:4].[Cl-:3]']
+['Cl[Cl:7].[cH:1]1[cH:2][cH:3][cH:4][cH:5][cH:6]1>>Cl[c:6]1[cH:1][cH:2][cH:3][cH:4][cH:5]1.[ClH:7]', '[Cl:7][Cl:8].[cH:1]1[cH:2][cH:3][cH:4][cH:5][cH:6]1>>Cl[c:6]1[cH:1][cH:2][cH:3][cH:4][cH:5]1.[ClH:8]']
+['O[CH2:2][CH3:1]>>[CH2:1]=[CH2:2]']
+```
+
+All three reactions yield **partial atom maps only**.
+
+This is because:
+- **Connectivity changes** (bond breaking/forming) prevent full graph isomorphism.
+- **Stoichiometric imbalance** (missing species) leaves some atoms unmappable.
+
+</details>
+
++++
+
+### 1.2. Attention-guided atom mapping
+
+**RXNMapper** extracts atom correspondences from **Transformer attention** learned on reaction SMILES with a masked-language objective (BERT family). It is **unsupervised** and does not require gold atom maps.
+
+Write a reaction as a token sequence $x=(x_1,\dots,x_T)$ with reactant and product atom tokens. During pretraining the model minimizes the masked-token objective:
+
+$$
+\min_\theta \; \mathbb{E}\!\left[-\log p_\theta\big(x_{\mathcal{M}}\mid x_{\setminus\mathcal{M}}\big)\right].
+$$
+
+At inference we extract an attention alignment matrix between reactant and product atom tokens:
+
+$$
+A \in \mathbb{R}_{\ge 0}^{m\times n},\qquad
+A_{ij} := \mathrm{Attn}(r_i \to p_j),
+$$
+
+(typically from a chosen head/layer and optionally sharpened). Atom mapping is then posed as a maximum-weight assignment over admissible matchings $\Pi$:
+
+$$
+\mu = \arg\max_{\mu\in\Pi}\sum_{i=1}^{m} A_{i,\mu(i)},
+$$
+
+where $\Pi$ enforces lightweight chemical constraints (element consistency, optional charge checks). Because the assignment is driven by attention, **bond-order preservation is not enforced**, so RXNMapper tolerates bond formation/cleavage and order changes.
+
+Typical RXNMapper outputs:
+
+- `mapped_rxn`: reaction SMILES annotated with atom-map indices induced by \(\mu\),  
+- `confidence`: a scalar summary of alignment consistency (higher → more reliable).
+
+We adopt this attention-guided strategy following the Molecular Transformer framework [\[4\]](#id-6-references) and RXNMapper [\[2\]](#id-6-references).
+
+```{code-cell}
 from typing import Any, Dict, Optional, Tuple
 
 
@@ -541,14 +538,13 @@ if _HAS_RXNMAPPER:
         print(f"conf={conf:.3f} | {mapped}")
 else:
     print("rxnmapper not available; install with: pip install rxnmapper")
+```
 
-# %% [markdown]
-# #### RXNMapper attention alignment heatmap
-#
-# The atom map is selected from an attention matrix whose rows are product atom tokens and whose columns are reactant atom tokens. Bright cells indicate product atoms that strongly attend to a reactant atom. The final atom map is the high-weight assignment through this matrix, so visualising it helps connect the Transformer output to the atom-map numbers we use later.
-#
+#### RXNMapper attention alignment heatmap
 
-# %%
+The atom map is selected from an attention matrix whose rows are product atom tokens and whose columns are reactant atom tokens. Bright cells indicate product atoms that strongly attend to a reactant atom. The final atom map is the high-weight assignment through this matrix, so visualising it helps connect the Transformer output to the atom-map numbers we use later.
+
+```{code-cell}
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
@@ -698,87 +694,86 @@ plt.tight_layout(rect=[0, 0.05, 1, 1])
 plt.show()
 
 print(_mapped_rxn)
+```
 
-# %% [markdown]
-# ## 2. Imaginary Transition State
-# The **Imaginary Transition State (ITS)** [\[2\]](#6.-References) (or Condensed Graph of the Reaction [\[5\]](#6.-References)) is a compact, chemistry-oriented way to represent *what changes* in a reaction by **superimposing reactants and products via an atom-atom map**.
-#
-# Think of the ITS as a single graph whose **nodes are atom-map labels** (one node per mapped atom) and whose **edges record the bond before and after the reaction**. Reading the ITS tells you, at a glance, which bonds are preserved, broken or formed.
-#
-# ---
-#
-#
-# Given a balanced reaction and an atom map $\alpha$ (a bijection between reactant and product atoms):
-#
-# 1. Let the ITS node set be the atom-map labels
-#    $$
-#    V=\{a_1,\dots,a_M\}
-#    $$
-#
-# 2. For each unordered pair of nodes \((i,j)\) read the bond order in reactants and in products:
-#    $$
-#    br_{ij}=\text{bond order of atoms mapped to }a_i,a_j\ \text{in reactants (or }0\text{ if absent)},
-#    $$
-#    $$
-#    bp_{ij}=\text{bond order of atoms mapped to }a_i,a_j\ \text{in products (or }0\text{ if absent)}.
-#    $$
-#
-# 3. Add an ITS edge between \(i\) and \(j\) labelled with the pair
-#    $$
-#    (br_{ij},\,bp_{ij}).
-#    $$
-#
-# 4. The **reaction center** is simply the set of edges with a change:
-#    $$
-#    E_{\mathrm{rc}}=\{(i,j):\; br_{ij}\ne bp_{ij}\}.
-#    $$
-#
-# ---
-#
-# How to read the ITS (chemical rules of thumb)
-#
-# - An edge labelled (1,1) — bond preserved (single → single).  
-# - (1,0) — bond **broken** (present in reactants, absent in products).  
-# - (0,1) — bond **formed** (new bond in products).  
-# - (2,1) or (1.5,1.5) — bond order **changed** (double→single, or aromatic preserved).  
-# - Nodes keep atom identity via labels (element, charge, hybridization if desired) so you can tell *which atom* changed connectivity.
-#
-# ---
-#
+## 2. Imaginary Transition State
+The **Imaginary Transition State (ITS)** [\[2\]](#id-6-references) (or Condensed Graph of the Reaction [\[5\]](#id-6-references)) is a compact, chemistry-oriented way to represent *what changes* in a reaction by **superimposing reactants and products via an atom-atom map**.
 
-# %% [markdown]
-# **Definition (ITS Graph).**  
-# Given a fully atom-mapped reaction with atom mapping $\mu: V_R \to V_P$ (a bijection between reactant and product atoms), the *Imaginary Transition State graph* (ITS) is the labeled graph
-#
-# $$
-# \Gamma = (V,\, E,\, \mathbf{a},\, \mathbf{b}_{\text{ITS}})
-# $$
-#
-# where $V$ is the mapped atom set obtained by identifying each $v \in V_R$ with $\mu(v) \in V_P$, $E = E_R \cup E_P$ after this identification, and the ITS edge attribute is:
-#
-# $$
-# \mathbf{b}_{\text{ITS}}(e) = (b_r(e),\, b_p(e))
-# \quad b_r, b_p \in \{0, 1, 1.5, 2, 3\}
-# $$
-#
-# where $b_r(e)$ is the bond order of edge $e$ in the reactants (0 if absent) and $b_p(e)$ is the bond order in the products (0 if absent).
-#
-# **Definition (Reaction Center).**  
-# The *reaction center* $\mathrm{RC}(\Gamma)$ is the subgraph of the ITS induced by edges where $b_r \neq b_p$:
-#
-# $$
-# E_{\mathrm{RC}} = \{e \in E(\Gamma) \mid b_r(e) \neq b_p(e)\}
-# $$
-#
-# These are the bonds that are **broken** ($b_r > 0, b_p = 0$), **formed** ($b_r = 0, b_p > 0$), or **changed** ($b_r \neq b_p$, both $> 0$).
-#
-# **Definition (ΔBE Entry).**  
-# For each atom pair $(i, j)$ with $i \neq j$: $\Delta\mathrm{BE}_{ij} = b_p(i,j) - b_r(i,j)$.  
-# Positive values indicate bond formation; negative values indicate bond breaking.  
-# The diagonal entries represent changes in free-electron count (valence electrons not in bonds).
-#
+Think of the ITS as a single graph whose **nodes are atom-map labels** (one node per mapped atom) and whose **edges record the bond before and after the reaction**. Reading the ITS tells you, at a glance, which bonds are preserved, broken or formed.
 
-# %%
+---
+
+
+Given a balanced reaction and an atom map $\alpha$ (a bijection between reactant and product atoms):
+
+1. Let the ITS node set be the atom-map labels
+   $$
+   V=\{a_1,\dots,a_M\}
+   $$
+
+2. For each unordered pair of nodes \((i,j)\) read the bond order in reactants and in products:
+   $$
+   br_{ij}=\text{bond order of atoms mapped to }a_i,a_j\ \text{in reactants (or }0\text{ if absent)},
+   $$
+   $$
+   bp_{ij}=\text{bond order of atoms mapped to }a_i,a_j\ \text{in products (or }0\text{ if absent)}.
+   $$
+
+3. Add an ITS edge between \(i\) and \(j\) labelled with the pair
+   $$
+   (br_{ij},\,bp_{ij}).
+   $$
+
+4. The **reaction center** is simply the set of edges with a change:
+   $$
+   E_{\mathrm{rc}}=\{(i,j):\; br_{ij}\ne bp_{ij}\}.
+   $$
+
+---
+
+How to read the ITS (chemical rules of thumb)
+
+- An edge labelled (1,1) — bond preserved (single → single).  
+- (1,0) — bond **broken** (present in reactants, absent in products).  
+- (0,1) — bond **formed** (new bond in products).  
+- (2,1) or (1.5,1.5) — bond order **changed** (double→single, or aromatic preserved).  
+- Nodes keep atom identity via labels (element, charge, hybridization if desired) so you can tell *which atom* changed connectivity.
+
+---
+
++++
+
+**Definition (ITS Graph).**  
+Given a fully atom-mapped reaction with atom mapping $\mu: V_R \to V_P$ (a bijection between reactant and product atoms), the *Imaginary Transition State graph* (ITS) is the labeled graph
+
+$$
+\Gamma = (V,\, E,\, \mathbf{a},\, \mathbf{b}_{\text{ITS}})
+$$
+
+where $V$ is the mapped atom set obtained by identifying each $v \in V_R$ with $\mu(v) \in V_P$, $E = E_R \cup E_P$ after this identification, and the ITS edge attribute is:
+
+$$
+\mathbf{b}_{\text{ITS}}(e) = (b_r(e),\, b_p(e))
+\quad b_r, b_p \in \{0, 1, 1.5, 2, 3\}
+$$
+
+where $b_r(e)$ is the bond order of edge $e$ in the reactants (0 if absent) and $b_p(e)$ is the bond order in the products (0 if absent).
+
+**Definition (Reaction Center).**  
+The *reaction center* $\mathrm{RC}(\Gamma)$ is the subgraph of the ITS induced by edges where $b_r \neq b_p$:
+
+$$
+E_{\mathrm{RC}} = \{e \in E(\Gamma) \mid b_r(e) \neq b_p(e)\}
+$$
+
+These are the bonds that are **broken** ($b_r > 0, b_p = 0$), **formed** ($b_r = 0, b_p > 0$), or **changed** ($b_r \neq b_p$, both $> 0$).
+
+**Definition (ΔBE Entry).**  
+For each atom pair $(i, j)$ with $i \neq j$: $\Delta\mathrm{BE}_{ij} = b_p(i,j) - b_r(i,j)$.  
+Positive values indicate bond formation; negative values indicate bond breaking.  
+The diagonal entries represent changes in free-electron count (valence electrons not in bonds).
+
+```{code-cell}
 from synedu.Utils.reaction import rsmi_to_graph
 from synedu.Utils.graph import print_graph_attributes
 from synedu.Utils.its_vis import (
@@ -793,8 +788,9 @@ rsmi = '[Cl:1][Cl:2].[H:9][c:3]1[cH:4][cH:5][cH:6][cH:7][cH:8]1>>[Cl:1][H:9].[Cl
 fig = draw_rxn_graph(rsmi, title="substitution electrophile", title_fontsize=24)
 r, p = rsmi_to_graph(rsmi)
 print_graph_attributes(r)
+```
 
-# %%
+```{code-cell}
 import networkx as nx
 from typing import Any, List, Optional, Tuple
 
@@ -895,9 +891,9 @@ def build_its(
             ITS.add_edge(i_idx, j_idx, order=(br, bp))
 
     return ITS
+```
 
-
-# %%
+```{code-cell}
 its = build_its(r, p)
 print_graph_attributes(its)
 
@@ -918,27 +914,26 @@ ax = visualize_its(
     show_node_labels=False,
     show_legend=False,
 )
+```
 
-# %% [markdown]
-# ### 2.1. ITS graph — edge coloring by bond-change type
-#
-#
-# For drawing, the same ITS can be placed on different molecular coordinate systems.  
-# `coordinate="reactant"` projects the ITS onto the reactant-side bonds, while `coordinate="product"` projects it onto the product-side bonds. The edge colors and labels still show the full `(b_r, b_p)` change, but the picture is easier to read because the atom positions come from a chemically valid molecule instead of a generic graph layout.
-# `its_to_side_graph(...)` and `its_to_side_mol(...)` expose the reactant/product projections for later tasks. `its_coordinate_layout(...)` returns these coordinates directly, which is useful when you want to draw a reaction-center subgraph on the same frame as the full ITS.
-#
-# Each edge in the ITS carries a pair $(b_r, b_p)$ encoding the bond order in reactants and products.  
-# We color edges by change type:
-#
-# | $(b_r, b_p)$ | Interpretation | Color |
-# |---|---|---|
-# | $b_r = b_p > 0$ | **Preserved** bond | gray |
-# | $b_r > 0,\; b_p = 0$ | **Broken** bond | red |
-# | $b_r = 0,\; b_p > 0$ | **Formed** bond | green |
-# | $b_r \neq b_p$, both $> 0$ | **Changed** (e.g. single→double) | orange |
-#
+### 2.1. ITS graph — edge coloring by bond-change type
 
-# %%
+
+For drawing, the same ITS can be placed on different molecular coordinate systems.  
+`coordinate="reactant"` projects the ITS onto the reactant-side bonds, while `coordinate="product"` projects it onto the product-side bonds. The edge colors and labels still show the full `(b_r, b_p)` change, but the picture is easier to read because the atom positions come from a chemically valid molecule instead of a generic graph layout.
+`its_to_side_graph(...)` and `its_to_side_mol(...)` expose the reactant/product projections for later tasks. `its_coordinate_layout(...)` returns these coordinates directly, which is useful when you want to draw a reaction-center subgraph on the same frame as the full ITS.
+
+Each edge in the ITS carries a pair $(b_r, b_p)$ encoding the bond order in reactants and products.  
+We color edges by change type:
+
+| $(b_r, b_p)$ | Interpretation | Color |
+|---|---|---|
+| $b_r = b_p > 0$ | **Preserved** bond | gray |
+| $b_r > 0,\; b_p = 0$ | **Broken** bond | red |
+| $b_r = 0,\; b_p > 0$ | **Formed** bond | green |
+| $b_r \neq b_p$, both $> 0$ | **Changed** (e.g. single→double) | orange |
+
+```{code-cell}
 import matplotlib.pyplot as plt
 from synedu.Utils.its_vis import its_coordinate_layout, visualize_its
 
@@ -978,52 +973,53 @@ plt.show()
 print(
     f"Reaction center: {len(_rc_edges)} changing edges, {len(_rc_nodes)} atoms involved"
 )
+```
 
-# %% [markdown]
-# **Q3 — Reaction center**
-#
-# Now develop function `get_reaction_center` to extract the reaction center
-#
-# ---
-#
-# <details> <summary><b>Solution:</b></summary>
-#
-# ```python
-# import networkx as nx
-#
-#
-# def get_reaction_center(
-#     its: nx.Graph,
-#     *,
-#     node_view: bool = False,
-# ):
-#     rc_edges = []
-#     rc_nodes = set()
-#
-#     for u, v, d in its.edges(data=True):
-#         br, bp = d.get("order", (0.0, 0.0))
-#         if br != bp:
-#             rc_edges.append((u, v))
-#             rc_nodes.update([u, v])
-#
-#     if node_view:
-#         return rc_nodes
-#
-#     rc = nx.Graph()
-#     rc.add_nodes_from((n, its.nodes[n]) for n in rc_nodes)
-#     rc.add_edges_from(
-#         (u, v, its.edges[u, v]) for u, v in rc_edges
-#     )
-#
-#     return rc
-#
-# ```
-# </details>
+**Q3 — Reaction center**
 
-# %% [markdown]
-# Now we combine to 1 function `rsmi_to_its`
+Now develop function `get_reaction_center` to extract the reaction center
 
-# %%
+---
+
+<details> <summary><b>Solution:</b></summary>
+
+```python
+import networkx as nx
+
+
+def get_reaction_center(
+    its: nx.Graph,
+    *,
+    node_view: bool = False,
+):
+    rc_edges = []
+    rc_nodes = set()
+
+    for u, v, d in its.edges(data=True):
+        br, bp = d.get("order", (0.0, 0.0))
+        if br != bp:
+            rc_edges.append((u, v))
+            rc_nodes.update([u, v])
+
+    if node_view:
+        return rc_nodes
+
+    rc = nx.Graph()
+    rc.add_nodes_from((n, its.nodes[n]) for n in rc_nodes)
+    rc.add_edges_from(
+        (u, v, its.edges[u, v]) for u, v in rc_edges
+    )
+
+    return rc
+
+```
+</details>
+
++++
+
+Now we combine to 1 function `rsmi_to_its`
+
+```{code-cell}
 import networkx as nx
 
 
@@ -1057,16 +1053,15 @@ def rsmi_to_its(rsmi, core=False):
     if core:
         return get_reaction_center(its)
     return its
+```
 
+### 2.2. ITS reaction center and ΔBE matrix
 
-# %% [markdown]
-# ### 2.2. ITS reaction center and ΔBE matrix
-#
-# The left panel shows the full ITS: **red edges** are broken bonds, **green edges** are formed bonds, **black edges** are preserved. The right panel isolates the **reaction center** — the subgraph where $b_r \ne b_p$.
-#
-# The ΔBE matrix encodes the same information numerically: $\Delta\mathrm{BE}_{ij} = b^P_{ij} - b^R_{ij}$. Red cells indicate bond cleavage; blue cells indicate bond formation. The pattern of signed changes uniquely fingerprints the reaction type.
+The left panel shows the full ITS: **red edges** are broken bonds, **green edges** are formed bonds, **black edges** are preserved. The right panel isolates the **reaction center** — the subgraph where $b_r \ne b_p$.
 
-# %%
+The ΔBE matrix encodes the same information numerically: $\Delta\mathrm{BE}_{ij} = b^P_{ij} - b^R_{ij}$. Red cells indicate bond cleavage; blue cells indicate bond formation. The pattern of signed changes uniquely fingerprints the reaction type.
+
+```{code-cell}
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -1145,19 +1140,19 @@ ax2.set_title(
 )
 plt.tight_layout()
 plt.show()
+```
 
-# %% [markdown]
-# ### 2.3. ΔBE matrix heatmap
-#
-# The Bond–Electron (BE) matrix introduced in **S01** can be computed for both the reactant
-# and product graphs. Their difference $\Delta\mathrm{BE} = \mathrm{BE}_P - \mathrm{BE}_R$
-# captures exactly the same information as the ITS edge labels:
-#
-# - **Positive** off-diagonal: bond formed
-# - **Negative** off-diagonal: bond broken
-# - **Zero**: atom-pair unchanged
+### 2.3. ΔBE matrix heatmap
 
-# %%
+The Bond–Electron (BE) matrix introduced in **S01** can be computed for both the reactant
+and product graphs. Their difference $\Delta\mathrm{BE} = \mathrm{BE}_P - \mathrm{BE}_R$
+captures exactly the same information as the ITS edge labels:
+
+- **Positive** off-diagonal: bond formed
+- **Negative** off-diagonal: bond broken
+- **Zero**: atom-pair unchanged
+
+```{code-cell}
 import numpy as np
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -1248,18 +1243,19 @@ for i, (k, v) in enumerate(_types.items()):
 fig.suptitle('$\\Delta$BE Analysis of the ITS Graph', fontsize=12, fontweight='bold')
 plt.tight_layout()
 plt.show()
+```
 
-# %% [markdown]
-# ## 3. ITS equivalence
-#
-# Now try with 3 reactions below
+## 3. ITS equivalence
 
-# %%
+Now try with 3 reactions below
+
+```{code-cell}
 m1 = "[CH3:8][CH2:7][O:6][C:5](=[O:9])[CH2:4][C:2](=[O:3])[O:1][CH2:22][CH3:23].[O:14]=[N+:12]([O-:13])[CH:11]=[CH:10][C:15]1=[CH:16][CH:17]=[C:18]([Cl:19])[CH:20]=[CH:21]1>>[O:1]([C:2](=[O:3])[CH:4]([C:5]([O:6][CH2:7][CH3:8])=[O:9])[CH:10]([CH2:11][N+:12]([O-:13])=[O:14])[C:15]1=[CH:16][CH:17]=[C:18]([Cl:19])[CH:20]=[CH:21]1)[CH2:22][CH3:23]"
 m2 = "[O:1]=[N+:2]([O-:3])[CH:4]=[CH:5][c:6]1[cH:7][cH:8][c:9]([Cl:10])[cH:11][cH:12]1.[O:13]=[C:14]([O:15][CH2:16][CH3:17])[CH2:18][C:19](=[O:20])[O:21][CH2:22][CH3:23]>>[CH2:4]([N+:2](=[O:1])[O-:3])[CH:5]([c:6]1[cH:12][cH:11][c:9]([cH:8][cH:7]1)[Cl:10])[CH:18]([C:14](=[O:13])[O:15][CH2:16][CH3:17])[C:19](=[O:20])[O:21][CH2:22][CH3:23]"
 m3 = "[CH3:1][CH2:2][O:3][C:4](=[O:5])[CH2:6][C:7](=[O:8])[O:9][CH2:10][CH3:11].[O:12]=[N+:13]([O-:14])[CH:15]=[CH:16][C:17]1=[CH:18][CH:19]=[C:20]([CH:21]=[CH:22]1)[Cl:23]>>[O:3]([C:4](=[O:5])[CH:6]([C:7]([O:9][CH2:10][CH3:11])=[O:8])[CH:16]([CH2:15][N+:13]([O-:14])=[O:12])[C:17]1=[CH:18][CH:19]=[C:20]([Cl:23])[CH:21]=[CH:22]1)[CH2:2][CH3:1]"
+```
 
-# %%
+```{code-cell}
 svg1 = visualize_reaction(
     m1,
     svg=True,
@@ -1281,11 +1277,11 @@ svg3 = visualize_reaction(
 display(SVG(svg1))
 display(SVG(svg2))
 display(SVG(svg3))
+```
 
-# %% [markdown]
-# Even for experienced chemists, it is non-trivial to determine whether three atom mappings are equivalent.
+Even for experienced chemists, it is non-trivial to determine whether three atom mappings are equivalent.
 
-# %%
+```{code-cell}
 import matplotlib.pyplot as plt
 
 its1 = rsmi_to_its(m1)
@@ -1323,11 +1319,11 @@ visualize_its(
 )
 plt.tight_layout()
 plt.show()
+```
 
-# %% [markdown]
-# While atom-map equivalence is hard to judge directly, the corresponding ITS graphs are equivalent if and only if they are isomorphic, a concept we already encountered in **S02** [\[6\]](#6.-References).
+While atom-map equivalence is hard to judge directly, the corresponding ITS graphs are equivalent if and only if they are isomorphic, a concept we already encountered in **S02** [\[6\]](#id-6-references).
 
-# %%
+```{code-cell}
 import networkx as nx
 from networkx.algorithms.isomorphism import GraphMatcher, generic_node_match
 
@@ -1365,19 +1361,19 @@ def its_isomorphic(
     )
 
     return gm.is_isomorphic()
+```
 
-
-# %%
+```{code-cell}
 print("Checking ITS graph equivalence via graph isomorphism")
 print("- ITS₁ vs ITS₂:", its_isomorphic(its1, its2))
 print("- ITS₁ vs ITS₃:", its_isomorphic(its1, its3))
+```
 
-# %% [markdown]
-# **MCS vs RXNMapper — ITS isomorphism comparison**
-#
-# Two atom mappings are **equivalent** if and only if their ITS graphs are isomorphic. The table below runs both methods on three test reactions and uses ITS isomorphism to check whether they agree. Disagreement flags a case where one method makes a chemically different assignment.
+**MCS vs RXNMapper — ITS isomorphism comparison**
 
-# %%
+Two atom mappings are **equivalent** if and only if their ITS graphs are isomorphic. The table below runs both methods on three test reactions and uses ITS isomorphism to check whether they agree. Disagreement flags a case where one method makes a chemically different assignment.
+
+```{code-cell}
 import pandas as pd
 
 _COMPARE = [
@@ -1434,91 +1430,87 @@ display(
         subset=["ITS agree?"],
     ).set_caption("MCS vs RXNMapper atom mapping — ITS isomorphism agreement")
 )
+```
 
-# %% [markdown]
-# **Q4 — Atom-map equivalence**
-#
-# Consider the dataset `data/reaction_maps.csv`
-# Each reaction is associated with three atom-mapped SMILES, generated by different atom-mapping methods (`map1`, `map2`, `map3`).
-#
-#
-# Tasks:
-# 1. Write a function that determines whether three atom-mapped reactions are equivalent, by converting each to an ITS graph and checking graph isomorphism.
-# 2. Apply this function to all reactions in the dataset.
-# 3. Record, for each reaction, whether the three mappings are equivalent.
-#
-# ---
-#
-# <details> <summary><b>Solution:</b></summary>
-#
-# ```python
-# import pandas as pd
-# def is_maps_eq(
-#     maps,
-#     *,
-#     node_attrs=("element", "aromatic", "charge", "hcount"),
-#     edge_attrs=("order",),
-# ):
-#     """
-#     Check whether multiple mapped reactions are equivalent
-#     by comparing their ITS graphs up to isomorphism.
-#     """
-#     its_list = [rsmi_to_its(m) for m in maps]
-#
-#     ref = its_list[0]
-#     for its in its_list[1:]:
-#         if not its_isomorphic(
-#             ref,
-#             its,
-#             node_attrs=node_attrs,
-#             edge_attrs=edge_attrs,
-#         ):
-#             return False
-#     return True
-#
-# data = pd.read_csv('./data/reaction_maps.csv').to_dict('records')
-#
-# for entry in data:
-#     maps = [entry["map1"], entry["map2"], entry["map3"]]
-#     entry["is_eq"] = is_maps_eq(maps)
-# data = pd.DataFrame(data)
-# data.head()
-# ```
-#
-# </details>
-#
+**Q4 — Atom-map equivalence**
 
-# %% [markdown]
-# <a id="4-discussion"></a>
-#
-# ## 4. Discussion
-#
-# - **MCS** is a principled alignment baseline, but struggles with multi-component reactions, molecular symmetry, and unbalanced equations.
-# - **RXNMapper** offers a strong, practical solution by leveraging learned attention patterns and providing confidence estimates.
-# - **ITS graphs** compactly encode bond changes, abstracting away atom-map labeling details.
-# - **ITS isomorphism** provides a clean, map-number-invariant criterion for comparing atom mappings across methods.
+Consider the dataset `data/reaction_maps.csv`
+Each reaction is associated with three atom-mapped SMILES, generated by different atom-mapping methods (`map1`, `map2`, `map3`).
 
-# %% [markdown]
-# <a id="5-quiz"></a>
-#
-# ## 5. Quiz
-#
-# 1. Why can maximum common substructure mapping fail for reactions with multiple components, symmetry, or large structural rearrangements?
-# 2. What information does RXNMapper use that is not explicitly enforced by a graph-only MCS alignment?
-# 3. In one or two sentences, explain what an ITS graph represents chemically.
-# 4. Why can two atom-mapped reaction SMILES look different but still describe equivalent chemistry, and how does ITS isomorphism help compare them?
-#
 
-# %% [markdown] raw_mimetype="text/x-rst"
-# ## 6. References
-#
-# 1. Phan, T.-L. *et al.* SynKit: A graph-based framework for rule-based reaction modeling. *Journal of Chemical Information and Modeling* (2025). https://doi.org/10.1021/acs.jcim.5c02123
-# 2. Schwaller, P. *et al.* Extraction of organic chemistry grammar from unsupervised learning of chemical reactions. *Science Advances* **7**, eabe4166 (2021). https://doi.org/10.1126/sciadv.abe4166
-# 3. Dugundji, J.; Ugi, I. An algebraic model of constitutional chemistry as a basis for chemical computer programs. *Topics in Current Chemistry* **39**, 19-64 (1973).
-# 4. Schwaller, P. *et al.* Molecular Transformer: A Model for Uncertainty-Calibrated Chemical Reaction Prediction. *ACS Central Science* (2019). https://doi.org/10.1021/acscentsci.9b00576
-# 5. Phan, T.-L. *et al.* SynTemp: Efficient Extraction of Graph-Based Reaction Rules from Large-Scale Reaction Databases. *Journal of Chemical Information and Modeling* (2025). https://doi.org/10.1021/acs.jcim.4c01795
-# 6. Bonchev, D.; Rouvray, D. H., eds. *Chemical Graph Theory: Introduction and Fundamentals*. Abacus Press (1991).
-# 7. RDKit documentation. https://www.rdkit.org/docs/
-# 8. NetworkX documentation. https://networkx.org/documentation/stable/
-# 9. Nugmanov, R. I. *et al.* CGRtools: Python Library for Molecule, Reaction, and Condensed Graph of Reaction Processing. *Journal of Chemical Information and Modeling* **59**, 2516-2521 (2019). https://doi.org/10.1021/acs.jcim.9b00102
-#
+Tasks:
+1. Write a function that determines whether three atom-mapped reactions are equivalent, by converting each to an ITS graph and checking graph isomorphism.
+2. Apply this function to all reactions in the dataset.
+3. Record, for each reaction, whether the three mappings are equivalent.
+
+---
+
+<details> <summary><b>Solution:</b></summary>
+
+```python
+import pandas as pd
+def is_maps_eq(
+    maps,
+    *,
+    node_attrs=("element", "aromatic", "charge", "hcount"),
+    edge_attrs=("order",),
+):
+    """
+    Check whether multiple mapped reactions are equivalent
+    by comparing their ITS graphs up to isomorphism.
+    """
+    its_list = [rsmi_to_its(m) for m in maps]
+
+    ref = its_list[0]
+    for its in its_list[1:]:
+        if not its_isomorphic(
+            ref,
+            its,
+            node_attrs=node_attrs,
+            edge_attrs=edge_attrs,
+        ):
+            return False
+    return True
+
+data = pd.read_csv('./data/reaction_maps.csv').to_dict('records')
+
+for entry in data:
+    maps = [entry["map1"], entry["map2"], entry["map3"]]
+    entry["is_eq"] = is_maps_eq(maps)
+data = pd.DataFrame(data)
+data.head()
+```
+
+</details>
+
++++
+
+## 4. Discussion
+
+- **MCS** is a principled alignment baseline, but struggles with multi-component reactions, molecular symmetry, and unbalanced equations.
+- **RXNMapper** offers a strong, practical solution by leveraging learned attention patterns and providing confidence estimates.
+- **ITS graphs** compactly encode bond changes, abstracting away atom-map labeling details.
+- **ITS isomorphism** provides a clean, map-number-invariant criterion for comparing atom mappings across methods.
+
++++
+
+## 5. Quiz
+
+1. Why can maximum common substructure mapping fail for reactions with multiple components, symmetry, or large structural rearrangements?
+2. What information does RXNMapper use that is not explicitly enforced by a graph-only MCS alignment?
+3. In one or two sentences, explain what an ITS graph represents chemically.
+4. Why can two atom-mapped reaction SMILES look different but still describe equivalent chemistry, and how does ITS isomorphism help compare them?
+
++++ {"raw_mimetype": "text/x-rst"}
+
+## 6. References
+
+1. Phan, T.-L. *et al.* SynKit: A graph-based framework for rule-based reaction modeling. *Journal of Chemical Information and Modeling* (2025). https://doi.org/10.1021/acs.jcim.5c02123
+2. Schwaller, P. *et al.* Extraction of organic chemistry grammar from unsupervised learning of chemical reactions. *Science Advances* **7**, eabe4166 (2021). https://doi.org/10.1126/sciadv.abe4166
+3. Dugundji, J.; Ugi, I. An algebraic model of constitutional chemistry as a basis for chemical computer programs. *Topics in Current Chemistry* **39**, 19-64 (1973).
+4. Schwaller, P. *et al.* Molecular Transformer: A Model for Uncertainty-Calibrated Chemical Reaction Prediction. *ACS Central Science* (2019). https://doi.org/10.1021/acscentsci.9b00576
+5. Phan, T.-L. *et al.* SynTemp: Efficient Extraction of Graph-Based Reaction Rules from Large-Scale Reaction Databases. *Journal of Chemical Information and Modeling* (2025). https://doi.org/10.1021/acs.jcim.4c01795
+6. Bonchev, D.; Rouvray, D. H., eds. *Chemical Graph Theory: Introduction and Fundamentals*. Abacus Press (1991).
+7. RDKit documentation. https://www.rdkit.org/docs/
+8. NetworkX documentation. https://networkx.org/documentation/stable/
+9. Nugmanov, R. I. *et al.* CGRtools: Python Library for Molecule, Reaction, and Condensed Graph of Reaction Processing. *Journal of Chemical Information and Modeling* **59**, 2516-2521 (2019). https://doi.org/10.1021/acs.jcim.9b00102
