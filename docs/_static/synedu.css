@@ -584,24 +584,6 @@ body[data-synedu-theme="dark"] .md-typeset table:not(.highlighttable) tbody tr:h
   font-size: 0.93rem;
   line-height: 1.62;
 }
-.md-typeset a[href="#6.-References"],
-.md-typeset a[href="#6-references"]{
-  color: #006f62 !important;
-  font-weight: 760;
-  text-decoration: none !important;
-  border-bottom: 1px solid rgba(0,111,98,0.24);
-  white-space: nowrap;
-}
-.md-typeset a[href="#6.-References"]:hover,
-.md-typeset a[href="#6-references"]:hover{
-  color: var(--syn-navy) !important;
-  border-bottom-color: rgba(40,48,61,0.45);
-}
-body[data-synedu-theme="dark"] .md-typeset a[href="#6.-References"],
-body[data-synedu-theme="dark"] .md-typeset a[href="#6-references"]{
-  color: var(--syn-teal) !important;
-  border-bottom-color: rgba(1,228,156,0.34);
-}
 .md-typeset table.synedu-funding-logos{
   margin: 1.2rem 0 1.35rem;
   border: 1px solid var(--syn-border);
