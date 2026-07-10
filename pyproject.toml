@@ -45,7 +45,7 @@ dependencies = [
   "ipython>=8.18",
   "scikit-learn>=1.5",
   "synkit>=0.0.15",
-  "synrbl>=0.1.0",
+  "synrbl>=1.0.6",
 ]
 
 
