@@ -10,10 +10,9 @@ graph-theoretic abstractions, and rule-based reaction modeling in a
 reproducible workflow.
 
 The source of truth is the Jupytext MyST Markdown under
-`synedu/Sxx/notebook.md`. Jupyter Book renders those files directly. Portable,
-committed `docs/downloads/*.ipynb` exports provide stable GitHub URLs for each
-talktorial's "Open in Colab" and "Download notebook" actions; they are not
-intermediate inputs to the website build.
+`synedu/Sxx/notebook.md`. Jupyter Book renders those files directly. The Read
+the Docs build also generates portable `.ipynb` exports for each talktorial's
+"Open in Colab" and "Download notebook" actions.
 
 ## Setup
 

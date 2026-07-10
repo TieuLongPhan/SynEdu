@@ -26,10 +26,10 @@ SYNEDU_NB=S01 uv run pytest -m slow -v tests/test_notebooks.py
 SYNEDU_NB=S01,S04 uv run pytest -m slow -v tests/test_notebooks.py
 ```
 
-Check the portable notebook exports and build the Jupyter Book 2 documentation:
+Build the executed Jupyter Book 2 documentation and temporary portable
+notebook exports:
 
 ```bash
-make check-notebooks
 make build
 ```
 
@@ -39,8 +39,8 @@ Use `SYNEDU_TIMEOUT=900` when a notebook needs a longer per-notebook timeout.
 
 - Keep each notebook runnable from a fresh kernel, top to bottom.
 - Keep notebook sources as Jupytext MyST Markdown `synedu/Sxx/notebook.md` files.
-- Run `make notebooks` and commit the matching `docs/downloads/Sxx.ipynb`
-  publication exports after changing a notebook.
+- `make build` creates temporary portable download exports under
+  `_build/downloads`; these generated files are not committed.
 - Do not commit local `synedu/Sxx/notebook.ipynb` files or executed outputs.
 - Prefer deterministic examples and call `seed_everything` when randomness is used.
 - Keep paths relative to the lesson directory.

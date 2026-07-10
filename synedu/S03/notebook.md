@@ -13,7 +13,7 @@ kernelspec:
 
 # S03: Maximum Common Substructure in Reaction Informatics
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S03.ipynb) [![Download Notebook](https://img.shields.io/badge/download-.ipynb-blue)](https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S03.ipynb) [![Run Locally](https://img.shields.io/badge/run-locally-lightgrey)](../../docs/installing.md)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/url?url=https%3A%2F%2Fsynedu.readthedocs.io%2Fen%2Flatest%2Fdownloads%2FS03.ipynb) [![Download Notebook](https://img.shields.io/badge/download-.ipynb-blue)](../../downloads/S03.ipynb) [![Run Locally](https://img.shields.io/badge/run-locally-lightgrey)](../../docs/installing.md)
 
 This talktorial introduces maximum common substructure (MCS) as a practical molecular-alignment tool for reaction informatics. We compare chemistry-aware RDKit MCS with explicit graph-level reasoning, then use the same idea for reaction rebalancing [@rdkit_docs; @rdkit_rdfmcs_docs; @phan2024reaction].
 

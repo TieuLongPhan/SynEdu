@@ -2,9 +2,10 @@
 
 The documentation site itself renders synedu/S0X/notebook.md directly (MyST
 notebooks are a native, executable MyST Markdown format), so no ipynb
-generation is needed for the site build. This script only produces the
-docs/downloads/*.ipynb files that back the "Download notebook" / "Open in
-Colab" links on each talktorial page.
+generation is needed for the site build. This script produces the portable
+notebook files that back the "Download notebook" / "Open in Colab" links on
+each talktorial page. The output directory is supplied by the build, so
+generated notebooks are not source files.
 
 The exported notebooks are made **self-contained** so "Open in Colab" works in
 a fresh runtime with no local checkout:
@@ -20,19 +21,17 @@ from __future__ import annotations
 import argparse
 import hashlib
 import re
-import sys
 from pathlib import Path
 
 import jupytext
 import nbformat
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-DOCS_DOWNLOADS = REPO_ROOT / "docs" / "downloads"
 SYNEDU_ROOT = REPO_ROOT / "synedu"
 
 # Colab can only open a notebook that lives on a concrete GitHub branch, so the
 # published downloads must pull their code, data, and figures from the same
-# branch the docs/downloads/*.ipynb files are committed to. Change both of these
+# branch used by the published project and data links. Change both of these
 # together if the canonical branch ever changes.
 GITHUB_SLUG = "TieuLongPhan/SynEdu"
 BRANCH = "main"
@@ -117,34 +116,23 @@ def _serialized(notebook: nbformat.NotebookNode) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Regenerate self-contained docs/downloads/*.ipynb from notebook.md sources."""
+    """Generate self-contained .ipynb files from notebook.md sources."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--check",
-        action="store_true",
-        help="fail if committed notebook exports are missing or stale",
+        "--output-dir",
+        type=Path,
+        default=REPO_ROOT / "_build" / "downloads",
+        help="directory for generated notebook files (default: _build/downloads)",
     )
     args = parser.parse_args(argv)
 
-    DOCS_DOWNLOADS.mkdir(parents=True, exist_ok=True)
-    stale: list[Path] = []
+    output_dir = args.output_dir
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     for source in sorted(SYNEDU_ROOT.glob("S[0-9][0-9]/notebook.md")):
         lesson = source.parent.name
-        destination = DOCS_DOWNLOADS / f"{lesson}.ipynb"
-        content = _serialized(_export_notebook(source))
-        if args.check:
-            if not destination.exists() or destination.read_text() != content:
-                stale.append(destination)
-        else:
-            destination.write_text(content)
-
-    if stale:
-        print("Stale notebook exports:", file=sys.stderr)
-        for path in stale:
-            print(f"  {path.relative_to(REPO_ROOT)}", file=sys.stderr)
-        print("Run `make notebooks` to refresh them.", file=sys.stderr)
-        return 1
+        destination = output_dir / f"{lesson}.ipynb"
+        destination.write_text(_serialized(_export_notebook(source)))
     return 0
 
 

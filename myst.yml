@@ -10,12 +10,9 @@ project:
   github: https://github.com/TieuLongPhan/SynEdu
   bibliography:
     - references.bib
-  static_files:
-    - docs/downloads
   exclude:
     - _build/**
     - docs/_build/**
-    - docs/downloads/**
     - .DS_Store
     - Thumbs.db
     - "**/.ipynb_checkpoints"

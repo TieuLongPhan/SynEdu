@@ -1,4 +1,4 @@
-.PHONY: help sync prepare notebooks check-notebooks build build-fast build-one start notebook execute-notebook lab format lint test test-notebooks check clean clean-docs clean-py
+.PHONY: help sync prepare notebooks build-downloads build build-fast build-one start notebook execute-notebook lab format lint test test-notebooks check clean clean-docs clean-py
 
 UV ?= uv
 UV_CACHE ?= .uv-cache
@@ -19,8 +19,8 @@ help:
 	@printf '%s\n' '  make sync                 Install/update the uv environment'
 	@printf '%s\n' ''
 	@printf '%s\n' 'Documentation:'
-	@printf '%s\n' '  make notebooks            Regenerate committed Colab/download notebooks'
-	@printf '%s\n' '  make check-notebooks      Check that committed exports are current'
+	@printf '%s\n' '  make notebooks            Generate portable Colab/download notebooks under _build/'
+	@printf '%s\n' '  make build-downloads      Generate downloads into DOWNLOAD_DIR (for CI/RTD)'
 	@printf '%s\n' '  make build                Export notebooks and build HTML with execution'
 	@printf '%s\n' '  make build-fast           Build HTML without execution or notebook export'
 	@printf '%s\n' '  make build-one LESSON=S01 Build and execute one talktorial page'
@@ -46,16 +46,20 @@ help:
 sync:
 	$(RUN_ENV) $(UV) sync
 
-notebooks:
-	$(UV_RUN) python scripts/prepare_jupyter_book.py
+DOWNLOAD_DIR ?= _build/downloads
 
-prepare: notebooks
+notebooks: build-downloads
 
-check-notebooks:
-	$(UV_RUN) python scripts/prepare_jupyter_book.py --check
+prepare: build-downloads
 
-build: notebooks
+build-downloads:
+	$(UV_RUN) python scripts/prepare_jupyter_book.py --output-dir $(DOWNLOAD_DIR)
+
+build:
 	$(UV_RUN) jupyter book build --execute --html --ci
+	$(MAKE) build-downloads
+	mkdir -p _build/html/downloads
+	cp _build/downloads/*.ipynb _build/html/downloads/
 
 build-fast:
 	$(UV_RUN) jupyter book build --html --ci
@@ -87,7 +91,7 @@ test:
 test-notebooks:
 	$(UV_RUN) pytest -m slow -v tests/test_notebooks.py
 
-check: format lint test check-notebooks
+check: format lint test build-downloads
 
 clean-docs:
 	rm -rf _build docs/_build

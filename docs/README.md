@@ -7,9 +7,9 @@ uv sync
 make build
 ```
 
-The committed notebook sources live in `synedu/Sxx/notebook.md` as Jupytext
-MyST Markdown files. MyST renders and executes these sources directly for the
-site. `make notebooks` separately regenerates the committed, portable
-`docs/downloads/Sxx.ipynb` exports used for Colab/download links.
+The notebook sources live in `synedu/Sxx/notebook.md` as Jupytext MyST Markdown
+files. MyST renders and executes these sources directly for the site. The Read
+the Docs build separately generates portable `Sxx.ipynb` exports under the
+published site's `downloads/` directory for Colab/download links.
 
 Legacy Sphinx files are not part of the active Jupyter Book 2 build.

@@ -219,11 +219,6 @@ synedu/S[0-9][0-9]/notebook.ipynb
 docs/**/*.ipynb_checkpoints/
 _build/
 
-# docs/downloads/*.ipynb are committed (Colab / download links point at them);
-# un-ignore them from the generic `downloads/` packaging rule above.
-!docs/downloads/
-!docs/downloads/*.ipynb
-
 # OS junk
 .DS_Store
 Thumbs.db

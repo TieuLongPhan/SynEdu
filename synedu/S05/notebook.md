@@ -13,7 +13,7 @@ kernelspec:
 
 # S05: Reaction Rules as Graph Rewriting
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S05.ipynb) [![Download Notebook](https://img.shields.io/badge/download-.ipynb-blue)](https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S05.ipynb) [![Run Locally](https://img.shields.io/badge/run-locally-lightgrey)](../../docs/installing.md)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/url?url=https%3A%2F%2Fsynedu.readthedocs.io%2Fen%2Flatest%2Fdownloads%2FS05.ipynb) [![Download Notebook](https://img.shields.io/badge(download-.ipynb-blue)](../../downloads/S05.ipynb) [![Run Locally](https://img.shields.io/badge(run-locally-lightgrey)](../../docs/installing.md)
 
 This talktorial introduces Double Pushout (DPO) graph rewriting as a formal model for reaction rules. A rule is represented as a span that separates deleted, preserved, and created structure, then applied to molecular graphs by matching, deleting, and gluing [@phan2025synkit; @ehrig2006fundamentals].
 

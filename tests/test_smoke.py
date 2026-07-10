@@ -8,8 +8,6 @@ We enforce a lightweight structural contract:
 from __future__ import annotations
 
 import re
-import subprocess
-import sys
 from pathlib import Path
 
 import jupytext
@@ -93,16 +91,3 @@ def test_colab_exports_are_portable_and_deterministic():
             cell.source for cell in first.cells if cell.cell_type == "markdown"
         )
         assert "../../docs/_static/" not in markdown
-
-
-def test_committed_colab_exports_are_current():
-    """Committed downloads should exactly match their MyST sources."""
-    repo_root = Path(__file__).parents[1]
-    result = subprocess.run(
-        [sys.executable, "scripts/prepare_jupyter_book.py", "--check"],
-        cwd=repo_root,
-        text=True,
-        capture_output=True,
-        check=False,
-    )
-    assert result.returncode == 0, result.stderr

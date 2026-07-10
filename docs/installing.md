@@ -33,12 +33,11 @@ want to execute notebooks. MyST caches execution results under `_build/execute`
 and only re-runs a talktorial whose code actually changed, so repeated builds
 stay cheap.
 
-The portable `docs/downloads/*.ipynb` files are committed so Colab and direct
-download links resolve to stable GitHub files. They are publication artifacts,
-not Jupyter Book build intermediates: `_build` contains rendered site data,
-which Colab cannot open as a notebook. Regenerate the exports with
-`make notebooks` after editing a talktorial. `make check-notebooks` verifies
-that they are current.
+The portable `.ipynb` files used by Colab and direct downloads are generated
+during the Read the Docs build and published under the site's `downloads/`
+directory. They are separate from the executed website pages: the website
+executes `notebook.md` directly, while the exported files add a fresh-runtime
+installation cell and remote data/figure URLs.
 
 ## Run A Notebook Locally
 

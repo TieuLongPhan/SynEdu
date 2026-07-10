@@ -11,7 +11,7 @@ build:
     - node --version
     - uv sync --frozen
     - uv run python --version
-    - make check-notebooks
+    - make build-downloads DOWNLOAD_DIR="$READTHEDOCS_OUTPUT/html/downloads"
     - uv run jupyter book build --execute --html --execute-parallel 1 --ci
     - test -f _build/html/index.html
     - mkdir -p "$READTHEDOCS_OUTPUT/html"

@@ -161,11 +161,11 @@ jobs:
           restore-keys: |
             myst-execute-${{ runner.os }}-
 
-      - name: Check Colab notebook exports
-        run: make check-notebooks 2>&1 | tee -a ci-docs.log
-
       - name: Build Jupyter Book
         run: uv run jupyter book build --execute --html --execute-parallel 1 --ci 2>&1 | tee -a ci-docs.log
+
+      - name: Generate portable notebook exports
+        run: make build-downloads 2>&1 | tee -a ci-docs.log
 
       - name: Summarize documentation output
         if: always()
@@ -184,6 +184,7 @@ jobs:
           name: documentation-build
           path: |
             _build/html
+            _build/downloads
             ci-docs.log
           retention-days: 14
           if-no-files-found: warn
