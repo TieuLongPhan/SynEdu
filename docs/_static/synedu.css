@@ -88,7 +88,7 @@ html.dark {
 /* Repository, issue, and archive actions match the theme toggle's icon-button treatment. */
 .myst-top-nav a[href^="https://github.com/TieuLongPhan/SynEdu"],
 .myst-top-nav a[href$="/issues"],
-.myst-top-nav a[href^="https://doi.org/10.5281/zenodo/"] {
+.myst-top-nav a[href*="zenodo."] {
   align-items: center;
   border: 1px solid rgba(255, 255, 255, 0.45) !important;
   border-radius: 9999px;
@@ -103,7 +103,7 @@ html.dark {
 }
 .myst-top-nav a[href^="https://github.com/TieuLongPhan/SynEdu"]::before,
 .myst-top-nav a[href$="/issues"]::before,
-.myst-top-nav a[href^="https://doi.org/10.5281/zenodo/"]::before {
+.myst-top-nav a[href*="zenodo."]::before {
   content: "";
   display: block;
   width: 16px;
@@ -118,8 +118,32 @@ html.dark {
 .myst-top-nav a[href$="/issues"]::before {
   background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2215%22%20height%3D%2215%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22%23e2e8f0%22%3E%3Cpath%20d%3D%22M8%201.5a6.5%206.5%200%201%200%200%2013%206.5%206.5%200%200%200%200-13zM0%208a8%208%200%201%201%2016%200A8%208%200%200%201%200%208zm9%203a1%201%200%201%201-2%200%201%201%200%200%201%202%200zM8%204a.75.75%200%200%201%20.75.75v3.5a.75.75%200%200%201-1.5%200v-3.5A.75.75%200%200%201%208%204z%22%2F%3E%3C%2Fsvg%3E");
 }
-.myst-top-nav a[href^="https://doi.org/10.5281/zenodo/"]::before {
-  background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20stroke%3D%22%23e2e8f0%22%20stroke-width%3D%221.5%22%3E%3Cpath%20d%3D%22M3%201.75h7l3%203v9.5H3zM10%201.75v3h3M5%208h6M5%2011h6%22%2F%3E%3C%2Fsvg%3E");
+
+/* Keep the action links in one flex row. The theme renders them as inline
+   links by default, so icon-only actions otherwise sit on different text
+   baselines when custom pseudo-icons are present. */
+.myst-top-nav-bar > div:last-child > div:last-child {
+  align-items: center;
+  display: flex !important;
+  gap: 0.5rem;
+}
+
+.myst-top-nav a[href*="zenodo."]::before {
+  content: "Z";
+  align-items: center;
+  box-sizing: border-box;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  color: #e2e8f0;
+  display: flex;
+  font-family: "Roboto Mono", "Courier New", monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+  height: 16px;
+  justify-content: center;
+  line-height: 1;
+  text-align: center;
+  width: 16px;
 }
 
 /* -------------------------------------------------------------------------
@@ -137,16 +161,21 @@ html.dark table.dataframe td {
   border-color: var(--synedu-border);
 }
 
-/* -------------------------------------------------------------------------
-   Hide MyST's auto-generated bibliography.
-
-   Every talktorial ships a hand-written "## 6. References" list. MyST also
-   turns the bare doi.org links in that list into citations and appends its
-   own APA-style reference section, so the page would show references twice.
-   We keep the curated manual list and suppress the auto one.
-   ------------------------------------------------------------------------- */
-
+/* The bibliography directive supplies the entries; the notebook already has
+   the visible "References" heading, so suppress the directive's duplicate
+   caption while keeping its contents. */
 section.myst-bibliography {
+  margin-top: 1rem;
+}
+section.myst-bibliography > :is(h1, h2, h3, h4) {
+  display: none;
+}
+
+/* Keep the project navigation simple outside lessons: the Talktorials
+   section is useful while reading S01–S09, but should not be an expandable
+   branch on every other page. */
+.myst-primary-sidebar-toc:not(:has(.myst-toc-item-exact a[href^="/synedu/"]))
+  .myst-toc-item:has(a[href^="/docs/talktorials"]) {
   display: none;
 }
 

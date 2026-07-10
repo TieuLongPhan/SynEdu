@@ -62,14 +62,14 @@ site:
     logo_alt: SynEdu
     logo_text: SynEdu
   nav:
+    - title: Getting started
+      url: /docs/installing
     - title: Talktorials
       url: /docs/talktorials
-    - title: Installation
-      url: /docs/installing
-    - title: API
-      url: /docs/api
     - title: Contribute
       url: /docs/contribute
+    - title: Citation
+      url: /docs/citation
   actions:
     - title: Repository
       url: https://github.com/TieuLongPhan/SynEdu

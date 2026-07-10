@@ -1,6 +1,5 @@
 # SynEdu: Graph-Based Reaction Modeling Talktorials
 
-[![Documentation](https://readthedocs.org/projects/synedu/badge/?version=latest)](https://synedu.readthedocs.io/en/latest/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20315655.svg)](https://doi.org/10.5281/zenodo.20315655)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
@@ -10,9 +9,9 @@ graph-theoretic abstractions, and rule-based reaction modeling in a
 reproducible workflow.
 
 The source of truth is the Jupytext MyST Markdown under
-`synedu/Sxx/notebook.md`. Jupyter Book renders those files directly. The Read
-the Docs build also generates portable `.ipynb` exports for each talktorial's
-"Open in Colab" and "Download notebook" actions.
+`synedu/Sxx/notebook.md`. Jupyter Book renders those files directly. Portable
+`.ipynb` exports are versioned under `docs/downloads/` so Colab can open a
+concrete GitHub notebook revision reliably.
 
 ## Setup
 

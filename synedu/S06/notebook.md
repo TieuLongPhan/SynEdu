@@ -13,7 +13,7 @@ kernelspec:
 
 # S06: Canonicalizing Atom-Mapped Reactions and Rules
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/url?url=https%3A%2F%2Fsynedu.readthedocs.io%2Fen%2Flatest%2Fdownloads%2FS06.ipynb) [![Download Notebook](https://img.shields.io/badge/download-.ipynb-blue)](../../downloads/S06.ipynb) [![Run Locally](https://img.shields.io/badge/run-locally-lightgrey)](../../docs/installing.md)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S06.ipynb) [![Download Notebook](https://img.shields.io/badge/download-.ipynb-blue)](https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S06.ipynb) [![Run Locally](https://img.shields.io/badge/run-locally-lightgrey)](../../docs/installing.md)
 
 This talktorial explains why atom-map numbers must be canonicalized before reactions and extracted rules can be compared reproducibly. We use partition refinement, WL-style coloring, and exact isomorphism ideas to collapse equivalent maps [@weisfeiler1968reduction; @mckay2014practical; @morgan1965generation].
 

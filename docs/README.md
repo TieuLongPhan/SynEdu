@@ -8,8 +8,8 @@ make build
 ```
 
 The notebook sources live in `synedu/Sxx/notebook.md` as Jupytext MyST Markdown
-files. MyST renders and executes these sources directly for the site. The Read
-the Docs build separately generates portable `Sxx.ipynb` exports under the
-published site's `downloads/` directory for Colab/download links.
+files. MyST renders and executes these sources directly for the site. Portable
+Colab/download exports are versioned under `docs/downloads/`; regenerate them
+after editing a talktorial with `make build-downloads DOWNLOAD_DIR=docs/downloads`.
 
 Legacy Sphinx files are not part of the active Jupyter Book 2 build.

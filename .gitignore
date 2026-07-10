@@ -12,6 +12,8 @@ build/
 develop-eggs/
 dist/
 downloads/
+!docs/downloads/
+!docs/downloads/*.ipynb
 eggs/
 .eggs/
 lib/
@@ -243,3 +245,5 @@ Agent/*
 *.tex
 !synedu/S00/figure/pipeline.tex
 !docs/paper/figures/*.tex
+
+old/

@@ -13,7 +13,7 @@ kernelspec:
 
 # S02: Graph Homomorphisms in Reaction Informatics
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/url?url=https%3A%2F%2Fsynedu.readthedocs.io%2Fen%2Flatest%2Fdownloads%2FS02.ipynb) [![Download Notebook](https://img.shields.io/badge/download-.ipynb-blue)](../../downloads/S02.ipynb) [![Run Locally](https://img.shields.io/badge/run-locally-lightgrey)](../../docs/installing.md)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S02.ipynb) [![Download Notebook](https://img.shields.io/badge/download-.ipynb-blue)](https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S02.ipynb) [![Run Locally](https://img.shields.io/badge/run-locally-lightgrey)](../../docs/installing.md)
 
 This talktorial studies graph homomorphisms as the matching language behind molecular equivalence, symmetry, substructure search, and later reaction-rule application. RDKit provides chemistry-native matching, while NetworkX keeps the graph homomorphism explicit and inspectable [@rdkit_docs; @networkx_docs].
 

@@ -15,5 +15,4 @@ build:
     - test -f _build/html/index.html
     - mkdir -p "$READTHEDOCS_OUTPUT/html"
     - cp -r _build/html/. "$READTHEDOCS_OUTPUT/html/"
-    - make build-downloads DOWNLOAD_DIR="$READTHEDOCS_OUTPUT/html/downloads"
     - rm -rf _build/html
