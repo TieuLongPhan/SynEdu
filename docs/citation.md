@@ -4,8 +4,6 @@ If you use SynEdu in academic work, please cite the archived Zenodo record.
 Use the concept DOI for a project-level citation, or the version DOI when
 you need to pin the exact `v0.1.0` archive.
 
-[DOI: 10.5281/zenodo.20315655](https://doi.org/10.5281/zenodo.20315655)
-
 The repository also includes a machine-readable `CITATION.cff` file for GitHub,
 Zenodo, and citation managers that understand the Citation File Format.
 

@@ -39,6 +39,18 @@ under `docs/downloads/`. Regenerate them after changing a talktorial with
 executed website pages: the website executes `notebook.md` directly, while the
 exports add a fresh-runtime installation cell and remote data/figure URLs.
 
+### Keep RDT and Colab on the same revision
+
+The published documentation and notebook exports should use the same Git ref:
+
+- **latest RDT** → Colab notebook from `main`
+- **tagged RDT release** → Colab notebook from the same tag
+
+This keeps a notebook opened from a versioned documentation site consistent
+with the code and explanations shown on that site. When creating a release,
+regenerate `docs/downloads/`, commit the exports, and use the release tag in
+the Colab URL (for example, `blob/v0.1.0/docs/downloads/S01.ipynb`).
+
 ## Run A Notebook Locally
 
 You do not need a documentation build to run a talktorial. The default local

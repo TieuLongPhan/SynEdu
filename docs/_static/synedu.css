@@ -85,6 +85,17 @@ html.dark {
   color: #ffffff !important;
 }
 
+/* Match the theme toggle's box to the icon-only repository actions so all
+   controls share the same vertical center and hit area. */
+.myst-top-nav .myst-theme-button {
+  align-items: center;
+  box-sizing: border-box;
+  display: inline-flex;
+  height: 32px;
+  margin: 0 !important;
+  width: 32px;
+}
+
 /* Repository, issue, and archive actions match the theme toggle's icon-button treatment. */
 .myst-top-nav a[href^="https://github.com/TieuLongPhan/SynEdu"],
 .myst-top-nav a[href$="/issues"],
@@ -125,25 +136,19 @@ html.dark {
 .myst-top-nav-bar > div:last-child > div:last-child {
   align-items: center;
   display: flex !important;
-  gap: 0.5rem;
+  gap: 0;
 }
 
 .myst-top-nav a[href*="zenodo."]::before {
   content: "Z";
-  align-items: center;
-  box-sizing: border-box;
-  border: 1px solid currentColor;
-  border-radius: 50%;
-  color: #e2e8f0;
   display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #e2e8f0;
   font-family: "Roboto Mono", "Courier New", monospace;
   font-size: 0.72rem;
   font-weight: 800;
-  height: 16px;
-  justify-content: center;
   line-height: 1;
-  text-align: center;
-  width: 16px;
 }
 
 /* -------------------------------------------------------------------------
@@ -167,15 +172,10 @@ html.dark table.dataframe td {
 section.myst-bibliography {
   margin-top: 1rem;
 }
-section.myst-bibliography > :is(h1, h2, h3, h4) {
-  display: none;
-}
-
-/* Keep the project navigation simple outside lessons: the Talktorials
-   section is useful while reading S01–S09, but should not be an expandable
-   branch on every other page. */
-.myst-primary-sidebar-toc:not(:has(.myst-toc-item-exact a[href^="/synedu/"]))
-  .myst-toc-item:has(a[href^="/docs/talktorials"]) {
+/* MyST has used both a section and a div wrapper for this generated title;
+   cover both forms so only the notebook's explicit heading remains. */
+.myst-bibliography :is(h1, h2, h3, h4, .myst-bibliography-title,
+  .myst-bibliography-header) {
   display: none;
 }
 
