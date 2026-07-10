@@ -17,10 +17,3 @@ Latest DOI: [10.5281/zenodo.20315655](https://doi.org/10.5281/zenodo.20315655)
 | Talktorials | The nine-notebook route is organized into fundamentals, rule library construction, and rule application. | [Talktorials](talktorials/index.md) |
 | Build system | The active docs build has moved from Sphinx/Jupyter Book 1 to Jupyter Book 2 / MyST. | [Installation](installing.md) |
 | Notebook sources | Committed notebooks are Jupytext percent-format `.py` files; `.ipynb` build inputs are generated and ignored. | [Talktorials](talktorials/index.md) |
-
-## Known Follow-Up
-
-Legacy Sphinx-only customizations such as `autosummary`, `nbsphinx_epilog`,
-`sphinx_material` templates, and Sphinx sidebars are not active in Jupyter Book
-2. They should only be reintroduced through MyST-compatible mechanisms if they
-remain necessary.

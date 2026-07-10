@@ -7,6 +7,8 @@ generation step is needed to build the site.
 
 Every talktorial page has three ways in: **Open in Colab**, **download the
 notebook**, or run it locally as described below.
+The first two approaches yield self-contained notebooks for a quick-start
+with all required packages and data present already.
 
 ## Developer Setup
 
