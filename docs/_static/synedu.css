@@ -85,25 +85,29 @@ html.dark {
   color: #ffffff !important;
 }
 
-/* Repository / issue actions match the theme toggle's icon-button treatment. */
-.myst-top-nav a[href^="https://github.com/TieuLongPhan/SynEdu"] {
+/* Repository, issue, and archive actions match the theme toggle's icon-button treatment. */
+.myst-top-nav a[href^="https://github.com/TieuLongPhan/SynEdu"],
+.myst-top-nav a[href$="/issues"],
+.myst-top-nav a[href^="https://doi.org/10.5281/zenodo/"] {
   align-items: center;
   border: 1px solid rgba(255, 255, 255, 0.45) !important;
   border-radius: 9999px;
   display: inline-flex;
-  flex: 0 0 40px;
+  flex: 0 0 32px;
   font-size: 0;
-  height: 40px;
+  height: 32px;
   justify-content: center;
   overflow: hidden;
   padding: 0 !important;
-  width: 40px;
+  width: 32px;
 }
-.myst-top-nav a[href^="https://github.com/TieuLongPhan/SynEdu"]::before {
+.myst-top-nav a[href^="https://github.com/TieuLongPhan/SynEdu"]::before,
+.myst-top-nav a[href$="/issues"]::before,
+.myst-top-nav a[href^="https://doi.org/10.5281/zenodo/"]::before {
   content: "";
   display: block;
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   background-repeat: no-repeat;
   background-position: center;
   background-size: contain;
@@ -113,6 +117,9 @@ html.dark {
 }
 .myst-top-nav a[href$="/issues"]::before {
   background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2215%22%20height%3D%2215%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22%23e2e8f0%22%3E%3Cpath%20d%3D%22M8%201.5a6.5%206.5%200%201%200%200%2013%206.5%206.5%200%200%200%200-13zM0%208a8%208%200%201%201%2016%200A8%208%200%200%201%200%208zm9%203a1%201%200%201%201-2%200%201%201%200%200%201%202%200zM8%204a.75.75%200%200%201%20.75.75v3.5a.75.75%200%200%201-1.5%200v-3.5A.75.75%200%200%201%208%204z%22%2F%3E%3C%2Fsvg%3E");
+}
+.myst-top-nav a[href^="https://doi.org/10.5281/zenodo/"]::before {
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20stroke%3D%22%23e2e8f0%22%20stroke-width%3D%221.5%22%3E%3Cpath%20d%3D%22M3%201.75h7l3%203v9.5H3zM10%201.75v3h3M5%208h6M5%2011h6%22%2F%3E%3C%2Fsvg%3E");
 }
 
 /* -------------------------------------------------------------------------
