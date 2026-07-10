@@ -5,13 +5,14 @@ build:
   tools:
     python: "3.11"
     nodejs: "22"
-  jobs:
-    create_environment:
-      - python -m pip install uv
-      - uv sync
-    build:
-      html:
-        - uv run python scripts/prepare_jupyter_book.py
-        - uv run jupyter book build --execute --html --execute-parallel 1
-        - mkdir -p "$READTHEDOCS_OUTPUT/html"
-        - cp -r _build/html/* "$READTHEDOCS_OUTPUT/html/"
+  commands:
+    - python -m pip install "uv==0.11.21"
+    - uv --version
+    - node --version
+    - uv sync --frozen
+    - uv run python --version
+    - make check-notebooks
+    - uv run jupyter book build --execute --html --execute-parallel 1 --ci
+    - test -f _build/html/index.html
+    - mkdir -p "$READTHEDOCS_OUTPUT/html"
+    - cp -r _build/html/. "$READTHEDOCS_OUTPUT/html/"

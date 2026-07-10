@@ -343,9 +343,7 @@ fig = draw_rxn_graph(aam, title="Oxidation", title_fontsize=24, show_indices=Tru
 After MCS alignment, matched atom pairs share the same colour across the reactant and product graphs. Atoms that could not be matched (spectators or unmapped atoms) appear grey. Comparing the two panels reveals which atoms participate in the reaction center.
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from synedu.Utils.vis import draw_molecular_graph
@@ -548,9 +546,7 @@ else:
 RXNMapper's raw output matrix is indexed product-by-reactant, i.e. the transpose $A^\top$ of the reactant-by-product matrix $A$ defined above: rows are product atom tokens and columns are reactant atom tokens. Bright cells indicate product atoms that strongly attend to a reactant atom. The final atom map is the high-weight assignment through this matrix, so visualising it helps connect the Transformer output to the atom-map numbers we use later.
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
@@ -940,9 +936,7 @@ We color edges by change type:
 | $b_r \neq b_p$, both $> 0$ | **Changed** (e.g. single→double) | orange |
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 import matplotlib.pyplot as plt
 from synedu.Utils.its_vis import its_coordinate_layout, visualize_its
 
@@ -1071,9 +1065,7 @@ The left panel shows the full ITS: **red edges** are broken bonds, **green edges
 The off-diagonal ΔBE entries encode the same information numerically: $\Delta\mathrm{BE}_{ij} = b^P_{ij} - b^R_{ij}$ for $i \neq j$ [@dugundji1973algebraic]. Red cells indicate bond cleavage; blue cells indicate bond formation. The pattern of signed changes is characteristic of the reaction type, though it is not in general a unique fingerprint (different reactions can share the same bond-change pattern).
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -1172,9 +1164,7 @@ reconstructs the bond-order part of $\Delta\mathrm{BE}$, not the full electron
 reorganisation.
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 import numpy as np
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -1263,9 +1253,7 @@ m3 = "[CH3:1][CH2:2][O:3][C:4](=[O:5])[CH2:6][C:7](=[O:8])[O:9][CH2:10][CH3:11].
 ```
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 svg1 = visualize_reaction(
     m1,
     svg=True,
@@ -1292,9 +1280,7 @@ display(SVG(svg3))
 Even for experienced chemists, it is non-trivial to determine whether three atom mappings are equivalent.
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 import matplotlib.pyplot as plt
 
 its1 = rsmi_to_its(m1)

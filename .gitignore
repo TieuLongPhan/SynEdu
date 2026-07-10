@@ -214,7 +214,7 @@ docs/_build/
 docs/.jupyter_cache/
 docs/_autosummary/
 docs/**/.ipynb_checkpoints/
-.notebooks/
+synedu/S[0-9][0-9]/notebook.ipynb
 .jupyter-state/
 docs/**/*.ipynb_checkpoints/
 _build/

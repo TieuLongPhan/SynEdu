@@ -4,38 +4,86 @@ on:
   workflow_dispatch:
     inputs:
       notebook:
-        description: "Notebook to run (e.g. S01, S02, or 'all')"
+        description: "Notebook to run (S01-S09 or all)"
         required: false
         default: "all"
+        type: choice
+        options: [all, S01, S02, S03, S04, S05, S06, S07, S08, S09]
   schedule:
     - cron: "0 4 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: notebooks-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  PYTHONUNBUFFERED: "1"
+  UV_FROZEN: "1"
 
 jobs:
   execute:
     name: Execute ${{ matrix.notebook }}
     runs-on: ubuntu-latest
+    timeout-minutes: 60
 
     strategy:
       fail-fast: false
       matrix:
-        notebook: [S01, S02, S03, S04, S05, S06, S07, S08, S09]
+        notebook: ${{ fromJSON((inputs.notebook == '' || inputs.notebook == 'all') && '["S01","S02","S03","S04","S05","S06","S07","S08","S09"]' || format('["{0}"]', inputs.notebook)) }}
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
+      - uses: actions/checkout@v6
         with:
-          enable-cache: true
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
+          persist-credentials: false
 
-      - name: Set up Python
-        run: uv python install 3.11
+      - name: Set up uv and Python
+        uses: astral-sh/setup-uv@v8
+        with:
+          version: "0.11.21"
+          python-version: "3.11"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Log environment
+        run: |
+          {
+            echo "## ${{ matrix.notebook }} environment"
+            echo '```text'
+            uv --version
+            uv python find 3.11
+            "$(uv python find 3.11)" --version
+            git rev-parse HEAD
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY" "notebook-${{ matrix.notebook }}.log"
 
       - name: Install dependencies
-        run: uv sync
+        run: uv sync --frozen 2>&1 | tee -a "notebook-${{ matrix.notebook }}.log"
 
-      - name: Execute notebook ${{ matrix.notebook }}
+      - name: Execute ${{ matrix.notebook }}
         env:
           SYNEDU_NB: ${{ matrix.notebook }}
-        run: uv run pytest -m slow -v tests/test_notebooks.py
+          SYNEDU_EXECUTED_DIR: _build/executed-notebooks
+        run: uv run pytest -m slow -v tests/test_notebooks.py 2>&1 | tee -a "notebook-${{ matrix.notebook }}.log"
+
+      - name: Summarize execution
+        if: always()
+        run: |
+          {
+            echo "## ${{ matrix.notebook }} result"
+            echo "- Status: ${{ job.status }}"
+            echo "- Executed notebook: _build/executed-notebooks/${{ matrix.notebook }}.ipynb"
+          } | tee -a "$GITHUB_STEP_SUMMARY" "notebook-${{ matrix.notebook }}.log"
+
+      - name: Upload executed notebook and log
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: executed-${{ matrix.notebook }}
+          path: |
+            _build/executed-notebooks/${{ matrix.notebook }}.ipynb
+            notebook-${{ matrix.notebook }}.log
+          retention-days: 30
+          if-no-files-found: warn

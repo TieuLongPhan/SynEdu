@@ -528,9 +528,7 @@ highlighting the matched subgraph in $G$. Orbit-deduplication then collapses
 symmetry-equivalent matches.
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from synedu.Utils.vis import draw_molecular_graph, _layout_from_graph_mol
@@ -926,9 +924,7 @@ $D$ is obtained by removing the atoms/bonds in $L \setminus K$ from $G$.
 The highlighted region in $G$ shows which nodes/edges are matched and will be deleted.
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 import matplotlib.pyplot as plt
 from synedu.Utils.vis import draw_molecular_graph
 
@@ -1061,9 +1057,7 @@ DPO rewriting proceeds in two stages:
 Each panel below corresponds to one stage for match 1 of the Diels-Alder rule.
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 from synedu.Utils.vis import draw_molecular_graph
 import matplotlib.pyplot as plt
 
@@ -1292,9 +1286,7 @@ rsmi1, rsmi2 = dpo_rule_apply(input, rule, True)
 ```
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 from synedu.Utils.rxn_vis import visualize_reaction
 from IPython.display import SVG
 
@@ -1426,9 +1418,7 @@ The same DPO span $L \xleftarrow{l} K \xrightarrow{r} R$ works in both direction
 Swapping $L$ and $R$ is all it takes.
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 import matplotlib.pyplot as plt
 from synedu.Utils.vis import draw_molecular_graph
 from synedu.Utils.conversion import smiles_to_graph, graph_to_smi

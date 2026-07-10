@@ -1,0 +1,84 @@
+name: Release artifacts
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  UV_FROZEN: "1"
+
+jobs:
+  build:
+    name: Build and attest distribution
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Set up uv and Python
+        uses: astral-sh/setup-uv@v8
+        with:
+          version: "0.11.21"
+          python-version: "3.11"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Log build environment
+        run: |
+          {
+            echo "## Release environment"
+            echo '```text'
+            uv --version
+            uv python find 3.11
+            "$(uv python find 3.11)" --version
+            git rev-parse HEAD
+            git describe --tags --always --dirty
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY" release.log
+
+      - name: Build wheel and source distribution
+        run: |
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            python_bin="$(uv python find 3.11)"
+            expected="v$("${python_bin}" -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')"
+            test "${GITHUB_REF_NAME}" = "${expected}" || {
+              echo "Tag ${GITHUB_REF_NAME} does not match project version ${expected}" | tee -a release.log
+              exit 1
+            }
+          fi
+          uv build --no-sources 2>&1 | tee -a release.log
+
+      - name: Inspect distributions
+        run: |
+          uvx --from twine==6.2.0 twine check dist/* 2>&1 | tee -a release.log
+          sha256sum dist/* | tee SHA256SUMS | tee -a release.log
+
+      - name: Generate build provenance
+        if: github.event_name == 'push'
+        uses: actions/attest@v4
+        with:
+          subject-path: dist/*
+
+      - name: Upload distributions and checksums
+        uses: actions/upload-artifact@v7
+        with:
+          name: synedu-${{ github.ref_name }}
+          path: |
+            dist/*
+            SHA256SUMS
+            release.log
+          retention-days: 90
+          if-no-files-found: error

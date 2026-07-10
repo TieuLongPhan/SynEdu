@@ -17,7 +17,10 @@ a fresh runtime with no local checkout:
 
 from __future__ import annotations
 
+import argparse
+import hashlib
 import re
+import sys
 from pathlib import Path
 
 import jupytext
@@ -80,22 +83,70 @@ def _lesson_data_files(lesson_dir: Path) -> list[str]:
     return sorted(p.name for p in data_dir.iterdir() if p.is_file())
 
 
-def main() -> None:
+def _assign_stable_cell_ids(
+    notebook: nbformat.NotebookNode, lesson: str
+) -> nbformat.NotebookNode:
+    """Assign deterministic IDs so repeated exports do not create noisy diffs."""
+    occurrences: dict[str, int] = {}
+    for cell in notebook.cells:
+        digest = hashlib.sha256(
+            f"{cell.cell_type}\0{cell.get('source', '')}".encode()
+        ).hexdigest()[:12]
+        occurrence = occurrences.get(digest, 0)
+        occurrences[digest] = occurrence + 1
+        cell["id"] = f"{lesson.lower()}-{digest}-{occurrence}"
+    return notebook
+
+
+def _export_notebook(source: Path) -> nbformat.NotebookNode:
+    """Create one portable notebook from a MyST source."""
+    lesson = source.parent.name
+    notebook = jupytext.read(source, fmt="md:myst")
+    notebook = _rewrite_static_urls(notebook)
+
+    setup = nbformat.v4.new_code_cell(
+        source=_setup_cell_source(lesson, _lesson_data_files(source.parent))
+    )
+    notebook.cells.insert(1, setup)
+    return _assign_stable_cell_ids(notebook, lesson)
+
+
+def _serialized(notebook: nbformat.NotebookNode) -> str:
+    """Serialize using nbformat's canonical JSON representation."""
+    return nbformat.writes(notebook) + "\n"
+
+
+def main(argv: list[str] | None = None) -> int:
     """Regenerate self-contained docs/downloads/*.ipynb from notebook.md sources."""
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="fail if committed notebook exports are missing or stale",
+    )
+    args = parser.parse_args(argv)
+
     DOCS_DOWNLOADS.mkdir(parents=True, exist_ok=True)
+    stale: list[Path] = []
 
     for source in sorted(SYNEDU_ROOT.glob("S[0-9][0-9]/notebook.md")):
         lesson = source.parent.name
-        notebook = jupytext.read(source, fmt="md:myst")
-        notebook = _rewrite_static_urls(notebook)
+        destination = DOCS_DOWNLOADS / f"{lesson}.ipynb"
+        content = _serialized(_export_notebook(source))
+        if args.check:
+            if not destination.exists() or destination.read_text() != content:
+                stale.append(destination)
+        else:
+            destination.write_text(content)
 
-        setup = nbformat.v4.new_code_cell(
-            source=_setup_cell_source(lesson, _lesson_data_files(source.parent))
-        )
-        notebook.cells.insert(1, setup)
-
-        nbformat.write(notebook, DOCS_DOWNLOADS / f"{lesson}.ipynb")
+    if stale:
+        print("Stale notebook exports:", file=sys.stderr)
+        for path in stale:
+            print(f"  {path.relative_to(REPO_ROOT)}", file=sys.stderr)
+        print("Run `make notebooks` to refresh them.", file=sys.stderr)
+        return 1
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

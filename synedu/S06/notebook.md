@@ -447,9 +447,7 @@ Using t=1 colors, neighbors of `{4,5,6}` differ → split:
 Each column shows the partition class (colour) assigned to each node at one WL iteration. Nodes with the same colour are in the same equivalence class at that step. As refinement proceeds, symmetric atoms split into finer classes until the partition is **stable** (no cell changes between two consecutive columns). Atoms that remain in the same class throughout are **WL-indistinguishable**.
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 import copy
 import numpy as np
 import matplotlib.pyplot as plt
@@ -519,9 +517,7 @@ plt.show()
 Each panel shows the graph after one refinement step. Nodes with the same colour share the same partition class (WL-indistinguishable at that iteration). Iteration 0 is the initial partition by element type; the partition stabilises once no cell splits further.
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 import copy
 import matplotlib.pyplot as plt
 from synedu.Utils.vis import draw_molecular_graph, _layout_from_graph_mol
@@ -618,9 +614,7 @@ Less symmetric molecules keep splitting cells for more iterations.
 
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 import matplotlib.pyplot as plt
 import copy
 from synedu.Utils import smiles_to_graph
@@ -1029,9 +1023,7 @@ not necessarily two — and the canonical ordering
 is the leaf with the lexicographically smallest certificate.
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.gridspec as gridspec
@@ -1351,9 +1343,7 @@ Highly symmetric molecules (benzene) need the deepest tree;
 fully asymmetric ones (alanine) need none at all.
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 import matplotlib.pyplot as plt
 from synedu.Utils import smiles_to_graph
 
@@ -1429,9 +1419,7 @@ Canonical atom-map numbering follows the same motivation as canonical molecular 
 Now we combine all of them
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.patches import FancyBboxPatch
@@ -1602,9 +1590,7 @@ Canonical atom-map numbering collapses this redundancy and reduces the
 apparent rule vocabulary.
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 import matplotlib.pyplot as plt
 
 # Pool all three mappers for the SAME reactions.
@@ -1685,9 +1671,7 @@ plt.show()
 The raw SMILES differ in atom-map numbers; after `canon_aam` both collapse to the same string, enabling exact deduplication.
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 from synedu.Utils.rxn_vis import draw_rxn_graph
 from IPython.display import HTML, display
 import matplotlib.pyplot as plt
@@ -1736,9 +1720,7 @@ display(
 Different atom-mapping methods (RXNMapper, Graphormer, Local Mapper) may assign different atom-map numbers to the same reaction. After canonicalization, equivalent maps collapse to the **same canonical SMILES**. The table below checks whether all three methods produce identical canonical forms for one example reaction. Green = agreement; red = mismatch.
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 import pandas as pd
 
 _methods = ["rxn_mapper", "graphormer", "local_mapper"]

@@ -293,9 +293,7 @@ df_aam.shape
 Three mappers (RXNMapper, Graphormer, Local Mapper) each produce an atom map for each reaction. The ensemble step classifies reactions by how many mappers agree. High-confidence reactions (all three agree) form the primary training signal; disagreements are resolved by WL-based isomorphism checking or discarded.
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 import matplotlib.pyplot as plt
 
 print(f"df_aam shape: {df_aam.shape}")
@@ -880,9 +878,7 @@ df_aam['wl_hash'].value_counts()
 ```
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -948,9 +944,7 @@ The most frequent WL hash classes represent the most common reaction mechanisms 
 We visualize the reaction center ITS graph for the representative of each top-10 class.
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 import matplotlib.pyplot as plt
 from synedu.Utils.its_vis import visualize_its
 
@@ -1102,9 +1096,7 @@ plt.show()
 ```
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 import matplotlib.pyplot as plt
 import numpy as np
 

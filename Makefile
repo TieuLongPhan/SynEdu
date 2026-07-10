@@ -1,19 +1,15 @@
-.PHONY: help sync prepare build build-fast build-one start notebook lab lint test test-notebooks check clean clean-docs clean-py
+.PHONY: help sync prepare notebooks check-notebooks build build-fast build-one start notebook execute-notebook lab format lint test test-notebooks check clean clean-docs clean-py
 
 UV ?= uv
 UV_CACHE ?= .uv-cache
 JUPYTER_STATE ?= .jupyter-state
-TOOLS_BIN ?= $(CURDIR)/tools/bin
-NPM_REAL_BIN ?= $(shell command -v npm)
-NODE_PATH ?= $(shell npm root -g 2>/dev/null)
-NPM_BIN ?= $(shell dirname $(shell which npm))
 HOST ?= 127.0.0.1
 SERVER_PORT ?= 3100
 LESSON ?= S01
 NOTEBOOK ?= synedu/$(LESSON)/notebook.md
-LAB_NOTEBOOK ?= .notebooks/$(LESSON).ipynb
+LAB_NOTEBOOK ?= synedu/$(LESSON)/notebook.ipynb
 BOOK_NOTEBOOK = synedu/$(LESSON)/notebook.md
-RUN_ENV = PATH=$(TOOLS_BIN):$(NPM_BIN):$(PATH) HOST=$(HOST) SERVER_PORT=$(SERVER_PORT) UV_CACHE_DIR=$(UV_CACHE) NODE_PATH=$(NODE_PATH) NPM_REAL_BIN=$(NPM_REAL_BIN) JUPYTER_DATA_DIR=$(JUPYTER_STATE)/data JUPYTER_CONFIG_DIR=$(JUPYTER_STATE)/config JUPYTER_RUNTIME_DIR=$(JUPYTER_STATE)/runtime
+RUN_ENV = HOST=$(HOST) SERVER_PORT=$(SERVER_PORT) UV_CACHE_DIR=$(UV_CACHE) JUPYTER_DATA_DIR=$(JUPYTER_STATE)/data JUPYTER_CONFIG_DIR=$(JUPYTER_STATE)/config JUPYTER_RUNTIME_DIR=$(JUPYTER_STATE)/runtime
 UV_RUN = $(RUN_ENV) $(UV) run
 
 help:
@@ -23,22 +19,24 @@ help:
 	@printf '%s\n' '  make sync                 Install/update the uv environment'
 	@printf '%s\n' ''
 	@printf '%s\n' 'Documentation:'
-	@printf '%s\n' '  make prepare              Regenerate docs/downloads/*.ipynb (Colab/download artifacts)'
-	@printf '%s\n' '  make build                Prepare and build HTML with notebook execution'
-	@printf '%s\n' '  make build-fast           Prepare and build HTML without execution'
-	@printf '%s\n' '  make build-one LESSON=S01 Prepare and build one talktorial page'
-	@printf '%s\n' '  make start                Prepare and start the local Jupyter Book server'
+	@printf '%s\n' '  make notebooks            Regenerate committed Colab/download notebooks'
+	@printf '%s\n' '  make check-notebooks      Check that committed exports are current'
+	@printf '%s\n' '  make build                Export notebooks and build HTML with execution'
+	@printf '%s\n' '  make build-fast           Build HTML without execution or notebook export'
+	@printf '%s\n' '  make build-one LESSON=S01 Build and execute one talktorial page'
+	@printf '%s\n' '  make start                Start the local docs server without execution'
 	@printf '%s\n' ''
 	@printf '%s\n' 'Notebook work:'
-	@printf '%s\n' '  make notebook LESSON=S01  Convert one lesson to .notebooks/S01.ipynb'
-	@printf '%s\n' '  make lab LESSON=S01       Convert one lesson to .ipynb and open JupyterLab'
-	@printf '%s\n' '  make lab NOTEBOOK=path    Convert/open a specific Jupytext source file'
+	@printf '%s\n' '  make notebook LESSON=S01  Export one local .ipynb beside its MyST source'
+	@printf '%s\n' '  make execute-notebook      Execute one lesson to _build/executed-notebooks'
+	@printf '%s\n' '  make lab LESSON=S01       Open one MyST notebook directly in JupyterLab'
 	@printf '%s\n' ''
 	@printf '%s\n' 'Checks:'
+	@printf '%s\n' '  make format               Check Python formatting with Black'
 	@printf '%s\n' '  make lint                 Run flake8'
 	@printf '%s\n' '  make test                 Run non-slow tests'
 	@printf '%s\n' '  make test-notebooks       Run slow notebook tests'
-	@printf '%s\n' '  make check                Run lint and non-slow tests'
+	@printf '%s\n' '  make check                Run lint, fast tests, and export consistency'
 	@printf '%s\n' ''
 	@printf '%s\n' 'Cleanup:'
 	@printf '%s\n' '  make clean-docs           Remove generated docs artifacts'
@@ -48,27 +46,37 @@ help:
 sync:
 	$(RUN_ENV) $(UV) sync
 
-prepare:
+notebooks:
 	$(UV_RUN) python scripts/prepare_jupyter_book.py
 
-build: prepare
+prepare: notebooks
+
+check-notebooks:
+	$(UV_RUN) python scripts/prepare_jupyter_book.py --check
+
+build: notebooks
 	$(UV_RUN) jupyter book build --execute --html --ci
 
-build-fast: prepare
+build-fast:
 	$(UV_RUN) jupyter book build --html --ci
 
-build-one: prepare
+build-one:
 	$(UV_RUN) jupyter book build --execute --html --ci $(BOOK_NOTEBOOK)
 
-start: prepare
+start:
 	$(UV_RUN) jupyter book start
 
 notebook:
-	mkdir -p $(dir $(LAB_NOTEBOOK))
 	$(UV_RUN) jupytext --to ipynb $(NOTEBOOK) --output $(LAB_NOTEBOOK)
 
-lab: notebook
-	$(UV_RUN) jupyter lab $(LAB_NOTEBOOK)
+execute-notebook:
+	SYNEDU_NB=$(LESSON) SYNEDU_EXECUTED_DIR=_build/executed-notebooks $(UV_RUN) pytest -m slow -v tests/test_notebooks.py
+
+lab:
+	$(UV_RUN) jupyter lab $(NOTEBOOK)
+
+format:
+	$(UV_RUN) black --workers 1 --check synedu/*.py synedu/Utils tests scripts
 
 lint:
 	$(UV_RUN) flake8 synedu tests scripts
@@ -79,10 +87,11 @@ test:
 test-notebooks:
 	$(UV_RUN) pytest -m slow -v tests/test_notebooks.py
 
-check: lint test
+check: format lint test check-notebooks
 
 clean-docs:
-	rm -rf _build docs/_build docs/downloads .notebooks
+	rm -rf _build docs/_build
+	find synedu -path '*/notebook.ipynb' -delete
 
 clean-py:
 	find . -type d \( -name __pycache__ -o -name .pytest_cache -o -name .mypy_cache -o -name .ruff_cache -o -name .uv-cache -o -name .jupyter-state \) -prune -exec rm -rf {} +

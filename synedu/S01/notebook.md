@@ -83,9 +83,7 @@ osimertinib  # you can see the figure of osimertinib
 Use `IPythonConsole` to render RDKit atom indices on molecular structures.
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 from rdkit.Chem.Draw import IPythonConsole
 from typing import Tuple
 
@@ -121,9 +119,7 @@ RDKit’s `Draw.MolsToGridImage` allows you to display a list of molecules
 as a grid for rapid visual inspection and comparison.
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 from rdkit.Chem import Draw
 
 some_smiles = df['smiles'][:12].to_list()
@@ -312,9 +308,7 @@ The four Lipinski properties computed across the full 1,000-molecule dataset.
 Dashed black lines mark the Rule of Five thresholds; bars are coloured by pass/fail status.
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 from rdkit.Chem import Descriptors
 from rdkit.Chem.Crippen import MolLogP
 from rdkit.Chem.Lipinski import NumHDonors, NumHAcceptors
@@ -378,9 +372,7 @@ print(f"Lipinski pass: {pass_n} / {len(df_vis)}  ({pass_n/len(df_vis):.1%})")
 ```
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 fig, ax = plt.subplots(figsize=(7, 5))
 
 for passes, grp in df_vis.groupby("Lipinski"):
@@ -664,11 +656,7 @@ The cell below color-codes each SMILES token by its syntactic role — useful fo
 Each color corresponds to a token class (aromatic atom, branch, ring closure, stereo, etc.).
 
 ```{code-cell}
----
-slideshow:
-  slide_type: slide
-tags: [hide-input]
----
+:tags: [hide-input]
 
 import re
 import html
@@ -920,9 +908,7 @@ for name, smi in examples:
 SMILES strings can have many valid variants for the same molecule [@weininger1989smiles2].
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 from rdkit.Chem import Draw
 
 s1 = "CC(=O)Oc1ccccc1C(=O)O"
@@ -1274,9 +1260,7 @@ The same molecule (benzene) written in two SMILES notations produces **different
 This distinction matters for graph isomorphism and reaction rule matching in later notebooks.
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 from rdkit.Chem import Draw
 
 kekule_smi = "C1=CC=CC=C1"  # Kekulé benzene
@@ -1370,9 +1354,7 @@ Key properties shared by all variants:
 - Diagonal entries of the degree matrix $\mathrm{Deg}$ give the heavy-atom degree of each atom
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 import numpy as np
 
 # Aromatic form: ring bonds have order 1.5
@@ -1472,9 +1454,7 @@ Key properties:
   with boiling points for alkanes [@wiener1947structural]
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 import numpy as np
 
 mol_dist = Chem.MolFromSmiles(Chem.CanonSmiles("c1ccccc1O"))  # phenol

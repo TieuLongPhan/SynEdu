@@ -255,9 +255,7 @@ print(f"Full ITS → {_its_ex.number_of_nodes()} nodes")
 ### 1.4 Visualise r = 0, 1, 2 on one ITS
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 import matplotlib.pyplot as plt
 from synedu.Utils.its_vis import visualize_its
 
@@ -309,9 +307,7 @@ than comparing many families at once.
 ### 2.1 Pick one rule family
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 TOP_CLASS = int(_df_cls["class"].value_counts().idxmax())
 family_train = [v for v in cluster if v["class"] == TOP_CLASS]
 _family_wl = family_train[0]["wl"]
@@ -425,9 +421,7 @@ for r, tlist in enumerate(_templates):
 ### 2.3 Template count vs. radius
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -484,9 +478,7 @@ We draw one representative K-graph per radius using `visualize_its`
 (which handles ITS-style edge attributes automatically).
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 import matplotlib.pyplot as plt
 from synedu.Utils.its_vis import visualize_its
 
@@ -696,9 +688,7 @@ The two-panel figure below is the central diagnostic of S09:
 The highlighted radius maximizes `tradeoff_score`, defined here as the harmonic mean of recall@K and enrichment@K. This is not a universal objective; it is a compact visual guide for comparing radii inside one reaction-center family.
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -947,9 +937,7 @@ The next figure separates two questions. Because this check uses all generated c
 The highlighted macro point is the best practical default for this small check. It is a default, not a law: a production workflow would repeat the same logic on a larger validation split.
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 import matplotlib.pyplot as plt
 
 _recall_check = f"Recall({_CHECK_LABEL})"

@@ -9,11 +9,11 @@ through executable Python notebooks. It connects chemical representation,
 graph-theoretic abstractions, and rule-based reaction modeling in a
 reproducible workflow.
 
-The committed notebook sources are Jupytext MyST Markdown `.md` files under
-`synedu/Sxx/notebook.md`. Jupyter Book 2 / MyST renders and executes these
-sources directly for the site — the only generated artifacts are
-`docs/downloads/*.ipynb`, plain notebook exports used by each talktorial's
-"Open in Colab" / "Download notebook" links.
+The source of truth is the Jupytext MyST Markdown under
+`synedu/Sxx/notebook.md`. Jupyter Book renders those files directly. Portable,
+committed `docs/downloads/*.ipynb` exports provide stable GitHub URLs for each
+talktorial's "Open in Colab" and "Download notebook" actions; they are not
+intermediate inputs to the website build.
 
 ## Setup
 
@@ -31,8 +31,8 @@ You do not need a full documentation build to work through a lesson:
 make lab LESSON=S01
 ```
 
-This converts the Jupytext source to an ignored local notebook in `.notebooks/`
-and opens that file in JupyterLab. To only create the notebook file, use:
+This opens the Jupytext source directly in JupyterLab, with no documentation
+build or execution pass. To create an ignored `.ipynb` beside the source, use:
 
 ```bash
 make notebook LESSON=S01
@@ -48,6 +48,21 @@ uv run jupyter lab synedu/S01/notebook.md
 
 ```bash
 make build
+```
+
+Jupyter Book 2 requires Node.js for the documentation renderer. Notebook
+authoring, exports, package checks, and talktorial execution do not require
+Node.js or npm.
+
+Executed notebooks are produced by the scheduled/manual **Notebooks** GitHub
+Actions workflow and retained as run artifacts. The website build itself stores
+execution output in MyST's internal `_build/execute` cache and renders it into
+HTML; it does not emit complete executed `.ipynb` files.
+
+To create one executed notebook locally:
+
+```bash
+make execute-notebook LESSON=S01
 ```
 
 ## Checks

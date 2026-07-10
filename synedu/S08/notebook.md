@@ -426,9 +426,7 @@ of distinct candidates). Reactions with zero matches are **coverage failures**;
 reactions with many matches face **disambiguation** pressure.
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 import matplotlib.pyplot as plt
 import numpy as np
 from synkit.Chem.Reaction.standardize import Standardize
@@ -843,9 +841,7 @@ len(fw_list)
 For one example substrate, the template library generates a set of candidate reactions. The ground-truth reaction is highlighted with a green check mark. Comparing candidates to the ground truth directly shows whether the correct chemistry appears in the top predictions and which template was responsible.
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 from synedu.Utils.rxn_vis import visualize_reaction
 from IPython.display import HTML, display
 import html
@@ -1097,9 +1093,7 @@ print(
 For the same example entry, the inverted template library generates candidate **precursors**. Each candidate is a plausible retrosynthetic disconnection; the ground-truth reaction appears among the candidates when the correct bond-breaking template fires.
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 from synedu.Utils.rxn_vis import visualize_reaction
 from IPython.display import HTML, display
 import html
@@ -1273,9 +1267,7 @@ recovered at least once; enrichment shows how concentrated that hit was within t
 candidate set.
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 import matplotlib.pyplot as plt
 import pandas as pd
 

@@ -3,106 +3,187 @@ name: CI
 on:
   push:
     branches: [main, new]
-    paths:
-      - "synedu/**"
-      - "tests/**"
-      - "scripts/**"
-      - "docs/**"
-      - "myst.yml"
-      - "pyproject.toml"
-      - "uv.lock"
-      - ".github/workflows/ci.yml"
   pull_request:
     branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHONUNBUFFERED: "1"
+  UV_FROZEN: "1"
 
 jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
+      - uses: actions/checkout@v6
         with:
-          enable-cache: true
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
+          persist-credentials: false
 
-      - name: Set up Python
-        run: uv python install 3.11
+      - name: Set up uv and Python
+        uses: astral-sh/setup-uv@v8
+        with:
+          version: "0.11.21"
+          python-version: "3.11"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Log environment
+        run: |
+          {
+            echo "## Lint environment"
+            echo '```text'
+            uv --version
+            uv python find 3.11
+            "$(uv python find 3.11)" --version
+            git rev-parse HEAD
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY" ci-lint.log
 
       - name: Install dependencies
-        run: uv sync
+        run: uv sync --frozen 2>&1 | tee -a ci-lint.log
 
       - name: Check formatting
-        run: uv run black --check synedu/*.py synedu/Utils tests scripts
+        run: uv run black --workers 1 --check synedu/*.py synedu/Utils tests scripts 2>&1 | tee -a ci-lint.log
 
       - name: Lint
-        run: uv run flake8 synedu tests scripts
+        run: uv run flake8 synedu tests scripts 2>&1 | tee -a ci-lint.log
+
+      - name: Upload lint log
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: lint-log
+          path: ci-lint.log
+          retention-days: 14
+          if-no-files-found: error
 
   test:
     name: Fast tests
     runs-on: ubuntu-latest
-    needs: lint
+    timeout-minutes: 30
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
+      - uses: actions/checkout@v6
         with:
-          enable-cache: true
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
+          persist-credentials: false
 
-      - name: Set up Python
-        run: uv python install 3.11
+      - name: Set up uv and Python
+        uses: astral-sh/setup-uv@v8
+        with:
+          version: "0.11.21"
+          python-version: "3.11"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Log environment
+        run: |
+          {
+            echo "## Test environment"
+            echo '```text'
+            uv --version
+            uv python find 3.11
+            "$(uv python find 3.11)" --version
+            git rev-parse HEAD
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY" ci-test.log
 
       - name: Install dependencies
-        run: uv sync
+        run: uv sync --frozen 2>&1 | tee -a ci-test.log
 
-      - name: Run tests
-        run: uv run pytest -m "not slow" -v tests/
+      - name: Run fast tests
+        run: uv run pytest -m "not slow" -v tests/ 2>&1 | tee -a ci-test.log
+
+      - name: Upload test log
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: fast-test-log
+          path: ci-test.log
+          retention-days: 14
+          if-no-files-found: error
 
   docs:
     name: Build docs
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
+    timeout-minutes: 90
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
-          ref: ${{ github.head_ref || github.ref }}
-      - uses: astral-sh/setup-uv@v5
+          persist-credentials: false
+
+      - name: Set up uv and Python
+        uses: astral-sh/setup-uv@v8
         with:
+          version: "0.11.21"
+          python-version: "3.11"
           enable-cache: true
-      - uses: actions/setup-node@v4
+          cache-dependency-glob: uv.lock
+
+      - name: Set up Node for Jupyter Book
+        uses: actions/setup-node@v6
         with:
           node-version: "22"
+          package-manager-cache: false
 
-      - name: Set up Python
-        run: uv python install 3.11
+      - name: Log environment
+        run: |
+          {
+            echo "## Documentation environment"
+            echo '```text'
+            uv --version
+            uv python find 3.11
+            "$(uv python find 3.11)" --version
+            node --version
+            git rev-parse HEAD
+            df -h .
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY" ci-docs.log
 
       - name: Install dependencies
-        run: uv sync
+        run: uv sync --frozen 2>&1 | tee -a ci-docs.log
 
-      - name: Cache MyST execution cache
-        uses: actions/cache@v4
+      - name: Restore MyST execution cache
+        uses: actions/cache@v5
         with:
           path: _build/execute
-          key: myst-execute-${{ hashFiles('synedu/S*/notebook.md') }}
-          restore-keys: myst-execute-
+          key: myst-execute-${{ runner.os }}-${{ hashFiles('uv.lock', 'myst.yml', 'synedu/**/*.py', 'synedu/S*/notebook.md', 'synedu/S*/data/**') }}
+          restore-keys: |
+            myst-execute-${{ runner.os }}-
 
-      - name: Export download/Colab notebooks
-        run: uv run python scripts/prepare_jupyter_book.py
+      - name: Check Colab notebook exports
+        run: make check-notebooks 2>&1 | tee -a ci-docs.log
 
       - name: Build Jupyter Book
-        run: uv run jupyter book build --execute --html --execute-parallel 1
+        run: uv run jupyter book build --execute --html --execute-parallel 1 --ci 2>&1 | tee -a ci-docs.log
 
-      - name: Commit refreshed download notebooks
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: stefanzweifel/git-auto-commit-action@v5
+      - name: Summarize documentation output
+        if: always()
+        run: |
+          {
+            echo "## Documentation output"
+            echo "- HTML files: $(find _build/html -type f 2>/dev/null | wc -l)"
+            echo "- Execution cache files: $(find _build/execute -type f 2>/dev/null | wc -l)"
+            echo "- Build status: ${{ job.status }}"
+          } | tee -a "$GITHUB_STEP_SUMMARY" ci-docs.log
+
+      - name: Upload documentation output and log
+        if: always()
+        uses: actions/upload-artifact@v7
         with:
-          commit_message: "chore: refresh docs/downloads notebooks"
-          file_pattern: docs/downloads/*.ipynb
+          name: documentation-build
+          path: |
+            _build/html
+            ci-docs.log
+          retention-days: 14
+          if-no-files-found: warn

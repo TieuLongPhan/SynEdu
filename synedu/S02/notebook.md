@@ -284,9 +284,7 @@ where $P_\sigma[i,j] = 1$ iff $\sigma(v_i) = v_j$.
 For benzene the full group has order $|\mathrm{Aut}(G)| = 12$ (dihedral group $D_6$).
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 import matplotlib.pyplot as plt
 import numpy as np
 from rdkit import Chem
@@ -476,9 +474,7 @@ Nodes are coloured by orbit index - atoms of the same colour are **symmetry-equi
 Breaking symmetry (a methyl group, a chiral centre) splits large orbits into smaller ones.
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import networkx as nx
@@ -786,9 +782,7 @@ print("Raw subgraph isomorphisms (pattern -> host):", len(matches))
 ```
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 import matplotlib.pyplot as plt
 
 fig, axes = plt.subplots(1, 2, figsize=(10, 4))
@@ -992,9 +986,7 @@ for key, group in groups_mod_host.items():
 ```
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 # Deduplicate to get the chemically distinct placements (2 benzene rings in naphthalene)
 host_autos_ = enumerate_automorphisms(host_G)
 host_orbits_ = compute_orbits_from_automorphisms(host_G, host_autos_)
@@ -1036,9 +1028,7 @@ Raw match counts grow with molecular symmetry; deduplication by host-image colla
 For this host-image deduplication (which groups mappings by image but does not fold host automorphisms together), the reduction factor per placement equals $|\mathrm{Aut}(P)|$, the automorphism-group order of the pattern - each placement is reached by exactly that many pattern relabelings. Collapsing symmetry-equivalent *placements* as well (e.g. the two equivalent rings in naphthalene) requires the additional host-orbit step shown below, which multiplies the reduction by the host symmetry multiplicity.
 
 ```{code-cell}
----
-tags: [hide-input]
----
+:tags: [hide-input]
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt

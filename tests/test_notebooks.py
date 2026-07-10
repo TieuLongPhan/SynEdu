@@ -23,6 +23,7 @@ import re
 from pathlib import Path
 
 import jupytext
+import nbformat
 import pytest
 from nbconvert.preprocessors import CellExecutionError, ExecutePreprocessor
 
@@ -36,6 +37,7 @@ NOTEBOOK_ROOT = Path(os.environ.get("SYNEDU_NOTEBOOK_ROOT", REPO_ROOT / "synedu"
 # Optional filter: comma-separated notebook ids, e.g. "S01" or "S01,S04"
 _NB_FILTER = os.environ.get("SYNEDU_NB", "")
 _KERNEL_TIMEOUT = int(os.environ.get("SYNEDU_TIMEOUT", "600"))  # seconds per notebook
+_EXECUTED_DIR = os.environ.get("SYNEDU_EXECUTED_DIR")
 
 
 def _collect_notebooks() -> list[Path]:
@@ -124,3 +126,8 @@ def test_notebook_executes(notebook: Path) -> None:
             f"\nNotebook {notebook.parent.name} timed out after {_KERNEL_TIMEOUT}s.\n"
             "Increase SYNEDU_TIMEOUT env var or optimise the slow cell."
         )
+
+    if _EXECUTED_DIR:
+        destination = Path(_EXECUTED_DIR) / f"{notebook.parent.name}.ipynb"
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        nbformat.write(nb, destination)

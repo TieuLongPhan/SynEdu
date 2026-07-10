@@ -18,6 +18,10 @@ uv sync
 
 ## Build The Documentation
 
+The Jupyter Book 2 renderer requires a Node.js runtime. This is only a
+documentation-build requirement; local notebook work and Colab exports do not
+use npm.
+
 ```bash
 make build
 ```
@@ -27,29 +31,29 @@ want to execute notebooks. MyST caches execution results under `_build/execute`
 and only re-runs a talktorial whose code actually changed, so repeated builds
 stay cheap.
 
-The only generated artifacts are `docs/downloads/*.ipynb` — plain `.ipynb`
-exports of each `notebook.md`, committed to git so Colab and direct-download
-links resolve on GitHub. Regenerate them with `make prepare` after editing a
-talktorial; CI also refreshes them automatically on every push to `main`.
+The portable `docs/downloads/*.ipynb` files are committed so Colab and direct
+download links resolve to stable GitHub files. They are publication artifacts,
+not Jupyter Book build intermediates: `_build` contains rendered site data,
+which Colab cannot open as a notebook. Regenerate the exports with
+`make notebooks` after editing a talktorial. `make check-notebooks` verifies
+that they are current.
 
 ## Run A Notebook Locally
 
-You do not need a full documentation build to run a talktorial. The default
-local workflow converts one MyST Markdown source file to an ignored `.ipynb`
-file and opens that generated notebook:
+You do not need a documentation build to run a talktorial. The default local
+workflow opens the MyST Markdown notebook directly:
 
 ```bash
 make lab LESSON=S01
 ```
 
-To only create the local notebook file:
+To create an ignored `.ipynb` beside the source instead:
 
 ```bash
 make notebook LESSON=S01
 ```
 
-If your JupyterLab setup has `jupytext>=1.16` installed, you can open the
-source file directly instead:
+The equivalent direct command is:
 
 ```bash
 uv run jupyter lab synedu/S01/notebook.md
