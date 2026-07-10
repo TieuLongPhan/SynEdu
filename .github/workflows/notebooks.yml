@@ -35,7 +35,7 @@ jobs:
         notebook: ${{ fromJSON((inputs.notebook == '' || inputs.notebook == 'all') && '["S01","S02","S03","S04","S05","S06","S07","S08","S09"]' || format('["{0}"]', inputs.notebook)) }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
 
