@@ -74,18 +74,16 @@ uv run jupyter lab synedu/S01/notebook.md
 
 ## User Setup
 
-For normal use from a source checkout:
+For local work with the source notebooks and their lesson data:
 
 ```bash
 uv sync
 make lab LESSON=S01
 ```
 
-For package use after installation, the `synedu` CLI can prepare a workspace:
-
-```bash
-synedu start .
-```
+For a quick start without a checkout, use the self-contained notebook download
+or open the lesson in Colab. Its setup cell installs SynEdu and fetches the
+lesson data automatically.
 
 ## Troubleshooting
 

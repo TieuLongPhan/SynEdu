@@ -1,16 +1,14 @@
 # API
 
 The SynEdu package is intentionally small. Most teaching content lives in the
-notebooks, while the Python package provides helpers that keep examples,
-visualisation, and command-line workflows reproducible.
+notebooks, while the Python package provides helpers used by those notebooks.
 
 ## Public Modules
 
 | Module | Purpose |
 |---|---|
 | `synedu` | Package metadata and version information. |
-| `synedu.cli` | CLI entry points for preparing local talktorial workspaces. |
-| `synedu.utils` | Reproducibility helpers and small notebook/CLI display utilities. |
+| `synedu.utils` | Reproducibility and notebook display helpers. |
 | `synedu.Utils` | Chemistry, graph, reaction, and visualization helpers used by the talktorials. |
 | `synedu.Utils.Vis` | DPO and graph visualization helpers. |
 
