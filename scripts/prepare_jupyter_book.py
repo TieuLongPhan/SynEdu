@@ -49,7 +49,9 @@ def _setup_cell_source(lesson: str, data_files: list[str]) -> str:
     lines = [
         "# Colab / fresh-environment setup.",
         "# Skip this cell if you cloned the repo and ran `uv sync` locally.",
-        f"%pip install -q 'synedu @ git+https://github.com/{GITHUB_SLUG}.git@{BRANCH}'",
+        "# Explicit lesson extras keep this usable before a new SynEdu release is published.",
+        "# SynRBL 1.0.x also requires the pre-1.7 scikit-learn API.",
+        f"%pip install -q 'scikit-learn<1.7' jinja2 tqdm 'setuptools<81' rxnmapper 'synedu @ git+https://github.com/{GITHUB_SLUG}.git@{BRANCH}'",
     ]
     if data_files:
         listing = ", ".join(repr(f"data/{name}") for name in data_files)

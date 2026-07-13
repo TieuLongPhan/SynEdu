@@ -65,8 +65,10 @@ jobs:
       - name: Execute ${{ matrix.notebook }}
         env:
           SYNEDU_NB: ${{ matrix.notebook }}
+          SYNEDU_DOWNLOAD_NB: ${{ matrix.notebook }}
           SYNEDU_EXECUTED_DIR: _build/executed-notebooks
-        run: uv run pytest -m slow -v tests/test_notebooks.py 2>&1 | tee -a "notebook-${{ matrix.notebook }}.log"
+          SYNEDU_DOWNLOAD_EXECUTED_DIR: _build/executed-download-notebooks
+        run: uv run pytest -m slow -v tests/ 2>&1 | tee -a "notebook-${{ matrix.notebook }}.log"
 
       - name: Summarize execution
         if: always()
@@ -74,7 +76,8 @@ jobs:
           {
             echo "## ${{ matrix.notebook }} result"
             echo "- Status: ${{ job.status }}"
-            echo "- Executed notebook: _build/executed-notebooks/${{ matrix.notebook }}.ipynb"
+            echo "- Local JupyterLab notebook: _build/executed-notebooks/${{ matrix.notebook }}.ipynb"
+            echo "- Standalone notebook: _build/executed-download-notebooks/executed-${{ matrix.notebook }}.ipynb"
           } | tee -a "$GITHUB_STEP_SUMMARY" "notebook-${{ matrix.notebook }}.log"
 
       - name: Upload executed notebook and log
@@ -84,6 +87,7 @@ jobs:
           name: executed-${{ matrix.notebook }}
           path: |
             _build/executed-notebooks/${{ matrix.notebook }}.ipynb
+            _build/executed-download-notebooks/executed-${{ matrix.notebook }}.ipynb
             notebook-${{ matrix.notebook }}.log
           retention-days: 30
           if-no-files-found: warn

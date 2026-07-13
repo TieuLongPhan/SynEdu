@@ -1,4 +1,4 @@
-.PHONY: help sync prepare notebooks build-downloads build build-fast build-one start notebook execute-notebook lab format lint test test-notebooks check clean clean-docs clean-py
+.PHONY: help sync prepare notebooks build-downloads build build-fast build-one start notebook execute-notebook lab format lint test test-notebooks test-download-notebooks check clean clean-docs clean-py
 
 UV ?= uv
 UV_CACHE ?= .uv-cache
@@ -35,7 +35,8 @@ help:
 	@printf '%s\n' '  make format               Check Python formatting with Black'
 	@printf '%s\n' '  make lint                 Run flake8'
 	@printf '%s\n' '  make test                 Run non-slow tests'
-	@printf '%s\n' '  make test-notebooks       Run slow notebook tests'
+	@printf '%s\n' '  make test-notebooks       Run all slow local and standalone notebook tests'
+	@printf '%s\n' '  make test-download-notebooks Run standalone/Colab-emulation notebook tests'
 	@printf '%s\n' '  make check                Run lint, fast tests, and export consistency'
 	@printf '%s\n' ''
 	@printf '%s\n' 'Cleanup:'
@@ -89,7 +90,10 @@ test:
 	$(UV_RUN) pytest -m "not slow" -v tests/
 
 test-notebooks:
-	$(UV_RUN) pytest -m slow -v tests/test_notebooks.py
+	$(UV_RUN) pytest -m slow -v tests/
+
+test-download-notebooks:
+	$(UV_RUN) pytest -m slow -v tests/test_download_notebooks.py
 
 check: format lint test build-downloads
 

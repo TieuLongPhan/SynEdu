@@ -1,7 +1,11 @@
 """
-Execution tests for SynEdu talktorials.
+Execution tests for the local JupyterLab SynEdu talktorials.
 
-Each test runs a notebook from top to bottom with a fresh kernel.
+Each test runs the MyST source that ``make lab LESSON=S0X`` opens, from the
+lesson directory, with a fresh kernel.  Consequently imports come from the
+active ``uv`` environment and relative paths such as ``data/molecules.csv``
+resolve to that lesson's checked-out data directory.  Portable Colab/download
+notebooks are deliberately tested separately in ``test_download_notebooks``.
 Any unhandled cell exception causes the test to fail.
 
 Usage
@@ -100,7 +104,7 @@ def _read_notebook(path: Path):
 @pytest.mark.slow
 @pytest.mark.parametrize("notebook", NOTEBOOKS, ids=lambda p: p.parent.name)
 def test_notebook_executes(notebook: Path) -> None:
-    """Execute a notebook end-to-end with a fresh kernel; fail on any cell error."""
+    """Execute the notebook exactly as it is opened by ``make lab``."""
     if _is_wip(notebook):
         pytest.skip(f"{notebook.parent.name} is marked as work-in-progress")
 

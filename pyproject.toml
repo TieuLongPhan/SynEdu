@@ -38,12 +38,19 @@ dependencies = [
   "pandas>=2.1",
   "networkx>=3.3",
   "matplotlib>=3.8",
+  "jinja2>=3.1",
   "rdkit>=2023.9",
+  "rxnmapper>=0.3",
   "seaborn>=0.13.2",
+  # RXNMapper 0.4 still imports pkg_resources, removed in setuptools 81.
+  "setuptools>=68,<81",
+  "tqdm>=4.66",
   "regex>=2024.11.6",
   "requests>=2.32.3",
   "ipython>=8.18",
-  "scikit-learn>=1.5",
+  # SynRBL 1.0.x depends on imbalanced-learn 0.12, which is not compatible
+  # with scikit-learn 1.7+ (and therefore cannot unpickle its bundled model).
+  "scikit-learn>=1.5,<1.7",
   "synkit>=0.0.15",
   "synrbl>=0.1.0",
 ]
@@ -124,6 +131,7 @@ filterwarnings = [
 ]
 markers = [
   "slow: notebook execution tests (run with -m slow or omit to skip)",
+  "network: tests that need external network access",
 ]
 
 

@@ -24,6 +24,8 @@ Run notebook execution tests for changed lessons:
 ```bash
 SYNEDU_NB=S01 uv run pytest -m slow -v tests/test_notebooks.py
 SYNEDU_NB=S01,S04 uv run pytest -m slow -v tests/test_notebooks.py
+# Execute the checked-in Colab/download artifact in an isolated runtime.
+SYNEDU_DOWNLOAD_NB=S01 uv run pytest -m slow -v tests/test_download_notebooks.py
 ```
 
 Build the executed Jupyter Book 2 documentation and temporary portable
@@ -33,7 +35,9 @@ notebook exports:
 make build
 ```
 
-Use `SYNEDU_TIMEOUT=900` when a notebook needs a longer per-notebook timeout.
+Use `SYNEDU_TIMEOUT=900` when a local JupyterLab notebook needs a longer
+per-notebook timeout. Use `SYNEDU_DOWNLOAD_TIMEOUT=900` for an isolated
+standalone/download notebook.
 
 ## Notebook Guidelines
 
