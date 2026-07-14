@@ -96,6 +96,18 @@ html.dark {
   width: 32px;
 }
 
+/* Keep the search control, theme toggle, and action buttons on one even
+   spacing rhythm. The theme supplies ml-3/mx-1 utilities by default, which
+   otherwise makes the gaps around the toggle larger than the rest. */
+.myst-top-nav .myst-search-bar {
+  margin-right: 0.5rem !important;
+}
+.myst-top-nav a[href^="https://github.com/TieuLongPhan/SynEdu"],
+.myst-top-nav a[href$="/issues"],
+.myst-top-nav a[href*="zenodo."] {
+  margin: 0 0 0 0.5rem !important;
+}
+
 /* Repository, issue, and archive actions match the theme toggle's icon-button treatment. */
 .myst-top-nav a[href^="https://github.com/TieuLongPhan/SynEdu"],
 .myst-top-nav a[href$="/issues"],

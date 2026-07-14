@@ -58,8 +58,8 @@ site:
     folders: true
     style: docs/_static/synedu.css
     favicon: docs/_static/synedu_logo_square_icon_transparent.png
-    logo: docs/_static/synedu_logo_square_icon_transparent.png
-    logo_alt: SynEdu
+    logo: docs/_static/synedu_academic_cap.svg
+    logo_alt: SynEdu academic cap
     logo_text: SynEdu
   nav:
     - title: Getting started
