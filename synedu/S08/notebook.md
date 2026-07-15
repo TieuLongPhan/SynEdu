@@ -13,7 +13,7 @@ kernelspec:
 
 # S08: One-Step Reaction Prediction
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S08.ipynb) [![Download Notebook](https://img.shields.io/badge/download-.ipynb-blue)](https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S08.ipynb) [![Run Locally](https://img.shields.io/badge/run-locally-lightgrey)](../../docs/installing.md)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S08.ipynb) [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/TieuLongPhan/SynEdu/main?urlpath=%2Fdoc%2Ftree%2Fdocs%2Fdownloads%2FS08.ipynb) [![Download Notebook](https://img.shields.io/badge/download-.ipynb-blue)](https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S08.ipynb) [![Run Locally](https://img.shields.io/badge/run-locally-lightgrey)](../../docs/installing.md)
 
 This talktorial introduces a graph-based, template-driven workflow for single-step reaction prediction and single-step retrosynthesis [@segler2018planning; @coley2019robotic]. Reaction-center templates are extracted from mapped reactions, applied to unseen substrates, and evaluated after reaction standardization [@coley2019rdchiral; @schwaller2021extraction; @daylight_manual].
 

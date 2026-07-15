@@ -5,9 +5,9 @@ source of truth is a MyST Markdown notebook (`synedu/S0X/notebook.md`), which
 Jupyter Book 2 / MyST renders and executes directly — no separate `.ipynb`
 generation step is needed to build the site.
 
-Every talktorial page has three ways in: **Open in Colab**, **download the
-notebook**, or run it locally as described below.
-The first two approaches yield self-contained notebooks for a quick-start
+Every talktorial page has four ways in: **Open in Colab**, **launch in Binder**,
+**download the notebook**, or run it locally as described below.
+The first three approaches yield self-contained notebooks for a quick-start
 with all required packages and data present already.
 
 ## Developer Setup
@@ -21,7 +21,7 @@ uv sync
 ## Build The Documentation
 
 The Jupyter Book 2 renderer requires a Node.js runtime. This is only a
-documentation-build requirement; local notebook work and Colab exports do not
+documentation-build requirement; local notebook work and Colab/Binder exports do not
 use npm.
 
 ```bash
@@ -33,23 +33,24 @@ want to execute notebooks. MyST caches execution results under `_build/execute`
 and only re-runs a talktorial whose code actually changed, so repeated builds
 stay cheap.
 
-The portable `.ipynb` files used by Colab and direct downloads are versioned
+The portable `.ipynb` files used by Colab, Binder, and direct downloads are versioned
 under `docs/downloads/`. Regenerate them after changing a talktorial with
 `make build-downloads DOWNLOAD_DIR=docs/downloads`. They are separate from the
 executed website pages: the website executes `notebook.md` directly, while the
 exports add a fresh-runtime installation cell and remote data/figure URLs.
 
-### Keep RDT and Colab on the same revision
+### Keep RDT and hosted notebooks on the same revision
 
 The published documentation and notebook exports should use the same Git ref:
 
-- **latest RDT** → Colab notebook from `main`
+- **latest RDT** → Colab and Binder notebook from `main`
 - **tagged RDT release** → Colab notebook from the same tag
 
 This keeps a notebook opened from a versioned documentation site consistent
 with the code and explanations shown on that site. When creating a release,
 regenerate `docs/downloads/`, commit the exports, and use the release tag in
-the Colab URL (for example, `blob/v0.1.0/docs/downloads/S01.ipynb`).
+the Colab URL (for example, `blob/v0.1.0/docs/downloads/S01.ipynb`). Binder
+badges currently target `main`.
 
 ## Run A Notebook Locally
 
@@ -82,7 +83,7 @@ make lab LESSON=S01
 ```
 
 For a quick start without a checkout, use the self-contained notebook download
-or open the lesson in Colab. Its setup cell installs SynEdu and fetches the
+or launch the lesson in Colab or Binder. Its setup cell installs SynEdu and fetches the
 lesson data automatically.
 
 ## Troubleshooting
