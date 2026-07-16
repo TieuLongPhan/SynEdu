@@ -1672,18 +1672,19 @@ The raw SMILES differ in atom-map numbers; after `canon_aam` both collapse to th
 
 ```{code-cell}
 :tags: [hide-input]
-from synedu.Utils.rxn_vis import draw_rxn_graph
+from synedu.Utils.rxn_vis import (
+    draw_rxn_graph,
+    render_code_html,
+    render_html_heading,
+    render_mapping_agreement,
+)
 from IPython.display import HTML, display
 import matplotlib.pyplot as plt
 
 _raw_a = data['rxn_mapper'][1]
 _raw_b = data['graphormer'][1]
 
-display(
-    HTML(
-        "<h4 style='margin:8px 0 2px'>Before canonicalization — different atom-map numbering</h4>"
-    )
-)
+display(HTML(render_html_heading("Before canonicalization — different atom-map numbering")))
 
 display(HTML("<b>RXNMapper:</b>"))
 draw_rxn_graph(_raw_a, title="RXNMapper", show_legend=False)
@@ -1693,26 +1694,13 @@ display(HTML("<b>Graphormer:</b>"))
 draw_rxn_graph(_raw_b, title="Graphormer", show_legend=False)
 plt.show()
 
-display(
-    HTML(
-        "<h4 style='margin:8px 0 2px'>After canonicalization — same canonical SMILES</h4>"
-    )
-)
-display(HTML(f"<code style='font-size:12px'>{rxn_canon}</code>"))
+display(HTML(render_html_heading("After canonicalization — same canonical SMILES")))
+display(HTML(render_code_html(rxn_canon)))
 draw_rxn_graph(rxn_canon, title="Canonical", show_legend=False)
 plt.show()
 
 _match = rxn_canon == gm_canon == local_canon
-_agree_html = "<b style='color:green'>All three mappers agree</b>"
-_disagree_html = "<b style='color:#D62728'>Mappers disagree</b>"
-display(
-    HTML(
-        f"<p style='margin-top:8px'>"
-        f"{_agree_html if _match else _disagree_html}"
-        f" after canonicalization."
-        f"</p>"
-    )
-)
+display(HTML(render_mapping_agreement(_match)))
 ```
 
 ### Canonicalization comparison

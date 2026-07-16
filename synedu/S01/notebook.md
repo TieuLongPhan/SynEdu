@@ -662,6 +662,7 @@ import re
 import html
 from collections import Counter
 from IPython.display import HTML, display
+from synedu.Utils.vis import render_smiles_annotation
 
 
 _TOKEN_PATTERNS = [
@@ -902,7 +903,7 @@ examples = [
 ]
 
 for name, smi in examples:
-    display(HTML(annotate_smiles_html(smi, title=name)))
+    display(HTML(render_smiles_annotation(smi, title=name)))
 ```
 
 SMILES strings can have many valid variants for the same molecule [@weininger1989smiles2].

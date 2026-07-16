@@ -212,6 +212,62 @@ def _add_pil_title(image: Any, title: str, canvas_size: Tuple[int, int]) -> Any:
     return image
 
 
+def render_reaction_gallery(
+    ground_truth: str,
+    candidates: List[str],
+    *,
+    title: str,
+    description: str,
+    max_candidates: int = 4,
+    candidate_badge_background: str = "#F1F5F9",
+    candidate_badge_foreground: str = "#64748B",
+) -> str:
+    """Return an HTML/SVG gallery comparing a reference reaction and candidates."""
+    def card(rsmi: str, label: str, *, match: bool) -> str:
+        border = "#2E7D6B" if match else "#D7DEE8"
+        badge = "MATCH" if match else "candidate"
+        badge_background = "#E6F4EF" if match else candidate_badge_background
+        badge_foreground = "#16634F" if match else candidate_badge_foreground
+        svg = visualize_reaction(rsmi, svg=True, legend=label)
+        return f"""
+        <div class="synedu-rxn-card" style="border:1px solid {border};border-radius:8px;padding:10px;background:#fff;">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;">
+            <strong style="color:#0E1B2A;font-size:14px;">{html.escape(label)}</strong>
+            <span style="background:{badge_background};color:{badge_foreground};border-radius:999px;padding:2px 8px;font-size:11px;font-weight:700;">{badge}</span>
+          </div><div style="overflow-x:auto;">{svg}</div>
+        </div>"""
+
+    shown = candidates[:max_candidates]
+    hits = sum(candidate == ground_truth for candidate in candidates)
+    cards = [card(ground_truth, "Ground truth", match=True)]
+    cards.extend(
+        card(candidate, f"Candidate {index}", match=candidate == ground_truth)
+        for index, candidate in enumerate(shown, 1)
+    )
+    return f"""
+    <div style="margin:10px 0 8px;"><h4 style="margin:0 0 4px;color:#0E1B2A;">{html.escape(title)}</h4>
+      <div style="color:#475569;font-size:13px;margin-bottom:10px;">{html.escape(description.format(shown=len(shown), total=len(candidates), hits=hits))}</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:12px;">{"".join(cards)}</div>
+    </div>"""
+
+
+def render_html_heading(text: str) -> str:
+    """Return a consistently styled inline notebook heading."""
+    return f"<h4 style='margin:8px 0 2px'>{html.escape(text)}</h4>"
+
+
+def render_code_html(code: str) -> str:
+    """Return safely escaped inline code for notebook display."""
+    return f"<code style='font-size:12px'>{html.escape(code)}</code>"
+
+
+def render_mapping_agreement(all_agree: bool) -> str:
+    """Return the canonicalization agreement status used in mapping comparisons."""
+    message = "All three mappers agree" if all_agree else "Mappers disagree"
+    color = "green" if all_agree else "#D62728"
+    return f"<p style='margin-top:8px'><b style='color:{color}'>{message}</b> after canonicalization.</p>"
+
+
 def visualize_reaction(  # noqa: C901
     rsmi: str,
     *,

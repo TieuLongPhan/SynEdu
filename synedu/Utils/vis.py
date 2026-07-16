@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from collections import Counter
+import html
+import re
 from typing import Any, Dict, List, Optional, Set, Tuple
 import math
 
@@ -30,6 +33,112 @@ _ELEMENT_PALETTE: Dict[str, Tuple[str, str]] = {
 }
 _DEFAULT_FILL = "#A0A0A0"
 _DEFAULT_BORDER = "#606060"
+
+_SMILES_TOKEN_PATTERNS = [
+    (r"\[[^\]]+\]", "Bracketed atom / group", "#2CA02C", "#EAF7EA"),
+    (r"%\d{2}|\d", "Ring closure", "#E377C2", "#FCEAF7"),
+    (r"[cnops]", "Aromatic atom", "#1F77B4", "#EAF2FB"),
+    (r"[A-Z][a-z]?", "Aliphatic atom", "#4D4D4D", "#F0F0F0"),
+    (r"=", "Double bond", "#D62728", "#FDECEC"),
+    (r"#", "Triple bond", "#8C564B", "#F3ECE9"),
+    (r"-", "Single bond", "#7F7F7F", "#F2F2F2"),
+    (r"[()]", "Branch", "#FF7F0E", "#FFF1E5"),
+    (r"[@/\\\\]", "Stereo", "#9467BD", "#F3ECFA"),
+    (r"\.", "Disconnected component", "#17BECF", "#E7F9FB"),
+]
+
+
+def tokenize_smiles(smiles: str) -> list[dict[str, str | int]]:
+    """Tokenize SMILES for explanatory, syntax-coloured notebook displays."""
+    tokens: list[dict[str, str | int]] = []
+    index = 0
+    while index < len(smiles):
+        remaining = smiles[index:]
+        for pattern, label, color, background in _SMILES_TOKEN_PATTERNS:
+            match = re.match(pattern, remaining)
+            if match:
+                text = match.group(0)
+                tokens.append(
+                    {
+                        "text": text,
+                        "label": label,
+                        "color": color,
+                        "background": background,
+                        "start": index,
+                        "end": index + len(text) - 1,
+                    }
+                )
+                index += len(text)
+                break
+        else:
+            tokens.append(
+                {
+                    "text": remaining[0],
+                    "label": "Other",
+                    "color": "#111111",
+                    "background": "#FFFFFF",
+                    "start": index,
+                    "end": index,
+                }
+            )
+            index += 1
+    return tokens
+
+
+def render_smiles_annotation(
+    smiles: str, *, title: str | None = None, show_indices: bool = True
+) -> str:
+    """Return a self-contained HTML card explaining the syntax of a SMILES string."""
+    tokens = tokenize_smiles(smiles)
+    counts = Counter(str(token["label"]) for token in tokens)
+    token_html = []
+    index_html = []
+    palette: dict[str, tuple[str, str]] = {}
+
+    for token in tokens:
+        text = str(token["text"])
+        label = str(token["label"])
+        color = str(token["color"])
+        background = str(token["background"])
+        start, end = int(token["start"]), int(token["end"])
+        palette.setdefault(label, (color, background))
+        token_html.append(
+            f'<span class="smi-token" title="{html.escape(label)}: position {start}" '
+            f'style="color:{color};background:{background};border:1px solid {color}55;">'
+            f"{html.escape(text)}</span>"
+        )
+        if show_indices:
+            position = str(start) if len(text) == 1 else f"{start}-{end}"
+            index_html.append(f'<span class="smi-index">{position}</span>')
+
+    legend_html = "".join(
+        f'<span class="smi-legend-item" style="background:{background};border-color:{color}55">'
+        f'<span style="color:{color};font-weight:800">■</span>{html.escape(label)}'
+        f'<span class="smi-count">{counts[label]}</span></span>'
+        for label, (color, background) in palette.items()
+    )
+    title_html = f'<div class="smi-title">{html.escape(title)}</div>' if title else ""
+    indices_html = (
+        f'<div class="smi-index-row">{"".join(index_html)}</div>' if show_indices else ""
+    )
+    return f"""
+    <style>
+      .smi-card {{font-family:Inter,system-ui,sans-serif;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:12px 0;background:linear-gradient(180deg,#FFF 0%,#FAFAFA 100%);box-shadow:0 4px 14px rgba(0,0,0,.06);max-width:920px}}
+      .smi-title {{font-weight:750;font-size:15px;margin-bottom:8px;color:#111827}}
+      .smi-raw,.smi-token,.smi-index {{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}}
+      .smi-raw {{font-size:12px;color:#6B7280;margin-bottom:10px;word-break:break-all}}
+      .smi-token-row,.smi-index-row,.smi-legend {{display:flex;flex-wrap:wrap;gap:5px;align-items:center}}
+      .smi-token-row {{margin-bottom:6px}} .smi-index-row {{margin-bottom:12px}} .smi-legend {{gap:7px;margin-top:10px}}
+      .smi-token {{font-weight:800;font-size:18px;line-height:1.2;padding:5px 7px;border-radius:8px;display:inline-block}}
+      .smi-index {{color:#9CA3AF;background:#F9FAFB;border:1px solid #E5E7EB;border-radius:6px;padding:2px 6px;font-size:10px;min-width:18px;text-align:center}}
+      .smi-legend-item {{border:1px solid;border-radius:999px;padding:4px 9px;font-size:12px;color:#374151;display:inline-flex;align-items:center;gap:5px}}
+      .smi-count {{color:#6B7280;background:#FFFFFFAA;border-radius:999px;padding:1px 6px;font-size:11px;font-weight:700}}
+    </style>
+    <div class="smi-card">{title_html}<div class="smi-raw">Raw SMILES: {html.escape(smiles)}</div>
+      <div class="smi-token-row">{"".join(token_html)}</div>{indices_html}
+      <div class="smi-legend">{legend_html}</div>
+    </div>
+    """
 
 
 def _fill(el: str) -> str:

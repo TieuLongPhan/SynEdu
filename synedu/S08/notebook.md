@@ -842,46 +842,14 @@ For one example substrate, the template library generates a set of candidate rea
 
 ```{code-cell}
 :tags: [hide-input]
-from synedu.Utils.rxn_vis import visualize_reaction
+from synedu.Utils.rxn_vis import render_reaction_gallery
 from IPython.display import HTML, display
-import html
-
-
-def _reaction_svg_fragment(rsmi, title, *, match=False):
-    border = '#2E7D6B' if match else '#D7DEE8'
-    badge = 'MATCH' if match else 'candidate'
-    badge_bg = '#E6F4EF' if match else '#F1F5F9'
-    badge_fg = '#16634F' if match else '#64748B'
-    svg = visualize_reaction(rsmi, svg=True, legend=title)
-    return f"""
-    <div class="synedu-rxn-card" style="border:1px solid {border}; border-radius:8px; padding:10px; background:#fff;">
-      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px;">
-        <strong style="color:#0E1B2A; font-size:14px;">{html.escape(title)}</strong>
-        <span style="background:{badge_bg}; color:{badge_fg}; border-radius:999px; padding:2px 8px; font-size:11px; font-weight:700;">{badge}</span>
-      </div>
-      <div style="overflow-x:auto;">{svg}</div>
-    </div>
-    """
-
-
-_show = min(4, len(fw_list))
-_hits = [r for r in fw_list if r == ground_truth]
-_cards = [_reaction_svg_fragment(ground_truth, 'Ground truth', match=True)]
-for i, cand in enumerate(fw_list[:_show], 1):
-    _cards.append(
-        _reaction_svg_fragment(cand, f'Candidate {i}', match=(cand == ground_truth))
-    )
-
-_display_html = f"""
-<div style="margin:10px 0 8px;">
-  <h4 style="margin:0 0 4px; color:#0E1B2A;">Forward prediction gallery</h4>
-  <div style="color:#475569; font-size:13px; margin-bottom:10px;">Top {_show} generated candidates from {len(fw_list)} total; {len(_hits)} exact hit(s).</div>
-  <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(360px,1fr)); gap:12px;">
-    {''.join(_cards)}
-  </div>
-</div>
-"""
-display(HTML(_display_html))
+display(HTML(render_reaction_gallery(
+    ground_truth,
+    fw_list,
+    title="Forward prediction gallery",
+    description="Top {shown} generated candidates from {total} total; {hits} exact hit(s).",
+)))
 ```
 
 A first cleanup step is to remove **duplicate predictions** before computing metrics.
@@ -1094,50 +1062,19 @@ For the same example entry, the inverted template library generates candidate **
 
 ```{code-cell}
 :tags: [hide-input]
-from synedu.Utils.rxn_vis import visualize_reaction
+from synedu.Utils.rxn_vis import render_reaction_gallery
 from IPython.display import HTML, display
-import html
-
-
-def _retro_svg_fragment(rsmi, title, *, match=False):
-    border = '#2E7D6B' if match else '#D7DEE8'
-    badge = 'MATCH' if match else 'candidate'
-    badge_bg = '#E6F4EF' if match else '#FFF7E8'
-    badge_fg = '#16634F' if match else '#8A5A12'
-    svg = visualize_reaction(rsmi, svg=True, legend=title)
-    return f"""
-    <div style="border:1px solid {border}; border-radius:8px; padding:10px; background:#fff;">
-      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px;">
-        <strong style="color:#0E1B2A; font-size:14px;">{html.escape(title)}</strong>
-        <span style="background:{badge_bg}; color:{badge_fg}; border-radius:999px; padding:2px 8px; font-size:11px; font-weight:700;">{badge}</span>
-      </div>
-      <div style="overflow-x:auto;">{svg}</div>
-    </div>
-    """
-
-
 _bidx = 0
 _bw_gt = eval_set[_bidx]['smart']
 _bw_list = eval_set[_bidx]['bw']
-_show_bw = min(4, len(_bw_list))
-_bw_hits = [r for r in _bw_list if r == _bw_gt]
-
-_cards = [_retro_svg_fragment(_bw_gt, 'Ground truth', match=True)]
-for i, cand in enumerate(_bw_list[:_show_bw], 1):
-    _cards.append(
-        _retro_svg_fragment(cand, f'Backward candidate {i}', match=(cand == _bw_gt))
-    )
-
-_display_html = f"""
-<div style="margin:10px 0 8px;">
-  <h4 style="margin:0 0 4px; color:#0E1B2A;">Backward prediction gallery</h4>
-  <div style="color:#475569; font-size:13px; margin-bottom:10px;">Top {_show_bw} retrosynthetic candidates from {len(_bw_list)} total; {len(_bw_hits)} exact hit(s).</div>
-  <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(360px,1fr)); gap:12px;">
-    {''.join(_cards)}
-  </div>
-</div>
-"""
-display(HTML(_display_html))
+display(HTML(render_reaction_gallery(
+    _bw_gt,
+    _bw_list,
+    title="Backward prediction gallery",
+    description="Top {shown} retrosynthetic candidates from {total} total; {hits} exact hit(s).",
+    candidate_badge_background="#FFF7E8",
+    candidate_badge_foreground="#8A5A12",
+)))
 ```
 
 ```{code-cell}

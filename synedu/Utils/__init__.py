@@ -1,5 +1,12 @@
-from .vis import draw_molecular_graph
-from .rxn_vis import draw_rxn_graph, visualize_reaction
+from .vis import draw_molecular_graph, render_smiles_annotation, tokenize_smiles
+from .rxn_vis import (
+    draw_rxn_graph,
+    render_code_html,
+    render_html_heading,
+    render_mapping_agreement,
+    render_reaction_gallery,
+    visualize_reaction,
+)
 from .conversion import mol_to_graph, graph_to_mol, smiles_to_graph, graph_to_smi
 from .graph import (
     enumerate_automorphisms,
@@ -42,6 +49,12 @@ __all__ = [
     # vis
     "draw_molecular_graph",
     "draw_rxn_graph",
+    "render_code_html",
+    "render_html_heading",
+    "render_mapping_agreement",
+    "render_reaction_gallery",
+    "render_smiles_annotation",
+    "tokenize_smiles",
     "visualize_reaction",
     # conversion
     "mol_to_graph",
