@@ -13,7 +13,7 @@ kernelspec:
 
 # S03: Maximum Common Substructure in Reaction Informatics
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S03.ipynb) [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/TieuLongPhan/SynEdu/main?urlpath=%2Fdoc%2Ftree%2Fdocs%2Fdownloads%2FS03.ipynb) [![Download Notebook](https://img.shields.io/badge/download-.ipynb-blue)](https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S03.ipynb) [![Run Locally](https://img.shields.io/badge/run-locally-lightgrey)](../../docs/installing.md)
+<div class="synedu-lesson-shell not-prose" style="box-sizing:border-box;margin:8px 0 24px;padding:20px;border:1px solid #243b53;border-radius:16px;background:#102a43;color:#fff;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"><div class="synedu-lesson-shell__top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap"><div><div class="synedu-lesson-shell__eyebrow" style="margin-bottom:5px;color:#5eead4;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase">SynEdu learning path</div><div class="synedu-lesson-shell__meta" style="font-size:16px;font-weight:750">Lesson 3 of 9 <span style="color:#9fb3c8;font-weight:500">· Stage 1 · Fundamentals</span></div></div><span class="synedu-lesson-shell__progress-label" style="color:#bcccdc;font-size:12px;font-weight:700">33% complete</span></div><div class="synedu-lesson-shell__track" style="height:5px;margin:16px 0 18px;overflow:hidden;border-radius:999px;background:#334e68"><span style="display:block;width:33%;height:100%;border-radius:inherit;background:#2dd4bf"></span></div><div class="synedu-notebook-actions" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap" aria-label="Run this lesson"><a class="synedu-launch-badge" href="https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S03.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open S03 in Colab" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://mybinder.org/v2/gh/TieuLongPhan/SynEdu/main?urlpath=lab/tree/docs/downloads/S03.ipynb"><img src="https://mybinder.org/badge_logo.svg" alt="Launch S03 in Binder" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S03.ipynb"><img src="https://img.shields.io/badge/download-.ipynb-2563eb?logo=jupyter&amp;logoColor=white" alt="Download S03 notebook" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="/docs/installing"><img src="https://img.shields.io/badge/run-locally-334e68?logo=jupyter&amp;logoColor=white" alt="Run S03 locally" style="display:block;height:24px" /></a></div></div>
 
 This talktorial introduces maximum common substructure (MCS) as a practical molecular-alignment tool for reaction informatics. We compare chemistry-aware RDKit MCS with explicit graph-level reasoning, then use the same idea for reaction rebalancing [@rdkit_docs; @rdkit_rdfmcs_docs; @phan2024reaction].
 
@@ -38,30 +38,24 @@ After completing this talktorial, you will be able to:
 - use MCS-based alignment to reason about partial or noisy reactions, and
 - apply MCS ideas to simple **reaction rebalancing** examples.
 
----
-
-## Outline
-
-- [0. Setup & Data](#id-0-setup-data)
-- [1. Maximum Common Substructure](#id-1-maximum-common-substructure)
-- [2. Rule-based reaction rebalancing](#id-2-rule-based-reaction-rebalancing)
-- [3. MCS-based reaction rebalancing](#id-3-mcs-based-reaction-rebalancing)
-- [4. Discussion](#id-4-discussion)
-- [5. Quiz](#id-5-quiz)
-- [6. References](#id-6-references)
-
 +++
 
 ## 0. Setup & Data
 
 ```{code-cell}
+import warnings
 import rdkit
-from rdkit import Chem
+from rdkit import Chem, RDLogger
 import networkx as nx
 import pandas as pd
 import matplotlib.pyplot as plt
 from pathlib import Path
 from synedu.Utils.vis import draw_molecular_graph  # for visualization
+
+# Keep the lesson output readable: RDKit narrates unmapped atoms on stderr and
+# Matplotlib warns about layouts we set deliberately. Neither is a result.
+RDLogger.DisableLog("rdApp.*")
+warnings.filterwarnings("ignore", category=UserWarning)
 
 print("RDKit version:", rdkit.__version__)
 print("NetworkX version:", nx.__version__)
@@ -938,78 +932,39 @@ In SMILES, this corresponds to appending the auxiliary species
 
 ### Rebalancing workflow
 
-The five-stage pipeline below converts an imbalanced reaction SMILES into a balanced one. Library-based imputation handles small inorganic species; MCS-based imputation handles missing carbon fragments.
+The pipeline below converts an imbalanced reaction SMILES into a balanced one.
+Conservation analysis routes each record by reaction class: rule-library search
+repairs formula-level gaps (small inorganic species), while MCS alignment
+recovers missing carbon fragments. Every route ends at the same validation gate,
+and a record that cannot be balanced admissibly is returned unchanged.
 
-```{code-cell}
-:tags: [hide-input]
-import matplotlib.pyplot as plt
-from matplotlib.patches import FancyBboxPatch
+<figure class="se-figure">
+  <img src="../../docs/_static/images/S03/rebalancing_pipeline.svg"
+       alt="Reaction rebalancing pipeline: conservation analysis, routing, formula repair, structure repair, and validation">
+  <figcaption>
+    <b>Figure 1.</b> The SynRBL rebalancing pipeline. Blue: conservation
+    analysis. Purple: routing by reaction class. Orange: formula repair via
+    rule-library search. Green: structure repair via connected MCS alignment.
+    Red: validation, which either emits a balanced reaction or returns the
+    record unchanged.
+  </figcaption>
+</figure>
 
-fig, ax = plt.subplots(figsize=(13, 3.2))
-ax.set_xlim(0, 13)
-ax.set_ylim(0, 3.2)
-ax.axis("off")
-ax.set_title("Reaction rebalancing pipeline", fontsize=11, fontweight="bold", pad=6)
+The MCS branch is the interesting one for this talktorial. Aligning the two
+sides exposes exactly which fragment is unaccounted for, and the missing
+substructure is then expanded and merged back into the deficient side.
 
-_STEPS = [
-    ("Reaction\nSMILES\n(input)", "#1F77B4"),
-    ("Molecular\nformulas\nΦ_R, Φ_P", "#2CA02C"),
-    ("Imbalance\nvector\nΔ = Φ_R − Φ_P", "#FF7F0E"),
-    ("Library /\nMCS\nimputation", "#D62728"),
-    ("Balanced\nreaction\n(output)", "#9467BD"),
-]
-_ARROW_LABELS = ["count atoms", "compute Δ", "Δ ≠ 0?", "solve Δ = c·φ(A)"]
-
-xs = [0.3, 2.8, 5.3, 7.8, 10.3]
-w, h = 2.2, 1.8
-
-for x, (label, color) in zip(xs, _STEPS):
-    bbox = FancyBboxPatch(
-        (x, 0.7),
-        w,
-        h,
-        boxstyle="round,pad=0.12",
-        linewidth=1.8,
-        edgecolor=color,
-        facecolor=color + "22",
-    )
-    ax.add_patch(bbox)
-    ax.text(
-        x + w / 2,
-        0.7 + h / 2,
-        label,
-        ha="center",
-        va="center",
-        fontsize=8,
-        fontweight="bold",
-        color=color,
-        linespacing=1.4,
-    )
-
-for i, lbl in enumerate(_ARROW_LABELS):
-    x_start = xs[i] + w + 0.06
-    x_end = xs[i + 1] - 0.06
-    ymid = 0.7 + h / 2
-    ax.annotate(
-        "",
-        xy=(x_end, ymid),
-        xytext=(x_start, ymid),
-        arrowprops=dict(arrowstyle="->", color="#555", lw=1.6),
-    )
-    ax.text(
-        (x_start + x_end) / 2,
-        ymid + 0.28,
-        lbl,
-        ha="center",
-        va="bottom",
-        fontsize=7,
-        color="#555",
-        style="italic",
-    )
-
-plt.tight_layout()
-plt.show()
-```
+<figure class="se-figure">
+  <img src="../../docs/_static/images/S03/mcs_rebalancing.svg"
+       alt="MCS-guided rebalancing of an ester hydrolysis: the maximum common substructure fixes the atom correspondence and the unmatched fragment is imputed">
+  <figcaption>
+    <b>Figure 2.</b> MCS-guided rebalancing. Dashed guides mark the atom
+    correspondence recovered by the maximum common substructure; the shaded
+    region is the unmatched fragment. Rule-based imputation supplies the
+    missing water, while the expand and merge rules reconstruct the acid
+    fragment on the product side.
+  </figcaption>
+</figure>
 
 Now consider the following simple reaction. 
 By comparing the total molecular formulas of the reactant and product sides,
@@ -2005,6 +1960,8 @@ and assigns a high confidence score, illustrating how MCS-based reasoning can
 robustly recover missing species without manual intervention.
 
 ```{code-cell}
+:tags: [remove-stderr]
+
 # pip install synrbl
 from synrbl import Balancer
 

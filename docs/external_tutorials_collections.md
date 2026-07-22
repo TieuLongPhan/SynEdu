@@ -1,12 +1,51 @@
 # External Tutorials
 
-SynEdu focuses on hands-on computational workflows. For Python, Jupyter,
-cheminformatics, and structural bioinformatics background, these external
-resources are useful companions.
+SynEdu assumes you can read Python and run a notebook, but it does not teach
+either. These collections cover that background.
 
-| Topic | Resources |
-|---|---|
-| Python programming | [AI in Medicine course](https://github.com/volkamerlab/ai_in_medicine), [Python for Chemists](https://github.com/GDChCICTeam/python-for-chemists), [MolSSI Education Resources](http://education.molssi.org/resources.html), [Software Carpentry lessons](https://software-carpentry.org/lessons/), [5 Minutes of Fame](https://github.com/czodrowskilab/5minfame) |
-| Jupyter notebooks | [Jupyter Notebook cheat sheet](https://s3.amazonaws.com/assets.datacamp.com/blog_assets/Jupyter_Notebook_Cheat_Sheet.pdf), [Beginner's Jupyter Notebook tutorial](https://www.dataquest.io/blog/jupyter-notebook-tutorial/) |
-| Cheminformatics | [RDKit UGM resource list](https://github.com/rdkit/UGM_2020/blob/master/info/curated_list_of_resources.md), [Open-source cheminformatics resources](https://github.com/PatWalters/resources/blob/main/cheminformatics_resources.md), [Awesome Cheminformatics](https://github.com/hsiaoyi0504/awesome-cheminformatics#resources) |
-| Structural bioinformatics | [Bonvin Lab education and tutorials](https://www.bonvinlab.org/education/molmod_online/) |
+:::{tip} How much do I need first?
+Enough Python to read a `for` loop and a function call. S01 introduces every
+chemistry-specific idea from scratch, so start there and come back to these if
+the code — rather than the chemistry — is what slows you down.
+:::
+
+---
+
+::::{grid} 1 1 2 2
+
+:::{card} 🐍 Python programming
+Foundations aimed at chemists and life scientists.
+
+- [Python for Chemists](https://github.com/GDChCICTeam/python-for-chemists)
+- [MolSSI education resources](http://education.molssi.org/resources.html)
+- [Software Carpentry lessons](https://software-carpentry.org/lessons/)
+- [AI in Medicine course](https://github.com/volkamerlab/ai_in_medicine)
+- [5 Minutes of Fame](https://github.com/czodrowskilab/5minfame)
+:::
+
+:::{card} 📓 Jupyter notebooks
+Getting comfortable with the executable-document format.
+
+- [Beginner's Jupyter tutorial](https://www.dataquest.io/blog/jupyter-notebook-tutorial/)
+- [Jupyter Notebook cheat sheet](https://s3.amazonaws.com/assets.datacamp.com/blog_assets/Jupyter_Notebook_Cheat_Sheet.pdf)
+:::
+
+:::{card} 🧪 Cheminformatics
+Curated lists that go well beyond what SynEdu covers.
+
+- [RDKit UGM resource list](https://github.com/rdkit/UGM_2020/blob/master/info/curated_list_of_resources.md)
+- [Open-source cheminformatics resources](https://github.com/PatWalters/resources/blob/main/cheminformatics_resources.md)
+- [Awesome Cheminformatics](https://github.com/hsiaoyi0504/awesome-cheminformatics#resources)
+:::
+
+:::{card} 🧬 Structural bioinformatics
+Adjacent territory, for when the molecules get larger.
+
+- [Bonvin Lab education and tutorials](https://www.bonvinlab.org/education/molmod_online/)
+:::
+::::
+
+---
+
+{button}`Start with S01 </synedu/s01/notebook>`
+{button}`Set up locally </docs/installing>`

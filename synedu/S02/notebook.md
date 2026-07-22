@@ -13,7 +13,7 @@ kernelspec:
 
 # S02: Graph Homomorphisms in Reaction Informatics
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S02.ipynb) [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/TieuLongPhan/SynEdu/main?urlpath=%2Fdoc%2Ftree%2Fdocs%2Fdownloads%2FS02.ipynb) [![Download Notebook](https://img.shields.io/badge/download-.ipynb-blue)](https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S02.ipynb) [![Run Locally](https://img.shields.io/badge/run-locally-lightgrey)](../../docs/installing.md)
+<div class="synedu-lesson-shell not-prose" style="box-sizing:border-box;margin:8px 0 24px;padding:20px;border:1px solid #243b53;border-radius:16px;background:#102a43;color:#fff;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"><div class="synedu-lesson-shell__top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap"><div><div class="synedu-lesson-shell__eyebrow" style="margin-bottom:5px;color:#5eead4;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase">SynEdu learning path</div><div class="synedu-lesson-shell__meta" style="font-size:16px;font-weight:750">Lesson 2 of 9 <span style="color:#9fb3c8;font-weight:500">· Stage 1 · Fundamentals</span></div></div><span class="synedu-lesson-shell__progress-label" style="color:#bcccdc;font-size:12px;font-weight:700">22% complete</span></div><div class="synedu-lesson-shell__track" style="height:5px;margin:16px 0 18px;overflow:hidden;border-radius:999px;background:#334e68"><span style="display:block;width:22%;height:100%;border-radius:inherit;background:#2dd4bf"></span></div><div class="synedu-notebook-actions" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap" aria-label="Run this lesson"><a class="synedu-launch-badge" href="https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S02.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open S02 in Colab" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://mybinder.org/v2/gh/TieuLongPhan/SynEdu/main?urlpath=lab/tree/docs/downloads/S02.ipynb"><img src="https://mybinder.org/badge_logo.svg" alt="Launch S02 in Binder" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S02.ipynb"><img src="https://img.shields.io/badge/download-.ipynb-2563eb?logo=jupyter&amp;logoColor=white" alt="Download S02 notebook" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="/docs/installing"><img src="https://img.shields.io/badge/run-locally-334e68?logo=jupyter&amp;logoColor=white" alt="Run S02 locally" style="display:block;height:24px" /></a></div></div>
 
 This talktorial studies graph homomorphisms as the matching language behind molecular equivalence, symmetry, substructure search, and later reaction-rule application. RDKit provides chemistry-native matching, while NetworkX keeps the graph homomorphism explicit and inspectable [@rdkit_docs; @networkx_docs].
 
@@ -42,28 +42,21 @@ After completing this talktorial, you will be able to:
 - compute **MCS with RDKit** and convert it into an alignment map between two molecules, and
 - decide which matching semantics are appropriate for later tasks such as rule extraction, reaction-center localization, and DPO rule application.
 
----
-
-## Outline
-
-- [0. Setup & Data](#id-0-setup-data)
-- [1. Graph isomorphism](#id-1-graph-isomorphism)
-- [2. Graph automorphisms](#id-2-graph-automorphisms)
-- [3. Subgraph isomorphism](#id-3-subgraph-isomorphism)
-- [4. Discussion](#id-4-discussion)
-- [5. Quiz](#id-5-quiz)
-- [6. References](#id-6-references)
-
 +++
 
 ## 0. Setup & Data
 
 ```{code-cell}
+import warnings
+
 import rdkit
 import networkx as nx
 import pandas as pd
 from pathlib import Path
 from synedu.Utils import draw_molecular_graph, mol_to_graph
+
+# Matplotlib warns about layouts we set deliberately; not a lesson result.
+warnings.filterwarnings("ignore", category=UserWarning)
 
 print("RDKit version:", rdkit.__version__)
 print("NetworkX version:", nx.__version__)
@@ -83,12 +76,20 @@ To make “same molecule” precise, we model molecules as labeled graphs and co
 **graph isomorphism** [@bonchev1991chemical; @diestel2017graph].
 
 <figure class="se-figure">
-  <img src="../../docs/_static/images/SO2/morphism.svg"
-       alt="Graph homomorphism examples">
+  <img src="../../docs/_static/images/S02/morphism.svg"
+       alt="Six panels comparing graph mappings: homomorphism, subgraph isomorphism, induced subgraph isomorphism, isomorphism, automorphism, and maximum common substructure">
   <figcaption>
-    <b>Figure 1.</b> Examples of graph homomorphism-related mappings: homomorphism,
-    subgraph isomorphism, induced subgraph isomorphism, isomorphism,
-    automorphism, and maximum common substructure.
+    <b>Figure 1.</b> The family of label-preserving maps between graphs.
+    <b>(A)</b> A homomorphism need not be injective — two vertices of <i>G</i>
+    may share an image. <b>(B)</b> A subgraph isomorphism is injective, but the host
+    may carry extra edges between matched vertices. <b>(C)</b> An induced
+    subgraph isomorphism additionally preserves non-edges. <b>(D)</b> An
+    isomorphism is bijective and preserves edges and non-edges both ways.
+    <b>(E)</b> An automorphism is an isomorphism from <i>G</i> to itself — here
+    a rotation of the four-cycle. <b>(F)</b> The maximum common substructure is
+    the largest shared labelled subgraph; uncovered edges stay outside the
+    image. Blue marks mapped vertices and image edges; grey marks everything
+    outside the image.
   </figcaption>
 </figure>
 

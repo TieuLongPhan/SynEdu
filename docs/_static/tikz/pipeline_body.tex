@@ -1,0 +1,95 @@
+\begingroup
+
+\definecolor{srbBlue}{HTML}{2B6CB0}
+\definecolor{srbPurple}{HTML}{6B46C1}
+\definecolor{srbOrange}{HTML}{DD6B20}
+\definecolor{srbGreen}{HTML}{2F855A}
+\definecolor{srbRed}{HTML}{C53030}
+\definecolor{srbText}{HTML}{2D3748}
+
+\begin{tikzpicture}[
+  font=\sffamily,
+  node distance=1.15cm and 1.15cm,
+  every node/.style={text=srbText},
+  step/.style={rectangle, rounded corners=3.5pt, minimum width=2.75cm,
+    minimum height=0.92cm, align=center, font=\small, line width=0.75pt,
+    draw=#1!85!black, fill=#1!9},
+  core/.style={step=#1, font=\small\bfseries, fill=#1!17,
+    line width=0.85pt},
+  decision/.style={diamond, aspect=2.0, minimum width=2.75cm,
+    minimum height=1.16cm, align=center, font=\small\bfseries,
+    line width=0.85pt, draw=#1!90!black, fill=#1!13},
+  output/.style={core=#1, minimum width=2.55cm},
+  fallback/.style={rectangle, rounded corners=3.5pt, minimum width=2.55cm,
+    minimum height=0.86cm, align=center, font=\small\bfseries,
+    line width=0.7pt, dashed, draw=black!48, fill=black!4},
+  arrow/.style={-{Latex[length=2.8mm,width=2.0mm]}, line width=0.82pt,
+    draw=srbText!72},
+  phase/.style={rectangle, rounded corners=5pt, draw=#1!30, fill=#1!3,
+    line width=0.5pt, inner xsep=10pt, inner ysep=10pt},
+  phaselabel/.style={font=\scriptsize\bfseries, text=#1!78!black},
+  edgeword/.style={font=\scriptsize\bfseries, fill=white, inner sep=1.2pt}
+]
+
+\node[step=srbBlue] (input) {Reaction\\record};
+\node[step=srbBlue, right=of input] (audit)
+  {Element, charge, and\\carbon audit};
+\node[decision=srbPurple, right=1.35cm of audit] (triage)
+  {Reaction\\class};
+\node[fallback, above=1.35cm of triage] (already)
+  {Return balanced input};
+
+\node[core=srbOrange, below left=1.55cm and 0.75cm of triage] (rule)
+  {Rule-library\\search (DFS)};
+\node[step=srbOrange, below=0.72cm of rule] (post)
+  {Chemical\\post-processing};
+
+\node[core=srbGreen, below right=1.55cm and 0.75cm of triage] (mcs)
+  {Connected MCS\\alignment};
+\node[step=srbGreen, below=0.72cm of mcs] (fragment)
+  {Subtract image;\\collect fragments};
+\node[step=srbGreen, below=0.72cm of fragment] (repair)
+  {Expand and\\merge rules};
+\node[step=srbOrange, below=0.72cm of repair] (finish)
+  {Rule-based\\completion};
+
+\node[decision=srbRed, left=1.15cm of finish] (valid)
+  {Balanced and\\admissible?};
+\node[output=srbRed, left=1.25cm of valid] (result)
+  {Balanced\\reaction};
+\node[fallback, below=1.05cm of valid] (unchanged)
+  {Return unchanged};
+
+\draw[arrow] (input) -- (audit);
+\draw[arrow] (audit) -- (triage);
+\draw[arrow] (triage) -- node[edgeword,pos=.55,above left] {one-sided} (rule);
+\draw[arrow] (triage) -- node[edgeword,pos=.58,above right]
+  {carbon/both-side} (mcs);
+\draw[arrow] (triage) -- node[edgeword,right] {balanced} (already);
+\draw[arrow] (rule) -- (post);
+\draw[arrow] (rule) -- node[edgeword,above] {no solution} (mcs);
+\draw[arrow] (post) -- (valid);
+\draw[arrow] (mcs) -- (fragment);
+\draw[arrow] (fragment) -- (repair);
+\draw[arrow] (repair) -- (finish);
+\draw[arrow] (finish) -- (valid);
+\draw[arrow] (valid) -- node[edgeword,above] {yes} (result);
+\draw[arrow] (valid) -- node[edgeword,right] {no} (unchanged);
+
+\begin{scope}[on background layer]
+  \node[phase=srbBlue, fit=(input)(audit)] (p1) {};
+  \node[phase=srbPurple, fit=(triage)(already)] (p2) {};
+  \node[phase=srbOrange, fit=(rule)(post)] (p3) {};
+  \node[phase=srbGreen, fit=(mcs)(fragment)(repair)] (p4) {};
+  \node[phase=srbRed, fit=(valid)(result)(unchanged)] (p5) {};
+\end{scope}
+
+\node[phaselabel=srbBlue, above=0.10cm of p1.north] {Conservation analysis};
+\node[phaselabel=srbPurple, above=0.10cm of p2.north] {Routing};
+\node[phaselabel=srbOrange, left=0.10cm of p3.west, rotate=90] {Formula repair};
+\node[phaselabel=srbGreen, right=0.10cm of p4.east, rotate=-90] {Structure repair};
+\node[phaselabel=srbRed, below=0.10cm of p5.south] {Validation};
+
+\end{tikzpicture}
+
+\endgroup

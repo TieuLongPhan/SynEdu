@@ -1,19 +1,51 @@
 # What's New
 
-This page summarizes visible changes in the current SynEdu documentation and
-release archive.
+Visible changes in the SynEdu documentation and release archive.
+
+---
 
 ## Version 0.1.0
 
-Release date: 20 May 2026
+:::{note} Released 20 May 2026
+Archived on Zenodo as `10.5281/zenodo.20315656`; the concept DOI
+`10.5281/zenodo.20315655` always resolves to the newest version. See
+[Citation](/docs/citation) for guidance on which to use, and for the resolvable
+links and BibTeX.
+:::
 
-Zenodo archive: [10.5281/zenodo.20315656](https://doi.org/10.5281/zenodo.20315656)
+::::{grid} 1 1 2 2
 
-Latest DOI: [10.5281/zenodo.20315655](https://doi.org/10.5281/zenodo.20315655)
+:::{card} 📚 Talktorials
+:link: /docs/talktorials
 
-| Area | What changed | Where to look |
-|---|---|---|
-| Citation | The docs use the published Zenodo archive, with a concept DOI for the latest version and a version DOI for `v0.1.0`. | [Citation](citation.md) |
-| Talktorials | The nine-notebook route is organized into fundamentals, rule library construction, and rule application. | [Talktorials](talktorials/index.md) |
-| Build system | The active docs build has moved from Sphinx/Jupyter Book 1 to Jupyter Book 2 / MyST. | [Installation](installing.md) |
-| Notebook sources | Committed notebooks are Jupytext percent-format `.py` files; `.ipynb` build inputs are generated and ignored. | [Talktorials](talktorials/index.md) |
+The nine-notebook route is organized into three stages: fundamentals, rule
+library construction, and rule application.
+:::
+
+:::{card} 🔧 Build system
+:link: /docs/installing
+
+The active docs build moved from Sphinx / Jupyter Book 1 to Jupyter Book 2 and
+MyST.
+:::
+
+:::{card} 📓 Notebook sources
+:link: /docs/installing
+
+Each lesson's source of truth is a Jupytext MyST Markdown file
+(`synedu/S0X/notebook.md`), rendered and executed directly by the site.
+Portable `.ipynb` exports are versioned under `docs/downloads/`.
+:::
+
+:::{card} 🔖 Citation
+:link: /docs/citation
+
+The docs cite the published Zenodo archive, with a concept DOI for the latest
+version and a version DOI for `v0.1.0`.
+:::
+::::
+
+---
+
+Full commit history and release notes live on
+[GitHub](https://github.com/TieuLongPhan/SynEdu/releases).

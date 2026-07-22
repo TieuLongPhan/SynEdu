@@ -1,0 +1,40 @@
+\newcommand{\ringcoords}[2]{%
+  \coordinate (O#2) at (#1);
+  \coordinate (A#2) at ($(O#2)+(0:1.16)$);
+  \coordinate (B#2) at ($(O#2)+(60:1.16)$);
+  \coordinate (C#2) at ($(O#2)+(120:1.16)$);
+  \coordinate (D#2) at ($(O#2)+(180:1.16)$);
+  \coordinate (E#2) at ($(O#2)+(240:1.16)$);
+  \coordinate (F#2) at ($(O#2)+(300:1.16)$);
+}
+\newcommand{\drawring}[1]{%
+  \draw[ringbond] (A#1)--(B#1)--(C#1)--(D#1)--(E#1)--(F#1)--cycle;
+  \draw[aromatic]
+    ($(O#1)+(0:0.78)$)--($(O#1)+(60:0.78)$)--($(O#1)+(120:0.78)$)--
+    ($(O#1)+(180:0.78)$)--($(O#1)+(240:0.78)$)--($(O#1)+(300:0.78)$)--cycle;
+}
+\newcommand{\maplabel}[3]{%
+  \node[maptag] at ($(#1)+(#2)$) {#3};
+}
+\tikzset{
+  mcsstyle/.style={
+  font=\sffamily,
+  line cap=round,
+  line join=round,
+  ringbond/.style={draw=black!52, line width=1.05pt, line cap=round},
+  aromatic/.style={draw=black!34, dashed, dash pattern=on 1.8pt off 1.5pt, line width=0.8pt},
+  mcsbond/.style={draw=black!68, line width=1.05pt, line cap=round},
+  mcshighlight/.style={fill=cyan!9, draw=none, rounded corners=3pt},
+  keepbond/.style={draw=black!42, line width=1.20pt, line cap=round},
+  breakbond/.style={draw=red!78!black, line width=2.2pt, line cap=round},
+  formbond/.style={draw=green!55!black, line width=2.2pt, line cap=round},
+  mapguide/.style={draw=black!28, dashed, dash pattern=on 2.2pt off 2pt, line width=0.80pt},
+  rxnarrow/.style={-{Latex[length=2.8mm,width=2.0mm]}, draw=black!65, line width=0.95pt},
+  rowlabel/.style={font=\bfseries\scriptsize, anchor=west},
+  paneltag/.style={rounded corners=1.3pt, fill=black!78, text=white,
+    font=\bfseries\scriptsize, minimum size=4.4mm, inner sep=0pt},
+  elem/.style={font=\normalsize, fill=white, inner sep=0.7pt, text height=1.6ex, text depth=.25ex},
+  maptag/.style={draw=blue!55!black, text=blue!60!black, fill=white, rounded corners=1pt, inner sep=1.1pt, font=\tiny\bfseries},
+  statetag/.style={fill=white, inner sep=1pt, font=\tiny, text=black!85}
+  }
+}

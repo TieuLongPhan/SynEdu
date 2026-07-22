@@ -1,0 +1,181 @@
+\begingroup
+
+\definecolor{ioBlue}{HTML}{0072B2}
+\definecolor{ioVermilion}{HTML}{D55E00}
+
+\begin{tikzpicture}[
+  x=1cm, y=1cm,
+  font=\footnotesize,
+  line cap=round,
+  line join=round,
+  vG/.style={circle, draw=black!55, fill=white, minimum size=5.2mm,
+    inner sep=0pt, font=\scriptsize},
+  vM/.style={circle, draw=ioBlue!75!black, fill=ioBlue!12,
+    minimum size=5.2mm, inner sep=0pt, font=\scriptsize,
+    text=ioBlue!45!black},
+  vH/.style={circle, draw=black!35, fill=black!7,
+    minimum size=5.2mm, inner sep=0pt, font=\scriptsize, text=black!55},
+  e/.style={draw=black!72, line width=0.9pt},
+  eoff/.style={draw=black!30, line width=0.8pt, dash pattern=on 1.2pt off 1.4pt},
+  img/.style={draw=ioBlue, line width=1.9pt},
+  map/.style={-{Stealth[length=1.8mm,width=1.4mm]},
+    draw=ioVermilion!88!black, line width=0.65pt,
+    shorten >=1pt, shorten <=1pt},
+  title/.style={font=\bfseries\footnotesize, text=black!85, anchor=west},
+  subtitle/.style={font=\scriptsize, text=black!58, anchor=north},
+  glab/.style={font=\scriptsize\itshape, text=black!65},
+  badge/.style={rounded corners=1.3pt, fill=black!78, text=white,
+    font=\bfseries\scriptsize, minimum size=4.4mm, inner sep=0pt},
+  panel/.style={rounded corners=3pt, draw=black!16, fill=black!1,
+    line width=0.4pt},
+  card/.style={rounded corners=2.6pt, draw=black!14, fill=black!2,
+    line width=0.4pt, inner sep=0pt},
+  legtext/.style={anchor=west, font=\scriptsize, text=black!70, inner sep=0pt}
+]
+
+\newcommand{\panelhead}[3]{%
+  \draw[panel] (-0.70,-0.45) rectangle (7.25,2.35);
+  \node[badge] at (-0.36,2.03) {#1};
+  \node[title] at (-0.08,2.03) {#2};
+}
+
+\begin{scope}[shift={(0,0)}]
+\panelhead{A}{Homomorphism}
+  {$\varphi$ preserves labelled vertices and edges; injectivity is not required}
+\node[glab] at (0.90,1.80) {$G$};
+\node[vG] (AG1) at (0.00,0.70) {$u$};
+\node[vG] (AG2) at (0.90,1.30) {$v$};
+\node[vG] (AG3) at (1.80,0.70) {$w$};
+\draw[e] (AG1)--(AG2)--(AG3);
+\node[glab] at (5.00,1.80) {$H$};
+\draw[img]  (4.30,1.30)--(5.40,0.85);
+\draw[eoff] (5.40,0.85)--(4.60,0.10);
+\node[vM] (AH1) at (4.30,1.30) {$1$};
+\node[vM] (AH2) at (5.40,0.85) {$2$};
+\node[vH] (AH3) at (4.60,0.10) {$3$};
+\draw[map] (AG1) to[bend left=7] (AH1);
+\draw[map] (AG2) to[bend right=3] (AH2);
+\draw[map] (AG3) -- (AH1);
+\end{scope}
+
+\begin{scope}[shift={(8.30,0)}]
+\panelhead{B}{Subgraph isomorphism}
+  {injective embedding; extra host edges may occur among matched vertices}
+\node[glab] at (0.90,1.80) {$G$};
+\node[vG] (BG1) at (0.00,0.70) {$u$};
+\node[vG] (BG2) at (0.90,1.30) {$v$};
+\node[vG] (BG3) at (1.80,0.70) {$w$};
+\draw[e] (BG1)--(BG2)--(BG3);
+\node[glab] at (5.00,1.80) {$H$};
+\draw[img]  (4.30,1.30)--(5.40,0.85)--(4.60,0.10);
+\draw[eoff] (4.30,1.30)--(4.60,0.10);
+\draw[eoff] (5.40,0.85)--(6.00,0.25);
+\node[vM] (BH1) at (4.30,1.30) {$1$};
+\node[vM] (BH2) at (5.40,0.85) {$2$};
+\node[vM] (BH3) at (4.60,0.10) {$3$};
+\node[vH] (BH4) at (6.00,0.25) {$4$};
+\draw[map] (BG1) to[bend left=7] (BH1);
+\draw[map] (BG2) to[bend right=3] (BH2);
+\draw[map] (BG3) -- (BH3);
+\end{scope}
+
+\begin{scope}[shift={(0,-3.10)}]
+\panelhead{C}{Induced subgraph isomorphism}
+  {injective embedding preserving both edges and non-edges in the image}
+\node[glab] at (0.90,1.80) {$G$};
+\node[vG] (CG1) at (0.00,0.70) {$u$};
+\node[vG] (CG2) at (0.90,1.30) {$v$};
+\node[vG] (CG3) at (1.80,0.70) {$w$};
+\draw[e] (CG1)--(CG2)--(CG3);
+\node[glab] at (5.00,1.80) {$H$};
+\draw[img]  (4.30,1.30)--(5.40,0.85)--(6.00,0.25);
+\draw[eoff] (4.30,1.30)--(4.60,0.10);
+\draw[eoff] (5.40,0.85)--(4.60,0.10);
+\node[vM] (CH1) at (4.30,1.30) {$1$};
+\node[vM] (CH2) at (5.40,0.85) {$2$};
+\node[vH] (CH3) at (4.60,0.10) {$3$};
+\node[vM] (CH4) at (6.00,0.25) {$4$};
+\draw[map] (CG1) to[bend left=7] (CH1);
+\draw[map] (CG2) to[bend right=3] (CH2);
+\draw[map] (CG3) to[bend left=5] (CH4);
+\end{scope}
+
+\begin{scope}[shift={(8.30,-3.10)}]
+\panelhead{D}{Isomorphism}
+  {bijective; labelled edges and labelled non-edges are preserved both ways}
+\node[glab] at (0.90,1.80) {$G$};
+\node[vG] (DG1) at (0.00,0.70) {$u_1$};
+\node[vG] (DG2) at (0.90,1.30) {$u_2$};
+\node[vG] (DG3) at (1.80,0.70) {$u_3$};
+\node[vG] (DG4) at (0.90,0.10) {$u_4$};
+\draw[e] (DG1)--(DG2)--(DG3)--(DG4)--cycle;
+\node[glab] at (5.00,1.80) {$H$};
+\draw[img] (4.00,0.70)--(5.00,1.30)--(6.00,0.70)--(5.00,0.10);
+\node[vM] (DH1) at (5.00,1.30) {$1$};
+\node[vM] (DH2) at (6.00,0.70) {$2$};
+\node[vM] (DH3) at (5.00,0.10) {$3$};
+\node[vM] (DH4) at (4.00,0.70) {$4$};
+\draw[map] (DG1) to[bend left=8] (DH1);
+\draw[map] (DG2) to[bend left=7] (DH2);
+\draw[map] (DG3) -- (DH3);
+\draw[map] (DG4) -- (DH4);
+\end{scope}
+
+\begin{scope}[shift={(0,-6.20)}]
+\panelhead{E}{Automorphism}
+  {an isomorphism \(G\to G\); here a rotation of the four-cycle}
+\node[glab] at (0.90,1.80) {$G$};
+\node[vG] (EG1) at (0.00,0.70) {$u_1$};
+\node[vG] (EG2) at (0.90,1.30) {$u_2$};
+\node[vG] (EG3) at (1.80,0.70) {$u_3$};
+\node[vG] (EG4) at (0.90,0.10) {$u_4$};
+\draw[e] (EG1)--(EG2)--(EG3)--(EG4)--cycle;
+\node[glab] at (5.00,1.80) {$G$};
+\draw[img] (4.00,0.70)--(5.00,1.30)--(6.00,0.70)--(5.00,0.10);
+\node[vM] (EH1) at (4.00,0.70) {$u_1$};
+\node[vM] (EH2) at (5.00,1.30) {$u_2$};
+\node[vM] (EH3) at (6.00,0.70) {$u_3$};
+\node[vM] (EH4) at (5.00,0.10) {$u_4$};
+\draw[map] (EG1) to[bend left=8] (EH2);
+\draw[map] (EG2) to[bend left=7] (EH3);
+\draw[map] (EG3) -- (EH4);
+\draw[map] (EG4) -- (EH1);
+\end{scope}
+
+\begin{scope}[shift={(8.30,-6.20)}]
+\panelhead{F}{Maximum common substructure}
+  {largest shared labelled subgraph; unmatched edges remain outside the image}
+\node[glab] at (0.90,1.80) {$G$};
+\draw[eoff] (1.80,0.70)--(0.90,0.10);
+\draw[img]  (1.80,0.70)--(0.90,1.30)--(0.00,0.70)--(0.90,0.10);
+\node[vM] (FG1) at (0.00,0.70) {$u_1$};
+\node[vM] (FG2) at (0.90,1.30) {$u_2$};
+\node[vM] (FG3) at (1.80,0.70) {$u_3$};
+\node[vM] (FG4) at (0.90,0.10) {$u_4$};
+\node[glab] at (5.00,1.80) {$H$};
+\draw[eoff] (4.00,0.75)--(6.00,0.65);
+\draw[img]  (5.00,1.30)--(4.00,0.75)--(4.30,-0.15);
+\draw[img]  (5.00,1.30)--(6.00,0.65);
+\node[vM] (FH1) at (5.00,1.30) {$1$};
+\node[vM] (FH2) at (4.00,0.75) {$2$};
+\node[vM] (FH3) at (6.00,0.65) {$3$};
+\node[vM] (FH4) at (4.30,-0.15) {$4$};
+\draw[map] (FG1) to[bend left=8] (FH1);
+\draw[map] (FG2) -- (FH2);
+\draw[map] (FG3) -- (FH4);
+\draw[map] (FG4) to[bend right=2] (FH3);
+\end{scope}
+
+\node[card, minimum width=16.25cm, minimum height=0.72cm] at (7.425,-7.25) {};
+\node[vM, minimum size=4.4mm] at (0.25,-7.25) {};
+\node[legtext] at (0.58,-7.25) {mapped/common};
+\node[vH, minimum size=4.4mm] at (3.55,-7.25) {};
+\node[legtext] at (3.88,-7.25) {outside image};
+\draw[img] (7.25,-7.25) -- (7.85,-7.25);
+\node[legtext] at (8.05,-7.25) {image/common edge};
+\draw[eoff] (12.00,-7.25) -- (12.60,-7.25);
+\node[legtext] at (12.80,-7.25) {uncovered edge};
+
+\end{tikzpicture}
+
+\endgroup

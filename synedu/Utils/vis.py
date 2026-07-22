@@ -129,7 +129,9 @@ def render_smiles_annotation(
       .smi-raw {{font-size:12px;color:#6B7280;margin-bottom:10px;word-break:break-all}}
       .smi-token-row,.smi-index-row,.smi-legend {{display:flex;flex-wrap:wrap;gap:5px;align-items:center}}
       .smi-token-row {{margin-bottom:6px}} .smi-index-row {{margin-bottom:12px}} .smi-legend {{gap:7px;margin-top:10px}}
-      .smi-token {{font-weight:800;font-size:18px;line-height:1.2;padding:5px 7px;border-radius:8px;display:inline-block}}
+      .smi-token {{font-weight:800;font-size:18px;line-height:1.2;padding:5px 7px;border-radius:8px;display:inline-block;transition:transform .12s ease,box-shadow .12s ease}}
+      .smi-token:hover {{transform:translateY(-2px) scale(1.05);box-shadow:0 4px 10px rgba(0,0,0,.12);cursor:help}}
+      .smi-legend-item:hover {{cursor:default}}
       .smi-index {{color:#9CA3AF;background:#F9FAFB;border:1px solid #E5E7EB;border-radius:6px;padding:2px 6px;font-size:10px;min-width:18px;text-align:center}}
       .smi-legend-item {{border:1px solid;border-radius:999px;padding:4px 9px;font-size:12px;color:#374151;display:inline-flex;align-items:center;gap:5px}}
       .smi-count {{color:#6B7280;background:#FFFFFFAA;border-radius:999px;padding:1px 6px;font-size:11px;font-weight:700}}

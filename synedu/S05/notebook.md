@@ -13,7 +13,7 @@ kernelspec:
 
 # S05: Reaction Rules as Graph Rewriting
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S05.ipynb) [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/TieuLongPhan/SynEdu/main?urlpath=%2Fdoc%2Ftree%2Fdocs%2Fdownloads%2FS05.ipynb) [![Download Notebook](https://img.shields.io/badge/download-.ipynb-blue)](https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S05.ipynb) [![Run Locally](https://img.shields.io/badge/run-locally-lightgrey)](../../docs/installing.md)
+<div class="synedu-lesson-shell not-prose" style="box-sizing:border-box;margin:8px 0 24px;padding:20px;border:1px solid #243b53;border-radius:16px;background:#102a43;color:#fff;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"><div class="synedu-lesson-shell__top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap"><div><div class="synedu-lesson-shell__eyebrow" style="margin-bottom:5px;color:#5eead4;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase">SynEdu learning path</div><div class="synedu-lesson-shell__meta" style="font-size:16px;font-weight:750">Lesson 5 of 9 <span style="color:#9fb3c8;font-weight:500">· Stage 2 · Rule construction</span></div></div><span class="synedu-lesson-shell__progress-label" style="color:#bcccdc;font-size:12px;font-weight:700">56% complete</span></div><div class="synedu-lesson-shell__track" style="height:5px;margin:16px 0 18px;overflow:hidden;border-radius:999px;background:#334e68"><span style="display:block;width:56%;height:100%;border-radius:inherit;background:#2dd4bf"></span></div><div class="synedu-notebook-actions" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap" aria-label="Run this lesson"><a class="synedu-launch-badge" href="https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S05.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open S05 in Colab" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://mybinder.org/v2/gh/TieuLongPhan/SynEdu/main?urlpath=lab/tree/docs/downloads/S05.ipynb"><img src="https://mybinder.org/badge_logo.svg" alt="Launch S05 in Binder" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S05.ipynb"><img src="https://img.shields.io/badge/download-.ipynb-2563eb?logo=jupyter&amp;logoColor=white" alt="Download S05 notebook" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="/docs/installing"><img src="https://img.shields.io/badge/run-locally-334e68?logo=jupyter&amp;logoColor=white" alt="Run S05 locally" style="display:block;height:24px" /></a></div></div>
 
 This talktorial introduces Double Pushout (DPO) graph rewriting as a formal model for reaction rules. A rule is represented as a span that separates deleted, preserved, and created structure, then applied to molecular graphs by matching, deleting, and gluing [@phan2025synkit; @ehrig2006fundamentals].
 
@@ -38,24 +38,19 @@ After completing this talktorial, you will be able to:
 - construct the **pushout** product graph, and
 - chain the steps into a single pipeline that produces exact atom maps.
 
----
-
-## Outline
-
-- [0. Setup & Data](#id-0-setup-data)
-- [1. Reaction rules](#id-1-reaction-rules)
-- [2. Double Pushout Graph Rewriting](#id-2-double-pushout-graph-rewriting)
-- [3. SynKit](#id-3-synkit)
-- [4. Discussion](#id-4-discussion)
-- [5. Quiz](#id-5-quiz)
-- [6. References](#id-6-references)
-
 +++
 
 ## 0. Setup & Data
 
 ```{code-cell}
 from __future__ import annotations
+
+import logging
+import warnings
+
+# Library progress chatter is not a lesson result; keep the output readable.
+logging.disable(logging.INFO)
+warnings.filterwarnings("ignore")
 
 from dataclasses import dataclass
 from typing import Dict, Hashable, Iterable, List, Tuple, Optional

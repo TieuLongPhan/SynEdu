@@ -5,11 +5,53 @@ project:
   id: ebabe672-7a28-4f98-aceb-970048931d14
   title: SynEdu
   description: Reproducible, graph-based chemical education via executable talktorials
+  short_title: SynEdu
   authors:
     - Tieu Long Phan
   github: https://github.com/TieuLongPhan/SynEdu
+  doi: 10.5281/zenodo.20315655
+  license:
+    content: CC-BY-4.0
+    code: MIT
+  open_access: true
+  keywords:
+    - reaction informatics
+    - cheminformatics
+    - graph theory
+    - atom mapping
+    - graph rewriting
+    - DPO
+    - RDKit
+    - NetworkX
+    - chemistry education
+  funding:
+    - statement: >-
+        This project has received funding from the European Union's Horizon
+        Europe Doctoral Network programme under the Marie Skłodowska-Curie
+        grant agreement No 101072930 (TACsy).
+      id: 101072930
   bibliography:
-    - references.bib
+    - docs/references.bib
+  # Expanded inline wherever the acronym appears, so a reader who lands on a
+  # later talktorial from search is not left guessing.
+  abbreviations:
+    ITS: Imaginary Transition State
+    DPO: Double Pushout
+    MCS: Maximum Common Substructure
+    AAM: Atom-to-Atom Mapping
+    SMILES: Simplified Molecular-Input Line-Entry System
+    SMARTS: SMILES Arbitrary Target Specification
+  numbering:
+    figure: true
+    table: true
+    equation: true
+  error_rules:
+    # The site footer's back-to-top control targets `#skip-to-frontmatter`, the
+    # anchor the book theme puts at the top of every article. It is a theme DOM
+    # id rather than a MyST target, so resolution is expected to fail here.
+    - rule: reference-target-resolves
+      severity: ignore
+      key: "#skip-to-frontmatter"
   exclude:
     - _build/**
     - docs/_build/**
@@ -23,10 +65,9 @@ project:
     - file: docs/installing.md
     - file: docs/talktorials/index.md
       children:
-        - file: docs/talktorials/all_talktorials.md
         - title: S01 - From Molecules to Labeled Graphs
           file: synedu/S01/notebook.md
-        - title: S02 - Graph Homomorphism in Reaction Informatics
+        - title: S02 - Graph Homomorphisms in Reaction Informatics
           file: synedu/S02/notebook.md
         - title: S03 - Maximum Common Substructure in Reaction Informatics
           file: synedu/S03/notebook.md
@@ -34,13 +75,13 @@ project:
           file: synedu/S04/notebook.md
         - title: "S05 - Reaction Rules as Graph Rewriting (DPO) - Chemistry-First, ITS-Native"
           file: synedu/S05/notebook.md
-        - title: "S06 - From Atom-Mapped Reactions to DPO Rules: ITS, Reaction Centers, and Fast Clustering"
+        - title: "S06 - Canonicalizing Atom-Mapped Reactions and Rules"
           file: synedu/S06/notebook.md
-        - title: "S07 - Canonicalizing Atom-Mapped Reactions and Rules: Equivalence, Symmetry, Determinism"
+        - title: "S07 - From Atom-Mapped Reactions to DPO Rules"
           file: synedu/S07/notebook.md
-        - title: "S08 - One-Step Rule Application (Forward & Backward): DPO Rules as Reaction Engines"
+        - title: "S08 - One-Step Reaction Prediction"
           file: synedu/S08/notebook.md
-        - title: "S09 - Metrics for Rule Application: Coverage, Recall, Branching, and Cost"
+        - title: "S09 - Context Radius Expansion"
           file: synedu/S09/notebook.md
     - file: docs/api.md
     - file: docs/syneco_ecosystem.md
@@ -54,10 +95,12 @@ project:
 
 site:
   template: book-theme
+  parts:
+    footer: docs/footer.md
   options:
     folders: true
     style: docs/_static/synedu.css
-    favicon: docs/_static/synedu_logo_square_icon_transparent.png
+    favicon: docs/_static/synedu_academic_cap.svg
     logo: docs/_static/synedu_academic_cap.svg
     logo_alt: SynEdu academic cap
     logo_text: SynEdu

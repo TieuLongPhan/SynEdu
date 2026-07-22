@@ -216,10 +216,14 @@ docs/_build/
 docs/.jupyter_cache/
 docs/_autosummary/
 docs/**/.ipynb_checkpoints/
-synedu/S[0-9][0-9]/notebook.ipynb
 .jupyter-state/
 docs/**/*.ipynb_checkpoints/
 _build/
+
+# Notebooks are generated: the lesson sources are `synedu/S0X/notebook.md`.
+# The only committed .ipynb are the portable Colab/Binder exports, which are
+# regenerated with `make build-downloads DOWNLOAD_DIR=docs/downloads`.
+*.ipynb
 
 # OS junk
 .DS_Store
@@ -243,7 +247,9 @@ Agent/*
 # Ignore ad-hoc TeX scratch sources by default. Explicit manuscript/template
 # figure sources are unignored below.
 *.tex
-!synedu/S00/figure/pipeline.tex
-!docs/paper/figures/*.tex
+# ...but the TikZ sources for the committed figure SVGs must stay versioned,
+# otherwise the figures cannot be regenerated.
+!docs/_static/tikz/*.tex
+!synedu/S[0-9][0-9]/figure/*.tex
 
 old/

@@ -9,6 +9,9 @@
 :root {
   --synedu-accent: #0f766e;        /* teal brand accent */
   --synedu-accent-strong: #0b5c55;
+  --synedu-on-accent: #ffffff;     /* text/icon colour on an accent fill */
+  --synedu-link: #1d4ed8;
+  --synedu-link-hover: #1e40af;
   --synedu-border: #d8dee8;
   --synedu-muted: #536173;
 
@@ -22,6 +25,9 @@
 html.dark {
   --synedu-accent: #2dd4bf;        /* brighter teal for dark backgrounds */
   --synedu-accent-strong: #5eead4;
+  --synedu-on-accent: #062b27;     /* white on bright teal fails contrast */
+  --synedu-link: #7cc0ff;
+  --synedu-link-hover: #a9d6ff;
   --synedu-border: #33404f;
   --synedu-muted: #9aa7b6;
 
@@ -145,10 +151,12 @@ html.dark {
 /* Keep the action links in one flex row. The theme renders them as inline
    links by default, so icon-only actions otherwise sit on different text
    baselines when custom pseudo-icons are present. */
-.myst-top-nav-bar > div:last-child > div:last-child {
-  align-items: center;
-  display: flex !important;
-  gap: 0;
+@media (min-width: 640px) {
+  .myst-top-nav-bar > div:last-child > div:last-child {
+    align-items: center;
+    display: flex !important;
+    gap: 0;
+  }
 }
 
 .myst-top-nav a[href*="zenodo."]::before {
@@ -183,6 +191,26 @@ html.dark table.dataframe td {
    caption while keeping its contents. */
 section.myst-bibliography {
   margin-top: 1rem;
+}
+
+/* The theme renders bibliography entries a step smaller than body copy and
+   leaves DOI/URL links in the body ink. Match the reading size and give the
+   links the same blue affordance as every other link on the page. */
+.myst-bibliography ol,
+.myst-bibliography li,
+.myst-bibliography p {
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.myst-bibliography a {
+  color: var(--synedu-link) !important;
+  text-decoration-color: color-mix(in srgb, var(--synedu-link) 45%, transparent);
+}
+
+.myst-bibliography a:hover {
+  color: var(--synedu-link-hover) !important;
+  text-decoration-color: currentColor;
 }
 /* MyST has used both a section and a div wrapper for this generated title;
    cover both forms so only the notebook's explicit heading remains. */
@@ -267,12 +295,20 @@ html.dark .se-callout--muted {
    Concept card grid  (.se-cardgrid + .se-card + color modifier)
    ------------------------------------------------------------------------- */
 
+/* Two columns rather than `auto-fit`, which packed four concept cards into an
+   uneven 3 + 1 at the article's reading width. */
 .se-cardgrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 0.85rem;
-  margin: 1rem 0 0.5rem;
   align-items: stretch;
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: 1fr;
+  margin: 1rem 0 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .se-cardgrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .se-card {
@@ -402,6 +438,18 @@ html.dark .hover-figure:hover {
   max-width: 900px;
   height: auto;
 }
+
+/* Diagram SVGs are line art drawn in near-black on a transparent canvas, so on
+   the dark theme they lose nearly all contrast. Give figures and executed cell
+   images a light plate to sit on rather than recolouring the artwork. */
+html.dark .se-figure img,
+html.dark .hover-figure img,
+html.dark .cell_output img,
+html.dark .cell_output svg {
+  background: #f7fafc;
+  border-radius: 10px;
+  padding: 0.6rem;
+}
 .se-figure figcaption {
   margin-top: 0.5rem;
   font-size: 0.85rem;
@@ -478,3 +526,1582 @@ html.dark .hover-figure:hover {
 .synedu-card--fund { border-left: 4px solid rgba(22, 179, 168, 0.75); }
 .synedu-card--lib  { border-left: 4px solid rgba(255, 177, 66, 0.75); }
 .synedu-card--app  { border-left: 4px solid rgba(255, 107, 107, 0.65); }
+
+/* ==========================================================================
+   MyST landing and catalog experience
+
+   These components intentionally live in raw semantic HTML blocks marked
+   `.not-prose`. This gives the landing pages a stronger product hierarchy
+   while notebook prose continues to use the book theme's native typography.
+   ========================================================================== */
+
+:root {
+  --synedu-navy: #0e1b2a;
+  --synedu-ink: #102a43;
+  --synedu-surface: #ffffff;
+  --synedu-surface-soft: #f6f9fc;
+  --synedu-teal-soft: #e7f8f5;
+  --synedu-blue-soft: #edf5ff;
+  --synedu-amber-soft: #fff6df;
+  --synedu-green-soft: #edf8ec;
+  --synedu-shadow: 0 18px 45px rgba(15, 35, 55, 0.09);
+  --synedu-shadow-soft: 0 8px 24px rgba(15, 35, 55, 0.07);
+}
+
+html.dark {
+  --synedu-navy: #08131f;
+  --synedu-ink: #e6edf5;
+  --synedu-surface: #131d29;
+  --synedu-surface-soft: #172330;
+  --synedu-teal-soft: #0d302d;
+  --synedu-blue-soft: #13273d;
+  --synedu-amber-soft: #332711;
+  --synedu-green-soft: #172d1b;
+  --synedu-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
+  --synedu-shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.22);
+}
+
+article:has(.synedu-home),
+article:has(.synedu-catalog) {
+  max-width: none;
+}
+
+article:has(.synedu-home) #skip-to-frontmatter,
+article:has(.synedu-catalog) #skip-to-frontmatter {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+article > .synedu-home,
+article > .synedu-catalog {
+  grid-column: body-start / page-inset-end;
+  min-width: 0;
+  width: 100%;
+}
+
+.synedu-home,
+.synedu-catalog {
+  color: var(--synedu-ink);
+  line-height: 1.55;
+  padding: 2.5rem 0 4rem;
+}
+
+.synedu-home *,
+.synedu-catalog * {
+  box-sizing: border-box;
+}
+
+.synedu-home h1,
+.synedu-home h2,
+.synedu-home h3,
+.synedu-home h4,
+.synedu-catalog h1,
+.synedu-catalog h2,
+.synedu-catalog h3,
+.synedu-catalog h4,
+.synedu-resource-card p,
+.synedu-project-strip p {
+  margin: 0;
+}
+
+.synedu-eyebrow {
+  color: var(--synedu-accent-strong);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  margin: 0 0 0.55rem;
+  text-transform: uppercase;
+}
+
+.synedu-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.synedu-btn {
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  display: inline-flex;
+  font-size: 0.9rem;
+  font-weight: 750;
+  gap: 0.45rem;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0.65rem 1rem;
+  text-decoration: none !important;
+  transition: background 0.18s ease, border-color 0.18s ease,
+    box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.synedu-btn:hover {
+  transform: translateY(-1px);
+}
+
+.synedu-btn--primary {
+  background: var(--synedu-accent);
+  color: #ffffff !important;
+  box-shadow: 0 7px 18px rgba(15, 118, 110, 0.2);
+}
+
+.synedu-btn--primary:hover {
+  background: var(--synedu-accent-strong);
+  box-shadow: 0 9px 22px rgba(15, 118, 110, 0.26);
+}
+
+.synedu-btn--secondary {
+  background: var(--synedu-surface);
+  border-color: var(--synedu-border);
+  color: var(--synedu-ink) !important;
+}
+
+.synedu-btn--secondary:hover {
+  border-color: var(--synedu-accent);
+}
+
+.synedu-btn--quiet {
+  color: var(--synedu-accent-strong) !important;
+  padding-inline: 0.45rem;
+}
+
+.synedu-btn:focus-visible,
+.synedu-stage-card:focus-visible,
+.synedu-card:focus-visible,
+.synedu-route-nav a:focus-visible,
+.synedu-series-track a:focus-visible {
+  outline: 3px solid #5eead4;
+  outline-offset: 3px;
+}
+
+/* Homepage hero */
+
+.synedu-hero {
+  background:
+    radial-gradient(circle at 93% 8%, rgba(45, 212, 191, 0.16), transparent 34%),
+    linear-gradient(135deg, var(--synedu-surface) 0%, var(--synedu-surface-soft) 100%);
+  border: 1px solid var(--synedu-border);
+  border-radius: 18px;
+  box-shadow: var(--synedu-shadow);
+  display: grid;
+  gap: 2.75rem;
+  grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+  overflow: hidden;
+  padding: clamp(1.5rem, 4vw, 3.5rem);
+  position: relative;
+}
+
+.synedu-hero::before {
+  background: linear-gradient(90deg, #2563eb, #0f766e 45%, #d97706 72%, #3f8f45);
+  content: "";
+  height: 4px;
+  inset: 0 0 auto;
+  position: absolute;
+}
+
+.synedu-hero__copy {
+  align-self: center;
+}
+
+.synedu-hero h1,
+.synedu-hero h2 {
+  color: var(--synedu-ink);
+  font-size: clamp(2.2rem, 5vw, 3.65rem);
+  font-weight: 820;
+  letter-spacing: -0.045em;
+  line-height: 1.02;
+  max-width: 12ch;
+}
+
+.synedu-hero__lead {
+  color: var(--synedu-muted);
+  font-size: 1.08rem;
+  line-height: 1.65;
+  margin: 1.25rem 0 1.5rem;
+  max-width: 58ch;
+}
+
+.synedu-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem 1.35rem;
+  list-style: none;
+  margin: 1.7rem 0 0;
+  padding: 0;
+}
+
+.synedu-facts > div {
+  color: var(--synedu-muted);
+  font-size: 0.82rem;
+}
+
+.synedu-facts strong {
+  color: var(--synedu-ink);
+  display: block;
+  font-size: 1rem;
+}
+
+.synedu-hero__map {
+  align-self: center;
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: minmax(100px, 1fr) 24px minmax(100px, 1fr);
+  grid-template-rows: auto 24px auto;
+}
+
+.synedu-map-node {
+  background: var(--synedu-surface);
+  border: 1px solid var(--synedu-border);
+  border-radius: 12px;
+  box-shadow: var(--synedu-shadow-soft);
+  min-height: 112px;
+  padding: 0.9rem;
+  position: relative;
+}
+
+.synedu-map-node::after {
+  border-radius: 999px;
+  content: "";
+  height: 5px;
+  inset: auto 0.9rem 0.8rem;
+  opacity: 0.8;
+  position: absolute;
+}
+
+.synedu-map-node > span:first-child {
+  color: var(--synedu-muted);
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+  margin-bottom: 0.75rem;
+}
+
+.synedu-map-node strong,
+.synedu-map-node__verb {
+  display: block;
+}
+
+.synedu-map-node strong {
+  color: var(--synedu-ink);
+  font-size: 1rem;
+}
+
+.synedu-map-node__verb {
+  color: var(--synedu-muted);
+  font-size: 0.76rem;
+  margin-top: 0.2rem;
+}
+
+.synedu-map-node--blue::after { background: #2563eb; }
+.synedu-map-node--teal::after { background: #0f766e; }
+.synedu-map-node--amber::after { background: #d97706; }
+.synedu-map-node--green::after { background: #3f8f45; }
+.synedu-map-node--blue { grid-column: 1; grid-row: 1; }
+.synedu-map-node--teal { grid-column: 3; grid-row: 1; }
+.synedu-map-node--amber { grid-column: 3; grid-row: 3; }
+.synedu-map-node--green { grid-column: 1; grid-row: 3; }
+
+.synedu-map-arrow {
+  align-items: center;
+  color: var(--synedu-muted);
+  display: flex;
+  font-size: 1.1rem;
+  justify-content: center;
+}
+
+.synedu-map-arrow:nth-of-type(1) { grid-column: 2; grid-row: 1; }
+.synedu-map-arrow:nth-of-type(2) { grid-column: 3; grid-row: 2; transform: rotate(90deg); }
+.synedu-map-arrow:nth-of-type(3) { grid-column: 2; grid-row: 3; transform: rotate(180deg); }
+
+/* Homepage sections */
+
+.synedu-section-block {
+  margin-top: clamp(2.75rem, 6vw, 4.5rem);
+}
+
+.synedu-section-heading {
+  align-items: end;
+  display: flex;
+  gap: 2rem;
+  justify-content: space-between;
+  margin-bottom: 1.35rem;
+}
+
+.synedu-section-heading h2,
+.synedu-section-heading h3 {
+  color: var(--synedu-ink);
+  font-size: clamp(1.65rem, 3vw, 2.2rem);
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+}
+
+.synedu-section-heading > p {
+  color: var(--synedu-muted);
+  font-size: 0.92rem;
+  margin: 0;
+  max-width: 44ch;
+}
+
+.synedu-stage-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.synedu-stage-card {
+  background: var(--synedu-surface);
+  border: 1px solid var(--synedu-border);
+  border-radius: 12px;
+  color: inherit !important;
+  min-height: 245px;
+  overflow: hidden;
+  padding: 1.35rem;
+  position: relative;
+  text-decoration: none !important;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+.synedu-stage-card::before {
+  content: "";
+  height: 5px;
+  inset: 0 0 auto;
+  position: absolute;
+}
+
+.synedu-stage-card:hover {
+  border-color: var(--synedu-accent);
+  box-shadow: var(--synedu-shadow-soft);
+  transform: translateY(-3px);
+}
+
+.synedu-stage-card--fund::before { background: #168f88; }
+.synedu-stage-card--rules::before { background: #d58a20; }
+.synedu-stage-card--apply::before { background: #4f8b4b; }
+
+.synedu-stage-card__number {
+  color: var(--synedu-muted);
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  margin: 0.35rem 0 1rem;
+  text-transform: uppercase;
+}
+
+.synedu-stage-card h3,
+.synedu-stage-card h4,
+.synedu-stage-card__title {
+  color: var(--synedu-ink);
+  font-size: 1.18rem;
+  line-height: 1.3;
+}
+
+.synedu-stage-card p {
+  color: var(--synedu-muted);
+  font-size: 0.88rem;
+  line-height: 1.6;
+  margin: 0.75rem 0 2.5rem;
+}
+
+.synedu-text-link,
+.synedu-stage-card .synedu-text-link {
+  color: var(--synedu-accent-strong) !important;
+  font-size: 0.86rem;
+  font-weight: 750;
+  text-decoration: none !important;
+}
+
+.synedu-stage-card .synedu-text-link {
+  bottom: 1.25rem;
+  left: 1.35rem;
+  position: absolute;
+}
+
+.synedu-section-heading--compact {
+  align-items: end;
+}
+
+.synedu-series-track {
+  display: grid;
+  gap: 0;
+  grid-template-columns: repeat(9, minmax(82px, 1fr));
+  list-style: none;
+  margin: 0;
+  overflow-x: auto;
+  padding: 0 0 0.65rem;
+  scrollbar-width: thin;
+}
+
+.synedu-series-track > a {
+  min-width: 82px;
+  position: relative;
+}
+
+.synedu-series-track > a:not(:last-child)::after {
+  background: var(--synedu-border);
+  content: "";
+  height: 2px;
+  position: absolute;
+  right: -1px;
+  top: 16px;
+  width: 30%;
+  z-index: 0;
+}
+
+.synedu-series-track a {
+  color: var(--synedu-muted) !important;
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 650;
+  text-align: center;
+  text-decoration: none !important;
+}
+
+.synedu-series-track span {
+  align-items: center;
+  background: var(--synedu-surface);
+  border: 2px solid var(--synedu-border);
+  border-radius: 999px;
+  color: var(--synedu-accent-strong);
+  display: flex;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.66rem;
+  height: 34px;
+  justify-content: center;
+  margin: 0 auto 0.55rem;
+  position: relative;
+  transition: border-color 0.18s ease, background 0.18s ease;
+  width: 34px;
+  z-index: 1;
+}
+
+.synedu-series-track a:hover span {
+  background: var(--synedu-teal-soft);
+  border-color: var(--synedu-accent);
+}
+
+.synedu-resource-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: clamp(3rem, 7vw, 5rem);
+}
+
+.synedu-resource-card {
+  align-items: flex-start;
+  background: var(--synedu-surface-soft);
+  border: 1px solid var(--synedu-border);
+  border-radius: 12px;
+  display: flex;
+  gap: 0.9rem;
+  padding: 1.1rem;
+}
+
+.synedu-resource-card__icon {
+  align-items: center;
+  background: var(--synedu-teal-soft);
+  border-radius: 8px;
+  color: var(--synedu-accent-strong);
+  display: flex;
+  flex: 0 0 38px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.78rem;
+  font-weight: 850;
+  height: 38px;
+  justify-content: center;
+}
+
+.synedu-resource-card h2,
+.synedu-resource-card h3 {
+  color: var(--synedu-ink);
+  font-size: 0.95rem;
+}
+
+.synedu-resource-card p {
+  color: var(--synedu-muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  margin-top: 0.35rem;
+}
+
+.synedu-resource-card a {
+  color: var(--synedu-accent-strong) !important;
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 750;
+  margin-top: 0.6rem;
+  text-decoration: none !important;
+}
+
+.synedu-project-strip {
+  align-items: center;
+  border-top: 1px solid var(--synedu-border);
+  display: flex;
+  gap: 2rem;
+  justify-content: space-between;
+  margin-top: 2.5rem;
+  padding-top: 1.3rem;
+}
+
+.synedu-project-strip p {
+  color: var(--synedu-muted);
+  font-size: 0.76rem;
+  max-width: 74ch;
+}
+
+.synedu-project-strip strong {
+  color: var(--synedu-ink);
+}
+
+.synedu-project-strip > div {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.9rem;
+}
+
+.synedu-project-strip a {
+  color: var(--synedu-accent-strong) !important;
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-decoration: none !important;
+}
+
+/* Talktorial catalog */
+
+.synedu-catalog {
+  max-width: 1020px;
+  margin-inline: auto;
+}
+
+.synedu-catalog-hero {
+  background: transparent;
+  border-bottom: 1px solid var(--synedu-border);
+  border-radius: 0;
+  color: var(--synedu-ink);
+  overflow: visible;
+  padding: 1rem 0 2rem;
+  position: relative;
+}
+
+.synedu-catalog-hero .synedu-eyebrow {
+  color: var(--synedu-accent-strong);
+}
+
+.synedu-catalog-hero h1,
+.synedu-catalog-hero h2 {
+  color: var(--synedu-ink);
+  font-size: clamp(2.2rem, 4.2vw, 3rem);
+  font-weight: 760;
+  letter-spacing: -0.035em;
+  line-height: 1.08;
+  max-width: 22ch;
+}
+
+.synedu-catalog-hero > p:not(.synedu-eyebrow) {
+  color: var(--synedu-muted);
+  font-size: 1rem;
+  line-height: 1.65;
+  margin: 0.9rem 0 1.25rem;
+  max-width: 62ch;
+}
+
+.synedu-catalog-launch {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1.15rem;
+}
+
+.synedu-catalog-launch > span {
+  color: var(--synedu-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-right: 0.1rem;
+}
+
+.synedu-launch-badge {
+  display: inline-flex !important;
+  line-height: 0;
+  text-decoration: none !important;
+}
+
+.synedu-launch-badge img {
+  display: block;
+  height: 24px !important;
+  margin: 0;
+  max-width: none;
+  width: auto;
+}
+
+.synedu-catalog-launch .link-icon {
+  display: none;
+}
+
+.synedu-route-nav {
+  background: var(--synedu-surface);
+  border: 1px solid var(--synedu-border);
+  border-radius: 6px;
+  box-shadow: none;
+  display: grid;
+  gap: 0;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 1.25rem 0 3rem;
+  max-width: 100%;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+.synedu-route-nav a {
+  align-items: center;
+  color: var(--synedu-ink) !important;
+  display: grid;
+  gap: 0 0.7rem;
+  grid-template-columns: 30px 1fr;
+  padding: 0.95rem 1.1rem;
+  text-decoration: none !important;
+}
+
+.synedu-route-nav a + a {
+  border-left: 1px solid var(--synedu-border);
+}
+
+.synedu-route-nav a:hover {
+  background: var(--synedu-surface-soft);
+}
+
+.synedu-route-nav a > span:first-child {
+  color: var(--synedu-accent-strong);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.7rem;
+  font-weight: 850;
+  grid-row: 1 / 3;
+}
+
+.synedu-route-nav strong {
+  font-size: 0.82rem;
+}
+
+.synedu-route-nav__range {
+  color: var(--synedu-muted);
+  font-size: 0.7rem;
+}
+
+.synedu-catalog-stage {
+  scroll-margin-top: 90px;
+}
+
+.synedu-catalog-stage + .synedu-catalog-stage {
+  border-top: 1px solid var(--synedu-border);
+  margin-top: 3.5rem;
+  padding-top: 3.5rem;
+}
+
+.synedu-catalog-stage__heading {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+}
+
+.synedu-catalog-stage__heading .synedu-eyebrow {
+  margin-bottom: 0.15rem;
+}
+
+.synedu-catalog-stage__heading h2,
+.synedu-catalog-stage__heading h3 {
+  color: var(--synedu-ink);
+  font-size: 1.65rem;
+  letter-spacing: -0.02em;
+}
+
+.synedu-catalog-stage__heading p:last-child {
+  color: var(--synedu-muted);
+  font-size: 0.86rem;
+  margin: 0.15rem 0 0;
+}
+
+.synedu-stage-marker {
+  align-items: center;
+  border-radius: 10px;
+  display: flex;
+  flex: 0 0 48px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.82rem;
+  font-weight: 850;
+  height: 48px;
+  justify-content: center;
+}
+
+.synedu-stage-marker--fund { background: var(--synedu-teal-soft); color: #0f766e; }
+.synedu-stage-marker--rules { background: var(--synedu-amber-soft); color: #b45309; }
+.synedu-stage-marker--apply { background: var(--synedu-green-soft); color: #3f7f45; }
+html.dark .synedu-stage-marker--fund { color: #5eead4; }
+html.dark .synedu-stage-marker--rules { color: #fbbf24; }
+html.dark .synedu-stage-marker--apply { color: #86d98b; }
+
+.synedu-catalog .synedu-cardgrid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+}
+
+.synedu-catalog .synedu-cardgrid--two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.synedu-catalog .synedu-card {
+  background: var(--synedu-surface);
+  border-radius: 8px;
+  box-shadow: 0 1px 0 rgba(15, 35, 55, 0.02);
+  color: inherit !important;
+  min-height: 220px;
+  padding: 1.2rem 1.2rem 3rem;
+  position: relative;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+.synedu-catalog .synedu-card:hover {
+  border-color: var(--synedu-accent);
+  box-shadow: var(--synedu-shadow-soft);
+  transform: translateY(-3px);
+}
+
+.synedu-catalog .synedu-card__code {
+  color: var(--synedu-ink);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.76rem;
+  letter-spacing: 0.05em;
+}
+
+.synedu-catalog .synedu-badge {
+  background: var(--synedu-surface-soft);
+  color: var(--synedu-muted);
+  font-size: 0.67rem;
+  font-weight: 700;
+}
+
+.synedu-catalog .synedu-card h3,
+.synedu-catalog .synedu-card h4,
+.synedu-catalog .synedu-card__title {
+  color: var(--synedu-ink);
+  font-size: 1.08rem;
+  line-height: 1.35;
+  margin: 1.05rem 0 0.7rem;
+}
+
+.synedu-catalog .synedu-card__desc,
+.synedu-catalog .synedu-card > p {
+  font-size: 0.82rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.synedu-card__action {
+  bottom: 1.15rem;
+  color: var(--synedu-accent-strong);
+  font-size: 0.78rem;
+  font-weight: 750;
+  left: 1.25rem;
+  position: absolute;
+}
+
+.synedu-catalog-cta {
+  align-items: center;
+  background: var(--synedu-surface-soft);
+  border: 1px solid var(--synedu-border);
+  border-radius: 14px;
+  display: flex;
+  gap: 2rem;
+  justify-content: space-between;
+  margin-top: 4rem;
+  padding: 1.5rem;
+}
+
+.synedu-catalog-cta h2,
+.synedu-catalog-cta h3 {
+  color: var(--synedu-ink);
+  font-size: 1.15rem;
+  line-height: 1.35;
+  max-width: 54ch;
+}
+
+/* Course lesson shell */
+
+article:has(.synedu-lesson-shell) .myst-fm-authors-affiliations {
+  display: none;
+}
+
+article:has(.synedu-lesson-shell) #skip-to-frontmatter {
+  margin-bottom: 1rem !important;
+}
+
+article:has(.synedu-lesson-shell) .myst-fm-block-title {
+  color: var(--synedu-ink);
+  font-size: clamp(2rem, 3.5vw, 3.25rem);
+  letter-spacing: -0.045em;
+  line-height: 1.02;
+  max-width: 21ch;
+}
+
+.synedu-lesson-shell {
+  box-shadow: 0 20px 48px rgb(15 23 42 / 0.18);
+  isolation: isolate;
+  overflow: hidden;
+  position: relative;
+}
+
+.synedu-lesson-shell::after {
+  background:
+    radial-gradient(circle at center, rgb(45 212 191 / 0.2), transparent 66%);
+  content: "";
+  height: 16rem;
+  pointer-events: none;
+  position: absolute;
+  right: -6rem;
+  top: -8rem;
+  width: 16rem;
+  z-index: -1;
+}
+
+.synedu-lesson-shell__top,
+.synedu-notebook-actions {
+  position: relative;
+  z-index: 1;
+}
+
+.synedu-notebook-actions a {
+  align-items: center;
+  background: transparent !important;
+  border: 1px solid #486581 !important;
+  border-radius: 8px;
+  color: #ffffff !important;
+  display: inline-flex !important;
+  font-size: 0.8rem;
+  font-weight: 720;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0.55rem 0.8rem;
+  text-decoration: none !important;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    transform 150ms ease;
+}
+
+.synedu-notebook-actions .synedu-action--primary {
+  background: #2dd4bf !important;
+  border-color: #2dd4bf !important;
+  color: #082f49 !important;
+  font-weight: 800;
+}
+
+.synedu-notebook-actions .link-icon {
+  display: none;
+}
+
+.synedu-notebook-actions a.synedu-launch-badge {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0;
+  box-shadow: none;
+  min-height: 20px;
+  padding: 0 !important;
+}
+
+.synedu-notebook-actions a.synedu-launch-badge:hover {
+  border: 0 !important;
+  box-shadow: none;
+  transform: translateY(-1px);
+}
+
+.synedu-notebook-actions a:hover {
+  border-color: #5eead4 !important;
+  box-shadow: 0 8px 22px rgb(2 6 23 / 0.22);
+  transform: translateY(-1px);
+}
+
+.synedu-notebook-actions .synedu-action--primary:hover {
+  background: #5eead4 !important;
+}
+
+article:has(.synedu-lesson-shell) > .synedu-lesson-shell + p {
+  background:
+    linear-gradient(100deg, var(--synedu-teal-soft), var(--synedu-surface) 72%);
+  border: 1px solid color-mix(in srgb, var(--synedu-accent) 20%, var(--synedu-border));
+  border-left: 4px solid var(--synedu-accent);
+  border-radius: 0 14px 14px 0;
+  color: var(--synedu-ink-soft);
+  font-size: 1.04rem;
+  line-height: 1.72;
+  margin-bottom: 1.8rem;
+  padding: 1.15rem 1.35rem;
+}
+
+article:has(.synedu-lesson-shell)
+  > :is(#aim-of-this-talktorial, #learning-outcomes) {
+  background: var(--synedu-surface-soft);
+  border: 1px solid var(--synedu-border);
+  border-bottom: 0;
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 -4px 20px rgb(15 23 42 / 0.035);
+  font-size: 1.15rem;
+  margin: 0.85rem 0 0;
+  padding: 1rem 1.25rem 0.75rem;
+}
+
+article:has(.synedu-lesson-shell) > #aim-of-this-talktorial + ol {
+  background: var(--synedu-surface);
+  border: 1px solid var(--synedu-border);
+  border-radius: 0 0 16px 16px;
+  border-top: 0;
+  box-shadow: var(--synedu-shadow-sm);
+  margin: 0 0 1rem;
+  padding: 0.4rem 1.4rem 1.1rem 3rem;
+}
+
+article:has(.synedu-lesson-shell) > #learning-outcomes + p {
+  background: var(--synedu-surface);
+  border-inline: 1px solid var(--synedu-border);
+  margin: 0;
+  padding: 0.25rem 1.25rem 0.55rem;
+}
+
+article:has(.synedu-lesson-shell) > #learning-outcomes + p + ul {
+  background: var(--synedu-surface);
+  border: 1px solid var(--synedu-border);
+  border-radius: 0 0 16px 16px;
+  border-top: 0;
+  box-shadow: var(--synedu-shadow-sm);
+  margin: 0 0 1rem;
+  padding: 0.25rem 1.4rem 1.15rem 3rem;
+}
+
+article:has(.synedu-lesson-shell)
+  > :is(#aim-of-this-talktorial + ol, #learning-outcomes + p + ul)
+  li::marker {
+  color: var(--synedu-accent);
+  font-weight: 800;
+}
+
+article:has(.synedu-lesson-shell) > hr:has(+ #learning-outcomes) {
+  display: none;
+}
+
+article:has(.synedu-lesson-shell)
+  > h2:not(#aim-of-this-talktorial, #learning-outcomes) {
+  color: var(--synedu-ink);
+  margin-top: 4.55rem;
+  padding-top: 0;
+  position: relative;
+}
+
+/* The section separator is drawn above the heading box rather than as a
+   `border-top` + `padding-top` on it. The theme's outline highlights whichever
+   heading is nearest the top of the viewport using `getBoundingClientRect()`,
+   so in-box padding above the text made a heading "arrive" ~28px early and the
+   outline marked the next section while the previous one was still on screen. */
+article:has(.synedu-lesson-shell)
+  > h2:not(#aim-of-this-talktorial, #learning-outcomes)::before {
+  border-top: 1px solid var(--synedu-border);
+  content: "";
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: -1.75rem;
+}
+
+/* Anchor landings clear the 60px sticky top bar with a little breathing room,
+   which also keeps the outline's "current section" in step with what is
+   actually under the reader's eye. */
+article :is(h1, h2, h3, h4, h5, h6) {
+  scroll-margin-top: 4.5rem;
+}
+
+article:has(.synedu-lesson-shell) pre {
+  border: 1px solid color-mix(in srgb, var(--synedu-border) 75%, transparent);
+  border-radius: 12px;
+  box-shadow: 0 10px 28px rgb(15 23 42 / 0.07);
+}
+
+.myst-primary-sidebar .myst-toc-item-exact {
+  box-shadow: inset 3px 0 0 var(--synedu-accent);
+}
+
+/* -------------------------------------------------------------------------
+   Buttons
+
+   The `{button}` role ships a stock blue. Brand it once here so the docs pages
+   match the home and catalog calls to action: the first button in a run is the
+   primary action, the rest are quiet.
+   ------------------------------------------------------------------------- */
+
+article a.button,
+article cite.button {
+  background: var(--synedu-accent) !important;
+  border: 1px solid var(--synedu-accent) !important;
+  border-radius: 9px !important;
+  box-shadow: 0 8px 18px rgb(15 118 110 / 0.16);
+  color: var(--synedu-on-accent) !important;
+  font-weight: 720;
+  transition: border-color 0.18s ease, transform 0.18s ease;
+}
+
+article :is(a, cite).button + :is(a, cite).button {
+  background: var(--synedu-surface) !important;
+  border-color: var(--synedu-border) !important;
+  box-shadow: none;
+  color: var(--synedu-ink) !important;
+}
+
+/* MyST turns a bare DOI link into a `<cite class="button">` chip whose label is
+   a nested anchor, so the colour has to be pushed onto the child too. */
+article cite.button > a {
+  color: inherit !important;
+}
+
+article a.button:hover,
+article cite.button:hover {
+  border-color: var(--synedu-accent-strong) !important;
+  transform: translateY(-1px);
+}
+
+/* Below the sidebar's docked breakpoint the theme slides it over the article as
+   a drawer. It must be fully opaque there: a translucent panel let the page
+   text show straight through the expanded talktorial list.
+
+   Style `-nav` only. `.myst-primary-sidebar` is a full-width grid wrapper, not
+   the visible panel, so giving it a background paints over the whole article. */
+.myst-primary-sidebar-nav {
+  background-color: var(--synedu-surface);
+}
+
+/* The theme's sticky article outline is the single source of in-page
+   navigation for a lesson. It used to be hidden in favour of a hand-written
+   `## Outline` list in each notebook; that list duplicated this navigation and
+   linked to implicit heading anchors, so it was removed from the sources. */
+
+/* The catalog owns its stage navigation. Keep the MyST chrome compact, like
+   the earlier SynEdu documentation, and never layer duplicate navigation over
+   the catalog hero. */
+body:has(.synedu-catalog) article > .block:has(> nav) {
+  display: none !important;
+}
+
+/* The article header carries the project DOI on every page, which repeats the
+   Zenodo action in the top bar and the Citation page. Keep the metadata (it
+   still feeds exports and citation tooling) but not the visual line. */
+.myst-fm-block-date-doi {
+  display: none !important;
+}
+
+body:has(.synedu-catalog)
+  .myst-primary-sidebar
+  .myst-toc-item:has(> a[href="/docs/talktorials"]) {
+  background: var(--synedu-teal-soft) !important;
+  box-shadow: inset 3px 0 0 var(--synedu-accent);
+}
+
+body:has(.synedu-catalog)
+  .myst-primary-sidebar
+  a[href="/docs/talktorials"] {
+  color: var(--synedu-accent-strong) !important;
+}
+
+.synedu-native-catalog {
+  display: none;
+}
+
+article:has(.synedu-native-catalog) .myst-fm-authors-affiliations {
+  display: none;
+}
+
+article:has(.synedu-native-catalog) > .synedu-native-catalog + p strong {
+  color: var(--synedu-accent-strong);
+  font-size: 0.76rem;
+  letter-spacing: 0.1em;
+}
+
+body:has(.synedu-native-catalog)
+  .myst-primary-sidebar
+  .myst-toc-item:has(> a[href="/docs/talktorials"]) {
+  background: var(--synedu-teal-soft) !important;
+  box-shadow: inset 3px 0 0 var(--synedu-accent);
+}
+
+body:has(.synedu-native-catalog)
+  .myst-primary-sidebar
+  a[href="/docs/talktorials"] {
+  color: var(--synedu-accent-strong) !important;
+}
+
+article:has(.synedu-native-catalog) .synedu-native-route-grid > * {
+  border-top: 3px solid var(--synedu-accent);
+}
+
+article:has(.synedu-native-catalog)
+  .synedu-native-lesson-grid--fundamentals
+  > * {
+  border-left: 4px solid #2fc6bb;
+}
+
+article:has(.synedu-native-catalog)
+  .synedu-native-lesson-grid--rules
+  > * {
+  border-left: 4px solid #f1b44c;
+}
+
+article:has(.synedu-native-catalog)
+  .synedu-native-lesson-grid--prediction
+  > * {
+  border-left: 4px solid #66a56b;
+}
+
+/* -------------------------------------------------------------------------
+   Native MyST homepage
+
+   Keep all important content in MyST cards and grids. The tiny marker below
+   is only a styling hook, so the page remains readable if custom CSS is ever
+   unavailable.
+   ------------------------------------------------------------------------- */
+
+.synedu-native-home {
+  display: none;
+}
+
+article:has(.synedu-native-home) .myst-fm-authors-affiliations {
+  display: none;
+}
+
+article:has(.synedu-native-home) .myst-fm-block {
+  margin-bottom: 0.8rem !important;
+  padding-top: 2.25rem;
+}
+
+article:has(.synedu-native-home) .myst-fm-block-title {
+  color: var(--synedu-ink);
+  font-size: clamp(2.35rem, 5vw, 4rem);
+  font-weight: 820;
+  letter-spacing: -0.045em;
+  line-height: 0.98;
+}
+
+article:has(.synedu-native-home) > .synedu-native-home + p strong {
+  color: var(--synedu-accent-strong);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+article:has(.synedu-native-home)
+  > h2#teaching-reaction-informatics-via-formal-graph-theory {
+  color: var(--synedu-ink);
+  font-size: clamp(1.9rem, 3vw, 2.8rem);
+  letter-spacing: -0.035em;
+  line-height: 1.08;
+  margin-bottom: 0.9rem;
+  max-width: 760px;
+}
+
+article:has(.synedu-native-home)
+  > h2#teaching-reaction-informatics-via-formal-graph-theory
+  + p {
+  color: var(--synedu-muted);
+  font-size: 1.08rem;
+  line-height: 1.7;
+  max-width: 730px;
+}
+
+article:has(.synedu-native-home) img[src*="badge"] {
+  height: 22px !important;
+  width: auto !important;
+}
+
+article:has(.synedu-native-home) .myst-grid > .myst-card {
+  background: var(--synedu-surface);
+  border-color: var(--synedu-border) !important;
+  border-radius: 14px;
+  box-shadow: var(--synedu-shadow-soft) !important;
+  margin-bottom: 0.35rem !important;
+  margin-top: 0.35rem !important;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+article:has(.synedu-native-home) .myst-grid > .myst-card:hover {
+  border-color: var(--synedu-accent) !important;
+  box-shadow: var(--synedu-shadow) !important;
+  transform: translateY(-2px);
+}
+
+article:has(.synedu-native-home) .myst-card-body {
+  padding: 0.8rem 1rem 1rem;
+}
+
+article:has(.synedu-native-home) .myst-card-title {
+  color: var(--synedu-ink);
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+article:has(.synedu-native-home) .synedu-native-home-routes > .myst-card {
+  border-top: 4px solid #2fc6bb !important;
+  min-height: 230px;
+}
+
+article:has(.synedu-native-home)
+  .synedu-native-home-routes
+  > :nth-child(2) {
+  border-top-color: #f1b44c !important;
+}
+
+article:has(.synedu-native-home)
+  .synedu-native-home-routes
+  > :nth-child(3) {
+  border-top-color: #66a56b !important;
+}
+
+article:has(.synedu-native-home) .synedu-native-home-lessons > .myst-card {
+  border-left: 3px solid color-mix(in srgb, var(--synedu-accent) 70%, white) !important;
+  min-height: 112px;
+}
+
+article:has(.synedu-native-home)
+  .synedu-native-home-lessons
+  .myst-card-body {
+  padding-block: 0.65rem;
+}
+
+article:has(.synedu-native-home) .synedu-native-home-resources > .myst-card {
+  background: color-mix(in srgb, var(--synedu-surface-soft) 80%, transparent);
+  min-height: 190px;
+}
+
+/* A compact outline is closer to the documentation-first TeachOpenCADD
+   layout and gives the reading column more room to breathe. */
+article > .block:has(> nav) {
+  margin-left: 0.8rem !important;
+}
+
+/* -------------------------------------------------------------------------
+   Previous / next lesson pager
+
+   The stock pager is a pair of flat grey boxes whose eyebrow repeats the site
+   name on every page. Label the direction instead, give the cards the same
+   surface treatment as the lesson callouts, and let the arrows lead.
+   ------------------------------------------------------------------------- */
+
+.myst-footer-links {
+  gap: 1rem;
+  margin-bottom: 3rem !important;
+  padding-top: 2.5rem !important;
+}
+
+.myst-footer-link {
+  background: var(--synedu-surface);
+  border: 1px solid var(--synedu-border) !important;
+  border-radius: 14px !important;
+  box-shadow: var(--synedu-shadow-sm);
+  color: var(--synedu-ink) !important;
+  padding: 0.95rem 1.15rem !important;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+.myst-footer-link:hover {
+  border-color: var(--synedu-accent) !important;
+  box-shadow: var(--synedu-shadow);
+  color: var(--synedu-accent-strong) !important;
+  transform: translateY(-2px);
+}
+
+/* Replace the repeated "SynEdu" eyebrow with the direction of travel. */
+.myst-footer-link-group {
+  font-size: 0;
+}
+
+.myst-footer-link-group::after {
+  color: var(--synedu-muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.myst-footer-link-prev .myst-footer-link-group::after {
+  content: "← Previous";
+}
+
+.myst-footer-link-next .myst-footer-link-group::after {
+  content: "Next →";
+}
+
+.myst-footer-link-icon {
+  color: var(--synedu-accent);
+}
+
+/* -------------------------------------------------------------------------
+   Back to top
+
+   The book theme has no scroll-to-top control, so the site footer part (which
+   renders on every page) carries the link and it is pinned here. `href="#"`
+   needs no JavaScript.
+   ------------------------------------------------------------------------- */
+
+.footer a.synedu-to-top,
+.synedu-to-top {
+  align-items: center;
+  background: var(--synedu-accent) !important;
+  border-radius: 999px;
+  bottom: 1.5rem;
+  box-shadow: 0 6px 20px rgb(15 23 42 / 0.28);
+  color: var(--synedu-on-accent) !important;
+  display: inline-flex;
+  font-size: 0.85rem;
+  font-weight: 700;
+  gap: 0.45rem;
+  padding: 0.6rem 1.05rem;
+  position: fixed;
+  right: 1.5rem;
+  text-decoration: none !important;
+  transition: background 0.18s ease, transform 0.18s ease;
+  z-index: 40;
+}
+
+.footer a.synedu-to-top::before,
+.synedu-to-top::before {
+  content: "↑";
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.footer a.synedu-to-top:hover,
+.synedu-to-top:hover {
+  background: var(--synedu-accent-strong) !important;
+  color: var(--synedu-on-accent) !important;
+  transform: translateY(-2px);
+}
+
+@media (max-width: 639px) {
+  .synedu-to-top {
+    bottom: 1rem;
+    right: 1rem;
+  }
+}
+
+/* -------------------------------------------------------------------------
+   Site footer
+   ------------------------------------------------------------------------- */
+
+.footer {
+  background: var(--synedu-navy) !important;
+  border-top: 3px solid var(--synedu-accent);
+  box-shadow: none !important;
+  color: #cbd5e1;
+  margin-top: 4rem !important;
+  padding-bottom: 2rem !important;
+  padding-top: 2rem !important;
+}
+
+.footer p {
+  margin-bottom: 0.3rem;
+  margin-top: 0.3rem;
+}
+
+.footer strong {
+  color: #ffffff;
+  font-size: 1.02rem;
+}
+
+.footer a {
+  color: #5eead4 !important;
+}
+
+/* Responsive behavior */
+
+@media (min-width: 1280px) {
+  /* The stock book grid reserves very broad gutters on both sides. A slimmer
+     right outline and an 84-character reading measure create the same useful
+     information density as the TeachOpenCADD documentation. */
+  /* Every `.article-grid` must share one column template, not just the
+     <article>. The bibliography is a `section.article-grid` nested inside the
+     article; leaving it on the theme's default columns indented the reference
+     list relative to the body text. */
+  :is(.article-grid, .myst-primary-sidebar) {
+    grid-template-columns:
+      [screen-start] 0.25rem
+      [screen-inset-start] 1fr
+      [page-start] 2rem
+      [page-inset-start] minmax(3rem, 10rem)
+      [body-outset-start] 2rem
+      [body-start gutter-left-start] 1rem
+      [body-inset-start] minmax(8ch, 14ch)
+      [middle-start] minmax(8ch, 14ch)
+      [gutter-left-end] minmax(8ch, 14ch) minmax(8ch, 14ch)
+      [gutter-right-start] minmax(8ch, 14ch)
+      [middle-end] minmax(8ch, 14ch)
+      [body-inset-end] 1rem
+      [body-end gutter-right-end] 1.5rem
+      [body-outset-end] minmax(9rem, 11rem)
+      [page-inset-end] 2rem
+      [page-end] 1fr
+      [screen-inset-end] 0.25rem
+      [screen-end];
+  }
+
+  /* As on lesson pages, the body must not extend over `page-inset-end`: that
+     column belongs to the sticky article outline, which is zero-height and
+     would otherwise render on top of the catalog hero. */
+  article:has(.synedu-native-catalog) > div:has(> nav:empty) {
+    display: none;
+  }
+
+  /* Lesson pages keep the theme's default grid so the sticky article outline
+     retains its own margin column. Widening the body over `page-inset-end`
+     used to push the outline on top of the lesson content. */
+  .myst-primary-sidebar-nav {
+    padding-left: 0.8rem;
+    padding-right: 0.8rem;
+  }
+}
+
+@media (max-width: 1023px) {
+  article > .synedu-home,
+  article > .synedu-catalog {
+    grid-column: page;
+  }
+
+  .synedu-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .synedu-hero__map {
+    margin-inline: auto;
+    max-width: 440px;
+    width: 100%;
+  }
+
+  .synedu-stage-grid,
+  .synedu-resource-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .synedu-stage-card {
+    min-height: 205px;
+  }
+}
+
+@media (max-width: 639px) {
+  /* Do not override the theme's mobile action menu with the desktop flex row. */
+  .myst-top-nav-bar > div:last-child > div:last-child {
+    display: none !important;
+  }
+
+  .synedu-home,
+  .synedu-catalog {
+    padding-top: 1rem;
+  }
+
+  .synedu-hero,
+  .synedu-catalog-hero {
+    border-radius: 12px;
+  }
+
+  .synedu-hero {
+    gap: 2rem;
+    padding: 1.4rem;
+  }
+
+  .synedu-hero h1 {
+    font-size: 2.25rem;
+  }
+
+  .synedu-hero__lead {
+    font-size: 0.95rem;
+  }
+
+  .synedu-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .synedu-btn,
+  .synedu-btn--quiet {
+    padding-inline: 0.85rem;
+    width: 100%;
+  }
+
+  .synedu-hero__map {
+    grid-template-columns: minmax(92px, 1fr) 18px minmax(92px, 1fr);
+  }
+
+  .synedu-map-node {
+    min-height: 100px;
+    padding: 0.75rem;
+  }
+
+  .synedu-section-heading,
+  .synedu-project-strip,
+  .synedu-catalog-cta {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .synedu-section-heading > p {
+    max-width: none;
+  }
+
+  .synedu-project-strip > div {
+    flex-wrap: wrap;
+  }
+
+  .synedu-route-nav {
+    grid-template-columns: 1fr;
+    margin-bottom: 2.5rem;
+    max-width: calc(100% - 1.5rem);
+  }
+
+  .synedu-route-nav a + a {
+    border-left: 0;
+    border-top: 1px solid var(--synedu-border);
+  }
+
+  .synedu-catalog .synedu-cardgrid,
+  .synedu-catalog .synedu-cardgrid--two {
+    grid-template-columns: 1fr;
+  }
+
+  .synedu-catalog .synedu-card {
+    min-height: 215px;
+  }
+
+  .synedu-notebook-actions a {
+    flex: 1 1 calc(50% - 0.45rem);
+    justify-content: center;
+  }
+
+  article table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .synedu-btn,
+  .synedu-stage-card,
+  .synedu-card {
+    transition: none;
+  }
+}

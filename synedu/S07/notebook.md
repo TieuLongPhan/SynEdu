@@ -13,7 +13,7 @@ kernelspec:
 
 # S07: From Atom-Mapped Reactions to DPO Rules
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S07.ipynb) [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/TieuLongPhan/SynEdu/main?urlpath=%2Fdoc%2Ftree%2Fdocs%2Fdownloads%2FS07.ipynb) [![Download Notebook](https://img.shields.io/badge/download-.ipynb-blue)](https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S07.ipynb) [![Run Locally](https://img.shields.io/badge/run-locally-lightgrey)](../../docs/installing.md)
+<div class="synedu-lesson-shell not-prose" style="box-sizing:border-box;margin:8px 0 24px;padding:20px;border:1px solid #243b53;border-radius:16px;background:#102a43;color:#fff;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"><div class="synedu-lesson-shell__top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap"><div><div class="synedu-lesson-shell__eyebrow" style="margin-bottom:5px;color:#5eead4;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase">SynEdu learning path</div><div class="synedu-lesson-shell__meta" style="font-size:16px;font-weight:750">Lesson 7 of 9 <span style="color:#9fb3c8;font-weight:500">· Stage 2 · Rule construction</span></div></div><span class="synedu-lesson-shell__progress-label" style="color:#bcccdc;font-size:12px;font-weight:700">78% complete</span></div><div class="synedu-lesson-shell__track" style="height:5px;margin:16px 0 18px;overflow:hidden;border-radius:999px;background:#334e68"><span style="display:block;width:78%;height:100%;border-radius:inherit;background:#2dd4bf"></span></div><div class="synedu-notebook-actions" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap" aria-label="Run this lesson"><a class="synedu-launch-badge" href="https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S07.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open S07 in Colab" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://mybinder.org/v2/gh/TieuLongPhan/SynEdu/main?urlpath=lab/tree/docs/downloads/S07.ipynb"><img src="https://mybinder.org/badge_logo.svg" alt="Launch S07 in Binder" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S07.ipynb"><img src="https://img.shields.io/badge/download-.ipynb-2563eb?logo=jupyter&amp;logoColor=white" alt="Download S07 notebook" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="/docs/installing"><img src="https://img.shields.io/badge/run-locally-334e68?logo=jupyter&amp;logoColor=white" alt="Run S07 locally" style="display:block;height:24px" /></a></div></div>
 
 This talktorial builds the bridge from atom-mapped reaction records to a reusable DPO reaction-rule library. It combines standardization, ensemble mapping, ITS construction, WL prefiltering, graph isomorphism, and optional MØD export [@phan2025synkit; @shervashidze2011weisfeiler; @andersen2016software].
 
@@ -38,18 +38,6 @@ After completing this talktorial, you will be able to:
 - cluster reaction centers using **WL hashing** and exact **graph isomorphism**,
 - convert a reaction center into a **DPO rule** $L \leftarrow K \rightarrow R$, and
 - explain why consensus mapping and deduplication improve the reliability of a rule library.
-
----
-
-## Outline
-
-- [0. Setup & data](#id-0-setup-data)
-- [1. Reaction preprocessing](#id-1-reaction-preprocessing)
-- [2. Ensemble atom-to-atom mapping agreement](#id-2-ensemble-atom-to-atom-mapping-agreement)
-- [3. Rule library construction](#id-3-rule-library-construction)
-- [4. Discussion](#id-4-discussion)
-- [5. Quiz](#id-5-quiz)
-- [6. References](#id-6-references)
 
 +++
 
@@ -87,6 +75,17 @@ pip install synkit
 ```
 
 ```{code-cell}
+import logging
+import os
+import warnings
+
+# SynKit reports progress with tqdm. Outside a live Jupyter session tqdm falls
+# back to a text bar that writes one stderr line per update, which buries the
+# actual results. Bars stay on when you run this notebook yourself.
+os.environ.setdefault("TQDM_DISABLE", "1")
+logging.disable(logging.INFO)
+warnings.filterwarnings("ignore")
+
 import rdkit
 import pandas as pd
 import networkx as nx
@@ -906,7 +905,10 @@ ax.fill_between(_sizes, _unique_rules, alpha=0.12, color='#1F77B4')
 # Fit power law for annotation
 _xs = np.log(np.array(_sizes, dtype=float))
 _ys = np.log(np.array(_unique_rules, dtype=float))
-_coef = np.polyfit(_xs, _ys, 1)
+with warnings.catch_warnings():
+    # Few points on a log-log fit; the conditioning warning is expected here.
+    warnings.simplefilter("ignore")
+    _coef = np.polyfit(_xs, _ys, 1)
 ax.text(
     0.05,
     0.92,

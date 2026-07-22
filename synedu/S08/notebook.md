@@ -13,7 +13,7 @@ kernelspec:
 
 # S08: One-Step Reaction Prediction
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S08.ipynb) [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/TieuLongPhan/SynEdu/main?urlpath=%2Fdoc%2Ftree%2Fdocs%2Fdownloads%2FS08.ipynb) [![Download Notebook](https://img.shields.io/badge/download-.ipynb-blue)](https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S08.ipynb) [![Run Locally](https://img.shields.io/badge/run-locally-lightgrey)](../../docs/installing.md)
+<div class="synedu-lesson-shell not-prose" style="box-sizing:border-box;margin:8px 0 24px;padding:20px;border:1px solid #243b53;border-radius:16px;background:#102a43;color:#fff;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"><div class="synedu-lesson-shell__top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap"><div><div class="synedu-lesson-shell__eyebrow" style="margin-bottom:5px;color:#5eead4;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase">SynEdu learning path</div><div class="synedu-lesson-shell__meta" style="font-size:16px;font-weight:750">Lesson 8 of 9 <span style="color:#9fb3c8;font-weight:500">· Stage 3 · Prediction</span></div></div><span class="synedu-lesson-shell__progress-label" style="color:#bcccdc;font-size:12px;font-weight:700">89% complete</span></div><div class="synedu-lesson-shell__track" style="height:5px;margin:16px 0 18px;overflow:hidden;border-radius:999px;background:#334e68"><span style="display:block;width:89%;height:100%;border-radius:inherit;background:#2dd4bf"></span></div><div class="synedu-notebook-actions" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap" aria-label="Run this lesson"><a class="synedu-launch-badge" href="https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S08.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open S08 in Colab" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://mybinder.org/v2/gh/TieuLongPhan/SynEdu/main?urlpath=lab/tree/docs/downloads/S08.ipynb"><img src="https://mybinder.org/badge_logo.svg" alt="Launch S08 in Binder" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S08.ipynb"><img src="https://img.shields.io/badge/download-.ipynb-2563eb?logo=jupyter&amp;logoColor=white" alt="Download S08 notebook" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="/docs/installing"><img src="https://img.shields.io/badge/run-locally-334e68?logo=jupyter&amp;logoColor=white" alt="Run S08 locally" style="display:block;height:24px" /></a></div></div>
 
 This talktorial introduces a graph-based, template-driven workflow for single-step reaction prediction and single-step retrosynthesis [@segler2018planning; @coley2019robotic]. Reaction-center templates are extracted from mapped reactions, applied to unseen substrates, and evaluated after reaction standardization [@coley2019rdchiral; @schwaller2021extraction; @daylight_manual].
 
@@ -37,18 +37,6 @@ After completing this talktorial, you will be able to:
 - evaluate predictions using **recall** and **enrichment**, and
 - reuse the same template library for **backward prediction** while recognizing why
   retrosynthetic generation is usually more ambiguous.
-
----
-
-## Outline
-
-- [0. Setup & data](#id-0-setup-data)
-- [1. Forward prediction](#id-1-forward-prediction)
-- [2. Evaluation](#id-2-evaluation)
-- [3. Backward prediction](#id-3-backward-prediction)
-- [4. Discussion](#id-4-discussion)
-- [5. Quiz](#id-5-quiz)
-- [6. References](#id-6-references)
 
 +++
 
@@ -617,7 +605,7 @@ def generate_forward_reactions(entry, templates):
 
 silence_logging()
 
-test_processed = Parallel(n_jobs=4, verbose=1)(
+test_processed = Parallel(n_jobs=4, verbose=0)(
     delayed(generate_forward_reactions)(entry, templates) for entry in test
 )
 ```
@@ -1108,7 +1096,7 @@ def process_entry(value):
     return value
 
 
-eval_set = Parallel(n_jobs=4, verbose=2)(
+eval_set = Parallel(n_jobs=4, verbose=0)(
     delayed(process_entry)(value) for value in eval_set
 )
 ```
@@ -1156,7 +1144,7 @@ def add_metrics(entry):
     return value
 
 
-def evaluate_entries(entries, n_jobs=4, verbose=2):
+def evaluate_entries(entries, n_jobs=4, verbose=0):
     """
     Evaluate all entries in parallel and return the updated list.
     """
@@ -1185,7 +1173,7 @@ def summarize_metrics(entries):
 # Usage
 # -------------------------
 
-test_eval = evaluate_entries(eval_set, n_jobs=4, verbose=2)
+test_eval = evaluate_entries(eval_set, n_jobs=4, verbose=0)
 summary = summarize_metrics(test_eval)
 
 print(summary)

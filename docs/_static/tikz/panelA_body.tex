@@ -1,0 +1,93 @@
+\begin{tikzpicture}[mcsstyle]
+\def\rcty{1.18}
+\def\prdy{-1.02}
+\def\lhsx{1.92}
+\def\rhsx{8.05}
+
+\node[rowlabel] at (0.00,\rcty+0.66) {Reactants};
+\node[rowlabel] at (0.00,\prdy+0.10) {Products};
+
+\coordinate (Lu1) at (\lhsx,\rcty);
+\coordinate (Lu2) at ($(Lu1)+(0.92,0.30)$);
+\coordinate (LuO) at ($(Lu2)+(0.78,-0.30)$);
+\coordinate (LuC) at ($(LuO)+(0.88,0.44)$);
+\coordinate (LuM) at ($(LuC)+(0.94,-0.35)$);
+\coordinate (LuD) at ($(LuC)+(0.18,0.78)$);
+\draw[mcsbond] (Lu1)--(Lu2)--(LuO)--(LuC)--(LuM);
+\draw[mcsbond] ($(LuC)+(-0.07,0.08)$)--($(LuD)+(-0.07,-0.08)$);
+\draw[mcsbond] ($(LuC)+(0.07,0.10)$)--($(LuD)+(0.07,-0.06)$);
+\node[elem,text=red!78!black] at (LuO) {O};
+\node[elem,text=red!78!black] at (LuD) {O};
+
+\coordinate (Ll1) at (\lhsx,\prdy);
+\coordinate (Ll2) at ($(Ll1)+(0.92,0.30)$);
+\coordinate (LlO) at ($(Ll2)+(0.78,-0.44)$);
+\coordinate (LlC) at ($(LlO)+(1.00,0.55)$);
+\coordinate (LlM) at ($(LlC)+(0.94,-0.35)$);
+\coordinate (LlD) at ($(LlC)+(0.18,0.78)$);
+\path[mcshighlight]
+  ($(LlC)+(-0.30,-0.67)$) rectangle ($(LlD)+(1.04,0.30)$);
+\draw[mcsbond] (Ll1)--(Ll2)--(LlO);
+\draw[mcsbond] (LlC)--(LlM);
+\draw[mcsbond] ($(LlC)+(-0.07,0.08)$)--($(LlD)+(-0.07,-0.08)$);
+\draw[mcsbond] ($(LlC)+(0.07,0.10)$)--($(LlD)+(0.07,-0.06)$);
+\draw[mcsbond,dashed,shorten <=3pt,shorten >=3pt] (LlO)--(LlC);
+\node[elem,text=red!78!black] at (LlO) {O};
+\node[elem,text=red!78!black] at (LlD) {O};
+
+\draw[mapguide] (Lu1)--(Ll1);
+\draw[mapguide] (Lu2)--(Ll2);
+\draw[mapguide] (LuO)--(LlO);
+\draw[mapguide] (LuC)--(LlC);
+\draw[mapguide] (LuM)--(LlM);
+
+\draw[rxnarrow] (6.43,0.12)--(7.14,0.12);
+
+\coordinate (Ru1) at (\rhsx,\rcty);
+\coordinate (Ru2) at ($(Ru1)+(0.92,0.30)$);
+\coordinate (RuO) at ($(Ru2)+(0.78,-0.30)$);
+\coordinate (RuC) at ($(RuO)+(0.88,0.44)$);
+\coordinate (RuM) at ($(RuC)+(0.94,-0.35)$);
+\coordinate (RuD) at ($(RuC)+(0.18,0.78)$);
+\draw[mcsbond] (Ru1)--(Ru2)--(RuO)--(RuC)--(RuM);
+\draw[mcsbond] ($(RuC)+(-0.07,0.08)$)--($(RuD)+(-0.07,-0.08)$);
+\draw[mcsbond] ($(RuC)+(0.07,0.10)$)--($(RuD)+(0.07,-0.06)$);
+\node[elem,text=red!78!black] at (RuO) {O};
+\node[elem,text=red!78!black] at (RuD) {O};
+\node at (11.50,\rcty) {$+$};
+\node[elem,text=red!78!black,fill=cyan!9,rounded corners=3pt,
+  inner xsep=4pt,inner ysep=3pt] (water) at (12.20,\rcty) {H$_2$O};
+
+\coordinate (Rl1) at (\rhsx,\prdy);
+\coordinate (Rl2) at ($(Rl1)+(0.92,0.30)$);
+\coordinate (RlO) at ($(Rl2)+(0.78,-0.44)$);
+\draw[mcsbond] (Rl1)--(Rl2)--(RlO);
+\node[elem,text=red!78!black] (ethanolO) at (RlO) {OH};
+\coordinate (RlC) at (11.68,\prdy+0.55);
+\coordinate (RlM) at ($(RlC)+(0.94,-0.35)$);
+\coordinate (RlD) at ($(RlC)+(0.18,0.78)$);
+\coordinate (RlOH) at ($(RlC)+(-0.78,-0.38)$);
+\path[mcshighlight]
+  ($(RlOH)+(-0.30,-0.44)$) rectangle ($(RlD)+(1.04,0.30)$);
+\draw[mcsbond] (RlC)--(RlM);
+\draw[mcsbond] ($(RlC)+(-0.07,0.08)$)--($(RlD)+(-0.07,-0.08)$);
+\draw[mcsbond] ($(RlC)+(0.07,0.10)$)--($(RlD)+(0.07,-0.06)$);
+\draw[mcsbond,shorten <=2pt,shorten >=2pt] (RlOH)--(RlC);
+\node[elem,text=red!78!black] (acidOH) at (RlOH) {HO};
+\node[elem,text=red!78!black] at (RlD) {O};
+\node at (10.38,\prdy) {$+$};
+
+\draw[mapguide] (Ru1)--(Rl1);
+\draw[mapguide] (Ru2)--(Rl2);
+\draw[mapguide] (RuO)--(RlO);
+\draw[mapguide] (RuC)--(RlC);
+\draw[mapguide] (RuM)--(RlM);
+
+\node[font=\scriptsize,anchor=west] (rulelabel) at (10.78,2.35) {Rule-based};
+\draw[-{Latex[length=2.0mm,width=1.4mm]},draw=black!45,line width=.65pt] (rulelabel.south)--(water.north);
+\node[font=\scriptsize,anchor=west] (expandlabel) at (8.20,-2.12) {Expand Rule};
+\draw[-{Latex[length=2.0mm,width=1.4mm]},draw=black!45,line width=.65pt]
+  (expandlabel.north east)--(acidOH.south);
+\node[font=\scriptsize,anchor=west] (mergelabel) at (11.15,-2.12) {Merge Rule};
+\draw[-{Latex[length=2.0mm,width=1.4mm]},draw=black!45,line width=.65pt] (mergelabel.north)--($(RlOH)!0.52!(RlC)$);
+\end{tikzpicture}

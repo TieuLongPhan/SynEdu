@@ -1,28 +1,47 @@
 # Citation
 
 If you use SynEdu in academic work, please cite the archived Zenodo record.
-Use the concept DOI for a project-level citation, or the version DOI when
-you need to pin the exact `v0.1.0` archive.
 
-The repository also includes a machine-readable `CITATION.cff` file for GitHub,
-Zenodo, and citation managers that understand the Citation File Format.
+{button}`View the Zenodo record <https://zenodo.org/records/20315656>`
+{button}`Download CITATION.cff <https://github.com/TieuLongPhan/SynEdu/raw/main/CITATION.cff>`
 
-## Recommended DOI
+---
 
-```{note}
-For normal papers, slides, and teaching material, cite the latest DOI
-`10.5281/zenodo.20315655`. Use `10.5281/zenodo.20315656` when you need to pin
-the exact `v0.1.0` archive.
-```
+## Which DOI should I use?
 
-| Citation target | Use it for | DOI |
-|---|---|---|
-| Latest archived release | General project citation that follows the newest Zenodo version. | [10.5281/zenodo.20315655](https://doi.org/10.5281/zenodo.20315655) |
-| Version `v0.1.0` | Reproducible citation of the first archived release. | [10.5281/zenodo.20315656](https://doi.org/10.5281/zenodo.20315656) |
+::::{grid} 1 1 2 2
+
+:::{card} 🔁 Latest release
+**`10.5281/zenodo.20315655`**
+
+A concept DOI that always resolves to the newest archived version. Use it for
+papers, slides, and teaching material — this is the default choice.
+
++++
+[Cite the latest release →](https://doi.org/10.5281/zenodo.20315655)
+:::
+
+:::{card} 📌 Version `v0.1.0`
+**`10.5281/zenodo.20315656`**
+
+A version DOI pinned to one exact archive. Use it when a result must stay
+reproducible against the code and text as they were.
+
++++
+[Cite `v0.1.0` →](https://doi.org/10.5281/zenodo.20315656)
+:::
+::::
+
+:::{note} Rule of thumb
+Cite the **latest** DOI unless you are documenting a reproducible result, in
+which case pin the **version** DOI.
+:::
+
+---
 
 ## BibTeX
 
-This BibTeX entry is exported from the Zenodo `v0.1.0` record.
+Exported from the Zenodo `v0.1.0` record.
 
 ```bibtex
 @software{tieu_long_phan_2026_20315656,
@@ -37,10 +56,35 @@ This BibTeX entry is exported from the Zenodo `v0.1.0` record.
 }
 ```
 
-## Links
+The repository also includes a machine-readable `CITATION.cff` file for GitHub,
+Zenodo, and any citation manager that understands the Citation File Format.
 
-- [Zenodo record](https://zenodo.org/records/20315656)
-- [Latest DOI](https://doi.org/10.5281/zenodo.20315655)
-- [Version DOI](https://doi.org/10.5281/zenodo.20315656)
-- [GitHub repository](https://github.com/TieuLongPhan/SynEdu)
-- [What's new](whats_new.md)
+---
+
+## Licensing
+
+Talktorial text and figures are licensed **CC-BY-4.0**; the code is **MIT**.
+Both permit reuse in teaching material as long as SynEdu is credited — see
+[License](/docs/license) for details.
+
+---
+
+## Related pages
+
+::::{grid} 1 1 3 3
+
+:::{card} What's New
+:link: /docs/whats-new
+Release notes and what changed in each version.
+:::
+
+:::{card} Funding
+:link: /docs/funding
+The TACsy doctoral network and Horizon Europe support.
+:::
+
+:::{card} Repository
+:link: https://github.com/TieuLongPhan/SynEdu
+Source code, notebooks, and project history.
+:::
+::::

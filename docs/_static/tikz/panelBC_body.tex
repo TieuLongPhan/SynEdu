@@ -1,0 +1,120 @@
+\begin{tikzpicture}[mcsstyle]
+
+% ---- B: reaction scheme -------------------------------------------------
+\begin{scope}[shift={(0,0)}]
+\node[paneltag] at (-0.28,2.43) {A};
+
+\coordinate (aCl1) at (0.90,1.20);
+\coordinate (aCl2) at (2.10,1.20);
+\draw[breakbond,shorten <=2pt,shorten >=2pt] (aCl1)--(aCl2);
+\node[elem,text=green!42!black] at (aCl1) {Cl};
+\node[elem,text=green!42!black] at (aCl2) {Cl};
+\node at (3.10,1.20) {$+$};
+
+\ringcoords{5.00,1.20}{A}
+\coordinate (AH) at ($(AA)+(1.05,0)$);
+\drawring{A}
+\draw[breakbond,shorten <=2pt,shorten >=3pt] (AA)--(AH);
+\node[elem] at (AH) {H};
+
+\draw[rxnarrow] (3.05,0.25) -- (3.05,-1.00);
+
+\coordinate (bH)  at (0.95,-1.90);
+\coordinate (bCl) at (2.05,-1.90);
+\draw[formbond,shorten <=2pt,shorten >=2pt] (bH)--(bCl);
+\node[elem] at (bH) {H};
+\node[elem,text=green!42!black] at (bCl) {Cl};
+\node at (3.10,-1.90) {$+$};
+
+\ringcoords{5.00,-1.90}{B}
+\coordinate (BCl) at ($(AB)+(1.05,0)$);
+\drawring{B}
+\draw[formbond,shorten <=2pt,shorten >=2pt] (AB)--(BCl);
+\node[elem,text=green!42!black] at (BCl) {Cl};
+
+\begin{scope}[shift={(0.55,-3.06)}]
+  \draw[breakbond] (0.00,0.00) -- (0.48,0.00);
+  \node[anchor=west, font=\scriptsize] at (0.62,0.00) {cleaved \((1,0)\)};
+  \draw[formbond] (0.00,-0.38) -- (0.48,-0.38);
+  \node[anchor=west, font=\scriptsize] at (0.62,-0.38) {formed \((0,1)\)};
+  \node[maptag] at (0.24,-0.76) {i};
+  \node[anchor=west, font=\scriptsize] at (0.62,-0.76) {atom-map index};
+\end{scope}
+\end{scope}
+
+% ---- C: mapped reactant / product / ITS ---------------------------------
+\begin{scope}[shift={(8.40,0.10)}]
+\node[paneltag] at (-0.28,2.33) {B};
+
+\def\leftx{1.55}
+\def\rowA{1.20}
+\def\rowB{-1.80}
+\def\rowC{-4.85}
+\def\hx{4.10}
+\def\cllx{3.00}
+\def\clrx{4.35}
+\def\topy{0.98}
+
+\ringcoords{\leftx,\rowA}{R}
+\ringcoords{\leftx,\rowB}{P}
+\ringcoords{\leftx,\rowC}{I}
+
+\coordinate (RH)   at (\hx,\rowA);
+\coordinate (RCl3) at (\cllx,\rowA+\topy);
+\coordinate (RCl4) at (\clrx,\rowA+\topy);
+\coordinate (PH)   at (\hx,\rowB);
+\coordinate (PCl3) at (\cllx,\rowB+\topy);
+\coordinate (PCl4) at (\clrx,\rowB+\topy);
+\coordinate (IH)   at (\hx,\rowC);
+\coordinate (ICl3) at (\cllx,\rowC+\topy);
+\coordinate (ICl4) at (\clrx,\rowC+\topy);
+
+\draw[mapguide] (AR) -- (AP) -- (AI);
+\draw[mapguide] (RH) -- (PH) -- (IH);
+\draw[mapguide] (RCl3) -- (PCl3) -- (ICl3);
+\draw[mapguide] (RCl4) -- (PCl4) -- (ICl4);
+
+\node[rowlabel] at (0.20,\rowA+1.25) {Reactant};
+\node[rowlabel] at (0.20,\rowB+1.25) {Product};
+\node[rowlabel] at (0.20,\rowC+1.25) {ITS};
+
+\draw[rxnarrow] (2.55,0.35) -- (2.55,-0.80);
+
+\drawring{R}
+\draw[breakbond,shorten <=2pt,shorten >=3pt] (AR)--(RH);
+\draw[breakbond,shorten <=2pt,shorten >=2pt] (RCl3)--(RCl4);
+\node[elem] at (RH) {H};
+\node[elem,text=green!42!black] at (RCl3) {Cl};
+\node[elem,text=green!42!black] at (RCl4) {Cl};
+\maplabel{AR}{0.18,-0.18}{1}
+\maplabel{RH}{0.16,0.18}{2}
+\maplabel{RCl3}{0,0.25}{3}
+\maplabel{RCl4}{0,0.25}{4}
+
+\drawring{P}
+\draw[formbond,shorten <=2pt,shorten >=2pt] (AP)--(PCl3);
+\draw[formbond,shorten <=3pt,shorten >=2pt] (PH)--(PCl4);
+\node[elem] at (PH) {H};
+\node[elem,text=green!42!black] at (PCl3) {Cl};
+\node[elem,text=green!42!black] at (PCl4) {Cl};
+\maplabel{AP}{0.18,-0.18}{1}
+\maplabel{PH}{0.16,0.18}{2}
+\maplabel{PCl3}{0,0.25}{3}
+\maplabel{PCl4}{0,0.25}{4}
+
+\drawring{I}
+\draw[keepbond] (AI)--(BI)--(CI)--(DI)--(EI)--(FI)--cycle;
+\draw[breakbond,shorten <=2pt,shorten >=3pt] (AI)-- node[statetag,pos=.52,below] {(1,0)} (IH);
+\draw[breakbond,shorten <=2pt,shorten >=2pt] (ICl3)-- node[statetag,pos=.50,above] {(1,0)} (ICl4);
+\draw[formbond,shorten <=2pt,shorten >=2pt] (AI)-- node[statetag,pos=.50,left] {(0,1)} (ICl3);
+\draw[formbond,shorten <=3pt,shorten >=2pt] (IH)-- node[statetag,pos=.50,right] {(0,1)} (ICl4);
+\node[elem] at (IH) {H};
+\node[elem,text=green!42!black] at (ICl3) {Cl};
+\node[elem,text=green!42!black] at (ICl4) {Cl};
+\maplabel{AI}{0.18,-0.18}{1}
+\maplabel{IH}{0.16,0.18}{2}
+\maplabel{ICl3}{0,0.25}{3}
+\maplabel{ICl4}{0,0.25}{4}
+\end{scope}
+
+\end{tikzpicture}

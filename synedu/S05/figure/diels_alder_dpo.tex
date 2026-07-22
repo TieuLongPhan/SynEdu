@@ -1,0 +1,272 @@
+% fig/diels_alder_dpo.tex
+% Input-only TikZ file.
+% Main file should load:
+% \usepackage{tikz}
+% \usepackage{xparse}
+% \usepackage{xcolor}
+% \usetikzlibrary{positioning,backgrounds,fit}
+
+\begin{tikzpicture}[
+    bondstyle/.style={line width=1pt},
+    breakbond/.style={red!75!black,line width=2pt},
+    formbond/.style={green!55!black,line width=2pt},
+    interfacebond/.style={gray!65,line width=3pt},
+    atomnode/.style={
+        draw,
+        fill=white,
+        inner sep=0.5pt,
+        circle,
+        minimum width=14pt
+    },
+    interfaceatom/.style={
+        draw,
+        fill=gray!12,
+        inner sep=0.5pt,
+        circle,
+        minimum width=14pt
+    },
+    maparrow/.style={->,>=stealth,line width=0.9pt},
+    boxstyle/.style={
+        draw,
+        gray,
+        rounded corners,
+        inner sep=0.55cm,
+        rectangle
+    }
+]
+
+% ------------------------------------------------------------
+% Local parameters
+% ------------------------------------------------------------
+\def\td{1.2}
+\def\graphwidth{4.2}
+\def\graphheight{2.5}
+\def\colspace{2.0}
+\def\rowspace{3.0}
+
+\def\alphaleft{0}
+\def\alphacenter{0}
+\def\alpharight{0}
+\def\alphahost{0}
+\def\alphacontext{0}
+\def\alphaproduct{0}
+
+% ------------------------------------------------------------
+% Helper: double bond
+% ------------------------------------------------------------
+\NewDocumentCommand{\insertdoublebond}{ O{line width=1pt} O{line width=1pt} m m}{
+    \draw[#1] (#3) --
+        ++(#4+90:0.05) --
+        ++(#4:\td);
+    \draw[#2] (#3) --
+        ++(#4-90:0.05) --
+        ++(#4:\td);
+}
+
+% ------------------------------------------------------------
+% Coordinates for the graph layout
+% Reactive core: 1,2,3,4,6,7
+% Context atoms in the application example: 5 and 8
+% ------------------------------------------------------------
+\newcommand{\insertgraphcoords}[3]{
+    \path (#1) coordinate(atom5#2) --
+        ++(#3+30:\td) coordinate(atom2#2) --
+        ++(#3+90:\td) coordinate(atom3#2) --
+        ++(#3+30:\td) coordinate(atom4#2) --
+        ++(#3-30:\td) coordinate(atom7#2) --
+        ++(#3-90:\td) coordinate(atom6#2) --
+        ++(#3-150:\td) coordinate(atom1#2);
+    \path (atom7#2) -- ++(#3+30:\td) coordinate(atom8#2);
+}
+
+% ------------------------------------------------------------
+% L: left-hand side rule graph
+% ------------------------------------------------------------
+\newcommand{\insertleftgraph}[1]{
+    \insertgraphcoords{#1}{L}{\alphaleft}
+
+    \draw[bondstyle] (atom2L) -- (atom3L);
+    \insertdoublebond[breakbond][bondstyle]{atom1L}{\alphaleft+150}
+    \insertdoublebond[breakbond][bondstyle]{atom3L}{\alphaleft+30}
+    \insertdoublebond[breakbond][bondstyle]{atom6L}{\alphaleft+90}
+
+    \foreach \n in {1,2,3,4,6,7}{
+        \node[atomnode] at (atom\n L) {\n};
+    }
+}
+
+% ------------------------------------------------------------
+% K: interface graph
+% ------------------------------------------------------------
+\newcommand{\insertcentergraph}[1]{
+    \insertgraphcoords{#1}{K}{\alphacenter}
+
+    % \draw[interfacebond] (atom1K) -- (atom6K);
+    \draw[interfacebond] (atom6K) -- (atom7K);
+    % \draw[interfacebond] (atom7K) -- (atom4K);
+    \draw[interfacebond] (atom4K) -- (atom3K);
+    \draw[interfacebond] (atom3K) -- (atom2K);
+    \draw[interfacebond] (atom2K) -- (atom1K);
+
+    \foreach \n in {1,2,3,4,6,7}{
+        \node[interfaceatom] at (atom\n K) {\n};
+    }
+}
+
+% ------------------------------------------------------------
+% R: right-hand side rule graph
+% Green bonds highlighted at 1-6 and 4-7
+% ------------------------------------------------------------
+\newcommand{\insertrightgraph}[1]{
+    \insertgraphcoords{#1}{R}{\alpharight}
+
+    \draw[bondstyle] (atom2R) -- (atom1R);
+    \draw[formbond]  (atom1R) -- (atom6R);
+    \draw[bondstyle] (atom6R) -- (atom7R);
+    \draw[formbond]  (atom7R) -- (atom4R);
+    \draw[bondstyle] (atom4R) -- (atom3R);
+
+    \insertdoublebond[formbond][bondstyle]{atom2R}{\alpharight+90}
+
+    \foreach \n in {1,2,3,4,6,7}{
+        \node[atomnode] at (atom\n R) {\n};
+    }
+}
+
+% ------------------------------------------------------------
+% G: host graph
+% ------------------------------------------------------------
+\newcommand{\inserthostgraph}[1]{
+    \insertgraphcoords{#1}{G}{\alphahost}
+
+    \draw[bondstyle] (atom5G) -- (atom2G) -- (atom3G);
+    \draw[bondstyle] (atom7G) -- (atom8G);
+
+    \insertdoublebond[breakbond][bondstyle]{atom1G}{\alphahost+150}
+    \insertdoublebond[breakbond][bondstyle]{atom3G}{\alphahost+30}
+    \insertdoublebond[breakbond][bondstyle]{atom6G}{\alphahost+90}
+
+    \foreach \n in {1,...,8}{
+        \node[atomnode] at (atom\n G) {\n};
+    }
+}
+
+% ------------------------------------------------------------
+% D: context graph
+% ------------------------------------------------------------
+\newcommand{\insertcontextgraph}[1]{
+    \insertgraphcoords{#1}{D}{\alphacontext}
+
+    % \draw[interfacebond] (atom1D) -- (atom6D);
+    \draw[interfacebond] (atom6D) -- (atom7D);
+    % \draw[interfacebond] (atom7D) -- (atom4D);
+    \draw[interfacebond] (atom4D) -- (atom3D);
+    \draw[interfacebond] (atom3D) -- (atom2D);
+    \draw[interfacebond] (atom2D) -- (atom1D);
+
+    \draw[bondstyle] (atom5D) -- (atom2D);
+    \draw[bondstyle] (atom7D) -- (atom8D);
+
+    \foreach \n in {1,...,8}{
+        \node[interfaceatom] at (atom\n D) {\n};
+    }
+}
+
+% ------------------------------------------------------------
+% H: product graph
+% Green bonds highlighted at 1-6 and 4-7
+% ------------------------------------------------------------
+\newcommand{\insertproductgraph}[1]{
+    \insertgraphcoords{#1}{H}{\alphaproduct}
+
+    \draw[bondstyle] (atom5H) -- (atom2H);
+    \draw[bondstyle] (atom7H) -- (atom8H);
+
+    \draw[bondstyle] (atom2H) -- (atom1H);
+    \draw[formbond]  (atom1H) -- (atom6H);
+    \draw[bondstyle] (atom6H) -- (atom7H);
+    \draw[formbond]  (atom7H) -- (atom4H);
+    \draw[bondstyle] (atom4H) -- (atom3H);
+
+    \insertdoublebond[formbond][bondstyle]{atom2H}{\alphaproduct+90}
+
+    \foreach \n in {1,...,8}{
+        \node[atomnode] at (atom\n H) {\n};
+    }
+}
+
+% ------------------------------------------------------------
+% Box helpers
+% ------------------------------------------------------------
+\newcommand{\insertboxtop}[3]{
+    \node[boxstyle,
+        fit=(atom5#1) (atom8#1) (atom1#1) (atom4#1)
+    ] (box#2) {};
+    \node[fill=white,above=-0.18cm of box#2] {\strut #3};
+}
+
+\newcommand{\insertboxbottom}[3]{
+    \node[boxstyle,
+        fit=(atom5#1) (atom8#1) (atom1#1) (atom4#1)
+    ] (box#2) {};
+    \node[fill=white,below=-0.18cm of box#2] {\strut #3};
+}
+
+% ------------------------------------------------------------
+% Draw graphs
+% ------------------------------------------------------------
+
+% Upper row: rule L <- K -> R
+\insertleftgraph{0,0}
+\insertcentergraph{\graphwidth+\colspace,0}
+\insertrightgraph{2*\graphwidth+2*\colspace,0}
+
+% Lower row: application G <- D -> H
+\inserthostgraph{0,-\rowspace-\graphheight}
+\insertcontextgraph{\graphwidth+\colspace,-\rowspace-\graphheight}
+\insertproductgraph{2*\graphwidth+2*\colspace,-\rowspace-\graphheight}
+
+% Boxes
+\begin{scope}[on background layer]
+    \insertboxtop{L}{L}{L}
+    \insertboxtop{K}{K}{K}
+    \insertboxtop{R}{R}{R}
+
+    \insertboxbottom{G}{G}{G}
+    \insertboxbottom{D}{D}{D}
+    \insertboxbottom{H}{H}{H}
+\end{scope}
+
+% ------------------------------------------------------------
+% Rule arrows: L <- K -> R
+% Now from box edge to box edge
+% ------------------------------------------------------------
+\draw[maparrow,shorten <=4pt,shorten >=4pt]
+    (boxK.west) -- node[above] {$l$} (boxL.east);
+
+\draw[maparrow,shorten <=4pt,shorten >=4pt]
+    (boxK.east) -- node[above] {$r$} (boxR.west);
+
+% ------------------------------------------------------------
+% Application arrows: G <- D -> H
+% ------------------------------------------------------------
+\draw[maparrow,shorten <=4pt,shorten >=4pt]
+    (boxD.west) -- node[above] {$g$} (boxG.east);
+
+\draw[maparrow,shorten <=4pt,shorten >=4pt]
+    (boxD.east) -- node[above] {$h$} (boxH.west);
+
+% ------------------------------------------------------------
+% Vertical maps m, m', m''
+% Box-to-box only
+% ------------------------------------------------------------
+\draw[maparrow,shorten <=4pt,shorten >=4pt]
+    (boxL.south) -- node[right] {$m$} (boxG.north);
+
+\draw[maparrow,shorten <=4pt,shorten >=4pt]
+    (boxK.south) -- node[right] {$m'$} (boxD.north);
+
+\draw[maparrow,shorten <=4pt,shorten >=4pt]
+    (boxR.south) -- node[right] {$m''$} (boxH.north);
+
+\end{tikzpicture}
