@@ -8,7 +8,6 @@ SERVER_PORT ?= 3100
 LESSON ?= S01
 NOTEBOOK ?= synedu/$(LESSON)/notebook.md
 LAB_NOTEBOOK ?= synedu/$(LESSON)/notebook.ipynb
-BOOK_NOTEBOOK = synedu/$(LESSON)/notebook.md
 RUN_ENV = HOST=$(HOST) SERVER_PORT=$(SERVER_PORT) UV_CACHE_DIR=$(UV_CACHE) JUPYTER_DATA_DIR=$(JUPYTER_STATE)/data JUPYTER_CONFIG_DIR=$(JUPYTER_STATE)/config JUPYTER_RUNTIME_DIR=$(JUPYTER_STATE)/runtime
 UV_RUN = $(RUN_ENV) $(UV) run
 
@@ -66,7 +65,7 @@ build-fast:
 	$(UV_RUN) jupyter book build --html --ci
 
 build-one:
-	$(UV_RUN) jupyter book build --execute --html --ci $(BOOK_NOTEBOOK)
+	$(UV_RUN) jupyter book build --execute --html --ci
 
 start:
 	$(UV_RUN) jupyter book start

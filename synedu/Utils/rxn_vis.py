@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import html
+import math
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import matplotlib.patches as mpatches
@@ -26,8 +27,25 @@ def _ensure_2d(m: Chem.Mol) -> Chem.Mol:
     """Ensure the molecule has 2D coords (in-place)."""
     if m is None:
         return m
-    if m.GetNumConformers() == 0:
-        # RDKit tends to do better with this than Compute2DCoords alone for some cases
+
+    coordinates_are_finite = False
+    if m.GetNumConformers() > 0:
+        conformer = m.GetConformer()
+        coordinates_are_finite = all(
+            math.isfinite(value)
+            for atom_index in range(m.GetNumAtoms())
+            for value in (
+                conformer.GetAtomPosition(atom_index).x,
+                conformer.GetAtomPosition(atom_index).y,
+                conformer.GetAtomPosition(atom_index).z,
+            )
+        )
+
+    if not coordinates_are_finite:
+        # SynReactor can return molecules with a conformer whose coordinates
+        # are NaN. RDKit then emits valid-looking SVG paths containing `nan`,
+        # which browsers cannot draw. Discard that conformer and lay it out.
+        m.RemoveAllConformers()
         AllChem.Compute2DCoords(m)
     return m
 
@@ -193,6 +211,43 @@ def _add_svg_title(svg_text: str, title: str, canvas_size: Tuple[int, int]) -> s
     return svg_text.replace("</svg>", f"{title_svg}</svg>")
 
 
+def _make_svg_responsive(svg_text: str) -> str:
+    """Scale an RDKit SVG to its notebook card without cropping the drawing."""
+    responsive_root = (
+        '<svg class="synedu-rxn-svg" '
+        'style="display:block;width:100%;height:auto;max-width:100%;margin:0 auto;" '
+        'preserveAspectRatio="xMidYMid meet" '
+    )
+    return svg_text.replace("<svg ", responsive_root, 1)
+
+
+def _svg_has_non_finite_coordinates(svg_text: str) -> bool:
+    """Return whether RDKit emitted non-drawable numeric SVG coordinates."""
+    lowered = svg_text.lower()
+    return "nan" in lowered or "infinity" in lowered
+
+
+def _draw_reaction_graph_svg(rsmi: str, title: Optional[str]) -> str:
+    """Draw a reaction through graph layouts when RDKit coordinates are invalid."""
+    import io
+
+    figure = draw_rxn_graph(
+        rsmi,
+        title=title,
+        highlight_changes=True,
+        show_indices=True,
+    )
+    buffer = io.StringIO()
+    figure.savefig(
+        buffer,
+        format="svg",
+        bbox_inches="tight",
+        facecolor="white",
+    )
+    plt.close(figure)
+    return buffer.getvalue()
+
+
 def _add_pil_title(image: Any, title: str, canvas_size: Tuple[int, int]) -> Any:
     """Overlay a centered title on a PIL reaction image."""
     from PIL import ImageDraw, ImageFont
@@ -223,19 +278,34 @@ def render_reaction_gallery(
     candidate_badge_foreground: str = "#64748B",
 ) -> str:
     """Return an HTML/SVG gallery comparing a reference reaction and candidates."""
+
     def card(rsmi: str, label: str, *, match: bool) -> str:
         border = "#2E7D6B" if match else "#D7DEE8"
         badge = "MATCH" if match else "candidate"
         badge_background = "#E6F4EF" if match else candidate_badge_background
         badge_foreground = "#16634F" if match else candidate_badge_foreground
-        svg = visualize_reaction(rsmi, svg=True, legend=label)
-        return f"""
-        <div class="synedu-rxn-card" style="border:1px solid {border};border-radius:8px;padding:10px;background:#fff;">
-          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;">
-            <strong style="color:#0E1B2A;font-size:14px;">{html.escape(label)}</strong>
-            <span style="background:{badge_background};color:{badge_foreground};border-radius:999px;padding:2px 8px;font-size:11px;font-weight:700;">{badge}</span>
-          </div><div style="overflow-x:auto;">{svg}</div>
-        </div>"""
+        svg = _make_svg_responsive(visualize_reaction(rsmi, svg=True, legend=label))
+        card_style = (
+            f"border:1px solid {border};border-radius:8px;padding:10px;"
+            "background:#fff;"
+        )
+        header_style = (
+            "display:flex;justify-content:space-between;align-items:center;"
+            "gap:8px;margin-bottom:6px;"
+        )
+        badge_style = (
+            f"background:{badge_background};color:{badge_foreground};"
+            "border-radius:999px;padding:2px 8px;font-size:11px;font-weight:700;"
+        )
+        return (
+            f'\n<div class="synedu-rxn-card" style="{card_style}">\n'
+            f'  <div style="{header_style}">\n'
+            f'    <strong style="color:#0E1B2A;font-size:14px;">'
+            f"{html.escape(label)}</strong>\n"
+            f'    <span style="{badge_style}">{badge}</span>\n'
+            f'  </div><div style="min-width:0;overflow:hidden;">{svg}</div>\n'
+            "</div>"
+        )
 
     shown = candidates[:max_candidates]
     hits = sum(candidate == ground_truth for candidate in candidates)
@@ -244,11 +314,21 @@ def render_reaction_gallery(
         card(candidate, f"Candidate {index}", match=candidate == ground_truth)
         for index, candidate in enumerate(shown, 1)
     )
-    return f"""
-    <div style="margin:10px 0 8px;"><h4 style="margin:0 0 4px;color:#0E1B2A;">{html.escape(title)}</h4>
-      <div style="color:#475569;font-size:13px;margin-bottom:10px;">{html.escape(description.format(shown=len(shown), total=len(candidates), hits=hits))}</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:12px;">{"".join(cards)}</div>
-    </div>"""
+    summary = html.escape(
+        description.format(shown=len(shown), total=len(candidates), hits=hits)
+    )
+    grid_style = (
+        "display:grid;grid-template-columns:"
+        "repeat(auto-fit,minmax(360px,1fr));gap:12px;"
+    )
+    return (
+        '\n<div style="margin:10px 0 8px;">'
+        f'<h4 style="margin:0 0 4px;color:#0E1B2A;">{html.escape(title)}</h4>\n'
+        f'  <div style="color:#475569;font-size:13px;margin-bottom:10px;">'
+        f"{summary}</div>\n"
+        f'  <div style="{grid_style}">{"".join(cards)}</div>\n'
+        "</div>"
+    )
 
 
 def render_html_heading(text: str) -> str:
@@ -265,7 +345,10 @@ def render_mapping_agreement(all_agree: bool) -> str:
     """Return the canonicalization agreement status used in mapping comparisons."""
     message = "All three mappers agree" if all_agree else "Mappers disagree"
     color = "green" if all_agree else "#D62728"
-    return f"<p style='margin-top:8px'><b style='color:{color}'>{message}</b> after canonicalization.</p>"
+    return (
+        f"<p style='margin-top:8px'><b style='color:{color}'>{message}</b> "
+        "after canonicalization.</p>"
+    )
 
 
 def visualize_reaction(  # noqa: C901
@@ -331,7 +414,6 @@ def visualize_reaction(  # noqa: C901
 
     rxn.Initialize()
     canvas_size = _auto_canvas_size(rxn, size, legend)
-    bond_length = fixed_bond_length if fixed_bond_length is not None else 34.0
 
     # Ensure 2D coords
     for m in list(rxn.GetReactants()) + list(rxn.GetProducts()) + list(rxn.GetAgents()):
@@ -371,7 +453,8 @@ def visualize_reaction(  # noqa: C901
             drawer = rdMolDraw2D.MolDraw2DCairo(canvas_size[0], canvas_size[1])
 
         opts = drawer.drawOptions()
-        opts.fixedBondLength = bond_length
+        if fixed_bond_length is not None:
+            opts.fixedBondLength = fixed_bond_length
         opts.padding = padding
         opts.continuousHighlight = True
         opts.highlightBondWidthMultiplier = 18
@@ -410,6 +493,8 @@ def visualize_reaction(  # noqa: C901
         drawer.FinishDrawing()
         if svg:
             svg_text = drawer.GetDrawingText()
+            if _svg_has_non_finite_coordinates(svg_text):
+                raise ValueError("RDKit generated non-finite SVG coordinates")
             return _add_svg_title(svg_text, legend, canvas_size) if legend else svg_text
         else:
             # Cairo returns PNG bytes
@@ -433,6 +518,8 @@ def visualize_reaction(  # noqa: C901
             ),
             useSVG=svg,
         )
+        if svg and _svg_has_non_finite_coordinates(fallback):
+            return _draw_reaction_graph_svg(rsmi, legend)
         if legend and svg:
             return _add_svg_title(fallback, legend, canvas_size)
         if legend:

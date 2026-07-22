@@ -832,6 +832,7 @@ For one example substrate, the template library generates a set of candidate rea
 :tags: [hide-input]
 from synedu.Utils.rxn_vis import render_reaction_gallery
 from IPython.display import HTML, display
+# The gallery scales each complete RDKit SVG into its card.
 display(HTML(render_reaction_gallery(
     ground_truth,
     fw_list,
@@ -1055,6 +1056,7 @@ from IPython.display import HTML, display
 _bidx = 0
 _bw_gt = eval_set[_bidx]['smart']
 _bw_list = eval_set[_bidx]['bw']
+# Use graph-native layout fallback for candidates with invalid RDKit coordinates.
 display(HTML(render_reaction_gallery(
     _bw_gt,
     _bw_list,

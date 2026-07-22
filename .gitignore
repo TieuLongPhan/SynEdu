@@ -12,8 +12,6 @@ build/
 develop-eggs/
 dist/
 downloads/
-!docs/downloads/
-!docs/downloads/*.ipynb
 eggs/
 .eggs/
 lib/
@@ -224,6 +222,8 @@ _build/
 # The only committed .ipynb are the portable Colab/Binder exports, which are
 # regenerated with `make build-downloads DOWNLOAD_DIR=docs/downloads`.
 *.ipynb
+!docs/downloads/
+!docs/downloads/*.ipynb
 
 # OS junk
 .DS_Store

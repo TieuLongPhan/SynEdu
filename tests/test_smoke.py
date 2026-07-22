@@ -91,3 +91,28 @@ def test_colab_exports_are_portable_and_deterministic():
             cell.source for cell in first.cells if cell.cell_type == "markdown"
         )
         assert "../../docs/_static/" not in markdown
+
+
+def test_published_notebook_exports_match_sources():
+    """Binder/Colab targets must exist and stay in sync with their sources."""
+    repo_root = Path(__file__).parents[1]
+    sources = list(_iter_notebooks(repo_root))
+    downloads = repo_root / "docs" / "downloads"
+
+    expected_names = {f"{source.parent.name}.ipynb" for source in sources}
+    published_names = {path.name for path in downloads.glob("S*.ipynb")}
+    assert published_names == expected_names
+
+    for source in sources:
+        published = downloads / f"{source.parent.name}.ipynb"
+        expected = nbformat.writes(_export_notebook(source)) + "\n"
+        assert published.read_text() == expected, (
+            f"{published} is stale; regenerate exports with "
+            "`make build-downloads DOWNLOAD_DIR=docs/downloads`"
+        )
+
+
+def test_binder_uses_supported_python():
+    """Binder must satisfy the package's Python >=3.11 requirement."""
+    repo_root = Path(__file__).parents[1]
+    assert (repo_root / "runtime.txt").read_text() == "python-3.11\n"

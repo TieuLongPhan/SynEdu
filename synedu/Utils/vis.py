@@ -119,7 +119,9 @@ def render_smiles_annotation(
     )
     title_html = f'<div class="smi-title">{html.escape(title)}</div>' if title else ""
     indices_html = (
-        f'<div class="smi-index-row">{"".join(index_html)}</div>' if show_indices else ""
+        f'<div class="smi-index-row">{"".join(index_html)}</div>'
+        if show_indices
+        else ""
     )
     return f"""
     <style>

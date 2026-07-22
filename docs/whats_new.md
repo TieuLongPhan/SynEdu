@@ -4,6 +4,32 @@ Visible changes in the SynEdu documentation and release archive.
 
 ---
 
+## Version 0.3.0
+
+:::{note} Current development release
+This release modernizes the MyST website, makes every talktorial directly
+launchable in Colab or Binder, and improves notebook presentation reliability.
+:::
+
+::::{grid} 1 1 2 2
+
+:::{card} ✨ Modern MyST interface
+:link: /
+
+A responsive learning-path homepage, compact navigation, native lesson cards,
+and a project footer replace the previous document-like landing experience.
+:::
+
+:::{card} 🧪 Reliable reaction galleries
+:link: /synedu/s08/notebook
+
+Large RDKit reaction SVGs now scale to their cards, so every forward and
+backward candidate remains visible instead of being clipped outside the panel.
+:::
+::::
+
+---
+
 ## Version 0.1.0
 
 :::{note} Released 20 May 2026
