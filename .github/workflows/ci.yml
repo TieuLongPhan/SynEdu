@@ -50,13 +50,19 @@ jobs:
           } | tee -a "$GITHUB_STEP_SUMMARY" ci-lint.log
 
       - name: Install dependencies
-        run: uv sync --frozen 2>&1 | tee -a ci-lint.log
+        run: |
+          set -o pipefail
+          uv sync --frozen 2>&1 | tee -a ci-lint.log
 
       - name: Check formatting
-        run: uv run black --workers 1 --check synedu/*.py synedu/Utils tests scripts 2>&1 | tee -a ci-lint.log
+        run: |
+          set -o pipefail
+          uv run black --workers 1 --check synedu/*.py synedu/Utils tests scripts 2>&1 | tee -a ci-lint.log
 
       - name: Lint
-        run: uv run flake8 synedu tests scripts 2>&1 | tee -a ci-lint.log
+        run: |
+          set -o pipefail
+          uv run flake8 synedu tests scripts 2>&1 | tee -a ci-lint.log
 
       - name: Upload lint log
         if: always()
@@ -98,10 +104,14 @@ jobs:
           } | tee -a "$GITHUB_STEP_SUMMARY" ci-test.log
 
       - name: Install dependencies
-        run: uv sync --frozen 2>&1 | tee -a ci-test.log
+        run: |
+          set -o pipefail
+          uv sync --frozen 2>&1 | tee -a ci-test.log
 
       - name: Run fast tests
-        run: uv run pytest -m "not slow" -v tests/ 2>&1 | tee -a ci-test.log
+        run: |
+          set -o pipefail
+          uv run pytest -m "not slow" -v tests/ 2>&1 | tee -a ci-test.log
 
       - name: Upload test log
         if: always()
@@ -151,7 +161,9 @@ jobs:
           } | tee -a "$GITHUB_STEP_SUMMARY" ci-docs.log
 
       - name: Install dependencies
-        run: uv sync --frozen 2>&1 | tee -a ci-docs.log
+        run: |
+          set -o pipefail
+          uv sync --frozen 2>&1 | tee -a ci-docs.log
 
       - name: Restore MyST execution cache
         uses: actions/cache@v5
@@ -162,10 +174,20 @@ jobs:
             myst-execute-${{ runner.os }}-
 
       - name: Build Jupyter Book
-        run: uv run jupyter book build --execute --html --execute-parallel 1 --ci 2>&1 | tee -a ci-docs.log
+        run: |
+          set -o pipefail
+          uv run jupyter book build --execute --html --execute-parallel 1 --ci 2>&1 | tee -a ci-docs.log
+
+      - name: Inject static site enhancements
+        run: |
+          set -o pipefail
+          uv run python scripts/inject_site_assets.py 2>&1 | tee -a ci-docs.log
+          uv run python scripts/inject_site_assets.py 2>&1 | tee -a ci-docs.log
 
       - name: Generate portable notebook exports
-        run: make build-downloads 2>&1 | tee -a ci-docs.log
+        run: |
+          set -o pipefail
+          make build-downloads 2>&1 | tee -a ci-docs.log
 
       - name: Summarize documentation output
         if: always()

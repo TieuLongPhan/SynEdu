@@ -22,7 +22,7 @@ help:
 	@printf '%s\n' '  make build-downloads      Generate downloads into DOWNLOAD_DIR (for CI/RTD)'
 	@printf '%s\n' '  make build                Export notebooks and build HTML with execution'
 	@printf '%s\n' '  make build-fast           Build HTML without execution or notebook export'
-	@printf '%s\n' '  make build-one LESSON=S01 Build and execute one talktorial page'
+	@printf '%s\n' '  make build-one LESSON=S01 Execute one talktorial notebook'
 	@printf '%s\n' '  make start                Start the local docs server without execution'
 	@printf '%s\n' ''
 	@printf '%s\n' 'Notebook work:'
@@ -57,15 +57,17 @@ build-downloads:
 
 build:
 	$(UV_RUN) jupyter book build --execute --html --ci
+	$(UV_RUN) python scripts/inject_site_assets.py
 	$(MAKE) build-downloads
 	mkdir -p _build/html/downloads
 	cp _build/downloads/*.ipynb _build/html/downloads/
 
 build-fast:
 	$(UV_RUN) jupyter book build --html --ci
+	$(UV_RUN) python scripts/inject_site_assets.py
 
 build-one:
-	$(UV_RUN) jupyter book build --execute --html --ci
+	$(MAKE) execute-notebook LESSON=$(LESSON)
 
 start:
 	$(UV_RUN) jupyter book start

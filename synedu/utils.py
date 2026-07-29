@@ -7,15 +7,17 @@ from __future__ import annotations
 
 
 def seed_everything(seed: int = 22) -> None:
-    """Seed Python and NumPy RNGs for reproducible notebooks."""
-    import os
+    """Seed Python and NumPy RNGs.
+
+    Python's hash seed must be set before the interpreter starts and is
+    intentionally not changed here.
+    """
     import random
 
     import numpy as np
 
     random.seed(seed)
     np.random.seed(seed)
-    os.environ["PYTHONHASHSEED"] = str(seed)
 
 
 def show_pdf(pdf_url: str) -> None:

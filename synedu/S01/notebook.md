@@ -13,9 +13,9 @@ kernelspec:
 
 # S01: From Molecules to Labeled Graphs
 
-<div class="synedu-lesson-shell not-prose" style="box-sizing:border-box;margin:8px 0 24px;padding:20px;border:1px solid #243b53;border-radius:16px;background:#102a43;color:#fff;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"><div class="synedu-lesson-shell__top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap"><div><div class="synedu-lesson-shell__eyebrow" style="margin-bottom:5px;color:#5eead4;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase">SynEdu learning path</div><div class="synedu-lesson-shell__meta" style="font-size:16px;font-weight:750">Lesson 1 of 9 <span style="color:#9fb3c8;font-weight:500">· Stage 1 · Fundamentals</span></div></div><span class="synedu-lesson-shell__progress-label" style="color:#bcccdc;font-size:12px;font-weight:700">11% complete</span></div><div class="synedu-lesson-shell__track" style="height:5px;margin:16px 0 18px;overflow:hidden;border-radius:999px;background:#334e68"><span style="display:block;width:11%;height:100%;border-radius:inherit;background:#2dd4bf"></span></div><div class="synedu-notebook-actions" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap" aria-label="Run this lesson"><a class="synedu-launch-badge" href="https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S01.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open S01 in Colab" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://mybinder.org/v2/gh/TieuLongPhan/SynEdu/main?urlpath=lab/tree/docs/downloads/S01.ipynb"><img src="https://mybinder.org/badge_logo.svg" alt="Launch S01 in Binder" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S01.ipynb"><img src="https://img.shields.io/badge/download-.ipynb-2563eb?logo=jupyter&amp;logoColor=white" alt="Download S01 notebook" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="/docs/installing"><img src="https://img.shields.io/badge/run-locally-334e68?logo=jupyter&amp;logoColor=white" alt="Run S01 locally" style="display:block;height:24px" /></a></div></div>
+<div class="synedu-lesson-shell not-prose" style="box-sizing:border-box;margin:8px 0 24px;padding:20px;border:1px solid #243b53;border-radius:16px;background:#102a43;color:#fff;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"><div class="synedu-lesson-shell__top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap"><div><div class="synedu-lesson-shell__eyebrow" style="margin-bottom:5px;color:#5eead4;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase">SynEdu learning path</div><div class="synedu-lesson-shell__meta" style="font-size:16px;font-weight:750">Lesson 1 of 9 <span style="color:#9fb3c8;font-weight:500">· Stage 1 · Fundamentals</span></div></div><span class="synedu-lesson-shell__progress-label" style="color:#bcccdc;font-size:12px;font-weight:700">11% complete</span></div><div class="synedu-lesson-shell__track" style="height:5px;margin:16px 0 18px;overflow:hidden;border-radius:999px;background:#334e68"><span style="display:block;width:11%;height:100%;border-radius:inherit;background:#2dd4bf"></span></div><div class="synedu-notebook-actions" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap" role="group" aria-label="Run this lesson"><a class="synedu-launch-badge" href="https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S01.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open S01 in Colab" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://mybinder.org/v2/gh/TieuLongPhan/SynEdu/main?urlpath=lab/tree/docs/downloads/S01.ipynb"><img src="https://mybinder.org/badge_logo.svg" alt="Launch S01 in Binder" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S01.ipynb"><img src="https://img.shields.io/badge/download-.ipynb-2563eb?logo=jupyter&amp;logoColor=white" alt="Download S01 notebook" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="../../docs/installing"><img src="https://img.shields.io/badge/run-locally-334e68?logo=jupyter&amp;logoColor=white" alt="Run S01 locally" style="display:block;height:24px" /></a></div></div>
 
-This talktorial introduces molecular representations for SynEdu: RDKit [@rdkit_docs] molecules, SMILES strings [@weininger1988smiles], and explicit NetworkX labeled graphs. The focus is on what chemical information is preserved, what can be lost, and why representation choices matter for later graph-matching and reaction-rule tasks, [@networkx_docs; @bonchev1991chemical].
+This talktorial introduces molecular representations for SynEdu: RDKit [@rdkit_docs] molecules, SMILES strings [@weininger1988smiles], and explicit NetworkX labeled graphs. The focus is on what chemical information is preserved, what can be lost, and why representation choices matter for later graph-matching and reaction-rule tasks [@networkx_docs; @bonchev1991chemical].
 
 +++
 
@@ -65,7 +65,7 @@ from rdkit import Chem
 
 smiles = "CN1C=C(C2=CC=CC=C21)C3=NC(=NC=C3)NC4=C(C=C(C(=C4)NC(=O)C=C)N(C)CCN(C)C)OC"  # NSCLC TKI
 osimertinib = Chem.MolFromSmiles(smiles)
-osimertinib  # you can see the figure of osimertinib
+osimertinib  # Render the molecule.
 ```
 
 Use `IPythonConsole` to render RDKit atom indices on molecular structures.
@@ -100,7 +100,7 @@ def set_rdkit_draw_options(
 
 
 set_rdkit_draw_options()
-osimertinib  # Now you can see the indice of each atom, start from 0
+osimertinib  # Render with zero-based atom indices.
 ```
 
 RDKit’s `Draw.MolsToGridImage` allows you to display a list of molecules
@@ -138,7 +138,7 @@ print(mw)
  
 Compute the octanol–water partition coefficient (logP) of osimertinib using RDKit.
 
-<details> <summary><b>Solution</b></summary>
+<details class="synedu-solution"> <summary><b>Solution</b></summary>
 
 ```python
 from rdkit.Chem.Crippen import MolLogP
@@ -150,7 +150,7 @@ logp = MolLogP(osimertinib)
 
 In medicinal chemistry, it is important to prioritize the most promising molecules in order to reduce experimental and computational costs. One of the simplest and most widely used heuristics for early-stage compound selection is [Lipinski’s Rule of Five](https://en.wikipedia.org/wiki/Lipinski%27s_rule_of_five) [@lipinski1997experimental], which describes four physicochemical criteria associated with favorable oral bioavailability.
 
-## Lipinski’s Rule of Five
+### 1.1 Lipinski’s Rule of Five
 
 <div class="se-callout se-callout--muted">
 
@@ -181,12 +181,12 @@ In medicinal chemistry, it is important to prioritize the most promising molecul
     </tr>
     <tr>
       <td><strong>Molecular weight</strong></td>
-      <td>&lt; 500 Da</td>
+      <td>≤ 500 Da</td>
       <td>Larger molecules generally show reduced passive diffusion across biological membranes.</td>
     </tr>
     <tr>
       <td><strong>logP</strong></td>
-      <td>&lt; 5</td>
+      <td>≤ 5</td>
       <td>Excessive lipophilicity may impair aqueous solubility and pharmacokinetic behavior.</td>
     </tr>
   </tbody>
@@ -224,7 +224,7 @@ nh_do = NumHDonors(osimertinib)
 Compute the number of hydrogen bond donors and acceptors for each molecule in
 `mols`.
 
-<details> <summary><b>Solution</b></summary>
+<details class="synedu-solution"> <summary><b>Solution</b></summary>
 
 ```python
 from rdkit.Chem.Descriptors import NumHAcceptors, NumHDonors
@@ -276,7 +276,7 @@ Lipinski(osimertinib)
 Apply the Lipinski filter to the dataset and annotate the DataFrame with a
 pass/fail flag.
 
-<details>
+<details class="synedu-solution">
 <summary><b>Solution</b></summary>
 
 ```python
@@ -594,7 +594,7 @@ C[Se]C            # dimethyl selenide
 
 ### 2.8. Common beginner mistakes
 
-<details>
+<details class="synedu-solution">
 <summary><b>Click to expand common SMILES mistakes</b></summary>
 
 <br>
@@ -939,7 +939,7 @@ connectivity alone [@bonchev1991chemical].
 A **labeled molecular graph** is a quadruple
 
 $$
-G = (V, E, a, b),
+G = (V, E, a_G, b_G),
 $$
 
 where:
@@ -947,12 +947,12 @@ where:
 - **Vertices** $V$ represent **atoms**.
 - **Edges** $E \subseteq \{\{u,v\}\mid u,v\in V,\ u\neq v\}$ represent **bonds**
   (finite, undirected, simple: no loops, no parallel edges).
-- $a$: atom labelling function.
-- $b$: bond labelling function.
+- $a_G$: atom-labeling function.
+- $b_G$: bond-labeling function.
 
 We often write $V(G)$ and $E(G)$ for the vertex and edge sets of $G$. For a vertex $v\in V(G)$:
 
-- neighbourhood:
+- neighborhood:
   $$
   N_G(v)=\{w\in V(G)\mid vw\in E(G)\},
   $$
@@ -961,7 +961,7 @@ We often write $V(G)$ and $E(G)$ for the vertex and edge sets of $G$. For a vert
   \deg_G(v)=|N_G(v)|.
   $$
 
-These graph-theoretic notions correspond chemically to an atom’s bonded neighbours and coordination number,
+These graph-theoretic notions correspond chemically to an atom’s bonded neighbors and coordination number,
 abstracting away geometry while retaining connectivity.
 
 ---
@@ -998,10 +998,11 @@ In SynEdu, **RDKit** and **NetworkX** play complementary roles:
 - **NetworkX** provides an explicit, inspectable graph representation used for matching, symmetry analysis,
   and later graph rewriting.
 
-To ensure that graph-based operations remain chemically meaningful, we require a **reversible interface**
-between the two representations:
-a molecule converted from RDKit to a labeled NetworkX graph must be convertible back without loss of
-the chemical information encoded in $(a_G,b_G)$.
+To ensure that graph-based operations remain chemically meaningful, we require
+a reversible interface for the **attributes represented by the graph schema**.
+Element, formal charge, aromaticity, hydrogen count, atom maps, and bond order
+are retained here. Isotopes and stereochemical tags are not yet part of this
+schema, so it is not a lossless serialization of every RDKit molecular feature.
 
 This reversible interface forms the foundation for all later notions—graph isomorphism, automorphisms,
 and eventually reaction rules—introduced in subsequent SynEdu notebooks.
@@ -1015,9 +1016,20 @@ $$
 G = (V,\, E,\, \mathbf{a},\, \mathbf{b})
 $$
 
-where $V$ is the set of **heavy atoms** (nodes), $E \subseteq \{\{u,v\}\mid u,v\in V,\ u\neq v\}$ is the set of **covalent bonds** (undirected edges), $\mathbf{a}: V \to \mathcal{A}$ assigns each atom a tuple of **node attributes** (element symbol, formal charge, aromaticity, hydrogen count, atom-map number), and $\mathbf{b}: E \to \mathcal{B}$ assigns each bond a tuple of **edge attributes** (bond order, aromaticity).
+where $V$ is the set of **represented atoms** (normally heavy atoms, with
+hydrogens stored implicitly), $E \subseteq \{\{u,v\}\mid u,v\in V,\ u\neq
+v\}$ is the set of **covalent bonds** (undirected edges), $\mathbf{a}: V \to
+\mathcal{A}$ assigns each atom a tuple of **node attributes** (element symbol,
+formal charge, aromaticity, hydrogen count, atom-map number), and
+$\mathbf{b}: E \to \mathcal{B}$ assigns each bond a tuple of **edge
+attributes** (bond order, aromaticity).
 
-A *labeled graph homomorphism* $\varphi: G_1 \to G_2$ is a pair of maps $\varphi_V: V_1 \to V_2$, $\varphi_E: E_1 \to E_2$ that (i) preserves adjacency: $\varphi_E(\{u,v\}) = \{\varphi_V(u), \varphi_V(v)\}$, and (ii) preserves labels: $\mathbf{a}_2(\varphi_V(v)) = \mathbf{a}_1(v)$ and $\mathbf{b}_2(\varphi_E(e)) = \mathbf{b}_1(e)$ for all $v \in V_1$, $e \in E_1$.
+A *labeled graph homomorphism* $\varphi: G_1 \to G_2$ is a vertex map
+$\varphi:V_1\to V_2$ such that every edge $\{u,v\}\in E_1$ maps to the edge
+$\{\varphi(u),\varphi(v)\}\in E_2$, with
+$\mathbf{a}_2(\varphi(v))=\mathbf{a}_1(v)$ and
+$\mathbf{b}_2(\{\varphi(u),\varphi(v)\})=\mathbf{b}_1(\{u,v\})$. The edge map
+is therefore induced by the vertex map rather than specified independently.
 
 **Remark.** The attribute schema used throughout SynEdu is  
 `a(v) = (element, formal_charge, aromatic, hcount, atom_map)` and `b(e) = (order, aromatic)`.  
@@ -1319,10 +1331,14 @@ A labeled molecular graph can be encoded as several **matrices**, each capturing
 | **Adjacency** $A$ | $n \times n$ | $A_{ij}$ = bond order between atoms $i$ and $j$ |
 | **Distance** $D$ | $n \times n$ | $D_{ij}$ = shortest-path length (in bonds) between $i$ and $j$ |
 | **Incidence** $B$ | $n \times m$ | $B_{ij} = 1$ if atom $i$ participates in bond $j$ |
-| **Bond-Electron** $BE$ | $n \times n$ | off-diag = bond order; **diagonal = free (non-bonding) electrons** |
+| **Bond-Electron** $BE$ | $n \times n$ | off-diagonal = bond order; **diagonal = free (nonbonding) electrons** |
 
-The BE matrix generalises the adjacency matrix by placing lone-pair electron counts on the diagonal.
-For a reaction, the **difference** $\Delta BE = BE_\text{products} - BE_\text{reactants}$ encodes the full electron reorganisation — this is developed in **S04**.
+The BE matrix generalizes the adjacency matrix by placing free-electron counts
+on the diagonal. For a fully atom-mapped reaction, the **difference**
+$\Delta BE = BE_\text{products} - BE_\text{reactants}$ records the formal
+bond-order and free-electron changes represented by this model. It is not a
+quantum-mechanical description of the transition state; the reaction-level
+bookkeeping is developed in **S04**.
 
 +++
 
@@ -1429,7 +1445,8 @@ print(
 
 #### Distance matrix
 
-The **topological distance matrix** $D \in \mathbb{N}^{n \times n}$ records the
+For a connected molecular graph, the **topological distance matrix**
+$D \in \mathbb{N}^{n \times n}$ records the
 shortest-path length (measured in bonds) between every pair of atoms.
 $D_{ij}$ is the minimum number of bonds to traverse to reach atom $j$ from atom $i$,
 computed via Floyd–Warshall or breadth-first search on the unweighted graph.
@@ -1441,6 +1458,10 @@ Key properties:
   compact measure of molecular "stretch"
 - Distance-based **Wiener index** $W = \tfrac{1}{2}\sum_{i,j} D_{ij}$ correlates
   with boiling points for alkanes [@wiener1947structural]
+
+For a disconnected multi-component graph, cross-component distances are
+infinite and the ordinary graph diameter and Wiener index above are undefined;
+compute them component by component instead.
 
 ```{code-cell}
 :tags: [hide-input]
@@ -1488,7 +1509,8 @@ $B_{ij} = 1$ if atom $i$ participates in bond $j$, and 0 otherwise.
 
 Key properties:
 - Each **column** has exactly two 1s (every bond connects exactly two atoms)
-- Each **row sum** equals the heavy-atom degree (valence) of that atom
+- Each **row sum** equals the heavy-atom degree of that atom (not its
+  bond-order valence)
 - $B B^\top = \mathrm{Deg} + A_{\mathrm{bin}}$, where $\mathrm{Deg}$ is the diagonal degree matrix and $A_{\mathrm{bin}}$ is
   the binary adjacency matrix — a fundamental identity in algebraic graph theory
 - Incidence matrices appear in spectral graph theory and in the cycle-space
@@ -1543,7 +1565,7 @@ plt.show()
 
 print(f"Matrix shape: {n_atoms} atoms × {n_bonds} bonds")
 print(
-    f"Row sums (valency in heavy-atom graph): { {atom_labels[i]: int(B_inc[i].sum()) for i in range(n_atoms)} }"
+    f"Row sums (degree in heavy-atom graph): { {atom_labels[i]: int(B_inc[i].sum()) for i in range(n_atoms)} }"
 )
 ```
 
@@ -1568,7 +1590,12 @@ implicit hydrogen count.
 - In the **Kekulé** form, all bond orders are integers, and the diagonal is a
   well-defined electron count.
 
-For this reason, reaction-informatics tools always work with the **Kekulé BE matrix** [@dugundji1973algebraic].
+The helper below is a closed-shell teaching approximation: it uses a finite
+main-group valence table and clamps negative diagonal estimates to zero. It
+should not be interpreted as an electronic-structure model for radicals,
+unusual hypervalent species, or transition metals. For ordinary organic
+reactions, a **Kekulé BE matrix** avoids fractional aromatic entries
+[@dugundji1973algebraic].
 The reaction-level version — the **ΔBE matrix** — is developed in **S04**.
 
 ```{code-cell}
@@ -1707,7 +1734,7 @@ smiles = "c1cc[nH]c1"
 
 <br>
 
-<details>
+<details class="synedu-solution">
 <summary><b>Solution</b></summary>
 
 ```python
@@ -1786,7 +1813,7 @@ SMILES → RDKit → graph → RDKit round-trip **without losing heavy-atom info
 
 ---
 
-<details>
+<details class="synedu-solution">
 <summary><b>Solution</b></summary>
 
 ```python

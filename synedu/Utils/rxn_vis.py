@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import html
 import math
+import re
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import matplotlib.patches as mpatches
@@ -211,11 +212,17 @@ def _add_svg_title(svg_text: str, title: str, canvas_size: Tuple[int, int]) -> s
     return svg_text.replace("</svg>", f"{title_svg}</svg>")
 
 
-def _make_svg_responsive(svg_text: str) -> str:
+def _make_svg_responsive(svg_text: str, label: str) -> str:
     """Scale an RDKit SVG to its notebook card without cropping the drawing."""
+    svg_start = svg_text.find("<svg")
+    if svg_start < 0:
+        raise ValueError("SVG fragment does not contain an <svg> root")
+    svg_text = svg_text[svg_start:]
+    safe_label = html.escape(label, quote=True)
     responsive_root = (
         '<svg class="synedu-rxn-svg" '
         'style="display:block;width:100%;height:auto;max-width:100%;margin:0 auto;" '
+        f'role="img" aria-label="{safe_label}" '
         'preserveAspectRatio="xMidYMid meet" '
     )
     return svg_text.replace("<svg ", responsive_root, 1)
@@ -223,19 +230,25 @@ def _make_svg_responsive(svg_text: str) -> str:
 
 def _svg_has_non_finite_coordinates(svg_text: str) -> bool:
     """Return whether RDKit emitted non-drawable numeric SVG coordinates."""
-    lowered = svg_text.lower()
-    return "nan" in lowered or "infinity" in lowered
+    return (
+        re.search(
+            r"""(?:^|[\s,="'(])[-+]?(?:nan|inf(?:inity)?)(?=$|[\s,"')<])""",
+            svg_text,
+            flags=re.IGNORECASE,
+        )
+        is not None
+    )
 
 
 def _draw_reaction_graph_svg(rsmi: str, title: Optional[str]) -> str:
-    """Draw a reaction through graph layouts when RDKit coordinates are invalid."""
+    """Draw a reaction with SynEdu's graph-native molecular visual style."""
     import io
 
     figure = draw_rxn_graph(
         rsmi,
         title=title,
         highlight_changes=True,
-        show_indices=True,
+        show_indices=False,
     )
     buffer = io.StringIO()
     figure.savefig(
@@ -279,12 +292,27 @@ def render_reaction_gallery(
 ) -> str:
     """Return an HTML/SVG gallery comparing a reference reaction and candidates."""
 
-    def card(rsmi: str, label: str, *, match: bool) -> str:
-        border = "#2E7D6B" if match else "#D7DEE8"
-        badge = "MATCH" if match else "candidate"
-        badge_background = "#E6F4EF" if match else candidate_badge_background
-        badge_foreground = "#16634F" if match else candidate_badge_foreground
-        svg = _make_svg_responsive(visualize_reaction(rsmi, svg=True, legend=label))
+    def card(rsmi: str, label: str, *, match: bool, reference: bool = False) -> str:
+        if reference:
+            border = "#7BA7D7"
+            badge = "REFERENCE"
+            badge_background = "#EAF2FA"
+            badge_foreground = "#52789E"
+        elif match:
+            border = "#2E7D6B"
+            badge = "MATCH"
+            badge_background = "#E6F4EF"
+            badge_foreground = "#16634F"
+        else:
+            border = "#D7DEE8"
+            badge = "candidate"
+            badge_background = candidate_badge_background
+            badge_foreground = candidate_badge_foreground
+        # The card header supplies the title for the embedded diagram.
+        svg = _make_svg_responsive(
+            _draw_reaction_graph_svg(rsmi, title=None),
+            f"{label}: reaction diagram",
+        )
         card_style = (
             f"border:1px solid {border};border-radius:8px;padding:10px;"
             "background:#fff;"
@@ -309,7 +337,7 @@ def render_reaction_gallery(
 
     shown = candidates[:max_candidates]
     hits = sum(candidate == ground_truth for candidate in candidates)
-    cards = [card(ground_truth, "Ground truth", match=True)]
+    cards = [card(ground_truth, "Ground truth", match=False, reference=True)]
     cards.extend(
         card(candidate, f"Candidate {index}", match=candidate == ground_truth)
         for index, candidate in enumerate(shown, 1)
@@ -319,12 +347,14 @@ def render_reaction_gallery(
     )
     grid_style = (
         "display:grid;grid-template-columns:"
-        "repeat(auto-fit,minmax(360px,1fr));gap:12px;"
+        "repeat(auto-fit,minmax(min(520px,100%),1fr));gap:12px;"
     )
     return (
-        '\n<div style="margin:10px 0 8px;">'
-        f'<h4 style="margin:0 0 4px;color:#0E1B2A;">{html.escape(title)}</h4>\n'
-        f'  <div style="color:#475569;font-size:13px;margin-bottom:10px;">'
+        '\n<div class="synedu-rxn-gallery" style="margin:10px 0 8px;">'
+        f'<h4 style="margin:0 0 4px;color:var(--se-card-fg,#0E1B2A);">'
+        f"{html.escape(title)}</h4>\n"
+        f'  <div style="color:var(--synedu-muted,#475569);'
+        'font-size:13px;margin-bottom:10px;">'
         f"{summary}</div>\n"
         f'  <div style="{grid_style}">{"".join(cards)}</div>\n'
         "</div>"
@@ -399,8 +429,8 @@ def visualize_reaction(  # noqa: C901
     legend : str | None
         Optional title at the top.
     fixed_bond_length : float, optional
-        Affects perceived scale / whitespace. If omitted, a readable default
-        is chosen for the inferred canvas.
+        Affects perceived scale / whitespace. If omitted, RDKit auto-scales
+        the reaction to the inferred canvas.
     padding : float
         Relative padding around the drawing.
 
@@ -519,7 +549,10 @@ def visualize_reaction(  # noqa: C901
             useSVG=svg,
         )
         if svg and _svg_has_non_finite_coordinates(fallback):
-            return _draw_reaction_graph_svg(rsmi, legend)
+            try:
+                return _draw_reaction_graph_svg(rsmi, legend)
+            except Exception:
+                return fallback
         if legend and svg:
             return _add_svg_title(fallback, legend, canvas_size)
         if legend:

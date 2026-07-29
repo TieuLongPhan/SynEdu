@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from collections import defaultdict
+import math
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple, Union
+import warnings
 
 from networkx.algorithms import isomorphism as iso
 import networkx as nx
@@ -18,9 +20,15 @@ def node_match(n1, n2):
 
 def edge_match(e1, e2):
     """Return True if two edges match on bond order and aromaticity."""
-    return int(e1.get("order", 1)) == int(e2.get("order", 1)) and bool(
-        e1.get("aromatic", False)
-    ) == bool(e2.get("aromatic", False))
+
+    def normalized_order(value):
+        if isinstance(value, (tuple, list)):
+            return tuple(float(item) for item in value)
+        return float(value)
+
+    return normalized_order(e1.get("order", 1.0)) == normalized_order(
+        e2.get("order", 1.0)
+    ) and bool(e1.get("aromatic", False)) == bool(e2.get("aromatic", False))
 
 
 def enumerate_automorphisms(G: nx.Graph):
@@ -68,11 +76,12 @@ def nx_subgraph_matches(
     edge_match_fn=edge_match,
 ) -> List[Dict[Any, Any]]:
     """
-    Enumerate labeled subgraph isomorphisms of ``pattern_G`` inside ``host_G``.
+    Enumerate labeled subgraph monomorphisms of ``pattern_G`` inside ``host_G``.
 
     NetworkX yields mappings in the ``host_node -> pattern_node`` direction.
     With ``invert=True`` (default), this helper returns the teaching-friendly
-    ``pattern_node -> host_node`` mapping used throughout the talktorials.
+    ``pattern_node -> host_node`` mapping used throughout the talktorials. Host
+    edges between matched nodes that are absent from the pattern are allowed.
     """
     matcher = iso.GraphMatcher(
         host_G,
@@ -81,7 +90,7 @@ def nx_subgraph_matches(
         edge_match=edge_match_fn,
     )
     out: List[Dict[Any, Any]] = []
-    for host_to_pattern in matcher.subgraph_isomorphisms_iter():
+    for host_to_pattern in matcher.subgraph_monomorphisms_iter():
         if invert:
             out.append({pattern: host for host, pattern in host_to_pattern.items()})
         else:
@@ -89,53 +98,57 @@ def nx_subgraph_matches(
     return out
 
 
-def _build_node_to_rep(
-    orbits: Union[Iterable[Iterable[Any]], Mapping[Any, Any], None],
-) -> Dict[Any, Any]:
-    """Convert orbit groups into a ``node -> representative`` mapping."""
-    if orbits is None:
-        return {}
-    if isinstance(orbits, Mapping):
-        return dict(orbits)
-
-    node_to_rep: Dict[Any, Any] = {}
-    for orbit in orbits:
-        orbit = set(orbit)
-        if not orbit:
-            continue
-        rep = min(orbit)
-        for node in orbit:
-            node_to_rep[node] = rep
-    return node_to_rep
-
-
 def dedup_by_host_image_with_orbits(
     matches: Iterable[Dict[Any, Any]],
     *,
     orbits: Union[Iterable[Iterable[Any]], Mapping[Any, Any], None] = None,
+    host_autos: Optional[Iterable[Mapping[Any, Any]]] = None,
     pattern_node_order: Optional[Iterable[Any]] = None,
     return_groups: bool = False,
 ) -> Union[List[Dict[Any, Any]], Dict[Tuple[Any, ...], List[Dict[Any, Any]]]]:
     """
     Deduplicate ``pattern -> host`` mappings by their canonical host image.
 
-    Optional host orbits collapse symmetry-equivalent host atoms to a shared
-    representative before the canonical key is formed.
+    ``host_autos`` may be supplied to identify whole host images related by one
+    host automorphism. Individual vertex orbits are insufficient for this:
+    orbits of vertices do not determine orbits of vertex sets.
     """
     matches = list(matches)
     if not matches:
         return {} if return_groups else []
 
-    node_to_rep = _build_node_to_rep(orbits)
+    if orbits is not None and host_autos is None:
+        warnings.warn(
+            "The 'orbits' argument alone cannot canonicalize multi-node host "
+            "images and is ignored; pass complete host automorphisms via "
+            "'host_autos'.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+    autos = [dict(auto) for auto in host_autos] if host_autos is not None else []
     if pattern_node_order is None:
         pattern_node_order = tuple(sorted(matches[0].keys()))
     else:
         pattern_node_order = tuple(pattern_node_order)
 
+    def canonical_host_image(mapping: Mapping[Any, Any]) -> Tuple[Any, ...]:
+        image = tuple(sorted(mapping.values()))
+        if not autos:
+            return image
+        transformed_images = []
+        for index, auto in enumerate(autos):
+            missing = [node for node in image if node not in auto]
+            if missing:
+                raise ValueError(
+                    f"Host automorphism {index} does not cover image node(s) "
+                    f"{missing!r}"
+                )
+            transformed_images.append(tuple(sorted(auto[node] for node in image)))
+        return min(transformed_images)
+
     buckets: Dict[Tuple[Any, ...], List[Dict[Any, Any]]] = defaultdict(list)
     for mapping in matches:
-        canonical_nodes = (node_to_rep.get(host, host) for host in mapping.values())
-        buckets[tuple(sorted(canonical_nodes))].append(mapping)
+        buckets[canonical_host_image(mapping)].append(mapping)
 
     if return_groups:
         return {key: buckets[key] for key in sorted(buckets.keys())}
@@ -245,6 +258,18 @@ _ALLOWED_VALENCE = {
     "P": {3, 5},
 }
 
+_CHARGED_ALLOWED_VALENCE = {
+    ("C", -1): {3},
+    ("C", 1): {3},
+    ("N", -1): {2, 3},
+    ("N", 1): {4},
+    ("O", -1): {1},
+    ("O", 1): {3},
+    ("S", -1): {1, 3, 5},
+    ("S", 1): {3, 5},
+    ("P", 1): {4, 6},
+}
+
 _VALENCE_ELECTRONS = {
     "H": 1,
     "C": 4,
@@ -283,7 +308,11 @@ def build_be_matrix(G: nx.Graph):
         element = data.get("element", "C")
         charge = int(data.get("formal_charge", 0))
         hcount = int(data.get("hcount", 0))
-        valence_electrons = _VALENCE_ELECTRONS.get(element, 0)
+        if element not in _VALENCE_ELECTRONS:
+            raise ValueError(
+                f"No valence-electron model is defined for element {element!r}"
+            )
+        valence_electrons = _VALENCE_ELECTRONS[element]
         bond_electrons = (
             sum(
                 float(G.edges[node, nbr].get("order", 1.0)) for nbr in G.neighbors(node)
@@ -298,7 +327,7 @@ def build_be_matrix(G: nx.Graph):
 
 
 def add_wildcard(G: nx.Graph, indices: Iterable[Any]) -> nx.Graph:
-    """Add wildcard ``*`` atoms to selected atoms when their valence is deficient."""
+    """Add wildcard atoms using the smallest chemically allowed open valence."""
     H = G.copy()
     next_idx = max(H.nodes, default=0) + 1
     for atom in indices:
@@ -308,12 +337,25 @@ def add_wildcard(G: nx.Graph, indices: Iterable[Any]) -> nx.Graph:
         element = data.get("element")
         if element not in _ALLOWED_VALENCE:
             continue
+        formal_charge = int(data.get("formal_charge", 0))
         hcount = int(data.get("hcount", 0))
         bond_valence = sum(
             float(H.edges[atom, nbr].get("order", 1.0)) for nbr in H.neighbors(atom)
         )
-        deficit = max(_ALLOWED_VALENCE[element]) - (hcount + bond_valence)
-        if deficit <= 0:
+        current_valence = hcount + bond_valence
+        allowed = _CHARGED_ALLOWED_VALENCE.get(
+            (element, formal_charge), _ALLOWED_VALENCE[element]
+        )
+        targets = sorted(
+            valence for valence in allowed if valence + 1e-9 >= current_valence
+        )
+        if not targets:
+            continue
+        deficit = float(targets[0] - current_valence)
+        if deficit <= 1e-9:
+            continue
+        bond_order = min(3, math.floor(deficit + 1e-9))
+        if bond_order < 1:
             continue
         wildcard = next_idx
         next_idx += 1
@@ -325,7 +367,7 @@ def add_wildcard(G: nx.Graph, indices: Iterable[Any]) -> nx.Graph:
             formal_charge=0,
             wildcard=True,
         )
-        H.add_edge(atom, wildcard, order=deficit)
+        H.add_edge(atom, wildcard, order=float(bond_order), aromatic=False)
     return H
 
 
@@ -438,5 +480,5 @@ def h_to_implicit(G: nx.Graph) -> nx.Graph:
             heavy = neighbors[0]
             if heavy not in h_nodes:
                 H.nodes[heavy]["hcount"] = int(H.nodes[heavy].get("hcount", 0)) + 1
-        H.remove_node(h)
+                H.remove_node(h)
     return H

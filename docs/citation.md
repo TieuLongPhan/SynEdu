@@ -11,7 +11,7 @@ If you use SynEdu in academic work, please cite the archived Zenodo record.
 
 ::::{grid} 1 1 2 2
 
-:::{card} 🔁 Latest release
+:::{card} 🔁 Current release `v0.5.0`
 **`10.5281/zenodo.20315655`**
 
 A concept DOI that always resolves to the newest archived version. Use it for
@@ -21,7 +21,7 @@ papers, slides, and teaching material — this is the default choice.
 [Cite the latest release →](https://doi.org/10.5281/zenodo.20315655)
 :::
 
-:::{card} 📌 Version `v0.1.0`
+:::{card} 📌 Historical archive `v0.1.0`
 **`10.5281/zenodo.20315656`**
 
 A version DOI pinned to one exact archive. Use it when a result must stay
@@ -41,18 +41,17 @@ which case pin the **version** DOI.
 
 ## BibTeX
 
-Exported from the Zenodo `v0.1.0` record.
+Use the concept DOI for the current `v0.5.0` release:
 
 ```bibtex
-@software{tieu_long_phan_2026_20315656,
-  author       = {Tieu Long Phan},
-  title        = {TieuLongPhan/SynEdu: Prepare release 0.1.0},
-  month        = may,
+@software{phan_boehm_2026_synedu,
+  author       = {Phan, Tieu Long and Boehm, Lukas},
+  title        = {SynEdu: Executable Talktorials for Graph-Based Reaction Informatics},
   year         = 2026,
   publisher    = {Zenodo},
-  version      = {v0.1.0},
-  doi          = {10.5281/zenodo.20315656},
-  url          = {https://doi.org/10.5281/zenodo.20315656}
+  version      = {v0.5.0},
+  doi          = {10.5281/zenodo.20315655},
+  url          = {https://doi.org/10.5281/zenodo.20315655}
 }
 ```
 

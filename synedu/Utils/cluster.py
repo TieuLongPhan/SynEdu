@@ -80,7 +80,7 @@ def _prepare_graph(
 
 def wl_hash(
     graph: nx.Graph,
-    node_attrs: AttrSpec = ("element", "charge"),
+    node_attrs: AttrSpec = ("element", "formal_charge", "aromatic"),
     edge_attrs: AttrSpec = ("order",),
     iterations: int = 2,
     digest_size: int = 16,
@@ -113,7 +113,7 @@ def wl_hash(
 
 def cluster_its_graphs(
     graphs: List[nx.Graph],
-    node_attrs: Sequence[str] = ("element",),
+    node_attrs: Sequence[str] = ("element", "formal_charge", "aromatic"),
     edge_attrs: Sequence[str] = ("order",),
 ) -> List[int]:
     """

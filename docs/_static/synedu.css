@@ -55,6 +55,63 @@ html.dark {
   color: #ffffff !important;
 }
 
+/* Keep the sticky page title within the navigation bar. */
+.myst-top-nav .myst-home-link {
+  min-width: 0;
+}
+
+.myst-top-nav .myst-home-link-logo {
+  flex: 0 0 auto;
+}
+
+.myst-top-nav .synedu-header-label {
+  display: block;
+  max-width: min(31vw, 30rem);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transform: translateY(0);
+  transition:
+    max-width 180ms ease,
+    opacity 140ms ease,
+    transform 180ms ease;
+  white-space: nowrap;
+}
+
+.myst-top-nav.synedu-page-title-visible .synedu-header-label {
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  max-width: min(31vw, 30rem);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 1023px) {
+  .myst-top-nav .synedu-header-label {
+    max-width: min(42vw, 23rem);
+  }
+
+  .myst-top-nav.synedu-page-title-visible .synedu-header-label {
+    max-width: min(58vw, 32rem);
+  }
+
+  /* Reserve the compact navigation row for the page title. */
+  .myst-top-nav.synedu-page-title-visible .myst-top-nav-item {
+    display: none;
+  }
+}
+
+@media (max-width: 639px) {
+  .myst-top-nav .synedu-header-label,
+  .myst-top-nav.synedu-page-title-visible .synedu-header-label {
+    max-width: calc(100vw - 12.5rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .myst-top-nav .synedu-header-label {
+    transition: none;
+  }
+}
+
 .myst-top-nav .myst-search-bar {
   background: rgba(255, 255, 255, 0.1) !important;
   border-color: rgba(255, 255, 255, 0.2) !important;
@@ -449,6 +506,10 @@ html.dark .cell_output svg {
   background: #f7fafc;
   border-radius: 10px;
   padding: 0.6rem;
+}
+html.dark .synedu-rxn-card svg {
+  background: transparent;
+  padding: 0;
 }
 .se-figure figcaption {
   margin-top: 0.5rem;

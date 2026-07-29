@@ -8,7 +8,7 @@ build-backend = "hatchling.build"
 # ---------------------------------------------------------------------
 [project]
 name = "synedu"
-version = "0.3.0"
+version = "0.5.0"
 description = "Reproducible, graph-based chemical education via executable talktorials"
 readme = "README.md"
 requires-python = ">=3.11"

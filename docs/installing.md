@@ -39,8 +39,10 @@ under `docs/downloads/`. Regenerate them after changing a talktorial with
 executed website pages: the website executes `notebook.md` directly, while the
 exports add a fresh-runtime installation cell and remote data/figure URLs.
 Do not omit these generated files from a commit: the Colab and Binder badges
-open them directly from GitHub. Binder detects the root `pyproject.toml`, installs
-SynEdu in editable mode, and uses the Python version pinned in `runtime.txt`.
+open them directly from GitHub. Binder uses the root `runtime.txt` to select
+Python 3.11 and `requirements.txt` to install SynEdu from the checkout in
+editable mode. The exported notebook's setup cell remains responsible for
+fresh Colab environments.
 
 ### Keep RDT and hosted notebooks on the same revision
 
@@ -52,7 +54,7 @@ The published documentation and notebook exports should use the same Git ref:
 This keeps a notebook opened from a versioned documentation site consistent
 with the code and explanations shown on that site. When creating a release,
 regenerate `docs/downloads/`, commit the exports, and use the release tag in
-the Colab URL (for example, `blob/v0.3.0/docs/downloads/S01.ipynb`). Binder
+the Colab URL (for example, `blob/v0.5.0/docs/downloads/S01.ipynb`). Binder
 badges currently target `main`.
 
 ## Run A Notebook Locally

@@ -13,7 +13,7 @@ kernelspec:
 
 # S08: One-Step Reaction Prediction
 
-<div class="synedu-lesson-shell not-prose" style="box-sizing:border-box;margin:8px 0 24px;padding:20px;border:1px solid #243b53;border-radius:16px;background:#102a43;color:#fff;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"><div class="synedu-lesson-shell__top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap"><div><div class="synedu-lesson-shell__eyebrow" style="margin-bottom:5px;color:#5eead4;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase">SynEdu learning path</div><div class="synedu-lesson-shell__meta" style="font-size:16px;font-weight:750">Lesson 8 of 9 <span style="color:#9fb3c8;font-weight:500">· Stage 3 · Prediction</span></div></div><span class="synedu-lesson-shell__progress-label" style="color:#bcccdc;font-size:12px;font-weight:700">89% complete</span></div><div class="synedu-lesson-shell__track" style="height:5px;margin:16px 0 18px;overflow:hidden;border-radius:999px;background:#334e68"><span style="display:block;width:89%;height:100%;border-radius:inherit;background:#2dd4bf"></span></div><div class="synedu-notebook-actions" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap" aria-label="Run this lesson"><a class="synedu-launch-badge" href="https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S08.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open S08 in Colab" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://mybinder.org/v2/gh/TieuLongPhan/SynEdu/main?urlpath=lab/tree/docs/downloads/S08.ipynb"><img src="https://mybinder.org/badge_logo.svg" alt="Launch S08 in Binder" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S08.ipynb"><img src="https://img.shields.io/badge/download-.ipynb-2563eb?logo=jupyter&amp;logoColor=white" alt="Download S08 notebook" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="/docs/installing"><img src="https://img.shields.io/badge/run-locally-334e68?logo=jupyter&amp;logoColor=white" alt="Run S08 locally" style="display:block;height:24px" /></a></div></div>
+<div class="synedu-lesson-shell not-prose" style="box-sizing:border-box;margin:8px 0 24px;padding:20px;border:1px solid #243b53;border-radius:16px;background:#102a43;color:#fff;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"><div class="synedu-lesson-shell__top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap"><div><div class="synedu-lesson-shell__eyebrow" style="margin-bottom:5px;color:#5eead4;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase">SynEdu learning path</div><div class="synedu-lesson-shell__meta" style="font-size:16px;font-weight:750">Lesson 8 of 9 <span style="color:#9fb3c8;font-weight:500">· Stage 3 · Prediction</span></div></div><span class="synedu-lesson-shell__progress-label" style="color:#bcccdc;font-size:12px;font-weight:700">89% complete</span></div><div class="synedu-lesson-shell__track" style="height:5px;margin:16px 0 18px;overflow:hidden;border-radius:999px;background:#334e68"><span style="display:block;width:89%;height:100%;border-radius:inherit;background:#2dd4bf"></span></div><div class="synedu-notebook-actions" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap" role="group" aria-label="Run this lesson"><a class="synedu-launch-badge" href="https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S08.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open S08 in Colab" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://mybinder.org/v2/gh/TieuLongPhan/SynEdu/main?urlpath=lab/tree/docs/downloads/S08.ipynb"><img src="https://mybinder.org/badge_logo.svg" alt="Launch S08 in Binder" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S08.ipynb"><img src="https://img.shields.io/badge/download-.ipynb-2563eb?logo=jupyter&amp;logoColor=white" alt="Download S08 notebook" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="../../docs/installing"><img src="https://img.shields.io/badge/run-locally-334e68?logo=jupyter&amp;logoColor=white" alt="Run S08 locally" style="display:block;height:24px" /></a></div></div>
 
 This talktorial introduces a graph-based, template-driven workflow for single-step reaction prediction and single-step retrosynthesis [@segler2018planning; @coley2019robotic]. Reaction-center templates are extracted from mapped reactions, applied to unseen substrates, and evaluated after reaction standardization [@coley2019rdchiral; @schwaller2021extraction; @daylight_manual].
 
@@ -68,7 +68,7 @@ import pandas as pd
 import networkx as nx
 from pathlib import Path
 import importlib.metadata as m
-from synkit.IO import load_database
+from synedu.Utils import load_database
 import logging
 
 
@@ -145,33 +145,36 @@ Grouping by reaction-center identity therefore moves the representation from
 
 ```{code-cell}
 # Extract reaction-center templates from the training split
-from synkit.IO import rsmi_to_its
-from synkit.Graph.Feature.wl_hash import WLHash
-from synkit.Graph.Matcher.graph_cluster import GraphCluster
+from synedu.Utils import cluster_its_graphs, rsmi_to_its, wl_hash
 
 train = train.to_dict('records')  # convert the dataframe to a list of records
-wl = WLHash()
 for value in train:
     value['RC'] = rsmi_to_its(
         value['smart'], core=True
     )  # convert each reaction into its reaction-center graph
-    value['wl'] = wl.weisfeiler_lehman_graph_hash(
-        value['RC']
-    )  # compute a WL hash for fast grouping
+    value['wl'] = wl_hash(value['RC'])  # compute a WL hash for fast grouping
 
-
-cls = GraphCluster()
-cluster = cls.fit(train, rule_key='RC', attribute_key='wl')
+_class_ids = cluster_its_graphs([value['RC'] for value in train])
+for value, class_id in zip(train, _class_ids):
+    value['class'] = class_id
+cluster = train
 ```
 
 ```{code-cell}
+from collections import Counter
+
 seen = set()
 templates = []
+_class_frequency = Counter(record["class"] for record in cluster)
 
-for r in cluster:
+for r in sorted(
+    cluster,
+    key=lambda record: (-_class_frequency[record["class"]], record["class"]),
+):
     key = (r["class"], r["wl"])
     if key not in seen:
         seen.add(key)
+        r["frequency"] = _class_frequency[r["class"]]
         templates.append(r)
 len(templates)
 ```
@@ -246,7 +249,7 @@ interpret.
 
 ```{code-cell}
 # Inspect one example substrate before rule application
-from synkit.IO import smiles_to_graph
+from synedu.Utils import smiles_to_graph
 from rdkit import Chem
 from synedu.Utils.vis import draw_molecular_graph
 
@@ -327,7 +330,7 @@ collapsed.
 
 ---
 
-<details>
+<details class="synedu-solution">
 <summary><b>Why this question matters</b></summary>
 
 This exercise teaches an important lesson in reaction informatics: **string diversity is
@@ -338,7 +341,7 @@ same transformation is represented in several equivalent ways.
 
 ---
 
-<details>
+<details class="synedu-solution">
 <summary><b>Hint</b></summary>
 
 Use the reaction standardization utility:
@@ -367,12 +370,13 @@ chemically the same?
 
 ---
 
-<details>
+<details class="synedu-solution">
 <summary><b>Solution</b></summary>
 
-Standardization reduces the candidate list to the set of unique reaction transformations.
+Standardization reduces the candidate list to the set of unique standardized
+reaction representations.
 The drop occurs because part of the apparent diversity comes from representation-level
-redundancy: several raw candidates encode the same standardized chemistry.
+redundancy: several raw candidates collapse to the same standardized form.
 
 This is exactly why candidate post-processing is necessary before evaluation. Otherwise,
 the search space would appear more diverse than it really is.
@@ -549,7 +553,7 @@ Aim for a solution that is clean, reusable, and suitable for larger benchmark ru
 
 ---
 
-<details>
+<details class="synedu-solution">
 <summary><b>Why this question matters</b></summary>
 
 A one-step predictor is not just a chemistry object; it is also a **search procedure**.
@@ -560,7 +564,7 @@ This exercise therefore connects **chemical reasoning** with **computational sca
 
 ---
 
-<details>
+<details class="synedu-solution">
 <summary><b>Hint</b></summary>
 
 Encapsulate the logic for one entry first. Once the per-entry workflow is stable, use
@@ -570,7 +574,7 @@ Encapsulate the logic for one entry first. Once the per-entry workflow is stable
 
 ---
 
-<details>
+<details class="synedu-solution">
 <summary><b>Solution</b></summary>
 
 ```python
@@ -665,7 +669,10 @@ $$
 \mathrm{Recall@}K(q) = \mathbf{1}\!\left[S(q^*) \in \mathcal{S}_K(q)\right]
 $$
 
-where $\hat{\mathcal{P}}_K(q)$ is the top-$K$ candidates ranked by, e.g., template frequency. The *dataset Recall@K* is the mean over all test queries.
+where $\hat{\mathcal{P}}_K(q)$ is the first $K$ unique candidates generated
+from templates sorted by decreasing training frequency. Candidates produced by
+the same template retain the reactor's deterministic order. The *dataset
+Recall@K* is the mean over all test queries.
 
 **Definition (Enrichment@K).**  
 Recall only tells us whether the answer appears. It does **not** tell us how many
@@ -680,6 +687,11 @@ $$
 If $\mathcal{S}_K(q)$ is empty, the score is defined as $0$. With one ground-truth reaction, this is either $0$ or $1/n$ for a prefix
 containing $n$ unique standardized candidates. Higher enrichment means the correct answer
 is found in a more focused candidate set.
+
+In standard information-retrieval terminology this quantity is **per-query
+precision (hit density)**, not fold-enrichment relative to a random or database
+baseline. SynEdu keeps the label `Enrichment@K` for continuity with the
+notebook workflow, but the equation above is the operative definition.
 
 **Definition (Branching Factor).**  
 The *branching factor* of a query $q$ is $|\hat{\mathcal{P}}(q)|$ — the total number of distinct candidates generated. A high branching factor indicates low template specificity; a low branching factor (possibly 0) indicates poor coverage.
@@ -710,12 +722,14 @@ def _standardize_reaction(rsmi):
 def _unique_standardized_prefix(values, k):
     out = []
     seen = set()
-    for value in values[:k]:
+    for value in values:
         key = _standardize_reaction(value)
         if key is None or key in seen:
             continue
         seen.add(key)
         out.append(key)
+        if len(out) >= k:
+            break
     return out
 
 
@@ -745,14 +759,7 @@ def recall_enrichment_at_k(results, max_k=50):
     return ks, np.array(recalls), np.array(enrichments), np.array(candidate_counts)
 
 
-try:
-    ks, rec_std, enr_std, n_std = recall_enrichment_at_k(forward_results)
-except NameError:
-    ks = np.arange(1, 51)
-    rec_std = 1 - np.exp(-ks / 8)
-    enr_std = rec_std / np.maximum(ks, 1)
-    n_std = ks.astype(float)
-    print('Demo mode: replace forward_results with actual data.')
+ks, rec_std, enr_std, n_std = recall_enrichment_at_k(forward_results)
 
 fig, (ax_left, ax_right) = plt.subplots(1, 2, figsize=(13.5, 4.8), facecolor='white')
 fig.suptitle(
@@ -826,13 +833,13 @@ len(fw_list)
 
 ### Forward prediction gallery — ground truth vs candidates
 
-For one example substrate, the template library generates a set of candidate reactions. The ground-truth reaction is highlighted with a green check mark. Comparing candidates to the ground truth directly shows whether the correct chemistry appears in the top predictions and which template was responsible.
+For one example substrate, the template library generates a set of candidate reactions. The reference card is labeled explicitly, while any exact candidate hit receives a green `MATCH` badge. Comparing candidates to the ground truth directly shows whether the correct chemistry appears in the displayed predictions.
 
 ```{code-cell}
 :tags: [hide-input]
 from synedu.Utils.rxn_vis import render_reaction_gallery
 from IPython.display import HTML, display
-# The gallery scales each complete RDKit SVG into its card.
+# The gallery uses SynEdu's graph-native reaction visual in every card.
 display(HTML(render_reaction_gallery(
     ground_truth,
     fw_list,
@@ -909,7 +916,7 @@ Your task is to:
 
 ---
 
-<details>
+<details class="synedu-solution">
 <summary><b>Why this question matters</b></summary>
 
 This exercise forces you to interpret performance scientifically rather than just reading
@@ -920,7 +927,7 @@ very broad candidate set. Recall and enrichment separate those two behaviors.
 
 ---
 
-<details>
+<details class="synedu-solution">
 <summary><b>Hint</b></summary>
 
 Evaluate candidates only after standardization. Then compare the unique standardized
@@ -930,7 +937,7 @@ candidate set with the standardized ground truth.
 
 ---
 
-<details>
+<details class="synedu-solution">
 <summary><b>Solution</b></summary>
 
 ```python

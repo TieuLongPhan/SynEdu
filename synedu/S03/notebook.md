@@ -13,7 +13,7 @@ kernelspec:
 
 # S03: Maximum Common Substructure in Reaction Informatics
 
-<div class="synedu-lesson-shell not-prose" style="box-sizing:border-box;margin:8px 0 24px;padding:20px;border:1px solid #243b53;border-radius:16px;background:#102a43;color:#fff;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"><div class="synedu-lesson-shell__top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap"><div><div class="synedu-lesson-shell__eyebrow" style="margin-bottom:5px;color:#5eead4;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase">SynEdu learning path</div><div class="synedu-lesson-shell__meta" style="font-size:16px;font-weight:750">Lesson 3 of 9 <span style="color:#9fb3c8;font-weight:500">· Stage 1 · Fundamentals</span></div></div><span class="synedu-lesson-shell__progress-label" style="color:#bcccdc;font-size:12px;font-weight:700">33% complete</span></div><div class="synedu-lesson-shell__track" style="height:5px;margin:16px 0 18px;overflow:hidden;border-radius:999px;background:#334e68"><span style="display:block;width:33%;height:100%;border-radius:inherit;background:#2dd4bf"></span></div><div class="synedu-notebook-actions" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap" aria-label="Run this lesson"><a class="synedu-launch-badge" href="https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S03.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open S03 in Colab" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://mybinder.org/v2/gh/TieuLongPhan/SynEdu/main?urlpath=lab/tree/docs/downloads/S03.ipynb"><img src="https://mybinder.org/badge_logo.svg" alt="Launch S03 in Binder" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S03.ipynb"><img src="https://img.shields.io/badge/download-.ipynb-2563eb?logo=jupyter&amp;logoColor=white" alt="Download S03 notebook" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="/docs/installing"><img src="https://img.shields.io/badge/run-locally-334e68?logo=jupyter&amp;logoColor=white" alt="Run S03 locally" style="display:block;height:24px" /></a></div></div>
+<div class="synedu-lesson-shell not-prose" style="box-sizing:border-box;margin:8px 0 24px;padding:20px;border:1px solid #243b53;border-radius:16px;background:#102a43;color:#fff;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"><div class="synedu-lesson-shell__top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap"><div><div class="synedu-lesson-shell__eyebrow" style="margin-bottom:5px;color:#5eead4;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase">SynEdu learning path</div><div class="synedu-lesson-shell__meta" style="font-size:16px;font-weight:750">Lesson 3 of 9 <span style="color:#9fb3c8;font-weight:500">· Stage 1 · Fundamentals</span></div></div><span class="synedu-lesson-shell__progress-label" style="color:#bcccdc;font-size:12px;font-weight:700">33% complete</span></div><div class="synedu-lesson-shell__track" style="height:5px;margin:16px 0 18px;overflow:hidden;border-radius:999px;background:#334e68"><span style="display:block;width:33%;height:100%;border-radius:inherit;background:#2dd4bf"></span></div><div class="synedu-notebook-actions" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap" role="group" aria-label="Run this lesson"><a class="synedu-launch-badge" href="https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S03.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open S03 in Colab" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://mybinder.org/v2/gh/TieuLongPhan/SynEdu/main?urlpath=lab/tree/docs/downloads/S03.ipynb"><img src="https://mybinder.org/badge_logo.svg" alt="Launch S03 in Binder" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S03.ipynb"><img src="https://img.shields.io/badge/download-.ipynb-2563eb?logo=jupyter&amp;logoColor=white" alt="Download S03 notebook" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="../../docs/installing"><img src="https://img.shields.io/badge/run-locally-334e68?logo=jupyter&amp;logoColor=white" alt="Run S03 locally" style="display:block;height:24px" /></a></div></div>
 
 This talktorial introduces maximum common substructure (MCS) as a practical molecular-alignment tool for reaction informatics. We compare chemistry-aware RDKit MCS with explicit graph-level reasoning, then use the same idea for reaction rebalancing [@rdkit_docs; @rdkit_rdfmcs_docs; @phan2024reaction].
 
@@ -123,7 +123,12 @@ $$
 Given two labeled graphs $G_1$ and $G_2$, a *common subgraph* is a graph $C$ together with label-preserving injective homomorphisms $\iota_1: C \hookrightarrow G_1$ and $\iota_2: C \hookrightarrow G_2$.  
 The *maximum common subgraph* (MCS) is a common subgraph $C^*$ of maximum cardinality $|V(C^*)|$ (maximum common substructure by atoms) or maximum $|E(C^*)|$ (by bonds).
 
-**Remark.** MCS computation is NP-hard in general [@raymond2002maximum]. RDKit uses an FMCS heuristic that may return a *locally* maximal but not globally maximal common subgraph. NetworkX-based MCS uses exact backtracking, which is exponential in the worst case but exact.
+**Remark.** MCS computation is NP-hard in general [@raymond2002maximum].
+RDKit's FMCS search is exhaustive unless its timeout is reached; a cancelled
+search returns the best solution found so far. The compact NetworkX helper used
+below performs exact exponential backtracking for a **maximum common induced
+vertex subgraph**, which is a stricter problem than the general monomorphic
+definition above.
 
 **Definition (Normalized MCS size).**  
 Given an MCS $C^*$ of two molecules, the *normalized MCS size* (Tanimoto-like) is:
@@ -136,7 +141,7 @@ This is 1 if the molecules are isomorphic and 0 if they share no atom.
 
 +++
 
-### 1.2. RDkit MCS
+### 1.2. RDKit MCS
 
 In **RDKit**, the **maximum common substructure (MCS)** can be computed using
 `rdkit.Chem.rdFMCS` [@rdkit_rdfmcs_docs]. 
@@ -153,6 +158,7 @@ def rdkit_mcs(
     mols,
     timeout: int = 10,
     ringMatchesRingOnly: bool = True,
+    maximizeBonds: bool = False,
     atomCompare=rdFMCS.AtomCompare.CompareElements,
     bondCompare=rdFMCS.BondCompare.CompareOrder,
 ):
@@ -161,8 +167,11 @@ def rdkit_mcs(
     `mols` can be a list of RDKit Mol objects or SMILES strings.
     """
     mol_objs = [Chem.MolFromSmiles(s) if isinstance(s, str) else s for s in mols]
+    if not mol_objs or any(mol is None for mol in mol_objs):
+        raise ValueError("All MCS inputs must be valid molecules")
     res = rdFMCS.FindMCS(
         mol_objs,
+        maximizeBonds=maximizeBonds,
         atomCompare=atomCompare,
         bondCompare=bondCompare,
         ringMatchesRingOnly=ringMatchesRingOnly,
@@ -522,7 +531,8 @@ df["mcs_size_ethanol_nx"] = df["graph"].apply(nx_mcs_size_with_ethanol)
 
 +++
 
-Now we inspect the difference between rdkit and networkx
+The following comparison isolates cases where the RDKit and NetworkX MCS
+definitions disagree.
 
 ```python
 df[df['mcs_size_ethanol_rdkit'] != df['mcs_size_ethanol_nx']]
@@ -869,15 +879,17 @@ $$
 
 ### 2.2 Formula representation
 
-Let $\mathcal{E}$ be the set of chemical elements.
-Each molecule $M$ is represented by its element-count vector
+Let $\mathcal{E}$ be the set of chemical elements. Each molecule $M$ is
+represented by its **augmented conservation vector**
 $$
-\phi(M) \in \mathbb{N}^{|\mathcal{E}|}.
+\psi(M)=\bigl(\phi(M),q(M)\bigr)
+\in \mathbb{N}^{|\mathcal{E}|}\times\mathbb{Z},
 $$
-Total formulas are
+where $\phi(M)$ contains the element counts and $q(M)$ is the net formal
+charge. Total conserved quantities are
 $$
-\Phi_{\mathcal{R}}=\sum_{R_i\in\mathcal{R}}\phi(R_i), \qquad
-\Phi_{\mathcal{P}}=\sum_{P_j\in\mathcal{P}}\phi(P_j).
+\Psi_{\mathcal{R}}=\sum_{R_i\in\mathcal{R}}\psi(R_i), \qquad
+\Psi_{\mathcal{P}}=\sum_{P_j\in\mathcal{P}}\psi(P_j).
 $$
 
 ---
@@ -886,47 +898,44 @@ $$
 
 Define the imbalance vector
 $$
-\Delta \;=\; \Phi_{\mathcal{R}}-\Phi_{\mathcal{P}} \;\in\; \mathbb{Z}^{|\mathcal{E}|}.
+\Delta \;=\; \Psi_{\mathcal{R}}-\Psi_{\mathcal{P}}
+\;\in\; \mathbb{Z}^{|\mathcal{E}|+1}.
 $$
-The reaction is balanced iff $\Delta=\mathbf{0}$.
+The reaction is atom- and charge-balanced if and only if
+$\Delta=\mathbf{0}$. Atom counts alone cannot distinguish, for example,
+`[Na+]>>[Na-]`.
 
 ---
 
 ### 2.4 Auxiliary-species imputation
 
 Let $\mathcal{L}=\{A_k\}$ be a library of auxiliary species
-(e.g. $\mathrm{H_2O}$) with formulas $\phi(A_k)$.
-For a one-sided deficit, define the non-negative target vector
+(e.g. $\mathrm{H_2O}$) with vectors $\psi(A_k)$. Let
+$x_k,y_k\in\mathbb{N}_0$ denote how many copies of $A_k$ are added to the
+reactant and product sides, respectively. We seek coefficients satisfying
 $$
-\delta =
-\begin{cases}
-\Delta, & \text{if atoms are missing from the product side},\\
--\Delta, & \text{if atoms are missing from the reactant side}.
-\end{cases}
+\Delta+\sum_k x_k\psi(A_k)-\sum_k y_k\psi(A_k)=\mathbf{0}.
 $$
-We seek coefficients $c_k\in\mathbb{N}$ such that
-$$
-\delta = \sum_k c_k\,\phi(A_k).
-$$
+This integer equation handles element counts and charge together. In a
+one-sided repair, either all $x_k$ or all $y_k$ are constrained to zero.
 
 ---
 
 ### 2.5 Reaction update
 
-If a solution exists, rebalance the reaction by adding
-$c_k A_k$ to the deficient side:
+If an admissible solution exists, rebalance the reaction by adding the
+corresponding auxiliary species:
 $$
 r' =
-\begin{cases}
-\mathcal{R}\rightarrow \mathcal{P}\cup\{c_kA_k\}, & \Delta\succeq\mathbf{0},\\
-\mathcal{R}\cup\{c_kA_k\} \rightarrow \mathcal{P}, & -\Delta\succeq\mathbf{0}.
-\end{cases}
+\left(\mathcal{R}\uplus\biguplus_k x_k\{A_k\}\right)
+\longrightarrow
+\left(\mathcal{P}\uplus\biguplus_k y_k\{A_k\}\right),
 $$
-Here $\succeq\mathbf{0}$ denotes componentwise non-negativity over elements.
-
-
-In SMILES, this corresponds to appending the auxiliary species
-(e.g. `O` for $\mathrm{H_2O}$).
+where $\uplus$ denotes multiset union. In reaction SMILES, this corresponds
+to appending each auxiliary component to the selected side (for example, `O`
+for $\mathrm{H_2O}$). Chemical admissibility constraints are still required:
+the conservation equation alone does not establish that a proposed repair is
+mechanistically or experimentally appropriate.
 
 +++
 
@@ -1033,7 +1042,7 @@ def parse_reaction_smiles(rsmi: str) -> Tuple[list[Chem.Mol], list[Chem.Mol]]:
 
 def molecular_formula(mol: Chem.Mol) -> Counter[str]:
     """
-    Compute the molecular formula φ(M) as an element-count vector.
+    Compute element counts and net formal charge for one molecule.
 
     Returns
     -------
@@ -1045,6 +1054,9 @@ def molecular_formula(mol: Chem.Mol) -> Counter[str]:
     formula = Counter()
     for atom in mol.GetAtoms():
         formula[atom.GetSymbol()] += 1
+        formula["__charge__"] += int(atom.GetFormalCharge())
+    if formula["__charge__"] == 0:
+        del formula["__charge__"]
     return formula
 
 
@@ -1054,7 +1066,10 @@ def total_formula(mols: list[Chem.Mol]) -> Counter[str]:
     """
     total = Counter()
     for m in mols:
-        total += molecular_formula(m)
+        for key, value in molecular_formula(m).items():
+            total[key] += value
+    if total["__charge__"] == 0:
+        del total["__charge__"]
     return total
 
 
@@ -1435,7 +1450,7 @@ from synkit.Graph.Matcher.mcs_matcher import MCSMatcher  # fast MCS for molecula
 r, p = rsmi_to_graph(rsmi, drop_non_aam=False, use_index_as_atom_map=False)
 
 mcs = MCSMatcher(
-    node_attrs=['element', 'charge', 'aromatic'],
+    node_attrs=['element', 'formal_charge', 'aromatic'],
     edge_attrs=['order'],
     prune_automorphisms=True,  # reduce the redundant maps
 )
@@ -1604,6 +1619,7 @@ Then we need to mark this atom need to be merged with some subgraphs. We introdu
 
 ```{code-cell}
 import networkx as nx
+import math
 from typing import List
 
 
@@ -1627,9 +1643,10 @@ def add_wildcard(
     For each atom index in `indices`, compute:
         total_valence = hcount + sum(bond orders)
 
-    If total_valence is smaller than the maximum allowed valence
-    for that element, add a wildcard atom (*) connected by a bond
-    whose order exactly compensates the deficit.
+    If total_valence is smaller than the maximum allowed valence for that
+    element, add a wildcard atom (*) with the largest supported integral bond
+    order that does not exceed the deficit. This avoids fractional wildcard
+    bonds when an aromatic fragment is represented with bond order 1.5.
 
     Parameters
     ----------
@@ -1668,6 +1685,9 @@ def add_wildcard(
         deficit = allowed - total_valence
         if deficit <= 0:
             continue
+        bond_order = min(3, math.floor(deficit + 1e-9))
+        if bond_order < 1:
+            continue
 
         wc = next_idx
         next_idx += 1
@@ -1677,10 +1697,10 @@ def add_wildcard(
             element="*",
             aromatic=False,
             hcount=0,
-            charge=0,
+            formal_charge=0,
             wildcard=True,
         )
-        H.add_edge(atom, wc, order=deficit)
+        H.add_edge(atom, wc, order=float(bond_order), aromatic=False)
 
     return H
 ```
@@ -1702,7 +1722,7 @@ print_graph_attributes(wc_sub)
 ```
 
 ```{code-cell}
-# Now we need a subgraph to merge, we try with hydroxy group
+# Use a hydroxy group as the fragment to merge.
 from synedu.Utils.conversion import (
     smiles_to_graph,
 )  # ► stored in synedu.Utils.conversion.smiles_to_graph

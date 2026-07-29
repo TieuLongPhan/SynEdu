@@ -1,3 +1,5 @@
+import math
+
 from rdkit import Chem
 import networkx as nx
 from typing import Any, Dict, Optional
@@ -115,6 +117,11 @@ def graph_to_mol(
     """
     rw = Chem.RWMol()
     node_to_idx: Dict[Any, int] = {}
+    cyclic_edges = {
+        frozenset((cycle[index], cycle[(index + 1) % len(cycle)]))
+        for cycle in nx.cycle_basis(G)
+        for index in range(len(cycle))
+    }
 
     for node, data in G.nodes(data=True):
         element = data.get("element", "C")
@@ -137,31 +144,56 @@ def graph_to_mol(
         i = node_to_idx[u]
         j = node_to_idx[v]
 
-        if preserve_aromatic and bool(data.get("aromatic", False)):
+        aromatic = bool(data.get("aromatic", False))
+        if preserve_aromatic and aromatic and frozenset((u, v)) in cyclic_edges:
             btype = Chem.BondType.AROMATIC
+        elif aromatic:
+            # An aromatic edge extracted from a ring is no longer aromatic in
+            # the open fragment. Represent it as a supported single bond
+            # rather than creating an invalid non-ring aromatic RDKit bond.
+            btype = Chem.BondType.SINGLE
         else:
             try:
-                order = int(round(abs(float(data.get("order", 1.0)))))
-            except Exception:
-                order = 1
+                numeric_order = float(data.get("order", 1.0))
+            except (TypeError, ValueError) as exc:
+                raise ValueError(
+                    f"Invalid bond order on edge ({u!r}, {v!r}): "
+                    f"{data.get('order')!r}"
+                ) from exc
+
+            order = int(round(numeric_order))
+            if not math.isclose(numeric_order, order, abs_tol=1e-9):
+                raise ValueError(
+                    f"Unsupported non-integral bond order {numeric_order} "
+                    f"on edge ({u!r}, {v!r})"
+                )
+            if order == 0:
+                continue
 
             btype = {
                 1: Chem.BondType.SINGLE,
                 2: Chem.BondType.DOUBLE,
                 3: Chem.BondType.TRIPLE,
-            }.get(order, Chem.BondType.SINGLE)
+            }.get(order)
+            if btype is None:
+                raise ValueError(
+                    f"Unsupported bond order {numeric_order} " f"on edge ({u!r}, {v!r})"
+                )
 
         rw.AddBond(i, j, btype)
 
     if use_h_count:
         for node, data in G.nodes(data=True):
+            if "hcount" not in data:
+                continue
             try:
-                n_h = int(data.get("hcount", 0))
-            except Exception:
-                continue
-
-            if n_h <= 0:
-                continue
+                n_h = int(data["hcount"])
+            except (TypeError, ValueError) as exc:
+                raise ValueError(
+                    f"Invalid hcount on node {node!r}: {data['hcount']!r}"
+                ) from exc
+            if n_h < 0:
+                raise ValueError(f"hcount must be non-negative on node {node!r}")
 
             atom = rw.GetAtomWithIdx(node_to_idx[node])
             atom.SetNoImplicit(True)

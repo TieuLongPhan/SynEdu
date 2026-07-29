@@ -41,8 +41,15 @@ def test_reaction_gallery_scales_every_svg_to_its_card() -> None:
 
     assert gallery.count('class="synedu-rxn-svg"') == 3
     assert gallery.count('preserveAspectRatio="xMidYMid meet"') == 3
+    assert gallery.count('role="img"') == 3
     assert gallery.count("width:100%;height:auto;max-width:100%") == 3
     assert "overflow-x:auto" not in gallery
+    assert "minmax(min(520px,100%),1fr)" in gallery
+    assert "var(--se-card-fg" in gallery
+    assert "var(--synedu-muted" in gallery
+    assert "REFERENCE" in gallery
+    assert "<?xml" not in gallery
+    assert "<!DOCTYPE" not in gallery
 
 
 def test_reaction_renderer_replaces_non_finite_coordinates() -> None:
@@ -66,7 +73,9 @@ def test_reaction_renderer_replaces_non_finite_coordinates() -> None:
 
 def test_reaction_renderer_rejects_non_finite_svg_paths() -> None:
     assert _svg_has_non_finite_coordinates("<path d='M nan,nan L 2,3'/>")
+    assert _svg_has_non_finite_coordinates("<path d='M -inf,0 L 2,3'/>")
     assert not _svg_has_non_finite_coordinates("<path d='M 1,1 L 2,3'/>")
+    assert not _svg_has_non_finite_coordinates("<text>infinity</text>")
 
 
 def test_graph_fallback_produces_finite_svg() -> None:

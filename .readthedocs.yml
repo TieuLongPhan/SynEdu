@@ -11,7 +11,8 @@ build:
     - node --version
     - uv sync --frozen
     - uv run python --version
-    - uv run jupyter book build --execute --html --execute-parallel 1 --ci
+    - BASE_URL="/$READTHEDOCS_LANGUAGE/$READTHEDOCS_VERSION" uv run jupyter book build --execute --html --execute-parallel 1 --ci
+    - uv run python scripts/inject_site_assets.py
     - test -f _build/html/index.html
     - mkdir -p "$READTHEDOCS_OUTPUT/html"
     - cp -r _build/html/. "$READTHEDOCS_OUTPUT/html/"

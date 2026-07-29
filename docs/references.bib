@@ -1,7 +1,8 @@
 % SynEdu master bibliography
 % Consolidated from the per-notebook "References" sections of synedu/S01-S09/notebook.md.
-% Missing DOIs were located and added where the source is a journal article; books,
-% websites/documentation, and the original 1968 Weisfeiler-Leman note have no DOI.
+% Metadata was verified against Crossref and publisher records on 2026-07-29.
+% Documentation pages, the original 1968 Weisfeiler-Leman note, and the cited
+% JMLR article do not have assigned DOIs.
 
 @misc{rdkit_docs,
   author  = {{RDKit}},
@@ -18,6 +19,7 @@
 }
 
 @misc{networkx_docs,
+  author  = {{NetworkX Developers}},
   title   = {{NetworkX} documentation},
   url     = {https://networkx.org/documentation/stable/},
   urldate = {2026-07-09},
@@ -35,6 +37,7 @@
   title   = {{SMILES}, a chemical language and information system. 1. Introduction to methodology and encoding rules},
   journal = {Journal of Chemical Information and Computer Sciences},
   volume  = {28},
+  number  = {1},
   pages   = {31--36},
   year    = {1988},
   doi     = {10.1021/ci00057a005},
@@ -45,6 +48,7 @@
   title   = {{SMILES}. 2. Algorithm for generation of unique {SMILES} notation},
   journal = {Journal of Chemical Information and Computer Sciences},
   volume  = {29},
+  number  = {2},
   pages   = {97--101},
   year    = {1989},
   doi     = {10.1021/ci00062a008},
@@ -55,6 +59,8 @@
   title     = {Chemical Graph Theory: Introduction and Fundamentals},
   publisher = {Abacus Press},
   year      = {1991},
+  doi       = {10.1201/9781315139104},
+  note      = {DOI identifies the Routledge digital edition},
 }
 
 @article{morgan1965generation,
@@ -73,6 +79,7 @@
   title   = {Structural determination of paraffin boiling points},
   journal = {Journal of the American Chemical Society},
   volume  = {69},
+  number  = {1},
   pages   = {17--20},
   year    = {1947},
   doi     = {10.1021/ja01193a005},
@@ -94,6 +101,7 @@
   edition   = {2},
   publisher = {Cambridge University Press},
   year      = {1993},
+  doi       = {10.1017/CBO9780511608704},
 }
 
 @article{lipinski1997experimental,
@@ -101,6 +109,7 @@
   title   = {Experimental and computational approaches to estimate solubility and permeability in drug discovery and development settings},
   journal = {Advanced Drug Delivery Reviews},
   volume  = {23},
+  number  = {1--3},
   pages   = {3--25},
   year    = {1997},
   doi     = {10.1016/S0169-409X(96)00423-1},
@@ -120,6 +129,7 @@
   title   = {A (Sub)Graph Isomorphism Algorithm for Matching Large Graphs},
   journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
   volume  = {26},
+  number  = {10},
   pages   = {1367--1372},
   year    = {2004},
   doi     = {10.1109/TPAMI.2004.75},
@@ -130,16 +140,18 @@
   title   = {An Algorithm for Subgraph Isomorphism},
   journal = {Journal of the ACM},
   volume  = {23},
+  number  = {1},
   pages   = {31--42},
   year    = {1976},
   doi     = {10.1145/321921.321925},
 }
 
 @article{phan2024reaction,
-  author  = {Phan, Tieu-Long and others},
+  author  = {Phan, Tieu-Long and Weinbauer, Klaus and G{\"a}rtner, Thomas and Merkle, Daniel and Andersen, Jakob L. and Fagerberg, Rolf and Stadler, Peter F.},
   title   = {Reaction rebalancing: a novel approach to curating reaction databases},
   journal = {Journal of Cheminformatics},
   volume  = {16},
+  number  = {1},
   pages   = {82},
   year    = {2024},
   doi     = {10.1186/s13321-024-00875-4},
@@ -150,15 +162,19 @@
   title   = {Maximum common subgraph isomorphism algorithms for the matching of chemical structures},
   journal = {Journal of Computer-Aided Molecular Design},
   volume  = {16},
+  number  = {7},
   pages   = {521--533},
   year    = {2002},
   doi     = {10.1023/A:1021271615909},
 }
 
 @article{phan2025synkit,
-  author  = {Phan, Tieu-Long and Gonz{\'a}lez Laffitte, Marcos E. and Weinbauer, Klaus and Merkle, Daniel and Andersen, Jakob L. and Fagerberg, Rolf and Gatter, Thomas and Stadler, Peter F.},
+  author  = {Phan, Tieu-Long and Gonz{\'a}lez Laffitte, Marcos E. and Weinbauer, Klaus and Merkle, Daniel and Andersen, Jakob Lykke and Fagerberg, Rolf and Gatter, Thomas and Stadler, Peter F.},
   title   = {{SynKit}: A Graph-Based {Python} Framework for Rule-Based Reaction Modeling and Analysis},
   journal = {Journal of Chemical Information and Modeling},
+  volume  = {65},
+  number  = {24},
+  pages   = {13012--13019},
   year    = {2025},
   doi     = {10.1021/acs.jcim.5c02123},
 }
@@ -168,6 +184,7 @@
   title   = {Extraction of organic chemistry grammar from unsupervised learning of chemical reactions},
   journal = {Science Advances},
   volume  = {7},
+  number  = {15},
   pages   = {eabe4166},
   year    = {2021},
   doi     = {10.1126/sciadv.abe4166},
@@ -177,6 +194,9 @@
   author  = {Schwaller, Philippe and Laino, Teodoro and Gaudin, Th{\'e}ophile and Bolgar, Peter and Hunter, Christopher A. and Bekas, Costas and Lee, Alpha A.},
   title   = {Molecular Transformer: A Model for Uncertainty-Calibrated Chemical Reaction Prediction},
   journal = {ACS Central Science},
+  volume  = {5},
+  number  = {9},
+  pages   = {1572--1583},
   year    = {2019},
   doi     = {10.1021/acscentsci.9b00576},
 }
@@ -185,15 +205,19 @@
   author  = {Phan, Tieu-Long and Weinbauer, Klaus and Gonz{\'a}lez Laffitte, Marcos E. and Pan, Yingjie and Merkle, Daniel and Andersen, Jakob L. and Fagerberg, Rolf and Flamm, Christoph and Stadler, Peter F.},
   title   = {{SynTemp}: Efficient Extraction of Graph-Based Reaction Rules from Large-Scale Reaction Databases},
   journal = {Journal of Chemical Information and Modeling},
+  volume  = {65},
+  number  = {6},
+  pages   = {2882--2896},
   year    = {2025},
   doi     = {10.1021/acs.jcim.4c01795},
 }
 
 @article{nugmanov2019cgrtools,
-  author  = {Nugmanov, Ramil I. and others},
+  author  = {Nugmanov, Ramil I. and Mukhametgaleev, Ravil N. and Akhmetshin, Tagir and Gimadiev, Timur R. and Afonina, Valentina A. and Madzhidov, Timur I. and Varnek, Alexandre},
   title   = {{CGRtools}: {Python} Library for Molecule, Reaction, and Condensed Graph of Reaction Processing},
   journal = {Journal of Chemical Information and Modeling},
   volume  = {59},
+  number  = {6},
   pages   = {2516--2521},
   year    = {2019},
   doi     = {10.1021/acs.jcim.9b00102},
@@ -204,6 +228,7 @@
   title   = {Description of organic reactions based on imaginary transition structures. 1. Introduction of new concepts},
   journal = {Journal of Chemical Information and Computer Sciences},
   volume  = {26},
+  number  = {4},
   pages   = {205--212},
   year    = {1986},
   doi     = {10.1021/ci00052a009},
@@ -222,6 +247,7 @@
   title     = {Handbook of Graph Grammars and Computing by Graph Transformation, Volume 1: Foundations},
   publisher = {World Scientific},
   year      = {1997},
+  doi       = {10.1142/3303},
 }
 
 @inproceedings{andersen2016software,
@@ -249,6 +275,9 @@
   number  = {9},
   pages   = {12--16},
   year    = {1968},
+  url     = {https://www.iti.zcu.cz/wl2018/pdf/wl_paper_translation.pdf},
+  urldate = {2026-07-29},
+  note    = {Original Russian article; linked English translation},
 }
 
 @article{mckay2014practical,
@@ -282,7 +311,7 @@
 }
 
 @article{nugmanov2022bidirectional,
-  author  = {Nugmanov, Ramil and Dyubankova, Nataliya and Gedich, Andrey and Wegner, J{\"o}rg Kurt},
+  author  = {Nugmanov, Ramil and Dyubankova, Natalia and Gedich, Andrey and Wegner, J{\"o}rg Kurt},
   title   = {Bidirectional graphormer for reactivity understanding: neural network trained to reaction atom-to-atom mapping task},
   journal = {Journal of Chemical Information and Modeling},
   volume  = {62},
@@ -297,6 +326,7 @@
   title   = {Precise atom-to-atom mapping for organic reactions via human-in-the-loop machine learning},
   journal = {Nature Communications},
   volume  = {15},
+  number  = {1},
   pages   = {2250},
   year    = {2024},
   doi     = {10.1038/s41467-024-46364-y},
@@ -307,6 +337,7 @@
   title   = {What's What: The (Nearly) Definitive Guide to Reaction Role Assignment},
   journal = {Journal of Chemical Information and Modeling},
   volume  = {56},
+  number  = {12},
   pages   = {2336--2346},
   year    = {2016},
   doi     = {10.1021/acs.jcim.6b00564},
@@ -317,16 +348,18 @@
   title   = {Planning chemical syntheses with deep neural networks and symbolic {AI}},
   journal = {Nature},
   volume  = {555},
+  number  = {7698},
   pages   = {604--610},
   year    = {2018},
   doi     = {10.1038/nature25978},
 }
 
 @article{coley2019robotic,
-  author  = {Coley, Connor W. and others},
+  author  = {Coley, Connor W. and Thomas, Dale A. and Lummiss, Justin A. M. and Jaworski, Jonathan N. and Breen, Christopher P. and Schultz, Victor and Hart, Travis and Fishman, Joshua S. and Rogers, Luke and Gao, Hanyu and Hicklin, Robert W. and Plehiers, Pieter P. and Byington, Joshua and Piotti, John S. and Green, William H. and Hart, A. John and Jamison, Timothy F. and Jensen, Klavs F.},
   title   = {A robotic platform for flow synthesis of organic compounds informed by {AI} planning},
   journal = {Science},
   volume  = {365},
+  number  = {6453},
   pages   = {eaax1566},
   year    = {2019},
   doi     = {10.1126/science.aax1566},

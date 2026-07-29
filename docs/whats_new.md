@@ -4,7 +4,7 @@ Visible changes in the SynEdu documentation and release archive.
 
 ---
 
-## Version 0.3.0
+## Version 0.5.0
 
 :::{note} Current development release
 This release modernizes the MyST website, makes every talktorial directly
@@ -14,7 +14,7 @@ launchable in Colab or Binder, and improves notebook presentation reliability.
 ::::{grid} 1 1 2 2
 
 :::{card} ✨ Modern MyST interface
-:link: /
+:link: /docs/index
 
 A responsive learning-path homepage, compact navigation, native lesson cards,
 and a project footer replace the previous document-like landing experience.

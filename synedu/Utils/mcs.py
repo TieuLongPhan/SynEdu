@@ -17,11 +17,26 @@ def rdkit_mcs(
     ringMatchesRingOnly: bool = True,
     atomCompare=rdFMCS.AtomCompare.CompareElements,
     bondCompare=rdFMCS.BondCompare.CompareOrder,
+    *,
+    maximizeBonds: bool = False,
 ):
-    """Return the MCS SMARTS string and the RDKit ``FindMCS`` result object."""
+    """
+    Return the MCS SMARTS string and the RDKit ``FindMCS`` result object.
+
+    SynEdu maximizes atoms by default (``maximizeBonds=False``) because the
+    teaching metrics and MCS classes compare atom counts. The option is
+    keyword-only so the historical positional ``atomCompare`` and
+    ``bondCompare`` arguments retain their meaning.
+    """
     mol_objs = [Chem.MolFromSmiles(m) if isinstance(m, str) else m for m in mols]
+    if not mol_objs:
+        raise ValueError("At least one molecule is required")
+    invalid = [index for index, mol in enumerate(mol_objs) if mol is None]
+    if invalid:
+        raise ValueError(f"Could not parse molecule(s) at position(s) {invalid}")
     result = rdFMCS.FindMCS(
         mol_objs,
+        maximizeBonds=maximizeBonds,
         atomCompare=atomCompare,
         bondCompare=bondCompare,
         ringMatchesRingOnly=ringMatchesRingOnly,
@@ -44,12 +59,14 @@ def mcs_size(mol_a: Chem.Mol, mol_b: Chem.Mol, timeout: int = 3) -> int:
 
 def mcs_class(mcs_atoms: int, ref_atoms: int) -> str:
     """Classify an MCS size relative to a reference molecule atom count."""
+    if mcs_atoms <= 0 or ref_atoms <= 0:
+        return "weak/no MCS"
     if mcs_atoms == ref_atoms:
         return "full reference MCS"
-    if mcs_atoms == ref_atoms - 1:
-        return "large partial MCS"
     if mcs_atoms == 1:
         return "single-atom MCS"
+    if mcs_atoms == ref_atoms - 1:
+        return "large partial MCS"
     return "weak/no MCS"
 
 

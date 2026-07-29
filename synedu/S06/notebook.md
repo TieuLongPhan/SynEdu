@@ -13,7 +13,7 @@ kernelspec:
 
 # S06: Canonicalizing Atom-Mapped Reactions and Rules
 
-<div class="synedu-lesson-shell not-prose" style="box-sizing:border-box;margin:8px 0 24px;padding:20px;border:1px solid #243b53;border-radius:16px;background:#102a43;color:#fff;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"><div class="synedu-lesson-shell__top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap"><div><div class="synedu-lesson-shell__eyebrow" style="margin-bottom:5px;color:#5eead4;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase">SynEdu learning path</div><div class="synedu-lesson-shell__meta" style="font-size:16px;font-weight:750">Lesson 6 of 9 <span style="color:#9fb3c8;font-weight:500">· Stage 2 · Rule construction</span></div></div><span class="synedu-lesson-shell__progress-label" style="color:#bcccdc;font-size:12px;font-weight:700">67% complete</span></div><div class="synedu-lesson-shell__track" style="height:5px;margin:16px 0 18px;overflow:hidden;border-radius:999px;background:#334e68"><span style="display:block;width:67%;height:100%;border-radius:inherit;background:#2dd4bf"></span></div><div class="synedu-notebook-actions" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap" aria-label="Run this lesson"><a class="synedu-launch-badge" href="https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S06.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open S06 in Colab" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://mybinder.org/v2/gh/TieuLongPhan/SynEdu/main?urlpath=lab/tree/docs/downloads/S06.ipynb"><img src="https://mybinder.org/badge_logo.svg" alt="Launch S06 in Binder" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S06.ipynb"><img src="https://img.shields.io/badge/download-.ipynb-2563eb?logo=jupyter&amp;logoColor=white" alt="Download S06 notebook" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="/docs/installing"><img src="https://img.shields.io/badge/run-locally-334e68?logo=jupyter&amp;logoColor=white" alt="Run S06 locally" style="display:block;height:24px" /></a></div></div>
+<div class="synedu-lesson-shell not-prose" style="box-sizing:border-box;margin:8px 0 24px;padding:20px;border:1px solid #243b53;border-radius:16px;background:#102a43;color:#fff;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"><div class="synedu-lesson-shell__top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap"><div><div class="synedu-lesson-shell__eyebrow" style="margin-bottom:5px;color:#5eead4;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase">SynEdu learning path</div><div class="synedu-lesson-shell__meta" style="font-size:16px;font-weight:750">Lesson 6 of 9 <span style="color:#9fb3c8;font-weight:500">· Stage 2 · Rule construction</span></div></div><span class="synedu-lesson-shell__progress-label" style="color:#bcccdc;font-size:12px;font-weight:700">67% complete</span></div><div class="synedu-lesson-shell__track" style="height:5px;margin:16px 0 18px;overflow:hidden;border-radius:999px;background:#334e68"><span style="display:block;width:67%;height:100%;border-radius:inherit;background:#2dd4bf"></span></div><div class="synedu-notebook-actions" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap" role="group" aria-label="Run this lesson"><a class="synedu-launch-badge" href="https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S06.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open S06 in Colab" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://mybinder.org/v2/gh/TieuLongPhan/SynEdu/main?urlpath=lab/tree/docs/downloads/S06.ipynb"><img src="https://mybinder.org/badge_logo.svg" alt="Launch S06 in Binder" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S06.ipynb"><img src="https://img.shields.io/badge/download-.ipynb-2563eb?logo=jupyter&amp;logoColor=white" alt="Download S06 notebook" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="../../docs/installing"><img src="https://img.shields.io/badge/run-locally-334e68?logo=jupyter&amp;logoColor=white" alt="Run S06 locally" style="display:block;height:24px" /></a></div></div>
 
 This talktorial explains why atom-map numbers must be canonicalized before reactions and extracted rules can be compared reproducibly. We use partition refinement, WL-style coloring, and exact isomorphism ideas to collapse equivalent maps [@weisfeiler1968reduction; @mckay2014practical; @morgan1965generation].
 
@@ -33,7 +33,9 @@ After completing this talktorial, you will be able to:
 
 - explain why atom maps are non-unique and why map numbers should be canonicalized,
 - define graph partitions, equitable refinement, and WL-style color refinement,
-- implement a deterministic atom-map reindexing $\pi: \mathbb{N} \to \mathbb{N}$ based on map-invariant structural ranks,
+- implement a deterministic atom-map reindexing
+  $\pi:M\to\{1,\ldots,|M|\}$ for the finite set $M$ of map identifiers,
+  based on map-invariant structural ranks,
 - canonicalize mapped reaction SMILES by molecule order and map IDs without changing chemistry,
 - identify cases where refinement leaves unresolved symmetry, and
 - quantify how canonicalization affects the number of unique centers or rules using hashes and isomorphism checks.
@@ -63,7 +65,9 @@ print(data.shape)
 
 ### 1.1. Partition
 
-- Let $G=(V,E)$ be a (vertex-)colored graph. A **partition** is $\Pi=\{C_1,\dots,C_k\}$ with $\bigcup_i C_i=V$ and $C_i\cap C_j=\varnothing$ for $i\neq j$.
+- Let $G=(V,E)$ be a (vertex-)colored graph. A **partition** is
+  $\Pi=\{C_1,\dots,C_k\}$ with $\bigcup_{i=1}^k C_i=V$ and
+  $C_i\cap C_j=\varnothing$ for $i\neq j$.
 - $\Pi$ is **equitable** (WL-stable) iff for all cells $C_i,C_j$ there exists a constant $c_{ij}$ such that
   $$
   \forall v\in C_i:\quad |N(v)\cap C_j| = c_{ij}.
@@ -72,7 +76,10 @@ print(data.shape)
 +++
 
 **Definition (Vertex Partition).**  
-A *partition* of $V$ is a collection $\mathcal{P} = \{C_0, C_1, \ldots, C_k\}$ of non-empty disjoint sets (*cells*) with $\bigcup_i C_i = V$. A partition is *discrete* if each cell has exactly one element (i.e., $k = |V| - 1$).
+A *partition* of $V$ is a collection
+$\mathcal{P} = \{C_1, C_2, \ldots, C_k\}$ of non-empty disjoint sets
+(*cells*) with $\bigcup_{i=1}^k C_i = V$. A partition is *discrete* if each
+cell has exactly one element (equivalently, $k=|V|$).
 
 **Definition (Equitable Partition).**  
 A partition $\mathcal{P}$ of $V(G)$ is *equitable* (or *stable*) if for every pair of cells $C_i, C_j$ and every vertex $v \in C_i$, the number of neighbors of $v$ in $C_j$ depends only on the cell $C_i$ — not on the specific vertex $v$:
@@ -233,6 +240,11 @@ $$
 \sigma(v) \;=\; \big(|N(v)\cap C_1|,\;|N(v)\cap C_2|,\;\dots,\;|N(v)\cap C_k|\big),
 $$
 and split cells by identical signatures until nothing splits.
+
+The compact implementation immediately below uses **unweighted neighbor
+counts** to make equitable refinement transparent. Section 1.3 then upgrades
+the signature to include edge labels such as bond order. Both are valid
+refinement operators, but only the latter uses the full chemical edge schema.
 
 
 **Chemical intuition**
@@ -715,7 +727,8 @@ print("WL-labeled stable partition:", wl_partition)
 
 ### 1.4. Approximation
 
-Now we have the **stable WL partition** which is obtained after Weisfeiler–Lehman (WL) color refinement converges.
+The **stable WL partition** is obtained when Weisfeiler–Lehman (WL) color
+refinement converges.
 Each inner list represents a color class, i.e. a set of nodes that WL cannot
 distinguish further based on their attributes and local neighborhoods.
 
@@ -1271,7 +1284,7 @@ _draw_node(
 note_y = min(Y3a - BH3a / 2, Y2b - BH2b / 2) - 0.15
 if _l2a_disc and not _l2b_disc:
     note = (
-        f'ind(v={_va}) propagates enough neighbourhood info → all atoms distinguishable in 1 refine (DISCRETE).\n'
+        f'ind(v={_va}) propagates enough neighborhood info → all atoms distinguishable in 1 refine (DISCRETE).\n'
         f'ind(v={_vb}) is a less-informative cut: still {len(_l2b_ref)} classes → IR must recurse deeper on this branch.'
     )
 elif _l2a_disc and _l2b_disc:
@@ -1322,13 +1335,14 @@ for col, (ttl, cols) in enumerate(_panels):
 plt.show()
 ```
 
-**Individualization depth across molecules**
+**Residual WL ambiguity across molecules**
 
-After WL stabilises, the number of **non-singleton cells** tells us
-how many atoms remain ambiguous — and therefore how many individualisation
-steps the IR tree needs.  
-Highly symmetric molecules (benzene) need the deepest tree;
-fully asymmetric ones (alanine) need none at all.
+After WL stabilizes, the number of **non-singleton cells** tells us how many
+groups of atoms remain unresolved by the chosen refinement. A WL cell can
+contain several automorphism orbits, so it is not itself proof of molecular
+symmetry. It is also **not** the depth of the IR tree: later refinement can
+split several cells at once, while some cells require more than one
+individualization level.
 
 ```{code-cell}
 :tags: [hide-input]
@@ -1365,7 +1379,7 @@ colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd']
 axes[0].barh(names, n_ir, color=colors, edgecolor='white', linewidth=1.2)
 axes[0].set_xlabel('Non-singleton cells after WL', fontsize=10)
 axes[0].set_title(
-    'IR individualisation depth\n(0 = WL already discrete)',
+    'Residual WL ambiguity\n(0 = WL already discrete)',
     fontsize=10,
     fontweight='bold',
 )
@@ -1383,7 +1397,7 @@ for i, v in enumerate(n_amb):
     axes[1].text(v + 0.05, i, str(v), va='center', fontsize=9)
 
 fig.suptitle(
-    'After WL stabilisation: remaining symmetry ambiguity',
+    'After WL stabilization: unresolved color classes',
     fontsize=11,
     fontweight='bold',
 )
@@ -1404,81 +1418,30 @@ for name, n_ir_, n_amb_, n_tot in _results:
 
 Canonical atom-map numbering follows the same motivation as canonical molecular descriptions: equivalent structures should receive deterministic identifiers before comparison [@morgan1965generation; @phan2025synkit].
 
-Now we combine all of them
+The complete routine has three phases: construct a reaction-aware graph whose
+labels combine the reactant and product states, compute an exact canonical
+vertex order, and apply the resulting ranks synchronously to both reaction
+sides.
 
-```{code-cell}
-:tags: [hide-input]
-import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
-from matplotlib.patches import FancyBboxPatch
-
-_STEPS = [
-    ("Raw mapped\nreaction SMILES", "#AEC6E8"),
-    ("mol_to_graph\n(node = atom)", "#FFD580"),
-    ("WL refinement\n(equitable partition)", "#A8D8A8"),
-    ("IR search\n(canonical order)", "#FFB3B3"),
-    ("apply_atom_map\n_from_order", "#D5A6E8"),
-    ("Canonical\nreaction SMILES", "#AEC6E8"),
-]
-
-_NOTES = [
-    "rsmi_to_graph(aam)",
-    "element, charge,\naromatic, hcount",
-    "refine_to_stable()",
-    "canonical_by_ir()",
-    "atom_map ← rank",
-    "graph_to_rsmi(G, H)",
-]
-
-fig, ax = plt.subplots(figsize=(14, 3.8), facecolor="white")
-ax.axis("off")
-
-_xs = [i * 2.25 for i in range(len(_STEPS))]
-_BOX_W, _BOX_H = 1.9, 1.1
-
-for (label, color), note, x in zip(_STEPS, _NOTES, _xs):
-    ax.add_patch(
-        FancyBboxPatch(
-            (x - _BOX_W / 2, 0.8),
-            _BOX_W,
-            _BOX_H,
-            boxstyle="round,pad=0.1",
-            facecolor=color,
-            edgecolor="#555",
-            linewidth=1.3,
-        )
-    )
-    ax.text(
-        x,
-        0.8 + _BOX_H / 2,
-        label,
-        ha="center",
-        va="center",
-        fontsize=9,
-        fontweight="bold",
-    )
-    ax.text(
-        x, 0.6, note, ha="center", va="top", fontsize=7, color="#555", style="italic"
-    )
-    if x < _xs[-1]:
-        ax.annotate(
-            "",
-            xy=(x + _BOX_W / 2 + 0.18, 0.8 + _BOX_H / 2),
-            xytext=(x + _BOX_W / 2, 0.8 + _BOX_H / 2),
-            arrowprops=dict(arrowstyle="-|>", color="#333", lw=1.8),
-        )
-
-ax.set_xlim(_xs[0] - 1.2, _xs[-1] + 1.2)
-ax.set_ylim(0, 2.4)
-ax.set_title(
-    "Atom-map canonicalization pipeline (canon_aam)",
-    fontsize=12,
-    fontweight="bold",
-    pad=10,
-)
-plt.tight_layout()
-plt.show()
-```
+<figure class="se-figure">
+  <img src="../../docs/_static/images/S06/atom_map_canonicalization.svg"
+       alt="Six-stage atom-map canonicalization workflow: mapped input, two-sided reaction signature graph, WL refinement, exact individualization-refinement search, synchronous reindexing, and canonical mapped reaction output">
+  <figcaption>
+    <b>Figure 1.</b> Exact atom-map canonicalization illustrated on a carbonyl
+    reduction core. <b>(A)</b> Blue badges show two arbitrary numberings of the
+    same atom correspondence. <b>(B)</b> Coupling the reaction sides gives the
+    signature graph <i>J</i>; the orange edge label (2,1) records the C=O to
+    C–O bond-order change. <b>(C)</b> WL refinement separates the central
+    carbon and oxygen but leaves the two symmetry-equivalent methyl atoms in
+    one cell. Their two IR branches have the same certificate because an
+    automorphism exchanges them; a production IR solver can therefore prune
+    one mirror branch, while the teaching implementation below enumerates both.
+    <b>(D)</b>
+    Green badges are the canonical ranks applied identically to
+    <i>G</i><sub>R</sub> and <i>G</i><sub>P</sub>. Therefore, permuting the
+    blue input identifiers does not change the canonical mapped reaction.
+  </figcaption>
+</figure>
 
 ```{code-cell}
 def canonicalization(graph: nx.Graph):
@@ -1491,7 +1454,80 @@ def canonicalization(graph: nx.Graph):
 
 ```{code-cell}
 import networkx as nx
-from typing import List
+from typing import Dict, List
+
+
+def reaction_signature_graph(
+    reactants: nx.Graph,
+    products: nx.Graph,
+    *,
+    attr: str = "atom_map",
+) -> nx.Graph:
+    """Build one labeled graph whose signature includes both reaction sides."""
+
+    def by_map(graph: nx.Graph) -> Dict[int, int]:
+        result = {}
+        for node, data in graph.nodes(data=True):
+            atom_map = int(data.get(attr, 0) or 0)
+            if atom_map <= 0:
+                raise ValueError("Reaction canonicalization requires full atom mapping")
+            if atom_map in result:
+                raise ValueError(f"Duplicate atom-map number {atom_map}")
+            result[atom_map] = node
+        return result
+
+    r_by_map = by_map(reactants)
+    p_by_map = by_map(products)
+    if set(r_by_map) != set(p_by_map):
+        raise ValueError("Reactant and product atom-map sets must agree")
+
+    joint = nx.Graph()
+    for atom_map in sorted(r_by_map):
+        r_data = reactants.nodes[r_by_map[atom_map]]
+        p_data = products.nodes[p_by_map[atom_map]]
+        side_signature = (
+            r_data.get("element"),
+            p_data.get("element"),
+            int(r_data.get("formal_charge", 0)),
+            int(p_data.get("formal_charge", 0)),
+            bool(r_data.get("aromatic", False)),
+            bool(p_data.get("aromatic", False)),
+            int(r_data.get("hcount", 0)),
+            int(p_data.get("hcount", 0)),
+        )
+        # ``initial_partition_from_nodes`` groups by ``element``; storing the
+        # complete two-sided label here makes its initial colors reaction-aware.
+        joint.add_node(
+            atom_map,
+            element=repr(side_signature),
+            aromatic=False,
+            formal_charge=0,
+            hcount=0,
+        )
+
+    edge_labels = {}
+    r_edges = {
+        frozenset((int(reactants.nodes[u][attr]), int(reactants.nodes[v][attr]))):
+        float(data.get("order", 1.0))
+        for u, v, data in reactants.edges(data=True)
+    }
+    p_edges = {
+        frozenset((int(products.nodes[u][attr]), int(products.nodes[v][attr]))):
+        float(data.get("order", 1.0))
+        for u, v, data in products.edges(data=True)
+    }
+    for edge in set(r_edges) | set(p_edges):
+        edge_labels[edge] = (r_edges.get(edge, 0.0), p_edges.get(edge, 0.0))
+
+    # Replace each two-sided bond label by a deterministic scalar color so the
+    # teaching IR implementation can reuse its scalar edge-signature code.
+    label_rank = {
+        label: rank + 1 for rank, label in enumerate(sorted(set(edge_labels.values())))
+    }
+    for edge, label in edge_labels.items():
+        u, v = tuple(edge)
+        joint.add_edge(u, v, order=float(label_rank[label]))
+    return joint
 
 
 def apply_atom_map_from_order(
@@ -1507,10 +1543,10 @@ def apply_atom_map_from_order(
     Parameters
     ----------
     G : nx.Graph
-        Input graph with nodes labeled 1..N.
+        One side of an atom-mapped reaction.
     order : List[int]
-        List of length N where order[i] is the new atom_map
-        for node (i+1).
+        Old atom-map IDs in canonical order. Canonical rank ``i+1`` is
+        assigned to ``order[i]``.
     attr : str
         Node attribute name to set (default: 'atom_map').
 
@@ -1521,13 +1557,15 @@ def apply_atom_map_from_order(
     """
     H = G.copy()
 
-    if len(order) != H.number_of_nodes():
-        raise ValueError("Length of order must equal number of nodes")
+    rank = {int(old_map): new_map for new_map, old_map in enumerate(order, start=1)}
+    if len(rank) != len(order):
+        raise ValueError("Canonical order contains duplicate atom-map IDs")
 
-    for i, new_map in enumerate(order, start=1):
-        if i not in H:
-            raise KeyError(f"Node {i} not found in graph")
-        H.nodes[i][attr] = int(new_map)
+    for node, data in H.nodes(data=True):
+        old_map = int(data.get(attr, 0) or 0)
+        if old_map not in rank:
+            raise KeyError(f"Atom-map {old_map} on node {node!r} is not in order")
+        data[attr] = rank[old_map]
 
     return H
 ```
@@ -1539,7 +1577,7 @@ from synedu.Utils.reaction import rsmi_to_graph, graph_to_rsmi
 def canon_aam(aam):
     r, p = rsmi_to_graph(aam)
 
-    order = canonicalization(r)
+    order = canonicalization(reaction_signature_graph(r, p))
 
     G = apply_atom_map_from_order(r, order)
     H = apply_atom_map_from_order(p, order)
@@ -1553,7 +1591,7 @@ r, p = rsmi_to_graph(aam)
 ```
 
 ```{code-cell}
-order = canonicalization(r)
+order = canonicalization(reaction_signature_graph(r, p))
 
 G = apply_atom_map_from_order(r, order)
 H = apply_atom_map_from_order(p, order)
@@ -1573,9 +1611,10 @@ local_canon = canon_aam(data['local_mapper'][1])
 
 ### Rule deduplication before vs after canonicalization
 
-Two reactions that differ only in atom-map numbering are the **same rule**.
-Canonical atom-map numbering collapses this redundancy and reduces the
-apparent rule vocabulary.
+Two mapped reaction strings that differ only in atom-map numbering encode the
+same reaction and atom correspondence. Canonical atom-map numbering collapses
+this representational redundancy; any rules extracted from those canonicalized
+records can then be deduplicated consistently.
 
 ```{code-cell}
 :tags: [hide-input]
@@ -1584,30 +1623,34 @@ import matplotlib.pyplot as plt
 # Pool all three mappers for the SAME reactions.
 # Before canon: 3 different atom-map numberings per reaction → ~3× strings.
 # After canon_aam: same underlying reaction collapses to 1 canonical string.
-try:
-    _n = 50
-    _sample_raw = (
-        data['rxn_mapper'].dropna().head(_n).tolist()
-        + data['graphormer'].dropna().head(_n).tolist()
-        + data['local_mapper'].dropna().head(_n).tolist()
+_n = 50
+_sample_raw = (
+    data['rxn_mapper'].dropna().head(_n).tolist()
+    + data['graphormer'].dropna().head(_n).tolist()
+    + data['local_mapper'].dropna().head(_n).tolist()
+)
+_before = len(set(_sample_raw))
+
+_canon_set = set()
+_canon_failures = 0
+for s in set(_sample_raw):
+    if not s:
+        continue
+    try:
+        _canon_set.add(canon_aam(s))
+    except (KeyError, ValueError):
+        # Canonicalization intentionally requires a complete, bijective map.
+        _canon_failures += 1
+
+if not _canon_set:
+    raise RuntimeError("No fully mapped reactions could be canonicalized")
+
+_after = len(_canon_set)
+if _canon_failures:
+    print(
+        f"Skipped {_canon_failures} reaction(s) that did not satisfy "
+        "the full-mapping precondition."
     )
-    _before = len(set(_sample_raw))
-
-    _canon_set = set()
-    for s in set(_sample_raw):
-        if s:
-            try:
-                _canon_set.add(canon_aam(s))
-            except Exception:
-                pass
-    _after = len(_canon_set)
-except Exception:
-    import numpy as np
-
-    np.random.seed(0)
-    _before = 127
-    _after = 50
-    print('Demo mode — real data not available.')
 
 _reduction = (_before - _after) / max(_before, 1) * 100
 fig, ax = plt.subplots(figsize=(6, 4), facecolor='white')
@@ -1682,7 +1725,7 @@ display(HTML("<b>Graphormer:</b>"))
 draw_rxn_graph(_raw_b, title="Graphormer", show_legend=False)
 plt.show()
 
-display(HTML(render_html_heading("After canonicalization — same canonical SMILES")))
+display(HTML(render_html_heading("After canonicalization — same canonical representation")))
 display(HTML(render_code_html(rxn_canon)))
 draw_rxn_graph(rxn_canon, title="Canonical", show_legend=False)
 plt.show()
@@ -1693,7 +1736,7 @@ display(HTML(render_mapping_agreement(_match)))
 
 ### Canonicalization comparison
 
-Different atom-mapping methods (RXNMapper, Graphormer, Local Mapper) may assign different atom-map numbers to the same reaction. After canonicalization, equivalent maps collapse to the **same canonical SMILES**. The table below checks whether all three methods produce identical canonical forms for one example reaction. Green = agreement; red = mismatch.
+Different atom-mapping methods (RXNMapper, Graphormer, Local Mapper) may assign different atom-map numbers to the same reaction. After canonicalization, equivalent maps collapse to the **same canonical mapped representation**. The table below checks whether all three methods produce identical serialized canonical forms for one example reaction. Green = agreement; red = mismatch.
 
 ```{code-cell}
 :tags: [hide-input]
@@ -1730,6 +1773,33 @@ display(
     .hide(axis="index")
 )
 ```
+
+### Practice exercises
+
+1. A canonical search returns the old atom-map order `[7, 2, 11]`. Write the
+   inverse map that must be applied to both reaction sides.
+
+<details class="synedu-solution">
+<summary><b>Solution</b></summary>
+
+Canonical rank is the position in the order, so the inverse map is
+`{7: 1, 2: 2, 11: 3}`. Assigning the list values directly to nodes `1, 2, 3`
+would confuse an ordering with its inverse permutation.
+
+</details>
+
+2. Why is canonicalizing only the reactant graph insufficient for a mapped
+   reaction with symmetric reactant atoms?
+
+<details class="synedu-solution">
+<summary><b>Solution</b></summary>
+
+The product may break a reactant-side symmetry. A reaction-level signature
+uses the labels and bond states from both sides, so atoms tied in the reactant
+can still receive a deterministic order from their product environments.
+
+</details>
+
 ## 4. Discussion
 
 
@@ -1737,7 +1807,10 @@ display(
 
 - **Atom maps are not unique**: even for the *same* molecule/reaction, symmetric atoms can be renumbered without changing chemistry.
 - **WL refinement is fast but approximate**: it produces an equitable partition; if it is not fully discrete, symmetry remains.
-- **IR (individualization + refinement) gives a true canonical labeling** (at higher computational cost): it resolves remaining symmetries by branching and uses refinement to keep the search manageable.
+- A **complete IR search with an isomorphism-invariant certificate** gives a
+  canonical labeling (at higher computational cost). Individualization resolves
+  remaining color ties by branching, while refinement and automorphism pruning
+  keep the search manageable.
 - For **reactions**, canonicalization must be **reaction-level**: map ids are *global* across molecules, so you need a global object (e.g., an ITS-like graph) to define a stable renumbering.
 
 ### Practical notes

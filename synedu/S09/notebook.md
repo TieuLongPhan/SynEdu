@@ -13,9 +13,14 @@ kernelspec:
 
 # S09: Context Radius Expansion
 
-<div class="synedu-lesson-shell not-prose" style="box-sizing:border-box;margin:8px 0 24px;padding:20px;border:1px solid #243b53;border-radius:16px;background:#102a43;color:#fff;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"><div class="synedu-lesson-shell__top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap"><div><div class="synedu-lesson-shell__eyebrow" style="margin-bottom:5px;color:#5eead4;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase">SynEdu learning path</div><div class="synedu-lesson-shell__meta" style="font-size:16px;font-weight:750">Lesson 9 of 9 <span style="color:#9fb3c8;font-weight:500">· Stage 3 · Prediction</span></div></div><span class="synedu-lesson-shell__progress-label" style="color:#bcccdc;font-size:12px;font-weight:700">Course complete</span></div><div class="synedu-lesson-shell__track" style="height:5px;margin:16px 0 18px;overflow:hidden;border-radius:999px;background:#334e68"><span style="display:block;width:100%;height:100%;border-radius:inherit;background:#2dd4bf"></span></div><div class="synedu-notebook-actions" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap" aria-label="Run this lesson"><a class="synedu-launch-badge" href="https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S09.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open S09 in Colab" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://mybinder.org/v2/gh/TieuLongPhan/SynEdu/main?urlpath=lab/tree/docs/downloads/S09.ipynb"><img src="https://mybinder.org/badge_logo.svg" alt="Launch S09 in Binder" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S09.ipynb"><img src="https://img.shields.io/badge/download-.ipynb-2563eb?logo=jupyter&amp;logoColor=white" alt="Download S09 notebook" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="/docs/installing"><img src="https://img.shields.io/badge/run-locally-334e68?logo=jupyter&amp;logoColor=white" alt="Run S09 locally" style="display:block;height:24px" /></a></div></div>
+<div class="synedu-lesson-shell not-prose" style="box-sizing:border-box;margin:8px 0 24px;padding:20px;border:1px solid #243b53;border-radius:16px;background:#102a43;color:#fff;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"><div class="synedu-lesson-shell__top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap"><div><div class="synedu-lesson-shell__eyebrow" style="margin-bottom:5px;color:#5eead4;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase">SynEdu learning path</div><div class="synedu-lesson-shell__meta" style="font-size:16px;font-weight:750">Lesson 9 of 9 <span style="color:#9fb3c8;font-weight:500">· Stage 3 · Prediction</span></div></div><span class="synedu-lesson-shell__progress-label" style="color:#bcccdc;font-size:12px;font-weight:700">Course complete</span></div><div class="synedu-lesson-shell__track" style="height:5px;margin:16px 0 18px;overflow:hidden;border-radius:999px;background:#334e68"><span style="display:block;width:100%;height:100%;border-radius:inherit;background:#2dd4bf"></span></div><div class="synedu-notebook-actions" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap" role="group" aria-label="Run this lesson"><a class="synedu-launch-badge" href="https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S09.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open S09 in Colab" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://mybinder.org/v2/gh/TieuLongPhan/SynEdu/main?urlpath=lab/tree/docs/downloads/S09.ipynb"><img src="https://mybinder.org/badge_logo.svg" alt="Launch S09 in Binder" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S09.ipynb"><img src="https://img.shields.io/badge/download-.ipynb-2563eb?logo=jupyter&amp;logoColor=white" alt="Download S09 notebook" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="../../docs/installing"><img src="https://img.shields.io/badge/run-locally-334e68?logo=jupyter&amp;logoColor=white" alt="Run S09 locally" style="display:block;height:24px" /></a></div></div>
 
-This talktorial asks how much local neighbourhood should be kept around a reaction center. We expand reaction-center templates by radius, apply the resulting rule libraries, and use recall, enrichment, and F1 to choose a practical context size [@phan2025synkit; @shervashidze2011weisfeiler; @ehrig2006fundamentals].
+This talktorial asks how much local neighborhood should be kept around a
+reaction center. We expand reaction-center templates by radius, apply the
+resulting rule libraries, and use recall, hit density (called enrichment in
+this workflow), and a balanced trade-off score to choose a practical context
+size [@phan2025synkit; @shervashidze2011weisfeiler;
+@ehrig2006fundamentals].
 
 +++
 
@@ -31,7 +36,7 @@ This talktorial asks how much local neighbourhood should be kept around a reacti
 
 After completing this talktorial, you will be able to:
 
-- define the *r*-hop context neighbourhood $N_r(C)$ on an ITS graph,
+- define the *r*-hop context neighborhood $N_r(C)$ on an ITS graph,
 - explain how context controls the generality-specificity trade-off of a DPO rule,
 - implement BFS-based context expansion,
 - build deduplicated template libraries at several radii,
@@ -49,7 +54,7 @@ import pandas as pd
 import networkx as nx
 from pathlib import Path
 import importlib.metadata as _m
-from synkit.IO import load_database
+from synedu.Utils import load_database
 import logging
 
 
@@ -89,25 +94,24 @@ We reuse the exact pipeline from S07/S08:
 1. Convert each training reaction to its full ITS graph and to its
    reaction-center (RC) graph.
 2. Compute a Weisfeiler-Lehman (WL) hash of each RC for fast grouping [@shervashidze2011weisfeiler].
-3. Cluster with `GraphCluster` to identify rule families.
+3. Cluster by exact labeled-graph isomorphism to identify rule families.
 
 This is shown quickly here; refer to S07 for a step-by-step explanation.
 
 ```{code-cell}
-from synkit.IO import rsmi_to_its
-from synkit.Graph.Feature.wl_hash import WLHash
-from synkit.Graph.Matcher.graph_cluster import GraphCluster
+from synedu.Utils import cluster_its_graphs, rsmi_to_its, wl_hash
 from synkit.Chem.Reaction.standardize import Standardize
 
-_wl = WLHash()
 train = train_df.to_dict("records")
 for v in train:
     v["ITS"] = rsmi_to_its(v["smart"], core=False)  # full ITS (all atoms)
     v["RC"] = rsmi_to_its(v["smart"], core=True)  # reaction-center only
-    v["wl"] = _wl.weisfeiler_lehman_graph_hash(v["RC"])
+    v["wl"] = wl_hash(v["RC"])
 
-_cls = GraphCluster()
-cluster = _cls.fit(train, rule_key="RC", attribute_key="wl")
+_class_ids = cluster_its_graphs([v["RC"] for v in train])
+for v, class_id in zip(train, _class_ids):
+    v["class"] = class_id
+cluster = train
 
 _df_cls = pd.DataFrame(cluster)
 print("Rule family sizes (top 8):")
@@ -129,7 +133,7 @@ for v in test:
     v["rsmi"] = _rsmi
     v["ITS"] = rsmi_to_its(v["smart"], core=False)
     v["RC"] = rsmi_to_its(v["smart"], core=True)
-    v["wl"] = _wl.weisfeiler_lehman_graph_hash(v["RC"])
+    v["wl"] = wl_hash(v["RC"])
 
 print(
     f"Test set standardised and assigned to reaction-center families: {len(test)} entries"
@@ -139,9 +143,9 @@ print("Example — reactant :", test[0]["r"][:60], "...")
 
 ## 1. What is context?
 
-The *reaction center* captures the minimum subgraph that changes in a reaction.
+The *reaction center* captures the minimum edge-defined subgraph that changes in a reaction.
 **Context expansion** augments that minimal representation by pulling in the
-chemical neighbourhood around it.  Here, we
+chemical neighborhood around it. Here, we
 build the expansion by hand so the mechanism is fully transparent.
 
 +++
@@ -149,12 +153,13 @@ build the expansion by hand so the mechanism is fully transparent.
 ### 1.1 Recap reaction center
 
 From **S04**: an edge (u, v) in the ITS graph belongs to the **reaction center**
-$E_{rc}$ if its bond orders on the reactant and product sides differ:
+$E_{\mathrm{RC}}$ if its bond orders on the reactant and product sides differ:
 
-$$E_{\text{rc}} = \{(u,v) \in E \mid b_r(u,v) \neq b_p(u,v)\}$$
+$$E_{\mathrm{RC}} = \{\{u,v\} \in E \mid b_r(u,v) \neq b_p(u,v)\}.$$
 
-The **reaction-center nodes** $V_{rc}$ are all endpoints of edges in $E_{rc}$ [@phan2025synkit; @ehrig2006fundamentals].
-At radius *r* = 0, $V_{rc}$ is the starting seed for context expansion.
+The **reaction-center nodes** $V_{\mathrm{RC}}$ are all endpoints of edges in
+$E_{\mathrm{RC}}$ [@phan2025synkit; @ehrig2006fundamentals]. At radius
+$r=0$, $V_{\mathrm{RC}}$ is the starting seed for context expansion.
 
 ```{code-cell}
 def reaction_center_nodes(its: nx.Graph) -> set:
@@ -178,7 +183,8 @@ print(f"Reaction-center nodes: {sorted(_rc_ex)}")
 
 ### 1.2 Defining the r-hop context
 
-**Definition.** Let  $C \subseteq V$  be the reaction-center atoms of an ITS graph G.
+**Definition.** Let $C \subseteq V$ be the reaction-center atoms of an ITS
+graph $G$.
 The *r-hop context* is:
 
 $$
@@ -192,7 +198,8 @@ $$
 
 is the shortest-path distance in G.
 
-The **context subgraph** $K_r$ is the subgraph of G induced by $N_r(C)$.
+The **context-support graph** $S_r=G[N_r(C)]$ is the subgraph of $G$ induced
+by $N_r(C)$.
 
 | r | What is included |
 |---|---|
@@ -201,8 +208,10 @@ The **context subgraph** $K_r$ is the subgraph of G induced by $N_r(C)$.
 | 2 | r=1 context + one more shell of neighbours |
 | k | All atoms within k hops of any reaction-center atom |
 
-At r = 0, $K_r$ is the smallest possible rule (maximum generality).
-Each additional hop adds chemical context, increasing specificity.
+At $r=0$, $S_r$ is the smallest vertex-induced support generated by this
+construction. It contains the reaction-center endpoints and may also contain
+unchanged edges between those endpoints. Each additional hop adds chemical
+context and usually increases specificity.
 
 +++
 
@@ -230,7 +239,9 @@ def expand_context(its: nx.Graph, r: int) -> nx.Graph:
     return its.subgraph(seed).copy()
 
 
-# Verify: r=0 should give back exactly the reaction-center subgraph
+# At r=0 the node set is exactly the reaction-center endpoints. Because this
+# function returns a vertex-induced subgraph, unchanged edges between those
+# endpoints may also be present.
 _ctx0 = expand_context(_its_ex, 0)
 _ctx1 = expand_context(_its_ex, 1)
 _ctx2 = expand_context(_its_ex, 2)
@@ -271,13 +282,16 @@ print("Each +1 radius adds one shell of chemical neighbours.")
 In S05 we defined a **DPO span** L ← K → R [@ehrig2006fundamentals] where K is the *interface*
 subgraph — the part of the rule that is not rewritten.
 
-The context subgraph $K_r$ built above supplies the local atoms and ITS edge labels from which the DPO span is read:
+The context-support graph $S_r$ built above supplies the local atoms and ITS
+edge labels from which the DPO span is read:
 
-- **L** = the reactant-side view of $K_r$ (with $b_r$ bond orders)
-- **R** = the product-side view of $K_r$ (with $b_p$ bond orders)
-- **K** = the shared atom interface; unchanged bonds are preserved in $K$, while broken, formed, or order-changed bonds appear in $L$ and/or $R$ according to their side-specific labels
+- **$L_r$** = the reactant-side view of $S_r$ (with $b_r$ bond orders)
+- **$R_r$** = the product-side view of $S_r$ (with $b_p$ bond orders)
+- **$K_r^{\mathrm{DPO}}$** = the shared DPO interface; unchanged bonds are
+  preserved in $K_r^{\mathrm{DPO}}$, while broken, formed, or order-changed
+  bonds appear in $L_r$ and/or $R_r$ according to their side-specific labels
 
-A larger $K_r$ carries more chemical context. The rule therefore pattern-matches fewer
+A larger $S_r$ carries more chemical context. The rule therefore pattern-matches fewer
 substrates and usually generates a more focused candidate list. In evaluation, this often
 appears as a trade-off: recall@K may decrease, while enrichment can improve because fewer
 irrelevant candidates need to be inspected.
@@ -342,7 +356,7 @@ plt.tight_layout()
 plt.show()
 ```
 
-Let us look at a few representative reactions from this family to confirm
+Inspect a few representative reactions from this family to confirm
 they share the same reaction-center topology.
 
 ```{code-cell}
@@ -365,8 +379,13 @@ for i, v in enumerate(_samples):
 
 ### 2.2 Build templates at each radius
 
-For each training reaction in the selected family, we extract the r-hop context subgraph [@coley2019rdchiral]
-with `expand_context(its, r)`. We then deduplicate the resulting K-graphs with a WL hash.
+For each training reaction in the selected family, we extract the $r$-hop
+context-support graph [@coley2019rdchiral]
+with `expand_context(its, r)`. We use the WL hash as a fast pre-filter and exact
+labeled-graph isomorphism to deduplicate the resulting support graphs. In the
+code, the dictionary key `"K"` is retained because `SynReactor` calls an ITS
+template graph `K`; mathematically, it is $S_r$, not the DPO interface
+$K_r^{\mathrm{DPO}}$.
 
 The result is a plain list:
 
@@ -380,6 +399,8 @@ _templates[r] = [
 This is intentionally simple: no extra hierarchy, just one template set per radius.
 
 ```{code-cell}
+from collections import Counter
+
 MAX_RADIUS = 5
 
 
@@ -387,15 +408,26 @@ def make_radius_templates(records, max_radius=MAX_RADIUS):
     """Build deduplicated r-hop context templates for one reaction family."""
     templates = []
     for r in range(max_radius + 1):
-        seen = set()
-        level = []
+        candidates = []
         for idx, record in enumerate(records):
             K = expand_context(record["ITS"], r)
-            h = _wl.weisfeiler_lehman_graph_hash(K)
-            if h in seen:
+            h = wl_hash(K)
+            candidates.append({"K": K, "hash": h, "source_idx": idx})
+
+        class_ids = cluster_its_graphs([candidate["K"] for candidate in candidates])
+        class_frequency = Counter(class_ids)
+        seen_classes = set()
+        level = []
+        ranked = sorted(
+            zip(candidates, class_ids),
+            key=lambda item: (-class_frequency[item[1]], item[1]),
+        )
+        for candidate, class_id in ranked:
+            if class_id in seen_classes:
                 continue
-            seen.add(h)
-            level.append({"K": K, "hash": h, "source_idx": idx})
+            seen_classes.add(class_id)
+            candidate["frequency"] = class_frequency[class_id]
+            level.append(candidate)
         templates.append(level)
     return templates
 
@@ -458,12 +490,12 @@ plt.tight_layout()
 plt.show()
 print("\nKey observation:")
 print(" r=0 -> 1 template   (all reactions share the same reaction center)")
-print(" r=1 -> many more    (immediate neighbourhood already differentiates reactions)")
+print(" r=1 -> many more    (the immediate neighborhood already differentiates reactions)")
 print(" r>=3 -> near-plateau (family is nearly fully disambiguated)")
 ```
 
-We draw one representative K-graph per radius using `visualize_its`
-(which handles ITS-style edge attributes automatically).
+We draw one representative context graph $S_r$ per radius using
+`visualize_its` (which handles ITS-style edge attributes automatically).
 
 ```{code-cell}
 :tags: [hide-input]
@@ -479,7 +511,7 @@ fig, axes = plt.subplots(
     facecolor="white",
 )
 fig.suptitle(
-    "Template context tour: reaction center plus neighbourhood shells",
+    "Template context tour: reaction center plus neighborhood shells",
     fontsize=12,
     fontweight="bold",
     color="#0E1B2A",
@@ -536,9 +568,14 @@ We now apply each radius's template library to test reactions from the **same re
 |---|---|
 | **Recall@K** | Fraction of same-family test reactions where the standardized ground truth appears in the first K unique candidates |
 | **Enrichment@K** | Mean hit density inside the first K unique candidates; with one ground truth this is `hit / n_candidates` |
-| **F1@K** | Harmonic mean of recall@K and enrichment@K, used here as the radius trade-off score |
+| **F1@K** | Lesson-specific harmonic mean of recall@K and Enrichment@K, used as a balanced radius trade-off score |
 
 We use `SynReactor` for generation, then standardize and deduplicate predictions before computing recall@K, enrichment@K, and F1@K. In this section, K is fixed to 50 so the radius comparison stays easy to read.
+
+Here `Enrichment@K` is the same per-query precision (hit density) defined in
+S08, not fold-enrichment against an external baseline. Consequently `F1@K`
+is a deliberately defined trade-off score, not the conventional
+classification F1 computed from precision and recall over labeled instances.
 
 ```{code-cell}
 from synkit.Synthesis.Reactor.syn_reactor import SynReactor
@@ -558,7 +595,7 @@ def _unique_preserve_order(values):
 
 
 def _apply_templates(entries, template_graphs, *, n_entries=25):
-    """Apply a list of K-graph templates to up to n_entries test reactions."""
+    """Apply context-graph templates to up to n_entries test reactions."""
     subset = entries[:n_entries]
     for v in subset:
         fw = []
@@ -673,7 +710,10 @@ The two-panel figure below is the central diagnostic of S09:
 - **Right panel** — Recall@K versus enrichment@K, one point per radius.
   Moving right means the answer appears more often; moving up means the candidate list is more focused when the answer appears.
 
-The highlighted radius maximizes `tradeoff_score`, defined here as the harmonic mean of recall@K and enrichment@K. This is not a universal objective; it is a compact visual guide for comparing radii inside one reaction-center family.
+The highlighted radius maximizes `tradeoff_score`, defined here as the
+harmonic mean of recall@K and the lesson-local Enrichment@K. This is not a
+universal objective or a conventional classification F1; it is a compact
+visual guide for comparing radii inside one reaction-center family.
 
 ```{code-cell}
 :tags: [hide-input]
@@ -1030,6 +1070,33 @@ print(
 In practice, choose a radius from a validation set, report the all-candidate macro-average trade-off, and inspect per-class curves before treating the radius as a default.
 
 +++
+
+### Practice exercises
+
+1. Why can an \(r=0\) vertex-induced context contain an unchanged bond even
+   though the reaction center itself contains only changed bonds?
+
+<details class="synedu-solution">
+<summary><b>Solution</b></summary>
+
+The seed contains every endpoint of a changed bond. Taking the vertex-induced
+subgraph on those endpoints includes *all* ITS edges between them, including
+unchanged edges. Therefore the \(r=0\) context and the edge-defined reaction
+center have the same seed nodes but need not have the same edge set.
+
+</details>
+
+2. Why should a WL hash be followed by exact isomorphism before declaring two
+   context templates identical?
+
+<details class="synedu-solution">
+<summary><b>Solution</b></summary>
+
+WL hashes are fast graph invariants: isomorphic labeled graphs agree, but some
+non-isomorphic graphs can also collide. Use the hash to form candidate buckets,
+then run an exact labeled-graph isomorphism check inside each bucket.
+
+</details>
 
 ## 4. Discussion
 

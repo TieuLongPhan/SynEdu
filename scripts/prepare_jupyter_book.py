@@ -36,22 +36,27 @@ SYNEDU_ROOT = REPO_ROOT / "synedu"
 GITHUB_SLUG = "TieuLongPhan/SynEdu"
 BRANCH = "main"
 RAW_BASE = f"https://raw.githubusercontent.com/{GITHUB_SLUG}/{BRANCH}"
+DOCS_BASE = "https://synedu.readthedocs.io/en/latest"
 
 # Sources reference figures relative to the repo root (../../docs/_static/...).
 # Rewrite those to absolute raw URLs so they render in Colab, where the relative
 # path does not exist.
 _STATIC_REL_RE = re.compile(r"(?:\.\./)+docs/_static/")
 _STATIC_ABS = f"{RAW_BASE}/docs/_static/"
+_ROOT_SITE_LINK_RE = re.compile(r'href="/(?!/)')
+_RELATIVE_SITE_LINK_RE = re.compile(r'href="(?:\.\./)+(?=docs/)')
 
 
 def _setup_cell_source(lesson: str, data_files: list[str]) -> str:
     """Build the per-lesson Colab setup cell (install + data download)."""
+    synedu_spec = f"'synedu @ git+https://github.com/{GITHUB_SLUG}.git@{BRANCH}'"
     lines = [
         "# Colab / fresh-environment setup.",
         "# Skip this cell if you cloned the repo and ran `uv sync` locally.",
         "# Explicit lesson extras keep this usable before a new SynEdu release is published.",
         "# SynRBL 1.0.x also requires the pre-1.7 scikit-learn API.",
-        f"%pip install -q 'scikit-learn<1.7' jinja2 tqdm 'setuptools<81' rxnmapper 'synedu @ git+https://github.com/{GITHUB_SLUG}.git@{BRANCH}'",
+        "%pip install -q 'scikit-learn<1.7' jinja2 tqdm "
+        f"'setuptools<81' rxnmapper {synedu_spec}",
     ]
     if data_files:
         listing = ", ".join(repr(f"data/{name}") for name in data_files)
@@ -69,10 +74,15 @@ def _setup_cell_source(lesson: str, data_files: list[str]) -> str:
 
 
 def _rewrite_static_urls(notebook: nbformat.NotebookNode) -> nbformat.NotebookNode:
-    """Point relative figure sources at absolute raw URLs for Colab."""
+    """Point repository figures and site links at portable absolute URLs."""
     for cell in notebook.cells:
         if cell.get("cell_type") == "markdown":
-            cell["source"] = _STATIC_REL_RE.sub(_STATIC_ABS, cell.get("source", ""))
+            source = _STATIC_REL_RE.sub(_STATIC_ABS, cell.get("source", ""))
+            source = _RELATIVE_SITE_LINK_RE.sub(f'href="{DOCS_BASE}/', source)
+            cell["source"] = _ROOT_SITE_LINK_RE.sub(
+                f'href="{DOCS_BASE}/',
+                source,
+            )
     return notebook
 
 
@@ -134,7 +144,10 @@ def main(argv: list[str] | None = None) -> int:
     for source in sorted(SYNEDU_ROOT.glob("S[0-9][0-9]/notebook.md")):
         lesson = source.parent.name
         destination = output_dir / f"{lesson}.ipynb"
-        destination.write_text(_serialized(_export_notebook(source)))
+        destination.write_text(
+            _serialized(_export_notebook(source)),
+            encoding="utf-8",
+        )
     return 0
 
 

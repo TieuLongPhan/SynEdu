@@ -231,8 +231,6 @@ Thumbs.db
 
 dev/*
 
-Agent/*
-
 # LaTeX build artifacts.
 *.aux
 *.bbl

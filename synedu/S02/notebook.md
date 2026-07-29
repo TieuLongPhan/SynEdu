@@ -13,7 +13,7 @@ kernelspec:
 
 # S02: Graph Homomorphisms in Reaction Informatics
 
-<div class="synedu-lesson-shell not-prose" style="box-sizing:border-box;margin:8px 0 24px;padding:20px;border:1px solid #243b53;border-radius:16px;background:#102a43;color:#fff;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"><div class="synedu-lesson-shell__top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap"><div><div class="synedu-lesson-shell__eyebrow" style="margin-bottom:5px;color:#5eead4;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase">SynEdu learning path</div><div class="synedu-lesson-shell__meta" style="font-size:16px;font-weight:750">Lesson 2 of 9 <span style="color:#9fb3c8;font-weight:500">· Stage 1 · Fundamentals</span></div></div><span class="synedu-lesson-shell__progress-label" style="color:#bcccdc;font-size:12px;font-weight:700">22% complete</span></div><div class="synedu-lesson-shell__track" style="height:5px;margin:16px 0 18px;overflow:hidden;border-radius:999px;background:#334e68"><span style="display:block;width:22%;height:100%;border-radius:inherit;background:#2dd4bf"></span></div><div class="synedu-notebook-actions" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap" aria-label="Run this lesson"><a class="synedu-launch-badge" href="https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S02.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open S02 in Colab" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://mybinder.org/v2/gh/TieuLongPhan/SynEdu/main?urlpath=lab/tree/docs/downloads/S02.ipynb"><img src="https://mybinder.org/badge_logo.svg" alt="Launch S02 in Binder" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S02.ipynb"><img src="https://img.shields.io/badge/download-.ipynb-2563eb?logo=jupyter&amp;logoColor=white" alt="Download S02 notebook" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="/docs/installing"><img src="https://img.shields.io/badge/run-locally-334e68?logo=jupyter&amp;logoColor=white" alt="Run S02 locally" style="display:block;height:24px" /></a></div></div>
+<div class="synedu-lesson-shell not-prose" style="box-sizing:border-box;margin:8px 0 24px;padding:20px;border:1px solid #243b53;border-radius:16px;background:#102a43;color:#fff;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"><div class="synedu-lesson-shell__top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap"><div><div class="synedu-lesson-shell__eyebrow" style="margin-bottom:5px;color:#5eead4;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase">SynEdu learning path</div><div class="synedu-lesson-shell__meta" style="font-size:16px;font-weight:750">Lesson 2 of 9 <span style="color:#9fb3c8;font-weight:500">· Stage 1 · Fundamentals</span></div></div><span class="synedu-lesson-shell__progress-label" style="color:#bcccdc;font-size:12px;font-weight:700">22% complete</span></div><div class="synedu-lesson-shell__track" style="height:5px;margin:16px 0 18px;overflow:hidden;border-radius:999px;background:#334e68"><span style="display:block;width:22%;height:100%;border-radius:inherit;background:#2dd4bf"></span></div><div class="synedu-notebook-actions" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap" role="group" aria-label="Run this lesson"><a class="synedu-launch-badge" href="https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S02.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open S02 in Colab" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://mybinder.org/v2/gh/TieuLongPhan/SynEdu/main?urlpath=lab/tree/docs/downloads/S02.ipynb"><img src="https://mybinder.org/badge_logo.svg" alt="Launch S02 in Binder" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S02.ipynb"><img src="https://img.shields.io/badge/download-.ipynb-2563eb?logo=jupyter&amp;logoColor=white" alt="Download S02 notebook" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="../../docs/installing"><img src="https://img.shields.io/badge/run-locally-334e68?logo=jupyter&amp;logoColor=white" alt="Run S02 locally" style="display:block;height:24px" /></a></div></div>
 
 This talktorial studies graph homomorphisms as the matching language behind molecular equivalence, symmetry, substructure search, and later reaction-rule application. RDKit provides chemistry-native matching, while NetworkX keeps the graph homomorphism explicit and inspectable [@rdkit_docs; @networkx_docs].
 
@@ -157,12 +157,14 @@ $$
 \Phi_E : E(G)\times E(H)\to\{\text{true},\text{false}\},
 $$
 
-Throughout this talktorial, we use a *strict-but-minimal* label model:
+For molecular isomorphism, the strict label model used later in this
+talktorial is:
 
-- atom: `element`, `formal_charge`, `aromatic`,
+- atom: `element`, `formal_charge`, `aromatic`, `hcount`,
 - bond: `order`.
 
-This keeps the equivalence relation explicit and reproducible; later notebooks revisit and relax these choices.
+The first comparison below deliberately starts with a coarser atom matcher so
+the exercise can show why the additional atom attributes matter.
 
 ```{code-cell}
 from rdkit import Chem
@@ -184,7 +186,10 @@ def node_match(n1, n2):
 
 
 def edge_match(e1, e2):
-    return int(e1.get("order", 1)) == int(e2.get("order", 1))
+    return (
+        abs(float(e1.get("order", 1.0)) - float(e2.get("order", 1.0))) < 1e-9
+        and bool(e1.get("aromatic", False)) == bool(e2.get("aromatic", False))
+    )
 
 
 def iso_and_count(G1, G2, nm, em):
@@ -192,7 +197,7 @@ def iso_and_count(G1, G2, nm, em):
     return gm.is_isomorphic(), sum(1 for _ in gm.isomorphisms_iter())
 
 
-print("=== simple matcher (element + order) ===")
+print("=== simple matcher (element + bond labels) ===")
 for name in pairs:
     G1 = graphs[f"{name}_a"]
     G2 = graphs[f"{name}_b"]
@@ -241,7 +246,11 @@ assert not iso_and_count(graphs["aniline_a"], graphs["aniline_b"], enhanced_node
 
 ### 2.1. Automorphism
 
-**Observation.** In the benzene example you enumerated **12 mappings** - these are the automorphisms of the benzene heavy-atom graph (the dihedral group \(D_6\), where \(|D_6| = 12\)).
+**Observation.** In the benzene example you enumerated **12 mappings**—the
+automorphisms of the benzene heavy-atom graph. We denote this dihedral group
+by \(\operatorname{Dih}_6\), with
+\(\lvert\operatorname{Dih}_6\rvert=12\), avoiding the two competing
+conventions for the symbol \(D_6\).
 
 **Definition.** An automorphism [@bonchev1991chemical; @diestel2017graph] is a graph isomorphism from the graph to itself:
 
@@ -257,11 +266,15 @@ $$
 
 ```{code-cell}
 def node_match(n1, n2):
-    return n1.get("element") == n2.get("element")
+    keys = ("element", "formal_charge", "aromatic", "hcount")
+    return all(n1.get(key) == n2.get(key) for key in keys)
 
 
 def edge_match(e1, e2):
-    return int(e1.get("order", 1)) == int(e2.get("order", 1))
+    return (
+        abs(float(e1.get("order", 1.0)) - float(e2.get("order", 1.0))) < 1e-9
+        and bool(e1.get("aromatic", False)) == bool(e2.get("aromatic", False))
+    )
 
 
 def enumerate_automorphisms(G: nx.Graph):
@@ -282,7 +295,9 @@ Each automorphism $\sigma \in \mathrm{Aut}(G)$ is a bijection $\sigma: V \to V$.
 We represent it as a **permutation matrix** $P_\sigma \in \{0,1\}^{|V| \times |V|}$
 where $P_\sigma[i,j] = 1$ iff $\sigma(v_i) = v_j$.
 
-For benzene the full group has order $|\mathrm{Aut}(G)| = 12$ (dihedral group $D_6$).
+For benzene the full group has order
+$|\mathrm{Aut}(G)| = 12$ (the dihedral group
+$\operatorname{Dih}_6$).
 
 ```{code-cell}
 :tags: [hide-input]
@@ -294,7 +309,8 @@ from networkx.algorithms.isomorphism import GraphMatcher
 
 
 def _node_match_sym(n1, n2):
-    return n1.get('element') == n2.get('element')
+    keys = ("element", "formal_charge", "aromatic", "hcount")
+    return all(n1.get(key) == n2.get(key) for key in keys)
 
 
 _mol = Chem.MolFromSmiles('c1ccccc1')  # benzene
@@ -333,7 +349,7 @@ for ax in axes[n_show:]:
     ax.axis('off')
 
 fig.suptitle(
-    f'Aut(benzene): |Aut(G)| = {len(_autos)})',
+    f'Aut(benzene): |Aut(G)| = {len(_autos)}',
     fontsize=11,
     fontweight='bold',
 )
@@ -383,12 +399,14 @@ u \sim v
 $$
 
 **Chemical intuition.**  
-Atoms in the same orbit are indistinguishable by connectivity alone-they
-share the same local environment and chemical role.
+Atoms in the same orbit are indistinguishable under the graph attributes
+retained by this model. This does not imply equivalence under omitted
+information such as three-dimensional conformation or unrepresented
+stereochemistry.
 
 **Benzene example.**
 $$
-|\mathrm{Aut}(G)| = |D_6| = 12,
+|\mathrm{Aut}(G)| = |\operatorname{Dih}_6| = 12,
 $$
 and all six carbon atoms form a **single orbit**.
 
@@ -721,7 +739,7 @@ without collisions (injective), while respecting chemical identity (types).
 
 NetworkX exposes this via the VF2-style matcher implemented in `networkx.algorithms.isomorphism` [@networkx_docs; @cordella2004subgraph]:
 
-- `GraphMatcher.subgraph_isomorphisms_iter()` - enumerates all injective embeddings
+- `GraphMatcher.subgraph_monomorphisms_iter()` - enumerates all injective embeddings
   that satisfy `node_match` and `edge_match`.
 
 For downstream tasks (reaction center extraction, rule application, deduplication),
@@ -737,23 +755,47 @@ from networkx.algorithms import isomorphism as iso
 from rdkit import Chem
 
 
+def substructure_node_match(host_attrs, pattern_attrs):
+    """Match the query labels used for an aromatic ring embedding."""
+    return (
+        host_attrs.get("element") == pattern_attrs.get("element")
+        and bool(host_attrs.get("aromatic", False))
+        == bool(pattern_attrs.get("aromatic", False))
+    )
+
+
+def substructure_edge_match(host_attrs, pattern_attrs):
+    return (
+        abs(
+            float(host_attrs.get("order", 1.0))
+            - float(pattern_attrs.get("order", 1.0))
+        )
+        < 1e-9
+        and bool(host_attrs.get("aromatic", False))
+        == bool(pattern_attrs.get("aromatic", False))
+    )
+
+
 def nx_subgraph_matches(
     host_G: nx.Graph,
     pattern_G: nx.Graph,
     *,
     invert: bool = True,
-    node_match_fn=node_match,
-    edge_match_fn=edge_match,
+    node_match_fn=substructure_node_match,
+    edge_match_fn=substructure_edge_match,
 ) -> List[Dict]:
     """
     Enumerate subgraph isomorphisms of `pattern_G` inside `host_G`.
 
     Notes
     -----
-    NetworkX's GraphMatcher(host, pattern).subgraph_isomorphisms_iter()
-    yields mappings of the form:  host_node -> pattern_node  (G1 -> G2).
+    NetworkX's GraphMatcher(host, pattern).subgraph_monomorphisms_iter()
+    yields mappings of the form: host_node -> pattern_node (G1 -> G2).
 
-    If you want the more intuitive direction (pattern -> host), set `invert=True`.
+    If you want the more intuitive direction (pattern -> host), set
+    `invert=True`. The default query matcher intentionally omits hydrogen
+    count: a fused aromatic carbon can satisfy a ring query even though its
+    hydrogen count differs from the corresponding atom in isolated benzene.
     """
     GM = iso.GraphMatcher(
         host_G,
@@ -763,7 +805,7 @@ def nx_subgraph_matches(
     )
 
     out: List[Dict] = []
-    for m_host_to_pat in GM.subgraph_isomorphisms_iter():
+    for m_host_to_pat in GM.subgraph_monomorphisms_iter():
         if invert:
             out.append({p: h for h, p in m_host_to_pat.items()})
         else:
@@ -880,6 +922,7 @@ def dedup_by_host_image_with_orbits(
     matches: Iterable[Dict[int, int]],
     *,
     orbits: Union[Iterable[Iterable[int]], Mapping[int, int], None] = None,
+    host_autos: Optional[Iterable[Mapping[int, int]]] = None,
     pattern_node_order: Optional[Iterable[int]] = None,
     return_groups: bool = False,
 ) -> Union[List[Dict[int, int]], Dict[Tuple[int, ...], List[Dict[int, int]]]]:
@@ -890,10 +933,11 @@ def dedup_by_host_image_with_orbits(
     ----------
     matches : iterable of dict
         Each mapping is pattern_node -> host_node.
-    orbits : iterable of iterables OR mapping node->rep OR None
-        If iterable-of-iterables, representative for an orbit is min(orbit).
-        If mapping, it should be node -> representative.
-        If None, no orbit canonicalization is applied.
+    host_autos : iterable of host-node mappings, optional
+        Automorphisms used to canonicalize the entire mapped host image.
+    orbits : deprecated
+        Vertex orbits alone cannot canonicalize multi-node host images. They
+        are accepted only together with ``host_autos`` for API compatibility.
     pattern_node_order : iterable of pattern node ids, optional
         Order used to form the per-mapping tuple for selecting the representative.
         If None, inferred deterministically from the first mapping (sorted keys).
@@ -910,7 +954,12 @@ def dedup_by_host_image_with_orbits(
     if not matches:
         return {} if return_groups else []
 
-    node_to_rep = _build_node_to_rep(orbits)
+    if orbits is not None and host_autos is None:
+        raise ValueError(
+            "Vertex orbits alone cannot canonicalize a multi-node host image; "
+            "pass host_autos"
+        )
+    autos = [dict(auto) for auto in host_autos] if host_autos is not None else []
 
     # infer or validate pattern node order
     if pattern_node_order is None:
@@ -919,11 +968,16 @@ def dedup_by_host_image_with_orbits(
     else:
         pattern_node_order = tuple(pattern_node_order)
 
-    # bucket by canonical key (sorted canonicalized host nodes)
+    def canonical_host_image(m: Dict[int, int]) -> Tuple[int, ...]:
+        image = tuple(sorted(m.values()))
+        if not autos:
+            return image
+        return min(tuple(sorted(auto[node] for node in image)) for auto in autos)
+
+    # Bucket by the host image, canonicalized under one whole-graph symmetry.
     buckets: Dict[Tuple[int, ...], List[Dict[int, int]]] = defaultdict(list)
     for m in matches:
-        canonical_nodes = (node_to_rep.get(h, h) for h in m.values())
-        key = tuple(sorted(canonical_nodes))
+        key = canonical_host_image(m)
         buckets[key].append(m)
 
     # if user requested full groups, return them (deterministic ordering by key)
@@ -978,17 +1032,17 @@ print()
 
 # 4. (optional) collapse placements modulo host automorphisms (use host_orbits)
 groups_mod_host = dedup_by_host_image_with_orbits(
-    matches, orbits=host_orbits, return_groups=True
+    matches, orbits=host_orbits, host_autos=host_autos, return_groups=True
 )
 print("Unique classes modulo host automorphisms:", len(groups_mod_host))
 for key, group in groups_mod_host.items():
-    print(" canonical_key (orbits reps):", key, " multiplicity:", len(group))
+    print(" canonical host-image key:", key, " multiplicity:", len(group))
     print("  example mapping:", group[0])
 ```
 
 ```{code-cell}
 :tags: [hide-input]
-# Deduplicate to get the chemically distinct placements (2 benzene rings in naphthalene)
+# Deduplicate to get the two distinct host-node images in naphthalene.
 host_autos_ = enumerate_automorphisms(host_G)
 host_orbits_ = compute_orbits_from_automorphisms(host_G, host_autos_)
 reps = dedup_by_host_image_with_orbits(matches)  # 2 unique placements
@@ -997,7 +1051,7 @@ print(f"Raw matches: {len(matches)}   ->   Unique placements: {len(reps)}")
 
 fig, axes = plt.subplots(1, len(reps), figsize=(6 * len(reps), 5))
 fig.suptitle(
-    f"Benzene in Naphthalene - {len(reps)} chemically distinct placements "
+    f"Benzene ring query in naphthalene - {len(reps)} host-image placements "
     f"(from {len(matches)} raw matches)",
     fontsize=11,
     fontweight="bold",
@@ -1475,7 +1529,8 @@ Our NetworkX matcher uses the explicit graph labels from S01 and requires atom `
 
 So the interpretation is:
 
-- **NetworkX strict** = graph homomorphism (injective, i.e. subgraph isomorphism) with our chosen labels.
+- **NetworkX strict** = a label-preserving graph monomorphism (an injective
+  homomorphism) with our chosen labels.
 - **RDKit uniquify** = toolkit substructure semantics for the query molecule.
 - **Deduplication** = post-processing; it cannot recover embeddings rejected by the matcher.
 
@@ -1602,7 +1657,10 @@ comparison
   symmetry from a liability into a computational advantage.
 
 - **Subgraph isomorphism** is the core operation for rule application later in SynEdu.
-- **MCS** is a chemistry-aware alignment primitive, but it is heuristic and sometimes non-unique; always log settings and timeouts.
+- **MCS** is a chemistry-aware alignment primitive and can be non-unique.
+  RDKit's search is exhaustive unless a timeout interrupts it, in which case
+  the returned result is the best solution found so far; always record matching
+  settings and timeouts.
 - **RDKit vs NetworkX**:
   - RDKit: SMARTS matching, built-in `uniquify`.
   - NetworkX: full control over attributes and homomorphism semantics; you manage deduplication and interpretation.

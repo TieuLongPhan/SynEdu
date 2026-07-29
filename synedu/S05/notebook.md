@@ -13,7 +13,7 @@ kernelspec:
 
 # S05: Reaction Rules as Graph Rewriting
 
-<div class="synedu-lesson-shell not-prose" style="box-sizing:border-box;margin:8px 0 24px;padding:20px;border:1px solid #243b53;border-radius:16px;background:#102a43;color:#fff;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"><div class="synedu-lesson-shell__top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap"><div><div class="synedu-lesson-shell__eyebrow" style="margin-bottom:5px;color:#5eead4;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase">SynEdu learning path</div><div class="synedu-lesson-shell__meta" style="font-size:16px;font-weight:750">Lesson 5 of 9 <span style="color:#9fb3c8;font-weight:500">· Stage 2 · Rule construction</span></div></div><span class="synedu-lesson-shell__progress-label" style="color:#bcccdc;font-size:12px;font-weight:700">56% complete</span></div><div class="synedu-lesson-shell__track" style="height:5px;margin:16px 0 18px;overflow:hidden;border-radius:999px;background:#334e68"><span style="display:block;width:56%;height:100%;border-radius:inherit;background:#2dd4bf"></span></div><div class="synedu-notebook-actions" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap" aria-label="Run this lesson"><a class="synedu-launch-badge" href="https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S05.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open S05 in Colab" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://mybinder.org/v2/gh/TieuLongPhan/SynEdu/main?urlpath=lab/tree/docs/downloads/S05.ipynb"><img src="https://mybinder.org/badge_logo.svg" alt="Launch S05 in Binder" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S05.ipynb"><img src="https://img.shields.io/badge/download-.ipynb-2563eb?logo=jupyter&amp;logoColor=white" alt="Download S05 notebook" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="/docs/installing"><img src="https://img.shields.io/badge/run-locally-334e68?logo=jupyter&amp;logoColor=white" alt="Run S05 locally" style="display:block;height:24px" /></a></div></div>
+<div class="synedu-lesson-shell not-prose" style="box-sizing:border-box;margin:8px 0 24px;padding:20px;border:1px solid #243b53;border-radius:16px;background:#102a43;color:#fff;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"><div class="synedu-lesson-shell__top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap"><div><div class="synedu-lesson-shell__eyebrow" style="margin-bottom:5px;color:#5eead4;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase">SynEdu learning path</div><div class="synedu-lesson-shell__meta" style="font-size:16px;font-weight:750">Lesson 5 of 9 <span style="color:#9fb3c8;font-weight:500">· Stage 2 · Rule construction</span></div></div><span class="synedu-lesson-shell__progress-label" style="color:#bcccdc;font-size:12px;font-weight:700">56% complete</span></div><div class="synedu-lesson-shell__track" style="height:5px;margin:16px 0 18px;overflow:hidden;border-radius:999px;background:#334e68"><span style="display:block;width:56%;height:100%;border-radius:inherit;background:#2dd4bf"></span></div><div class="synedu-notebook-actions" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap" role="group" aria-label="Run this lesson"><a class="synedu-launch-badge" href="https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S05.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open S05 in Colab" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://mybinder.org/v2/gh/TieuLongPhan/SynEdu/main?urlpath=lab/tree/docs/downloads/S05.ipynb"><img src="https://mybinder.org/badge_logo.svg" alt="Launch S05 in Binder" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S05.ipynb"><img src="https://img.shields.io/badge/download-.ipynb-2563eb?logo=jupyter&amp;logoColor=white" alt="Download S05 notebook" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="../../docs/installing"><img src="https://img.shields.io/badge/run-locally-334e68?logo=jupyter&amp;logoColor=white" alt="Run S05 locally" style="display:block;height:24px" /></a></div></div>
 
 This talktorial introduces Double Pushout (DPO) graph rewriting as a formal model for reaction rules. A rule is represented as a span that separates deleted, preserved, and created structure, then applied to molecular graphs by matching, deleting, and gluing [@phan2025synkit; @ehrig2006fundamentals].
 
@@ -36,7 +36,8 @@ After completing this talktorial, you will be able to:
 - identify symmetry-related matches and choose canonical representatives,
 - build the **pushout complement** and check the dangling condition,
 - construct the **pushout** product graph, and
-- chain the steps into a single pipeline that produces exact atom maps.
+- chain the steps into a single pipeline that produces a rewritten product
+  graph together with the explicit rule-to-product correspondence.
 
 +++
 
@@ -107,7 +108,7 @@ E_R\setminus E_K = \text{bonds formed}.
 $$
 Bond-order changes appear as deletion in $L$ and creation in $R$ with endpoints fixed in $K$.
 
-Now we will use a classic *pericyclic* transformation:
+We use a classic *pericyclic* transformation as the running example:
 
 - **Diene**: butadiene (SMILES: `C=CC=C`)
 - **Dienophile**: ethene (SMILES: `C=C`)
@@ -160,7 +161,7 @@ where $D = G \setminus m(L \setminus K)$ is the *pushout complement* (host minus
 from synedu.Utils.reaction import rsmi_to_graph
 from synedu.Utils.Vis.dpo import visualize_dpo_rule
 
-# Now we define left and right patterns with atom map
+# Define atom-mapped left- and right-hand patterns.
 aam = '[C:5]=[C:6].[C:2]([C:3]=[C:4])=[C:1]>>[C:2]1=[C:3][C:4][C:5][C:6][C:1]1'
 L, R = rsmi_to_graph(aam)
 
@@ -202,10 +203,11 @@ def _get_k(
     """
     Build interface graph K from L and R as:
       - nodes: intersection of node IDs
-      - edges: intersection of edge endpoint pairs
-      - edge order in K: min(order_L, order_R)
+      - edges: bonds present with the same label on both sides
 
-    This matches your desired behavior (e.g. 2.0 in L and 1.0 in R -> 1.0 in K).
+    A changed bond is not part of the interface: it is deleted from L and
+    created from R. This keeps both inclusions K -> L and K -> R
+    label-preserving.
     """
     K = nx.Graph()
 
@@ -218,12 +220,20 @@ def _get_k(
             d = dict(R.nodes[n])
         K.add_node(n, **{k: d[k] for k in keep_k_node_attrs if k in d})
 
-    # edges in both (by unordered endpoints)
-    common_edges = set(L.edges()) & set(R.edges())
-    for u, v in common_edges:
-        ol = L.edges[u, v].get(order_key, 0.0)
-        orr = R.edges[u, v].get(order_key, 0.0)
-        K.add_edge(u, v, **{order_key: float(min(ol, orr))})
+    l_edges = {frozenset((u, v)): (u, v, d) for u, v, d in L.edges(data=True)}
+    r_edges = {frozenset((u, v)): (u, v, d) for u, v, d in R.edges(data=True)}
+    for edge_key in set(l_edges) & set(r_edges):
+        u, v, l_data = l_edges[edge_key]
+        r_data = r_edges[edge_key][2]
+        if float(l_data.get(order_key, 0.0)) != float(
+            r_data.get(order_key, 0.0)
+        ):
+            continue
+        if bool(l_data.get("aromatic", False)) != bool(
+            r_data.get("aromatic", False)
+        ):
+            continue
+        K.add_edge(u, v, **dict(l_data))
 
     return K
 
@@ -284,7 +294,7 @@ After forming $H$ check chemical invariants you care about (valence bounds, form
 
 +++
 
-Now we try with Diels Alder reaction as an example
+The following Diels–Alder example demonstrates the construction.
 
 ```{code-cell}
 from synedu.Utils.conversion import smiles_to_graph
@@ -376,7 +386,7 @@ Implement `find_pattern_match(G, L)` using `node_match`, `edge_match`, `_automor
 
 ---
 
-<details> <summary><b>Solution:</b></summary>
+<details class="synedu-solution"> <summary><b>Solution:</b></summary>
 
 ```python
 def find_pattern_match(G: nx.Graph, L: nx.Graph) -> Iterable[Dict[Any, Any]]:
@@ -688,7 +698,9 @@ $$
 C_2\in V_{\text{del}},\; O_3\notin V_{\text{del}}.
 $$
 
-This would leave a **dangling bond** at $O_3$.
+Both host edges $\{C_1,C_2\}$ and $\{C_2,O_3\}$ lie outside $m(E(L))$ while
+touching the deleted node. Removing $C_2$ would therefore leave dangling
+half-edges at $C_1$ and $O_3$.
 
 ❌ **Dangling condition violated → no pushout complement.**
 
@@ -736,7 +748,7 @@ but is not deleted as part of `L \ K`).
 
 ---
 
-<details> <summary><b>Solution</b></summary>
+<details class="synedu-solution"> <summary><b>Solution</b></summary>
 
 ```python
 import networkx as nx
@@ -837,21 +849,29 @@ def pushout_complement(
     del_L_nodes = set(L.nodes()) - set(K.nodes())
     del_G_nodes = {m[u] for u in del_L_nodes}
 
-    # dangling condition for NODE deletions (half-bonds)
-    if check_dangling_nodes:
-        for gx in del_G_nodes:
-            for gy in G.neighbors(gx):
-                if gy not in del_G_nodes:
-                    raise ValueError(
-                        f"Dangling condition violated: deleting node {gx} leaves edge to preserved node {gy}."
-                    )
-
     # --- edge sets (by unordered endpoints) ---
     K_edges = {frozenset((u, v)) for u, v in K.edges()}
     L_edges = {frozenset((u, v)) for u, v in L.edges()}
 
-    # edges to delete: those in L but not in K
+    # Edges deleted by the rule, mapped into G.
     del_L_edges = [e for e in L_edges if e not in K_edges]
+    del_G_edge_keys = {
+        frozenset((m[u], m[v]))
+        for edge in del_L_edges
+        for u, v in [tuple(edge)]
+    }
+
+    # Dangling condition: every host edge incident to a deleted node must be
+    # the image of an edge explicitly deleted by L <- K.
+    if check_dangling_nodes:
+        for gx in del_G_nodes:
+            for gy in G.neighbors(gx):
+                if frozenset((gx, gy)) not in del_G_edge_keys:
+                    raise ValueError(
+                        "Dangling condition violated: edge "
+                        f"({gx}, {gy}) is incident to a deleted node but is "
+                        "not deleted by the rule."
+                    )
 
     # --- start D as a copy of G ---
     D = G.copy()
@@ -873,7 +893,8 @@ def pushout_complement(
     # 2) delete nodes (removes incident edges)
     D.remove_nodes_from([n for n in del_G_nodes if n in D])
 
-    # 3) RELABEL interface edges to K's order (your key requirement)
+    # 3) Verify that the preserved interface is still present. Interface edge
+    # labels already agree with L and R, so no relabeling occurs here.
     for u, v, kdata in K.edges(data=True):
         gu, gv = m[u], m[v]
         if gu in del_G_nodes or gv in del_G_nodes:
@@ -885,14 +906,18 @@ def pushout_complement(
             )
         if order_key not in kdata:
             raise KeyError(f"K edge ({u},{v}) missing '{order_key}'")
-        # overwrite order in D to the interface (base) order
-        D.edges[gu, gv][order_key] = float(kdata[order_key])
+        if float(D.edges[gu, gv].get(order_key, 0.0)) != float(
+            kdata[order_key]
+        ):
+            raise ValueError(
+                f"Interface edge ({gu},{gv}) is not label-preserving."
+            )
 
     m_K = {k: m[k] for k in K.nodes()}
     return D, m_K
 ```
 
-Now we have 2 `D` since we have 2 maps
+The two matches produce two corresponding pushout complements \(D\).
 
 ```{code-cell}
 D1, mk1 = pushout_complement(L, K, G, matches[0])
@@ -959,7 +984,8 @@ print(f'D: {D1.number_of_nodes()} nodes, {D1.number_of_edges()} edges')
 
 ### 2.3 Pushout
 
-Now we have $D$ and $m'$ (or $m_K$); with interface $K$ and right pattern $R$, we construct the pushout $H$
+Given \(D\), \(m'\) (equivalently \(m_K\)), the interface \(K\), and the
+right-hand pattern \(R\), the pushout constructs \(H\):
 
 
 $$
@@ -1076,7 +1102,7 @@ draw_molecular_graph(
     highlight_color="#FF7F0E",
 )
 axes[0].set_title(
-    "Host graph G\n(orange = matched region ℓ(L))", fontsize=9, weight="bold"
+    "Host graph G\n(orange = matched region m(L))", fontsize=9, weight="bold"
 )
 
 draw_molecular_graph(D1, ax=axes[1], show_indices=True)
@@ -1098,7 +1124,7 @@ Robust, configurable, and returns a new graph (or mutates in-place).
 
 ---
 
-<details> <summary><b>Solution</b></summary>
+<details class="synedu-solution"> <summary><b>Solution</b></summary>
 
 ```python
 import networkx as nx
@@ -1138,12 +1164,12 @@ def h_to_implicit(G: nx.Graph) -> nx.Graph:
 
 +++
 
-Now we make it into 1 pipeline now
+The complete DPO application pipeline is:
 
 ```{code-cell}
 from synedu.Utils.conversion import graph_to_smi, smiles_to_graph
 from synedu.Utils.reaction import rsmi_to_graph
-from synedu.Utils.graph import h_to_implicit  # assume we have now
+from synedu.Utils.graph import h_to_implicit
 
 
 def dpo_rule_apply(smiles, rule):
@@ -1167,7 +1193,7 @@ def dpo_rule_apply(smiles, rule):
 ```
 
 ```{code-cell}
-# Now we define left and right patterns with atom map
+# Define atom-mapped left- and right-hand patterns.
 input = 'CC=CC=C.C=CC=O'
 rule = '[C:5]=[C:6].[C:2]([C:3]=[C:4])=[C:1]>>[C:2]1=[C:3][C:4][C:5][C:6][C:1]1'
 dpo_rule_apply(input, rule)
@@ -1307,15 +1333,17 @@ Given an input SMILES `CC1C=CCCC1C=O`, can we apply the **inverse** of the above
 
 ---
 
-<details> <summary><b>Solution</b></summary>
+<details class="synedu-solution"> <summary><b>Solution</b></summary>
 
 Yes.  
 In DPO rewriting, a rule
 $$
 p:\quad L \xleftarrow{} K \xrightarrow{} R
 $$
-is inverted simply by **swapping $L$ and $R$**. The same categorical
-construction (match → pushout complement → pushout) applies.
+defines an inverse span by **swapping $L$ and $R$**. The same categorical
+construction (match → pushout complement → pushout) applies, provided the
+inverse match satisfies its own gluing conditions. The inverse application
+can yield zero, one, or many precursor candidates.
 
 
 ```python
@@ -1483,19 +1511,32 @@ For bond changes, this corresponds to the non-zero off-diagonal entries of the �
 
 #### The dangling condition
 
-The dangling condition is not a limitation — it is a *correctness guarantee*. Ignoring it would produce invalid graphs (edges pointing to deleted nodes). In practice, SynKit resolves this by tracking implicit hydrogens separately: an atom deleted from the heavy-atom graph implicitly releases its H-count, which is then re-assigned after the rewrite.
+The dangling condition is a structural correctness requirement: ignoring it
+would leave edges whose deleted endpoint no longer exists. Implicit hydrogens
+need separate domain-aware bookkeeping because they are attributes of the
+heavy-atom graph rather than explicit DPO vertices; any hydrogen-count update
+must also pass the chemical validation step.
 
 ---
 
 #### Reversibility
 
-DPO rules are **naturally invertible**: swapping $L$ and $R$ turns any forward synthesis rule into a retrosynthetic disconnection rule. This is the theoretical foundation for the backward prediction pipeline in **S08**: the same `SynReactor` engine is reused with $L$ and $R$ exchanged.
+At the level of an unconditional DPO span, swapping $L$ and $R$ defines the
+inverse rule, and a valid forward derivation can be read backward. This does
+not make retrosynthesis unique: the inverse rule may have many matches, and
+chemical application conditions or post-processing constraints must also be
+reversed appropriately. **S08** reuses `SynReactor` with $L$ and $R$
+exchanged to enumerate those backward candidates.
 
 ---
 
 #### Orbit-aware deduplication (connection to S02)
 
-Two matches $m_1, m_2: L \hookrightarrow G$ that differ only by an automorphism of $L$ produce **isomorphic** products $H_1 \cong H_2$. Collapsing them before running the rewrite avoids redundant computation and prevents inflated candidate lists in the prediction pipeline (**S08**).
+Two matches $m_1, m_2: L \hookrightarrow G$ that differ by an automorphism of the
+**whole rule span** \(L \leftarrow K \rightarrow R\) produce isomorphic products.
+An automorphism of \(L\) alone is insufficient when it does not preserve \(K\)
+and the correspondence with \(R\). Collapsing matches under the rule-automorphism
+group avoids redundant computation without merging distinct rewrites.
 
 ---
 

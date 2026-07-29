@@ -31,8 +31,10 @@ Getting comfortable with the executable-document format.
 :::
 
 :::{card} 🧪 Cheminformatics
-Curated lists that go well beyond what SynEdu covers.
+Notebook collections and curated lists that go beyond SynEdu's scope.
 
+- [TeachOpenCADD talktorials](https://projects.volkamerlab.org/teachopencadd/all_talktorials.html)
+- [Introduction to Artificial Intelligence for Life Science Students](https://github.com/kochgroup/intro_pharma_ai)
 - [RDKit UGM resource list](https://github.com/rdkit/UGM_2020/blob/master/info/curated_list_of_resources.md)
 - [Open-source cheminformatics resources](https://github.com/PatWalters/resources/blob/main/cheminformatics_resources.md)
 - [Awesome Cheminformatics](https://github.com/hsiaoyi0504/awesome-cheminformatics#resources)

@@ -13,7 +13,12 @@ from pathlib import Path
 import jupytext
 import nbformat
 
-from scripts.prepare_jupyter_book import RAW_BASE, _export_notebook
+from scripts.prepare_jupyter_book import (
+    DOCS_BASE,
+    RAW_BASE,
+    _export_notebook,
+    _serialized,
+)
 
 
 def _iter_notebooks(repo_root: Path):
@@ -91,6 +96,8 @@ def test_colab_exports_are_portable_and_deterministic():
             cell.source for cell in first.cells if cell.cell_type == "markdown"
         )
         assert "../../docs/_static/" not in markdown
+        assert 'href="/' not in markdown
+        assert f'href="{DOCS_BASE}/docs/installing"' in markdown
 
 
 def test_published_notebook_exports_match_sources():
@@ -105,8 +112,8 @@ def test_published_notebook_exports_match_sources():
 
     for source in sources:
         published = downloads / f"{source.parent.name}.ipynb"
-        expected = nbformat.writes(_export_notebook(source)) + "\n"
-        assert published.read_text() == expected, (
+        expected = _serialized(_export_notebook(source))
+        assert published.read_text(encoding="utf-8") == expected, (
             f"{published} is stale; regenerate exports with "
             "`make build-downloads DOWNLOAD_DIR=docs/downloads`"
         )

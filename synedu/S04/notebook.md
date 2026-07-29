@@ -13,7 +13,7 @@ kernelspec:
 
 # S04: Atom Mapping as Graph Isomorphism
 
-<div class="synedu-lesson-shell not-prose" style="box-sizing:border-box;margin:8px 0 24px;padding:20px;border:1px solid #243b53;border-radius:16px;background:#102a43;color:#fff;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"><div class="synedu-lesson-shell__top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap"><div><div class="synedu-lesson-shell__eyebrow" style="margin-bottom:5px;color:#5eead4;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase">SynEdu learning path</div><div class="synedu-lesson-shell__meta" style="font-size:16px;font-weight:750">Lesson 4 of 9 <span style="color:#9fb3c8;font-weight:500">· Stage 2 · Rule construction</span></div></div><span class="synedu-lesson-shell__progress-label" style="color:#bcccdc;font-size:12px;font-weight:700">44% complete</span></div><div class="synedu-lesson-shell__track" style="height:5px;margin:16px 0 18px;overflow:hidden;border-radius:999px;background:#334e68"><span style="display:block;width:44%;height:100%;border-radius:inherit;background:#2dd4bf"></span></div><div class="synedu-notebook-actions" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap" aria-label="Run this lesson"><a class="synedu-launch-badge" href="https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S04.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open S04 in Colab" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://mybinder.org/v2/gh/TieuLongPhan/SynEdu/main?urlpath=lab/tree/docs/downloads/S04.ipynb"><img src="https://mybinder.org/badge_logo.svg" alt="Launch S04 in Binder" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S04.ipynb"><img src="https://img.shields.io/badge/download-.ipynb-2563eb?logo=jupyter&amp;logoColor=white" alt="Download S04 notebook" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="/docs/installing"><img src="https://img.shields.io/badge/run-locally-334e68?logo=jupyter&amp;logoColor=white" alt="Run S04 locally" style="display:block;height:24px" /></a></div></div>
+<div class="synedu-lesson-shell not-prose" style="box-sizing:border-box;margin:8px 0 24px;padding:20px;border:1px solid #243b53;border-radius:16px;background:#102a43;color:#fff;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"><div class="synedu-lesson-shell__top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap"><div><div class="synedu-lesson-shell__eyebrow" style="margin-bottom:5px;color:#5eead4;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase">SynEdu learning path</div><div class="synedu-lesson-shell__meta" style="font-size:16px;font-weight:750">Lesson 4 of 9 <span style="color:#9fb3c8;font-weight:500">· Stage 2 · Rule construction</span></div></div><span class="synedu-lesson-shell__progress-label" style="color:#bcccdc;font-size:12px;font-weight:700">44% complete</span></div><div class="synedu-lesson-shell__track" style="height:5px;margin:16px 0 18px;overflow:hidden;border-radius:999px;background:#334e68"><span style="display:block;width:44%;height:100%;border-radius:inherit;background:#2dd4bf"></span></div><div class="synedu-notebook-actions" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap" role="group" aria-label="Run this lesson"><a class="synedu-launch-badge" href="https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S04.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open S04 in Colab" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://mybinder.org/v2/gh/TieuLongPhan/SynEdu/main?urlpath=lab/tree/docs/downloads/S04.ipynb"><img src="https://mybinder.org/badge_logo.svg" alt="Launch S04 in Binder" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S04.ipynb"><img src="https://img.shields.io/badge/download-.ipynb-2563eb?logo=jupyter&amp;logoColor=white" alt="Download S04 notebook" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="../../docs/installing"><img src="https://img.shields.io/badge/run-locally-334e68?logo=jupyter&amp;logoColor=white" alt="Run S04 locally" style="display:block;height:24px" /></a></div></div>
 
 This talktorial connects molecular alignment to atom-to-atom mapping. We build transparent MCS-based maps, compare them with RXNMapper, and use Imaginary Transition State (ITS) graphs as a map-number-invariant representation of reaction change [@phan2025synkit; @schwaller2021extraction; @fujita1986description].
 
@@ -84,7 +84,8 @@ fig = draw_rxn_graph(
 )
 ```
 
-Now we convert them into reactant and product graphs using `rsmi_to_graph`.
+Convert the reaction SMILES into reactant and product graphs with
+`rsmi_to_graph`.
 
 ```{code-cell}
 import matplotlib.pyplot as plt
@@ -240,7 +241,7 @@ maps = mcs_networkx(
 maps
 ```
 
-Now we can just add `atom_maps` to node attribute
+Store the resulting atom correspondence as the `atom_map` node attribute.
 
 ```{code-cell}
 for rid, pid in maps[0].items():
@@ -260,7 +261,7 @@ The convention is that each matched atom pair shares the **same
 
 ---
 
-<details> <summary><b>Solution:</b></summary>
+<details class="synedu-solution"> <summary><b>Solution:</b></summary>
 
 ```python
 def assign_atom_map_r_to_p(r, p, mapping):
@@ -318,7 +319,7 @@ def assign_atom_map_r_to_p(r, p, mapping):
 ```
 
 ```{code-cell}
-# Now we convert back to rsmi
+# Serialize the mapped graphs back to reaction SMILES.
 from synedu.Utils.reaction import graph_to_rsmi
 
 aam = graph_to_rsmi(r, p)
@@ -400,7 +401,7 @@ plt.tight_layout(rect=[0, 0.12, 1, 1])
 plt.show()
 ```
 
-Now we combine into 1 function
+The complete MCS-based mapping routine is:
 
 ```{code-cell}
 def mcs_aam(rsmi, node_attrs=('element',)):
@@ -436,7 +437,7 @@ Explain why.
 
 ---
 
-<details> <summary><b>Solution:</b></summary>
+<details class="synedu-solution"> <summary><b>Solution:</b></summary>
 
 ```python
 aams = []
@@ -729,7 +730,8 @@ Given a balanced reaction and an atom map $\alpha$ (a bijection between reactant
    (br_{ij},\,bp_{ij}).
    $$
 
-4. The **reaction center** is simply the set of edges with a change:
+4. In the edge-edit model used in this lesson, the **reaction center** is the
+   set of edges with a change:
    $$
    E_{\mathrm{rc}}=\{(i,j):\; br_{ij}\ne bp_{ij}\}.
    $$
@@ -755,7 +757,11 @@ $$
 \Gamma = (V,\, E,\, \mathbf{a},\, \mathbf{b}_{\text{ITS}})
 $$
 
-where $V$ is the mapped atom set obtained by identifying each $v \in V_R$ with $\mu(v) \in V_P$, $E = E_R \cup E_P$ after this identification, and the ITS edge attribute is:
+where $V$ is the mapped atom set obtained by identifying each $v \in V_R$
+with $\mu(v) \in V_P$, $E = E_R \cup E_P$ after this identification,
+$\mathbf{a}(v)=\bigl(\mathbf{a}_r(v),\mathbf{a}_p(v)\bigr)$ stores the
+reactant- and product-side atom attributes (an invariant attribute such as
+element may be stored once), and the ITS edge attribute is:
 
 $$
 \mathbf{b}_{\text{ITS}}(e) = (b_r(e),\, b_p(e))
@@ -765,13 +771,19 @@ $$
 where $b_r(e)$ is the bond order of edge $e$ in the reactants (0 if absent) and $b_p(e)$ is the bond order in the products (0 if absent).
 
 **Definition (Reaction Center).**  
-The *reaction center* $\mathrm{RC}(\Gamma)$ is the subgraph of the ITS induced by edges where $b_r \neq b_p$:
+The *reaction center* $\mathrm{RC}(\Gamma)$ is the edge-defined subgraph of the
+ITS containing exactly the edges where $b_r \neq b_p$ and their endpoints:
 
 $$
 E_{\mathrm{RC}} = \{e \in E(\Gamma) \mid b_r(e) \neq b_p(e)\}
 $$
 
 These are the bonds that are **broken** ($b_r > 0, b_p = 0$), **formed** ($b_r = 0, b_p > 0$), or **changed** ($b_r \neq b_p$, both $> 0$).
+
+This is an **edge-defined reaction center**. A richer attributed-graph model
+should also include vertices for which a tracked node attribute changes—for
+example formal charge, radical state, or stereochemistry—even when no incident
+bond order changes.
 
 **Definition (ΔBE Entry).**  
 Following the Dugundji–Ugi bond-electron matrix formalism [@dugundji1973algebraic], for each atom pair $(i, j)$ with $i \neq j$: $\Delta\mathrm{BE}_{ij} = b_p(i,j) - b_r(i,j)$.  
@@ -820,17 +832,17 @@ def build_its(
     order_key: str = "order",
     include_zero_edges: bool = False,
     require_element_match: bool = True,
-) -> Tuple[nx.Graph, List[Tuple[int, int]]]:
+) -> nx.Graph:
 
     map_r = {
         data[atom_map_key]: n
         for n, data in G_r.nodes(data=True)
-        if atom_map_key in data
+        if atom_map_key in data and data[atom_map_key]
     }
     map_p = {
         data[atom_map_key]: n
         for n, data in G_p.nodes(data=True)
-        if atom_map_key in data
+        if atom_map_key in data and data[atom_map_key]
     }
     all_maps = sorted(set(map_r.keys()) | set(map_p.keys()))
 
@@ -987,7 +999,7 @@ Now develop function `get_reaction_center` to extract the reaction center
 
 ---
 
-<details> <summary><b>Solution:</b></summary>
+<details class="synedu-solution"> <summary><b>Solution:</b></summary>
 
 ```python
 import networkx as nx
@@ -1023,7 +1035,7 @@ def get_reaction_center(
 
 +++
 
-Now we combine to 1 function `rsmi_to_its`
+The parsing and ITS-construction steps are combined in `rsmi_to_its`:
 
 ```{code-cell}
 import networkx as nx
@@ -1323,7 +1335,12 @@ plt.tight_layout()
 plt.show()
 ```
 
-While atom-map equivalence is hard to judge directly, the corresponding ITS graphs are equivalent if and only if they are isomorphic, a concept we already encountered in **S02** [@bonchev1991chemical].
+For the fully mapped reactions and attribute schema used here, two atom maps
+are equivalent up to renumbering if and only if their ITS graphs are
+label-preserving isomorphic, a concept introduced in **S02**
+[@bonchev1991chemical]. This statement is relative to the encoded attributes:
+an omitted feature such as stereochemistry cannot be recovered by the
+isomorphism test.
 
 ```{code-cell}
 import networkx as nx
@@ -1334,7 +1351,7 @@ def its_isomorphic(
     G1: nx.Graph,
     G2: nx.Graph,
     *,
-    node_attrs=("element", "aromatic", "charge", "hcount"),
+    node_attrs=("element", "aromatic", "formal_charge", "hcount"),
     edge_attrs=("order",),
 ) -> bool:
     """
@@ -1373,7 +1390,12 @@ print("- ITS₁ vs ITS₃:", its_isomorphic(its1, its3))
 
 **MCS vs RXNMapper — ITS isomorphism comparison**
 
-Two atom mappings are **equivalent** if and only if their ITS graphs are isomorphic. The table below runs both methods on three test reactions and uses ITS isomorphism to check whether they agree. Disagreement flags a case where one method makes a chemically different assignment.
+Under this lesson's ITS attribute schema, two atom mappings are **equivalent**
+if and only if their ITS graphs are label-preserving isomorphic. The table
+below runs both methods on three test reactions and uses ITS isomorphism to
+check whether they agree. Disagreement flags a different encoded atom
+correspondence; deciding which correspondence is chemically preferable
+requires additional evidence.
 
 ```{code-cell}
 import pandas as pd
@@ -1447,14 +1469,14 @@ Tasks:
 
 ---
 
-<details> <summary><b>Solution:</b></summary>
+<details class="synedu-solution"> <summary><b>Solution:</b></summary>
 
 ```python
 import pandas as pd
 def is_maps_eq(
     maps,
     *,
-    node_attrs=("element", "aromatic", "charge", "hcount"),
+    node_attrs=("element", "aromatic", "formal_charge", "hcount"),
     edge_attrs=("order",),
 ):
     """

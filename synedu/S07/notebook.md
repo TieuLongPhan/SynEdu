@@ -13,7 +13,7 @@ kernelspec:
 
 # S07: From Atom-Mapped Reactions to DPO Rules
 
-<div class="synedu-lesson-shell not-prose" style="box-sizing:border-box;margin:8px 0 24px;padding:20px;border:1px solid #243b53;border-radius:16px;background:#102a43;color:#fff;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"><div class="synedu-lesson-shell__top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap"><div><div class="synedu-lesson-shell__eyebrow" style="margin-bottom:5px;color:#5eead4;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase">SynEdu learning path</div><div class="synedu-lesson-shell__meta" style="font-size:16px;font-weight:750">Lesson 7 of 9 <span style="color:#9fb3c8;font-weight:500">· Stage 2 · Rule construction</span></div></div><span class="synedu-lesson-shell__progress-label" style="color:#bcccdc;font-size:12px;font-weight:700">78% complete</span></div><div class="synedu-lesson-shell__track" style="height:5px;margin:16px 0 18px;overflow:hidden;border-radius:999px;background:#334e68"><span style="display:block;width:78%;height:100%;border-radius:inherit;background:#2dd4bf"></span></div><div class="synedu-notebook-actions" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap" aria-label="Run this lesson"><a class="synedu-launch-badge" href="https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S07.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open S07 in Colab" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://mybinder.org/v2/gh/TieuLongPhan/SynEdu/main?urlpath=lab/tree/docs/downloads/S07.ipynb"><img src="https://mybinder.org/badge_logo.svg" alt="Launch S07 in Binder" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S07.ipynb"><img src="https://img.shields.io/badge/download-.ipynb-2563eb?logo=jupyter&amp;logoColor=white" alt="Download S07 notebook" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="/docs/installing"><img src="https://img.shields.io/badge/run-locally-334e68?logo=jupyter&amp;logoColor=white" alt="Run S07 locally" style="display:block;height:24px" /></a></div></div>
+<div class="synedu-lesson-shell not-prose" style="box-sizing:border-box;margin:8px 0 24px;padding:20px;border:1px solid #243b53;border-radius:16px;background:#102a43;color:#fff;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"><div class="synedu-lesson-shell__top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap"><div><div class="synedu-lesson-shell__eyebrow" style="margin-bottom:5px;color:#5eead4;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase">SynEdu learning path</div><div class="synedu-lesson-shell__meta" style="font-size:16px;font-weight:750">Lesson 7 of 9 <span style="color:#9fb3c8;font-weight:500">· Stage 2 · Rule construction</span></div></div><span class="synedu-lesson-shell__progress-label" style="color:#bcccdc;font-size:12px;font-weight:700">78% complete</span></div><div class="synedu-lesson-shell__track" style="height:5px;margin:16px 0 18px;overflow:hidden;border-radius:999px;background:#334e68"><span style="display:block;width:78%;height:100%;border-radius:inherit;background:#2dd4bf"></span></div><div class="synedu-notebook-actions" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap" role="group" aria-label="Run this lesson"><a class="synedu-launch-badge" href="https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S07.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open S07 in Colab" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://mybinder.org/v2/gh/TieuLongPhan/SynEdu/main?urlpath=lab/tree/docs/downloads/S07.ipynb"><img src="https://mybinder.org/badge_logo.svg" alt="Launch S07 in Binder" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="https://github.com/TieuLongPhan/SynEdu/raw/main/docs/downloads/S07.ipynb"><img src="https://img.shields.io/badge/download-.ipynb-2563eb?logo=jupyter&amp;logoColor=white" alt="Download S07 notebook" style="display:block;height:24px" /></a><a class="synedu-launch-badge" href="../../docs/installing"><img src="https://img.shields.io/badge/run-locally-334e68?logo=jupyter&amp;logoColor=white" alt="Run S07 locally" style="display:block;height:24px" /></a></div></div>
 
 This talktorial builds the bridge from atom-mapped reaction records to a reusable DPO reaction-rule library. It combines standardization, ensemble mapping, ITS construction, WL prefiltering, graph isomorphism, and optional MØD export [@phan2025synkit; @shervashidze2011weisfeiler; @andersen2016software].
 
@@ -152,8 +152,17 @@ Compare the canonicalized mapper outputs by exact string equality; rows where al
 
 +++
 
-**Definition (Canonical Reaction SMILES).**  
-Two atom-mapped reaction SMILES $s_1$ and $s_2$ are *equivalent* if their corresponding ITS graphs $\Gamma_1$ and $\Gamma_2$ are isomorphic as labeled graphs: $\Gamma_1 \cong \Gamma_2$. The *canonical reaction SMILES* $\mathrm{canon}(s)$ is the lexicographically smallest string in the equivalence class, obtained by applying a canonical atom-map permutation $\pi: \mathbb{N} \to \mathbb{N}$ computed via WL refinement (approximation) or IR (exact).
+**Definition (Canonical Mapped Reaction Representation).**
+Two atom-mapped reaction SMILES $s_1$ and $s_2$ are *equivalent under the
+chosen ITS schema* if their corresponding ITS graphs $\Gamma_1$ and
+$\Gamma_2$ are label-preserving isomorphic:
+$\Gamma_1 \cong \Gamma_2$. A *canonical mapped reaction representation*
+$\mathrm{canon}(s)$ is obtained by computing a canonical order of the finite
+mapped-atom set $M$, applying
+$\pi:M\to\{1,\ldots,|M|\}$ synchronously to both sides, and then using a
+deterministic reaction-SMILES serializer. The graph certificate—not an
+unverified claim about the lexicographically smallest possible SMILES—is what
+defines the canonical form.
 
 **Definition (Ensemble Agreement).**  
 Given $n$ atom-mapping functions $\varphi_1, \ldots, \varphi_n$ applied to the same reaction $\varrho$, the ensemble *agrees* on $\varrho$ if all canonical strings are identical:
@@ -162,16 +171,26 @@ $$
 \mathrm{canon}(\varphi_1(\varrho)) = \mathrm{canon}(\varphi_2(\varrho)) = \cdots = \mathrm{canon}(\varphi_n(\varrho))
 $$
 
-When the ensemble disagrees, *refinement* (exact isomorphism check) is used to resolve the discrepancy.
+When the canonical strings disagree, an exact ITS isomorphism check determines
+whether the difference is only representational or whether the mappers encode
+different atom correspondences. Isomorphism can classify the disagreement; it
+cannot by itself decide which non-equivalent map is chemically correct.
 
 **Definition (WL Reaction Hash).**  
-The *WL hash* of a reaction center ITS $\Gamma_{\mathrm{RC}}$ is the string representation of the stable WL partition histogram:
+The *WL hash* of a reaction-center ITS $\Gamma_{\mathrm{RC}}$ is a
+deterministic digest of the successive multisets of refined node colors:
 
 $$
-h_{\mathrm{WL}}(\Gamma_{\mathrm{RC}}) = \mathrm{encode}\!\left(\mathcal{P}^*(\Gamma_{\mathrm{RC}})\right)
+h_{\mathrm{WL}}(\Gamma_{\mathrm{RC}})
+=\operatorname{encode}\!\left(
+\{\!\{c_t(v):v\in V\}\!\}_{t=0}^{t^\ast}
+\right).
 $$
 
-Reactions with identical WL hashes are *candidate isomorphs*; exact isomorphism (graph matching) [@cordella2004subgraph] is then used to confirm.
+Isomorphic labeled graphs have identical hashes, but the converse is false:
+hash collisions are possible. Reactions with identical WL hashes are therefore
+*candidate isomorphs*; exact isomorphism (graph matching)
+[@cordella2004subgraph] is then used to confirm.
 
 ```{code-cell}
 import pandas as pd
@@ -289,7 +308,12 @@ df_aam.shape
 
 ### Ensemble mapper agreement distribution
 
-Three mappers (RXNMapper, Graphormer, Local Mapper) each produce an atom map for each reaction. The ensemble step classifies reactions by how many mappers agree. High-confidence reactions (all three agree) form the primary training signal; disagreements are resolved by WL-based isomorphism checking or discarded.
+Three mappers (RXNMapper, Graphormer, Local Mapper) each produce an atom map
+for every reaction. The ensemble step classifies reactions by how many mappers
+agree. Unanimous mappings form the primary high-confidence set. Exact
+isomorphism can recover cases that differ only in representation; genuinely
+non-equivalent disagreements require another selection criterion or are
+discarded.
 
 ```{code-cell}
 :tags: [hide-input]
@@ -338,7 +362,7 @@ Given a DataFrame with several mapper columns, `ensemble_maps(df, map_cols)`:
 
 ---
 
-<details> <summary><b>Solution:</b></summary>
+<details class="synedu-solution"> <summary><b>Solution:</b></summary>
 
 ```python
 from typing import List, Tuple
@@ -430,7 +454,8 @@ plt.show()
 
 #### Graph Clustering
 
-Now we have a set of reaction centers, but some of them can be isomorphic [@cordella2004subgraph], so we develop a simple pairwise grouping algorithm
+Some extracted reaction centers are isomorphic [@cordella2004subgraph]. The
+following pairwise grouping algorithm collects them into equivalence classes.
 
 With a set $S=\{\Gamma_1,\Gamma_2,\dots,\Gamma_n\},\qquad n\ge 2$, we want a partition $T$ of $S$ into isomorphism classes.
 
@@ -481,7 +506,7 @@ You have a list of dictionaries where each item represents a reaction-center rec
 
 ---
 
-<details> <summary><b>Solution:</b></summary>
+<details class="synedu-solution"> <summary><b>Solution:</b></summary>
 
 ```python
 from typing import List, Dict, Any
@@ -518,7 +543,7 @@ def get_unique_rc(
 
 +++
 
-Alternatively, we can leverage Synkit’s utility functions
+Alternatively, we can use SynKit’s utility functions.
 
 ```{code-cell}
 from synedu.Utils import stratified_sample
@@ -550,9 +575,10 @@ Graph Modelling Language format requires **explicit H nodes** so the rule engine
 
 > **Only balanced transfers are expanded.**  
 > If donors and acceptors do not have the same count (e.g. H is gained from an unmapped
-> solvent molecule), the surplus is left implicit.  Adding single-ended H nodes (broken
-> *or* formed only) to a DPO rule would introduce atoms with no counterpart on the other
-> side — chemically meaningless and rejected by MØD.
+> solvent molecule), the surplus is left implicit. A single-ended H node would encode
+> creation or deletion of hydrogen inside the local rule rather than transfer from an
+> explicit auxiliary species. This lesson omits such nodes to keep its exported rules
+> atom-conserving; a broader reaction model should include the external species instead.
 
 > **Ambiguous cases** — when multiple donors and acceptors exist, different pairings can
 > produce **non-isomorphic** reaction centers (see §3.2).
@@ -673,7 +699,9 @@ print(f"{_with_h}/{len(rc)} rule classes have explicit H transfer")
 
 When an RC contains **multiple donor atoms and multiple acceptor atoms**,
 more than one valid donor-acceptor pairing exists.  Different pairings can produce
-**non-isomorphic** reaction centers, each representing a different mechanistic picture.
+**non-isomorphic** reaction centers, each encoding a different explicit-hydrogen
+atom-correspondence topology. This representation-level ambiguity does not by
+itself identify a reaction mechanism.
 
 The reaction below involves **trichloroacetonitrile reacting with an *N*-hydroxy compound**.
 Its RC has two donors and two acceptors:
@@ -689,8 +717,8 @@ This gives **two distinct pairings**:
 
 | Pairing | O6 donates to | C12 donates to | Topology |
 |---------|---------------|----------------|----------|
-| A (natural) | **N5** | **N18** | H stays near its original bond partner |
-| B (crossed) | **N18** | **N5**  | H crosses — different bridge topology |
+| A | **N5** | **N18** | first atom-correspondence topology |
+| B | **N18** | **N5**  | alternative bridge topology |
 
 `h_expand_all` enumerates every permutation and returns only the **structurally distinct** outcomes.
 
@@ -708,7 +736,8 @@ def h_expand_all(its: nx.Graph):
     Return all structurally distinct H-expanded ITS graphs.
 
     Tries every permutation of donor-acceptor pairings;
-    de-duplicates by WL hash before returning.
+    uses the WL hash only as a bucket key, then de-duplicates
+    each bucket by exact labeled-graph isomorphism.
     """
     r, p = its_decompose(its)
     donors, acceptors = [], []
@@ -730,7 +759,7 @@ def h_expand_all(its: nx.Graph):
     n_shared = min(len(donors), len(acceptors))
     donors = donors[:n_shared]
     acceptors = acceptors[:n_shared]
-    results, seen = [], set()
+    results, seen = [], {}
 
     for acc_perm in _perms(acceptors):
         r_c, p_c = r.copy(), p.copy()
@@ -748,9 +777,24 @@ def h_expand_all(its: nx.Graph):
             p_c.nodes[a]["hcount"] = max(0, (p_c.nodes[a].get("hcount", 0) or 0) - 1)
         cand = build_its(r_c, p_c)
         h = wl_hash(cand, node_attrs=["element", "formal_charge"], edge_attrs=["order"])
-        if h not in seen:
-            seen.add(h)
-            results.append(cand)
+        bucket = seen.setdefault(h, [])
+        node_match = lambda a, b: (
+            a.get("element") == b.get("element")
+            and a.get("formal_charge") == b.get("formal_charge")
+        )
+        edge_match = lambda a, b: a.get("order") == b.get("order")
+        if any(
+            nx.is_isomorphic(
+                cand,
+                previous,
+                node_match=node_match,
+                edge_match=edge_match,
+            )
+            for previous in bucket
+        ):
+            continue
+        bucket.append(cand)
+        results.append(cand)
     return results
 
 
@@ -792,8 +836,8 @@ for i, cand in enumerate(candidates):
 # ── Visualize: RC + both expansions ─────────────────────────────────────
 _n = len(candidates)
 _pair_titles = [
-    "Pairing A  (natural)\nO6→N5,  C12→N18\nH stays near its bond partner",
-    "Pairing B  (crossed)\nO6→N18,  C12→N5\nH bridges across the RC",
+    "Pairing A\nO6→N5,  C12→N18\nfirst correspondence topology",
+    "Pairing B\nO6→N18,  C12→N5\nalternative correspondence topology",
 ]
 
 fig, axes = plt.subplots(1, _n + 1, figsize=(6.5 * (_n + 1), 6), facecolor="white")
@@ -855,9 +899,10 @@ plt.show()
 
 #### Rule library size vs dataset size
 
-A key question: does the rule vocabulary *saturate* (good for generalization)
-or grow indefinitely (poor coverage at test time)?
-We subsample the dataset at increasing sizes and plot unique rule count.
+A key question is how quickly the rule vocabulary grows with dataset size.
+We subsample the dataset at increasing sizes and plot the number of exact
+isomorphism classes. Sub-linear growth alone does not prove saturation:
+\(N^\alpha\) still diverges for every \(\alpha>0\).
 
 ```{code-cell}
 from synedu.Utils import wl_hash
@@ -887,7 +932,7 @@ _unique_rules = []
 
 for sz in _sizes:
     _sub = df_aam.sample(n=sz, random_state=42) if sz < len(df_aam) else df_aam
-    _unique_rules.append(_sub['wl_hash'].nunique())
+    _unique_rules.append(_sub['class'].nunique())
 
 fig, ax = plt.subplots(figsize=(8, 4), facecolor='white')
 ax.plot(
@@ -913,7 +958,7 @@ ax.text(
     0.05,
     0.92,
     f'Growth exponent $\\alpha \\approx {_coef[0]:.2f}$\n'
-    f'($<$1 = sub-linear = saturation)',
+    f'($<$1 = sub-linear growth; not proof of saturation)',
     transform=ax.transAxes,
     fontsize=9,
     va='top',
@@ -921,7 +966,7 @@ ax.text(
 )
 
 ax.set_xlabel('Dataset size (reactions)', fontsize=10)
-ax.set_ylabel('Unique rule classes (WL hash)', fontsize=10)
+ax.set_ylabel('Unique rule classes (exact isomorphism)', fontsize=10)
 ax.set_title('Rule Library Size vs Dataset Size', fontsize=11, fontweight='bold')
 ax.grid(alpha=0.3)
 plt.tight_layout()
@@ -930,13 +975,21 @@ print(f'At full dataset ({_sizes[-1]} rxns): {_unique_rules[-1]} unique rules')
 ```
 
 Applying the same reduction logic to isomorphic ITS graphs is feasible, though computationally more expensive than focusing solely on the reaction center.
-To optimize the computationally intensive ITS reduction, we can leverage Weisfeiler-Lehman [@shervashidze2011weisfeiler] pre-filtering (per **S06**). This ensures that expensive isomorphism checks are only performed on high-probability candidates
+To optimize the computationally intensive ITS reduction, we can use
+Weisfeiler–Lehman [@shervashidze2011weisfeiler] pre-filtering (see **S06**).
+Exact isomorphism checks then run only within buckets that share the same
+graph invariant.
 
 +++
 
 #### Rule frequency and cluster size distribution
 
-The WL hash partitions reactions by their reaction-centre topology. The **left panel** shows the distribution of cluster sizes on a log scale — a long tail is typical (a few very common rules, many rare ones). The **right panel** shows the 20 most frequent rules. Singleton clusters represent unique reaction patterns seen only once in the dataset.
+The WL hash partitions reactions into candidate buckets by reaction-center
+topology. The **left panel** shows the distribution of bucket sizes on a log
+scale—a long tail is typical (a few very common patterns, many rare ones).
+The **right panel** shows the 20 most frequent buckets. A singleton hash bucket
+contains one observed pattern, but only exact isomorphism establishes a
+definitive rule class.
 
 +++
 
@@ -1143,7 +1196,9 @@ print(
 )
 ```
 
-While `wl_hash` effectively yields the same equivalence classes as graph isomorphism in this instance, it is important to note that the WL hash is an approximation. For absolute precision, it should be supplemented or replaced by a formal isomorphism check.
+For this dataset, `wl_hash` yields the same classes as exact graph
+isomorphism. WL hashing remains an approximation, so definitive equivalence
+still requires an exact isomorphism check.
 
 +++
 
@@ -1153,7 +1208,7 @@ Now integrate a function named `cluster_with_wl_prefilter(df, graph_key, wl_key)
 
 ---
 
-<details> <summary><b>Solution:</b></summary>
+<details class="synedu-solution"> <summary><b>Solution:</b></summary>
 
 ```python
 import pandas as pd
@@ -1432,7 +1487,7 @@ Requirements:
 
 ---
 
-<details> <summary><b>Solution:</b></summary>
+<details class="synedu-solution"> <summary><b>Solution:</b></summary>
 
 ```python
 import networkx as nx
@@ -1521,13 +1576,17 @@ rule [
 
 | Block | DPO component | Meaning |
 |-------|---------------|---------|
-| `context` (K) | preserved subgraph | atoms that exist in both reactant and product; all nodes always appear here |
+| `context` (K) | preserved subgraph | in this atom-conserving export, atoms present on both sides; all exported nodes appear here |
 | `left` (L∖K) | deleted bonds | bonds present only in the reactant — broken during the reaction |
 | `right` (R∖K) | created bonds | bonds present only in the product — formed during the reaction |
 
 In the example above, the H node (id 19) bridges from `N` (atom 5) in the reactant to `N` (atom 23) in the product — a direct N→N proton transfer encoded as an explicit H node with one broken and one formed bond.
 
-Because `rc_h` contains H-expanded reaction centers, every transferred hydrogen already appears as an explicit node. The resulting GML rules are directly compatible with **MØD** [@andersen2016software] without further post-processing.
+Because `rc_h` contains H-expanded reaction centers, every represented
+hydrogen transfer already appears as an explicit node. The resulting rules use
+the rule-GML structure consumed by **MØD** [@andersen2016software]; applications
+with additional labels or constraints may require corresponding label
+configuration.
 
 ```{code-cell}
 # Print a GML rule with H transfer (if one exists), else print the first rule
@@ -1541,7 +1600,7 @@ Implement a single high-level function that ingests a pandas DataFrame containin
 
 ---
 
-<details> <summary><b>Solution:</b></summary>
+<details class="synedu-solution"> <summary><b>Solution:</b></summary>
 
 ```python
 from typing import List

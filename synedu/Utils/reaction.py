@@ -69,8 +69,8 @@ def graph_to_rsmi(reactants: nx.Graph, products: nx.Graph) -> str:
 
 AUX_LIBRARY: Dict[str, Counter[str]] = {
     "O": Counter({"H": 2, "O": 1}),
-    "[H+]": Counter({"H": 1}),
-    "[OH-]": Counter({"H": 1, "O": 1}),
+    "[H+]": Counter({"H": 1, "__charge__": 1}),
+    "[OH-]": Counter({"H": 1, "O": 1, "__charge__": -1}),
 }
 
 
@@ -89,11 +89,14 @@ def parse_reaction_smiles(rsmi: str) -> Tuple[List[Chem.Mol], List[Chem.Mol]]:
 
 
 def molecular_formula(mol: Chem.Mol) -> Counter[str]:
-    """Return the element-count formula of a molecule, including hydrogens."""
+    """Return element counts and net formal charge, including hydrogens."""
     mol_h = Chem.AddHs(mol)
     formula: Counter[str] = Counter()
     for atom in mol_h.GetAtoms():
         formula[atom.GetSymbol()] += 1
+        formula["__charge__"] += int(atom.GetFormalCharge())
+    if formula["__charge__"] == 0:
+        del formula["__charge__"]
     return formula
 
 
@@ -101,7 +104,10 @@ def total_formula(mols: List[Chem.Mol]) -> Counter[str]:
     """Return the summed molecular formula for a list of molecules."""
     total: Counter[str] = Counter()
     for mol in mols:
-        total += molecular_formula(mol)
+        for key, value in molecular_formula(mol).items():
+            total[key] += value
+    if total["__charge__"] == 0:
+        del total["__charge__"]
     return total
 
 
@@ -127,7 +133,7 @@ def reaction_imbalance(
     ],
 ]:
     """
-    Compute reaction imbalance as ``reactant_formula - product_formula``.
+    Compute atom-count and net-charge imbalance as reactants minus products.
 
     Positive counts indicate atoms missing from the products; negative counts
     indicate atoms missing from the reactants.
@@ -137,8 +143,12 @@ def reaction_imbalance(
     if not delta:
         return delta, "balanced"
 
-    has_pos = any(v > 0 for v in delta.values())
-    has_neg = any(v < 0 for v in delta.values())
+    atom_delta = {
+        element: count for element, count in delta.items() if element != "__charge__"
+    }
+    direction_values = atom_delta.values() if atom_delta else delta.values()
+    has_pos = any(value > 0 for value in direction_values)
+    has_neg = any(value < 0 for value in direction_values)
     if has_pos and not has_neg:
         return delta, "missing_in_products"
     if has_neg and not has_pos:
