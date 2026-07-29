@@ -28,22 +28,27 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Set up uv and Python
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Set up uv
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
         with:
           version: "0.11.21"
-          python-version: "3.11"
           enable-cache: true
           cache-dependency-glob: uv.lock
 
       - name: Log build environment
         run: |
+          set -o pipefail
           {
             echo "## Release environment"
             echo '```text'
             uv --version
-            uv python find 3.11
-            "$(uv python find 3.11)" --version
+            command -v python
+            python --version
             git rev-parse HEAD
             git describe --tags --always --dirty
             echo '```'
@@ -51,9 +56,9 @@ jobs:
 
       - name: Build wheel and source distribution
         run: |
+          set -o pipefail
           if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
-            python_bin="$(uv python find 3.11)"
-            expected="v$("${python_bin}" -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')"
+            expected="v$(python -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')"
             test "${GITHUB_REF_NAME}" = "${expected}" || {
               echo "Tag ${GITHUB_REF_NAME} does not match project version ${expected}" | tee -a release.log
               exit 1
@@ -63,6 +68,7 @@ jobs:
 
       - name: Inspect distributions
         run: |
+          set -o pipefail
           uvx --from twine==6.2.0 twine check dist/* 2>&1 | tee -a release.log
           sha256sum dist/* | tee SHA256SUMS | tee -a release.log
 

@@ -88,3 +88,12 @@ def test_build_one_delegates_to_the_single_notebook_runner() -> None:
 
     assert "$(MAKE) execute-notebook LESSON=$(LESSON)" in recipe
     assert "jupyter book build" not in recipe
+
+
+def test_release_workflow_uses_explicit_python_setup() -> None:
+    workflow = (REPO_ROOT / ".github/workflows/release.yml").read_text(encoding="utf-8")
+
+    assert "actions/setup-python@v6" in workflow
+    assert 'python-version: "3.11"' in workflow
+    assert "uv python find" not in workflow
+    assert workflow.count("set -o pipefail") == 3
