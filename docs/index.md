@@ -2,12 +2,10 @@
 
 <div class="synedu-native-home" aria-hidden="true"></div>
 
-**EXECUTABLE REACTION INFORMATICS**
-
 ## Teaching reaction informatics via formal graph theory
 
-Nine practical talktorials connect molecular graphs, atom mapping, reaction
-rules, and one-step prediction in one reproducible learning path.
+SynEdu is a sequence of nine executable notebooks on molecular graphs, atom
+mapping, reaction rules, and one-step prediction.
 
 {button}`Start with S01 → </synedu/s01/notebook>`
 {button}`Browse all talktorials </docs/talktorials>`
@@ -16,14 +14,12 @@ rules, and one-step prediction in one reproducible learning path.
 [![Open S01 in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S01.ipynb)
 [![Launch S01 in Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/TieuLongPhan/SynEdu/main?urlpath=lab/tree/docs/downloads/S01.ipynb)
 
-**9 guided lessons** · **100% executable** · **Open source**
-
 ---
 
-## Choose your entry point
+## Course structure
 
-Follow the complete sequence or enter at the stage that matches your
-background.
+The lessons are grouped into three stages. They can be read in order or used
+individually.
 
 ::::{grid} 1 1 3 3
 :class: synedu-native-home-routes
@@ -37,7 +33,7 @@ Represent molecules explicitly, match graph structures, and align them with
 maximum common substructures.
 
 +++
-Begin the foundations →
+Open S01 →
 :::
 
 :::{card} 02 · Rule construction
@@ -49,7 +45,7 @@ Connect atom maps to ITS graphs, DPO rewriting, canonicalization, and reusable
 rule libraries.
 
 +++
-Build reaction rules →
+Open S04 →
 :::
 
 :::{card} 03 · Prediction
@@ -61,16 +57,15 @@ Apply rules forward and backward, evaluate candidates, and tune context
 specificity.
 
 +++
-Explore prediction →
+Open S08 →
 :::
 ::::
 
 ---
 
-## Nine lessons, one workflow
+## Lessons
 
-Each notebook builds on a small, explicit idea and connects it to the next
-step in the reaction-informatics pipeline.
+Each notebook introduces one part of the reaction-informatics workflow.
 
 ::::{grid} 1 2 3 3
 :class: synedu-native-home-lessons
@@ -125,7 +120,7 @@ Context radius and specificity
 
 ---
 
-## Work with SynEdu
+## Run and reuse
 
 ::::{grid} 1 1 3 3
 :class: synedu-native-home-resources
@@ -140,20 +135,20 @@ Installation guide →
 
 :::{card} Reuse the helpers
 :link: /docs/api
-Explore the focused Python API used throughout the executable lessons.
+The Python API contains the graph and reaction helpers used in the lessons.
 
 +++
 API reference →
 :::
 
-:::{card} Build with us
+:::{card} Contribute
 :link: /docs/contribute
-Improve a lesson, report an issue, or contribute a reproducible example.
+Fix a lesson, report an issue, or add an example.
 
 +++
 Contribution guide →
 :::
 ::::
 
-Built with RDKit, NetworkX, and MyST as part of the broader
-[SynEco ecosystem](/docs/syneco-ecosystem).
+SynEdu uses RDKit, NetworkX, and MyST. Related projects are listed on the
+[SynEco page](/docs/syneco-ecosystem).

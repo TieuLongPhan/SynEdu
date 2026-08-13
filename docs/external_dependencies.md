@@ -1,7 +1,7 @@
 # External Resources
 
-SynEdu is built entirely on open-source Python tooling. Nothing in the series
-requires a commercial licence or an account.
+SynEdu uses open-source Python packages and does not require a commercial
+licence.
 
 ---
 
@@ -9,7 +9,7 @@ requires a commercial licence or an account.
 
 ::::{grid} 1 1 2 3
 
-:::{card} 🧪 Cheminformatics
+:::{card} Cheminformatics
 `rdkit` · `openbabel`
 
 Parsing, sanitization, canonical SMILES, and depiction.
@@ -18,7 +18,7 @@ Parsing, sanitization, canonical SMILES, and depiction.
 [RDKit](https://rdkit.org/) · [Open Babel](https://openbabel.org/)
 :::
 
-:::{card} 🕸️ Graph modeling
+:::{card} Graph modeling
 `networkx`
 
 Labeled molecular graphs, isomorphism, and the ITS/DPO machinery.
@@ -27,7 +27,7 @@ Labeled molecular graphs, isomorphism, and the ITS/DPO machinery.
 [NetworkX](https://networkx.org/)
 :::
 
-:::{card} 📊 Data science
+:::{card} Data science
 `numpy` · `pandas` · `scikit-learn`
 
 Dataset handling, descriptors, and clustering in the later lessons.
@@ -37,7 +37,7 @@ Dataset handling, descriptors, and clustering in the later lessons.
 [scikit-learn](https://scikit-learn.org/)
 :::
 
-:::{card} 📓 Notebooks
+:::{card} Notebooks
 `jupyter` · `jupytext` · `ipywidgets`
 
 The executable lesson format and its Markdown source representation.
@@ -48,7 +48,7 @@ The executable lesson format and its Markdown source representation.
 [ipywidgets](https://ipywidgets.readthedocs.io/)
 :::
 
-:::{card} 🎨 Visualization
+:::{card} Visualization
 `matplotlib` · `seaborn`
 
 Figures for property distributions and evaluation results.
@@ -57,7 +57,7 @@ Figures for property distributions and evaluation results.
 [Matplotlib](https://matplotlib.org/) · [Seaborn](https://seaborn.pydata.org/)
 :::
 
-:::{card} 🔬 Testing and docs
+:::{card} Testing and documentation
 `pytest` · `nbval` · `jupyter-book` · `mystmd`
 
 Notebook execution tests and this documentation site.
@@ -68,11 +68,7 @@ Notebook execution tests and this documentation site.
 :::
 ::::
 
-:::{note} Acknowledgment
-We gratefully acknowledge the open-source developers and maintainers whose
-tools make SynEdu possible. Pinned versions live in `pyproject.toml` and
-`uv.lock`.
-:::
+Dependency versions are recorded in `pyproject.toml` and `uv.lock`.
 
 ---
 
@@ -82,16 +78,16 @@ tools make SynEdu possible. Pinned versions live in `pyproject.toml` and
 
 :::{card} SynEco ecosystem
 :link: /docs/syneco-ecosystem
-The research tools SynEdu's concepts lead into.
+Related reaction-informatics projects.
 :::
 
 :::{card} External tutorials
 :link: /docs/external-tutorials-collections
-Background reading on Python, Jupyter, and cheminformatics.
+Python, Jupyter, and cheminformatics tutorials.
 :::
 
 :::{card} Installation
 :link: /docs/installing
-Set up the environment these packages come from.
+Set up the SynEdu environment.
 :::
 ::::

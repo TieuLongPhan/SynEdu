@@ -1,8 +1,6 @@
 # Contribute
 
-SynEdu welcomes contributions that improve clarity, reproducibility, and the
-learning experience. The most useful changes are usually small, well-scoped,
-and easy to review.
+Contributions to the notebooks, documentation, and Python helpers are welcome.
 
 {button}`Open an issue <https://github.com/TieuLongPhan/SynEdu/issues>`
 {button}`Browse pull requests <https://github.com/TieuLongPhan/SynEdu/pulls>`
@@ -12,33 +10,32 @@ and easy to review.
 
 ## Where to start
 
-Pick the lane that matches the time you have. Every lane is genuinely useful —
-a precise bug report is worth as much as a new exercise.
+Possible contributions include:
 
 ::::{grid} 1 1 2 2
 
-:::{card} 📘 Talktorials
+:::{card} Talktorials
 **Teaching content**
 
 Refine explanations, add exercises, repair broken outputs, and keep notebooks
 runnable from top to bottom.
 :::
 
-:::{card} 📄 Documentation
+:::{card} Documentation
 **Structure and context**
 
 Improve installation notes, page structure, citations, links, and the
 scientific framing around each lesson.
 :::
 
-:::{card} 🧰 Utilities
+:::{card} Utilities
 **Library code**
 
 Add small helpers that reduce notebook boilerplate without expanding the
 public API unnecessarily.
 :::
 
-:::{card} 🐛 Feedback
+:::{card} Feedback
 **No code required**
 
 Report broken pages, unclear concepts, missing dependencies, or examples that
@@ -75,14 +72,12 @@ make check
 ::::
 :::::
 
-:::{tip} Changed a talktorial?
-The site executes `synedu/S0X/notebook.md` directly, but `docs/downloads/` is
-versioned separately. Regenerate the exports before opening the pull request:
+When a talktorial changes, regenerate the versioned notebook exports before
+opening the pull request:
 
 ```bash
 make build-downloads DOWNLOAD_DIR=docs/downloads
 ```
-:::
 
 ---
 
@@ -92,7 +87,7 @@ make build-downloads DOWNLOAD_DIR=docs/downloads
 - Prefer small, composable functions in library code.
 - Move reusable logic into `synedu` instead of duplicating it in notebooks.
 - Keep helper utilities lightweight and teaching-focused.
-- Explain changes in terms of learner value and reproducibility.
+- Describe how the change affects teaching or reproducibility.
 
 The repository root also contains `CONTRIBUTING.md` with the short-form
 developer workflow, notebook execution commands, and paper-readiness checklist.

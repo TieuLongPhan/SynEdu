@@ -1,11 +1,10 @@
 # License
 
-SynEdu is dual-licensed so that the code and the teaching material can each
-carry the terms that suit them.
+SynEdu uses separate licences for code and teaching material.
 
 ::::{grid} 1 1 2 2
 
-:::{card} ⚖️ MIT
+:::{card} MIT
 **Code**
 
 Everything in the `synedu` package, the scripts, and the build tooling. Reuse,
@@ -16,7 +15,7 @@ copyright notice travels with it.
 [Read the LICENSE file →](https://github.com/TieuLongPhan/SynEdu/blob/main/LICENSE)
 :::
 
-:::{card} 🎓 CC-BY-4.0
+:::{card} CC-BY-4.0
 **Talktorial text and figures**
 
 The lesson prose, diagrams, and exercises. Reuse and adapt them for your own
@@ -27,9 +26,6 @@ course as long as SynEdu is credited.
 :::
 ::::
 
-:::{tip} Using SynEdu in a course?
-That is exactly what it is for. Credit the project with the citation on the
-[Citation](/docs/citation) page, and let us know via the
-[issue tracker](https://github.com/TieuLongPhan/SynEdu/issues) — feedback from
-real teaching is the most useful kind.
-:::
+For teaching use, credit SynEdu using the information on the
+[Citation](/docs/citation) page. Feedback can be submitted through the
+[issue tracker](https://github.com/TieuLongPhan/SynEdu/issues).

@@ -1,16 +1,13 @@
 # Installation
 
-SynEdu is designed to run locally from start to finish. Each talktorial's
-source of truth is a MyST Markdown notebook (`synedu/S0X/notebook.md`), which
-Jupyter Book 2 / MyST renders and executes directly — no separate `.ipynb`
-generation step is needed to build the site.
+Each talktorial is stored as a MyST Markdown notebook
+(`synedu/S0X/notebook.md`). Jupyter Book 2 / MyST renders and executes these
+files directly; building the site does not require an intermediate `.ipynb`.
 
-Every talktorial page has four ways in: **Open in Colab**, **launch in Binder**,
-**download the notebook**, or run it locally as described below.
-The first three approaches yield self-contained notebooks for a quick-start
-with all required packages and data present already.
+You can run a lesson in Colab or Binder, download its notebook, or use a local
+checkout. The exported notebooks include setup code and links to their data.
 
-## Developer Setup
+## Developer setup
 
 ```bash
 git clone https://github.com/TieuLongPhan/SynEdu.git
@@ -18,7 +15,7 @@ cd SynEdu
 uv sync
 ```
 
-## Build The Documentation
+## Build the documentation
 
 The Jupyter Book 2 renderer requires a Node.js runtime. This is only a
 documentation-build requirement; local notebook work and Colab/Binder exports do not
@@ -57,7 +54,7 @@ regenerate `docs/downloads/`, commit the exports, and use the release tag in
 the Colab URL (for example, `blob/v0.5.0/docs/downloads/S01.ipynb`). Binder
 badges currently target `main`.
 
-## Run A Notebook Locally
+## Run a notebook locally
 
 You do not need a documentation build to run a talktorial. The default local
 workflow opens the MyST Markdown notebook directly:
@@ -78,7 +75,7 @@ The equivalent direct command is:
 uv run jupyter lab synedu/S01/notebook.md
 ```
 
-## User Setup
+## User setup
 
 For local work with the source notebooks and their lesson data:
 

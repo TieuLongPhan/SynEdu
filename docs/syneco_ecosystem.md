@@ -1,6 +1,8 @@
 # SynEco
 
-SynEdu is the educational entry point into the broader `SynEco` software ecosystem for reaction informatics. The talktorials introduce core concepts in a teaching-first format, then connect those ideas to production-oriented tools once a workflow becomes useful beyond the notebook setting.
+SynEco is a collection of reaction-informatics projects. SynEdu provides the
+teaching material; the other projects package related methods, data, and web
+tools.
 
 <!-- icon snippets reused below -->
 <svg style="display:none" xmlns="http://www.w3.org/2000/svg">
@@ -67,8 +69,13 @@ SynEdu is the educational entry point into the broader `SynEco` software ecosyst
   </a>
 </div>
 
-## Learning relationship
+## Relationship to SynEdu
 
-`SynEdu` should remain readable as teaching material. The broader `SynEco` tools should be introduced only when they clarify a concept, reduce boilerplate, or show how a notebook idea can become a reusable research workflow.
+SynEdu keeps the implementation visible for teaching. The corresponding
+package can be used when the same task is needed outside a lesson:
 
-In practice, this means that a talktorial may begin with transparent, step-by-step code written for learning, then point to the corresponding ecosystem package when the same idea is needed in a scalable or reproducible setting. For example, reaction preprocessing concepts can lead naturally to `SynRBL`, chemical graph and rule manipulation to `SynKit` or `SynTemp`, reaction categorization to `SynCat`, benchmark construction or dataset evaluation to `SynRXN`, and electron-pushing mechanism exploration to `SynEPD`.
+- reaction preprocessing: `SynRBL`
+- chemical graphs and reaction rules: `SynKit` and `SynTemp`
+- reaction categories: `SynCat`
+- datasets and evaluation: `SynRXN`
+- electron-pushing mechanisms: `SynEPD`

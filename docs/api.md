@@ -1,12 +1,7 @@
 # API
 
-The SynEdu package is intentionally small. Most of the teaching lives in the
-notebooks; the Python package only carries the helpers those notebooks reuse.
-
-:::{note} Design rule
-If a helper makes a lesson clearer, it belongs in a notebook. If it is repeated
-across lessons and adds nothing to the explanation, it belongs here.
-:::
+The SynEdu package contains helpers shared by multiple notebooks. Code used to
+explain a lesson-specific concept remains in that notebook.
 
 ---
 

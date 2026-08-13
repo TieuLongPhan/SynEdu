@@ -11,31 +11,28 @@ If you use SynEdu in academic work, please cite the archived Zenodo record.
 
 ::::{grid} 1 1 2 2
 
-:::{card} 🔁 Current release `v0.5.0`
+:::{card} Current release `v0.5.0`
 **`10.5281/zenodo.20315655`**
 
-A concept DOI that always resolves to the newest archived version. Use it for
-papers, slides, and teaching material — this is the default choice.
+This concept DOI resolves to the latest archived version. Use it unless an
+exact software version is required.
 
 +++
 [Cite the latest release →](https://doi.org/10.5281/zenodo.20315655)
 :::
 
-:::{card} 📌 Historical archive `v0.1.0`
+:::{card} Historical archive `v0.1.0`
 **`10.5281/zenodo.20315656`**
 
-A version DOI pinned to one exact archive. Use it when a result must stay
-reproducible against the code and text as they were.
+This version DOI identifies the `v0.1.0` archive.
 
 +++
 [Cite `v0.1.0` →](https://doi.org/10.5281/zenodo.20315656)
 :::
 ::::
 
-:::{note} Rule of thumb
-Cite the **latest** DOI unless you are documenting a reproducible result, in
-which case pin the **version** DOI.
-:::
+Cite the concept DOI for the project as a whole. Cite a version DOI when the
+exact archived revision matters.
 
 ---
 
@@ -63,7 +60,7 @@ Zenodo, and any citation manager that understands the Citation File Format.
 ## Licensing
 
 Talktorial text and figures are licensed **CC-BY-4.0**; the code is **MIT**.
-Both permit reuse in teaching material as long as SynEdu is credited — see
+Both permit reuse in teaching material as long as SynEdu is credited. See
 [License](/docs/license) for details.
 
 ---

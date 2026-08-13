@@ -57,6 +57,17 @@ For a one-off production-style build:
 make build
 ```
 
+To build the static site and serve it locally in one command:
+
+```bash
+./run_server.sh
+```
+
+This uses `make build-fast` and serves the result at
+<http://127.0.0.1:3100/>. Use `BUILD_TARGET=build ./run_server.sh` to execute
+the notebooks and generate the downloadable notebook exports first. `HOST`
+and `SERVER_PORT` override the listen address and port.
+
 Jupyter Book 2 requires Node.js for the documentation renderer. Notebook
 authoring, exports, package checks, and talktorial execution do not require
 Node.js or npm.

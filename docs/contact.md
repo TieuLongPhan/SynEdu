@@ -1,13 +1,7 @@
 # Contact
 
-Use these channels for project questions, issue reports, contribution
-discussions, and citation information.
-
-:::{tip} Not sure where to write?
-Anything that other learners would benefit from seeing — a confusing
-explanation, a cell that no longer runs, a broken link — belongs in the
-**issue tracker**. Keep email for collaboration and teaching enquiries.
-:::
+Use the issue tracker for bugs, broken links, and unclear explanations. Use
+email for teaching and research enquiries.
 
 ---
 
@@ -15,7 +9,7 @@ explanation, a cell that no longer runs, a broken link — belongs in the
 
 ::::{grid} 1 1 2 2
 
-:::{card} 🐛 Issue tracker
+:::{card} Issue tracker
 :link: https://github.com/TieuLongPhan/SynEdu/issues
 
 Bugs, broken links, unclear documentation, and feature requests.
@@ -24,7 +18,7 @@ Bugs, broken links, unclear documentation, and feature requests.
 Report an issue →
 :::
 
-:::{card} 🔀 Pull requests
+:::{card} Pull requests
 :link: https://github.com/TieuLongPhan/SynEdu/pulls
 
 Documentation fixes, notebook improvements, and code contributions.
@@ -33,7 +27,7 @@ Documentation fixes, notebook improvements, and code contributions.
 Open a pull request →
 :::
 
-:::{card} 💻 Repository
+:::{card} Repository
 :link: https://github.com/TieuLongPhan/SynEdu
 
 Source code, notebooks, documentation, and the full project history.
@@ -42,7 +36,7 @@ Source code, notebooks, documentation, and the full project history.
 Browse the source →
 :::
 
-:::{card} ✉️ Email
+:::{card} Email
 :link: mailto:tieu.long.phan@gmail.com
 
 Direct questions about SynEdu, teaching use, or research collaboration.

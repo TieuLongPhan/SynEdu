@@ -1,4 +1,4 @@
-.PHONY: help sync prepare notebooks build-downloads build build-fast build-one start notebook execute-notebook lab format lint test test-notebooks test-download-notebooks check clean clean-docs clean-py
+.PHONY: help sync prepare notebooks build-downloads build build-fast build-one start serve notebook execute-notebook lab format lint test test-notebooks test-download-notebooks check clean clean-docs clean-py
 
 UV ?= uv
 UV_CACHE ?= .uv-cache
@@ -24,6 +24,7 @@ help:
 	@printf '%s\n' '  make build-fast           Build HTML without execution or notebook export'
 	@printf '%s\n' '  make build-one LESSON=S01 Execute one talktorial notebook'
 	@printf '%s\n' '  make start                Start the local docs server without execution'
+	@printf '%s\n' '  make serve                Build static HTML and serve it on port 3100'
 	@printf '%s\n' ''
 	@printf '%s\n' 'Notebook work:'
 	@printf '%s\n' '  make notebook LESSON=S01  Export one local .ipynb beside its MyST source'
@@ -71,6 +72,9 @@ build-one:
 
 start:
 	$(UV_RUN) jupyter book start
+
+serve:
+	./run_server.sh
 
 notebook:
 	$(UV_RUN) jupytext --to ipynb $(NOTEBOOK) --output $(LAB_NOTEBOOK)

@@ -2,24 +2,22 @@
 
 <div class="synedu-native-catalog" aria-hidden="true"></div>
 
-**NINE EXECUTABLE NOTEBOOKS**
+## Lesson index
 
-## Build reaction informatics from first principles
-
-Read the complete series in order, or choose the route that matches what you
-want to build.
+The nine notebooks are arranged in three stages. Start at S01 for the full
+sequence, or open a later stage directly.
 
 {button}`Start from the beginning → </synedu/s01/notebook>`
 {button}`Set up locally </docs/installing>`
 
-**Run S01 online**
+Run S01 online:
 
 [![Open S01 in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/TieuLongPhan/SynEdu/blob/main/docs/downloads/S01.ipynb)
 [![Launch S01 in Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/TieuLongPhan/SynEdu/main?urlpath=lab/tree/docs/downloads/S01.ipynb)
 
 ---
 
-## Choose a learning stage
+## Stages
 
 ::::{grid} 1 1 3 3
 :class: synedu-native-route-grid
@@ -37,7 +35,7 @@ Represent, match, and align molecular graphs.
 
 **S04–S07**
 
-Map reactions, formalize graph edits, and build reusable rule libraries.
+Map reactions, define graph edits, and extract reaction rules.
 :::
 
 :::{card} 03 · Prediction
@@ -60,10 +58,9 @@ Represent, match, and align molecular graphs.
 :::{card} S01 · From Molecules to Labeled Graphs
 :link: /synedu/s01/notebook
 
-**Foundation**
+**Representation**
 
-Turn chemical structures into explicit graph objects that can be inspected and
-transformed.
+Convert chemical structures to labeled graph objects.
 
 +++
 Open lesson →
@@ -74,8 +71,7 @@ Open lesson →
 
 **Matching**
 
-Understand isomorphism, symmetry, and subgraph matching in reaction
-informatics.
+Work with isomorphism, symmetry, and subgraph matching.
 
 +++
 Open lesson →
@@ -86,8 +82,7 @@ Open lesson →
 
 **Alignment**
 
-Use shared subgraphs for molecular alignment, comparison, and reaction
-rebalancing.
+Use shared subgraphs for alignment, comparison, and reaction rebalancing.
 
 +++
 Open lesson →
@@ -97,7 +92,7 @@ Open lesson →
 (rule-construction)=
 ## 02 · Rule construction
 
-Map reactions, formalize graph edits, and create reusable rule libraries.
+Map reactions, define graph edits, and extract reaction rules.
 
 ::::{grid} 1 1 2 2
 :class: synedu-native-lesson-grid synedu-native-lesson-grid--rules
@@ -107,8 +102,7 @@ Map reactions, formalize graph edits, and create reusable rule libraries.
 
 **Atom mapping**
 
-Connect atom correspondences to ITS graphs and map-invariant reaction
-representations.
+Relate atom correspondences to ITS graphs and map-invariant representations.
 
 +++
 Open lesson →
@@ -119,7 +113,7 @@ Open lesson →
 
 **DPO**
 
-Describe deleted, preserved, and created structure with double-pushout rules.
+Represent deleted, preserved, and created structure with double-pushout rules.
 
 +++
 Open lesson →
@@ -130,7 +124,7 @@ Open lesson →
 
 **Canonicalization**
 
-Make mapped reactions deterministic enough to compare, hash, and deduplicate.
+Canonicalize mapped reactions for comparison, hashing, and deduplication.
 
 +++
 Open lesson →
@@ -141,7 +135,7 @@ Open lesson →
 
 **Rule library**
 
-Build a reusable rule-library pipeline from mapped reaction records.
+Extract a rule library from mapped reaction records.
 
 +++
 Open lesson →
@@ -162,7 +156,7 @@ specificity.
 
 **Prediction**
 
-Apply extracted rules forward and backward to enumerate reaction candidates.
+Apply rules forward and backward to enumerate reaction candidates.
 
 +++
 Open lesson →
@@ -173,16 +167,12 @@ Open lesson →
 
 **Context**
 
-Tune rule specificity with systematic context expansion and evaluation
-evidence.
+Measure how context expansion changes rule specificity and prediction results.
 
 +++
 Open lesson →
 :::
 ::::
 
-:::{tip} Where should I begin?
-Start at S01 if graph-based reaction modeling is new to you. If you already
-work with molecular graphs, use the stage cards above to enter later in the
-series.
-:::
+Start at S01 if graph-based reaction modeling is new to you. Otherwise, use
+the stage links above.
